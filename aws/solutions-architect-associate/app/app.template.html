@@ -319,13 +319,17 @@ h2.sub:first-child { margin-top: 0; }
 .modal-back {
   position: fixed; inset: 0; z-index: 100;
   background: rgba(8, 14, 16, .55);
-  display: grid; place-items: center;
+  /* flex + margin:auto on the panel, rather than place-items:center, because
+     centring a scrollable overflow clips its top edge out of reach. */
+  display: flex;
   padding: 16px;
   padding-top: calc(16px + env(safe-area-inset-top, 0px));
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .modal {
+  margin: auto;
   background: var(--surface);
   border: 1px solid var(--rule);
   border-top: 4px solid var(--amber);
@@ -334,7 +338,17 @@ h2.sub:first-child { margin-top: 0; }
   max-width: 540px; width: 100%;
   padding: 22px;
 }
-.modal h2 { margin: 0 0 10px; font-size: 17px; letter-spacing: -.2px; }
+.modal { position: relative; }
+.modal h2 { margin: 0 32px 10px 0; font-size: 17px; letter-spacing: -.2px; }
+.modal .x {
+  position: absolute; top: 10px; right: 10px;
+  width: 32px; height: 32px; line-height: 1;
+  display: grid; place-items: center;
+  font-size: 20px; font-family: var(--mono);
+  border-radius: 7px; border: 1px solid var(--rule);
+  background: var(--surface); color: var(--ink-2); cursor: pointer;
+}
+.modal .x:hover { border-color: var(--magenta); color: var(--magenta); }
 .modal p { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-2); }
 .modal p.tight { margin-bottom: 7px; }
 .modal ul { margin: 0 0 14px; padding-left: 20px; font-size: 13px; color: var(--ink-2); }
@@ -433,6 +447,7 @@ footer .v { font-family: var(--mono); }
 
 <div class="modal-back" id="storageModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="smTitle" aria-describedby="smBody">
+    <button class="x" id="smClose" aria-label="Close and carry on">&times;</button>
     <h2 id="smTitle">This browser will not save your progress</h2>
     <div id="smBody">
       <p class="tight">The board keeps your answers in this browser's local storage, and this browser
@@ -881,21 +896,41 @@ footer .v { font-family: var(--mono); }
   // export never depends on the download succeeding.
   async function exportProgress(box) {
     var payload = buildExport();
-    if (box) {
-      box.hidden = false;
-      box.value = payload;
-      box.focus();
-      box.select();
-    }
+    if (box) { box.hidden = false; box.value = payload; }
+    var name = "saa-c03-progress-" + new Date().toISOString().slice(0, 10) + ".json";
+
+    // Two ways to hand over a file, tried in order. Inside the claude.ai viewer
+    // the sandbox blocks a plain download link, so the runtime has to do it;
+    // in an ordinary browser, opening the saved page straight off disk, there
+    // is no runtime and a Blob link is the one that works.
+    var saved = false;
     try {
       var downloads = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
       if (downloads) {
-        await downloads.save({
-          filename: "saa-c03-progress-" + new Date().toISOString().slice(0, 10) + ".json",
-          data: payload
-        });
+        await downloads.save({ filename: name, data: payload });
+        saved = true;
       }
-    } catch (e) { /* declined or unavailable: the box already has it */ }
+    } catch (e) { /* declined or unavailable: fall through */ }
+
+    if (!saved) {
+      try {
+        var blob = new Blob([payload], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        saved = true;
+      } catch (e) { /* the box still holds it */ }
+    }
+
+    // Only pull focus to the copy box when no file was handed over. Selecting
+    // it opens the keyboard on a phone, which is a nuisance if the download
+    // already worked.
+    if (!saved && box) { box.focus(); box.select(); }
+
     exportedAt = S.seen;
     return payload;
   }
@@ -958,10 +993,9 @@ footer .v { font-family: var(--mono); }
   document.getElementById("smExport").addEventListener("click", function () {
     exportProgress(smBox);
   });
-  document.getElementById("smDismiss").addEventListener("click", function () {
-    modal.hidden = true;
-    dismissedAt = S.seen;
-  });
+  function closeModal() { modal.hidden = true; dismissedAt = S.seen; }
+  document.getElementById("smDismiss").addEventListener("click", closeModal);
+  document.getElementById("smClose").addEventListener("click", closeModal);
   modal.addEventListener("click", function (e) {
     if (e.target === modal) { modal.hidden = true; dismissedAt = S.seen; }
   });

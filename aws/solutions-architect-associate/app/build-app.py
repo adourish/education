@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 """
-Assemble app.html from the template and the data file.
+Assemble the drill board from the template and the data file.
 
-Keeps the data out of the hand-edited template, so app.template.html stays
-readable and the data can be rebuilt without touching the page.
+Writes two builds, because they are opened in different places:
+
+  app.html                    for publishing as an Artifact. The publisher wraps
+                              it in its own <html><head> skeleton, so this one is
+                              a fragment and must NOT carry its own.
+
+  saa-c03-recall-board.html   standalone, for saving to disk and opening straight
+                              off a phone or laptop. It needs the full document
+                              wrapper: without a doctype the browser parses in
+                              quirks mode, where position:fixed misbehaves and
+                              the modal lands inline instead of over the page,
+                              and without a charset it decodes UTF-8 as Latin-1
+                              and every en dash turns into "a EUR".
 
 Run build-data.py first, then this.
 
@@ -22,8 +33,37 @@ HERE = Path(__file__).parent
 TEMPLATE = HERE / "app.template.html"
 DATA = HERE / "app-data.json"
 OUT = HERE / "app.html"
+OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
+
+# The wrapper the Artifact publisher would otherwise supply. Mirrors it closely:
+# same charset, same viewport with viewport-fit=cover, same safe-area padding on
+# :root and the same [hidden] rule the page's own code relies on.
+STANDALONE_HEAD = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root {
+    color-scheme: light dark;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { margin: 0; }
+  body { font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+"""
+
+STANDALONE_FOOT = """
+</body>
+</html>
+"""
 
 
 def main() -> None:
@@ -47,15 +87,24 @@ def main() -> None:
         raise SystemExit("A placeholder was left unreplaced.")
 
     OUT.write_text(html, encoding="utf-8")
+    OUT_STANDALONE.write_text(STANDALONE_HEAD + html + STANDALONE_FOOT, encoding="utf-8")
 
     parsed = json.loads(DATA.read_text(encoding="utf-8"))
-    kb = OUT.stat().st_size // 1024
-    print(f"app.html written - v{APP_VERSION}, built {build_date}, {kb} KB")
-    print(f"  {len(parsed['questions'])} questions")
-    print(f"  {sum(len(s['rows']) for s in parsed['sections'])} recall rows "
+    print(f"v{APP_VERSION}, built {build_date}")
+    print(f"  {len(parsed['questions'])} questions, "
+          f"{sum(len(s['rows']) for s in parsed['sections'])} recall rows "
           f"in {len(parsed['sections'])} sections")
-    if kb > 15000:
+    for f, what in ((OUT, "artifact fragment"), (OUT_STANDALONE, "standalone, saveable")):
+        print(f"  {f.name:30} {f.stat().st_size // 1024:5} KB   {what}")
+
+    if OUT.stat().st_size // 1024 > 15000:
         print("  WARNING: approaching the 16 MB artifact limit")
+
+    # The standalone build is useless without these two, so fail loudly.
+    sa = OUT_STANDALONE.read_text(encoding="utf-8")
+    for needed in ("<!doctype html>", '<meta charset="utf-8">'):
+        if needed not in sa:
+            raise SystemExit(f"standalone build is missing {needed}")
 
 
 if __name__ == "__main__":
