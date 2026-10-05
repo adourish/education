@@ -1,0 +1,225 @@
+/* Print stylesheet for the AWS SAA-C03 memorization notes.
+   Accent palette is cyan / magenta / yellow only — never red or green as the
+   sole carrier of meaning, so the pages stay readable with protanopia. */
+
+:root {
+  --ink:        #15181c;
+  --ink-soft:   #4a5056;
+  --rule:       #c9ced4;
+  --rule-light: #e4e7ea;
+  --cyan:       #006d7a;
+  --cyan-pale:  #e6f4f6;
+  --magenta:    #8e1d6b;
+  --magenta-pale:#f8e9f3;
+  --yellow:     #7a5600;
+  --yellow-pale:#fdf3d9;
+  --band:       #f4f6f7;
+}
+
+@page {
+  size: letter;
+  margin: 16mm 14mm 18mm 14mm;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 9.1pt;
+  line-height: 1.42;
+  color: var(--ink);
+  margin: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------- Title page ---------- */
+
+h1.doc-title {
+  font-size: 27pt;
+  line-height: 1.1;
+  letter-spacing: -0.5pt;
+  margin: 46mm 0 0 0;
+  color: var(--ink);
+  border: 0;
+  padding: 0;
+}
+p.doc-sub {
+  font-size: 13pt;
+  color: var(--cyan);
+  font-weight: 600;
+  margin: 3mm 0 0 0;
+}
+p.doc-meta {
+  font-size: 9pt;
+  color: var(--ink-soft);
+  margin: 14mm 0 0 0;
+  border-top: 2.5pt solid var(--cyan);
+  padding-top: 3mm;
+  max-width: 120mm;
+}
+p.doc-meta strong { color: var(--ink); }
+.title-page { page-break-after: always; }
+
+/* ---------- Headings ---------- */
+
+h1 {
+  font-size: 15pt;
+  color: #fff;
+  background: var(--cyan);
+  margin: 0 0 4.5mm 0;
+  padding: 2.6mm 4mm;
+  border-radius: 1.2mm;
+  page-break-before: always;
+  page-break-after: avoid;
+  letter-spacing: 0.1pt;
+}
+h1:first-of-type { page-break-before: avoid; }
+
+/* pandoc --standalone emits its own metadata title heading; the custom title
+   page already covers it, so suppress the duplicate. */
+h1.title, header#title-block-header { display: none; }
+
+h2 {
+  font-size: 11.6pt;
+  color: var(--magenta);
+  margin: 6.5mm 0 2.2mm 0;
+  padding-bottom: 1.1mm;
+  border-bottom: 1.6pt solid var(--magenta);
+  page-break-after: avoid;
+}
+
+h3 {
+  font-size: 10pt;
+  color: var(--ink);
+  margin: 5mm 0 1.8mm 0;
+  page-break-after: avoid;
+}
+h3::before {
+  content: "";
+  display: inline-block;
+  width: 2.4mm; height: 2.4mm;
+  background: var(--yellow);
+  margin-right: 2mm;
+  vertical-align: 0.3mm;
+}
+
+/* ---------- Tables: the core of the format ---------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2.4mm 0 4mm 0;
+  font-size: 8.6pt;
+  page-break-inside: auto;
+}
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+
+th {
+  background: var(--cyan);
+  color: #fff;
+  text-align: left;
+  font-weight: 600;
+  padding: 1.5mm 2.2mm;
+  border: 0.5pt solid var(--cyan);
+  font-size: 8.4pt;
+}
+td {
+  padding: 1.5mm 2.2mm;
+  border: 0.5pt solid var(--rule);
+  vertical-align: top;
+}
+tbody tr:nth-child(even) td { background: var(--band); }
+
+/* First column is the cue you cover up — make it visually distinct */
+tbody td:first-child {
+  color: var(--ink);
+  background: var(--cyan-pale) !important;
+  width: 42%;
+}
+/* Three-or-more-column tables shouldn't force the 42% cue width */
+table.wide tbody td:first-child { width: auto; }
+
+/* Answers are bolded in the source; tint them so the eye lands on them */
+td strong { color: var(--magenta); }
+th strong { color: #fff; }
+
+/* Numbered flashcard tables: narrow the index column */
+td:first-child:is(.idx) { width: 6%; }
+
+/* ---------- Blockquote = the "trap" / emphasis callout ---------- */
+
+blockquote {
+  margin: 3mm 0 4mm 0;
+  padding: 2.4mm 3.4mm;
+  background: var(--yellow-pale);
+  border-left: 2.6pt solid var(--yellow);
+  border-radius: 0 1mm 1mm 0;
+  page-break-inside: avoid;
+}
+blockquote p { margin: 0 0 1.4mm 0; }
+blockquote p:last-child { margin-bottom: 0; }
+blockquote strong { color: var(--yellow); }
+
+/* ---------- Lists, code, rules ---------- */
+
+ul, ol { margin: 1.8mm 0 3.4mm 0; padding-left: 5.5mm; }
+li { margin-bottom: 0.9mm; }
+li strong { color: var(--magenta); }
+
+code {
+  font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+  font-size: 8.1pt;
+  background: var(--magenta-pale);
+  color: var(--magenta);
+  padding: 0.2mm 1mm;
+  border-radius: 0.6mm;
+}
+pre {
+  background: var(--band);
+  border: 0.5pt solid var(--rule);
+  border-left: 2.4pt solid var(--cyan);
+  padding: 2.4mm 3mm;
+  font-size: 8.1pt;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  page-break-inside: avoid;
+}
+pre code { background: none; color: var(--ink); padding: 0; }
+
+hr {
+  border: 0;
+  border-top: 1pt solid var(--rule-light);
+  margin: 5mm 0;
+}
+
+p { margin: 1.6mm 0 2.4mm 0; }
+a { color: var(--cyan); text-decoration: none; }
+
+/* ---------- Table of contents ---------- */
+
+#TOC {
+  page-break-after: always;
+  margin-top: 4mm;
+}
+#TOC > ul { padding-left: 0; list-style: none; }
+#TOC > ul > li {
+  margin: 0 0 1.4mm 0;
+  padding: 1.6mm 2.6mm;
+  background: var(--cyan-pale);
+  border-left: 2.2pt solid var(--cyan);
+  font-weight: 600;
+  font-size: 9.6pt;
+}
+#TOC ul ul {
+  list-style: none;
+  padding-left: 4mm;
+  margin: 1.2mm 0 0 0;
+  font-weight: 400;
+  font-size: 8.6pt;
+  column-count: 2;
+  column-gap: 7mm;
+}
+#TOC ul ul li { margin-bottom: 0.5mm; color: var(--ink-soft); }
+#TOC a { color: inherit; }
