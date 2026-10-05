@@ -301,6 +301,47 @@ textarea {
 h2.sub { font-size: 15px; margin: 26px 0 10px; letter-spacing: -.1px; }
 h2.sub:first-child { margin-top: 0; }
 
+/* ---------------- storage warning + modal ---------------- */
+
+.warnstrip {
+  background: var(--amber-soft);
+  border-bottom: 1px solid var(--amber);
+  color: var(--ink);
+  font-size: 12.5px;
+}
+.warnstrip-in {
+  max-width: 1680px; margin: 0 auto; padding: 8px 16px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.warnstrip b { color: var(--amber); }
+.warnstrip .btn { padding: 5px 10px; font-size: 12px; }
+
+.modal-back {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(8, 14, 16, .55);
+  display: grid; place-items: center;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--amber);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+  max-width: 540px; width: 100%;
+  padding: 22px;
+}
+.modal h2 { margin: 0 0 10px; font-size: 17px; letter-spacing: -.2px; }
+.modal p { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-2); }
+.modal p.tight { margin-bottom: 7px; }
+.modal ul { margin: 0 0 14px; padding-left: 20px; font-size: 13px; color: var(--ink-2); }
+.modal li { margin-bottom: 4px; }
+.modal .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.modal textarea { min-height: 96px; margin-top: 12px; }
+
 footer {
   max-width: 1680px; margin: 0 auto; padding: 22px 16px 40px;
   border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 11.5px;
@@ -390,6 +431,29 @@ footer .v { font-family: var(--mono); }
   <span>Progress stored in this browser only.</span>
 </footer>
 
+<div class="modal-back" id="storageModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="smTitle" aria-describedby="smBody">
+    <h2 id="smTitle">This browser will not save your progress</h2>
+    <div id="smBody">
+      <p class="tight">The board keeps your answers in this browser's local storage, and this browser
+        is refusing it. That usually means one of:</p>
+      <ul>
+        <li>a private or incognito window</li>
+        <li>site data turned off, or blocked for this site</li>
+        <li>storage already full</li>
+      </ul>
+      <p><b>Everything still works</b> &mdash; drill as normal. But when you close this tab, your
+        answers go with it. Export the file before you finish and import it next time.</p>
+    </div>
+    <div class="acts">
+      <button class="btn primary" id="smExport">Download my progress</button>
+      <button class="btn" id="smDismiss">Carry on without saving</button>
+    </div>
+    <textarea id="smBox" spellcheck="false" hidden
+      placeholder="Your progress file appears here. Copy it somewhere safe."></textarea>
+  </div>
+</div>
+
 <script id="appdata" type="application/json">__DATA__</script>
 <script>
 (function () {
@@ -401,8 +465,22 @@ footer .v { font-family: var(--mono); }
   var STORE_KEY   = "saa-c03-recall-board/v1";
 
   // ---------- storage (always guarded: can throw or return empty) ----------
+  // Probe before trusting it. A private window, blocked site data or a full
+  // quota all present as a throw, and some browsers accept the write then hand
+  // back nothing, so the probe reads its own value back.
+  var storageOK = (function () {
+    try {
+      var k = STORE_KEY + "/probe";
+      localStorage.setItem(k, "1");
+      var v = localStorage.getItem(k);
+      localStorage.removeItem(k);
+      return v === "1";
+    } catch (e) { return false; }
+  })();
+
   function loadState() {
     var base = { concepts: {}, questions: {}, seen: 0, right: 0, wrong: 0, started: null };
+    if (!storageOK) return base;
     try {
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return base;
@@ -417,8 +495,18 @@ footer .v { font-family: var(--mono); }
       };
     } catch (e) { return base; }
   }
+
+  // Returns false when the answer did not reach disk, so the caller can warn.
   function saveState() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* private window */ }
+    if (!storageOK) return false;
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(S));
+      return true;
+    } catch (e) {
+      storageOK = false;      // quota can fill up mid-session
+      showStorageWarning();
+      return false;
+    }
   }
 
   var S = loadState();
@@ -582,6 +670,7 @@ footer .v { font-family: var(--mono); }
       S.concepts[k] = c;
     });
     saveState();
+    maybeRepromptStorage();
     updateScore();
   }
 
@@ -771,19 +860,27 @@ footer .v { font-family: var(--mono); }
   // ---------- export / import ----------
   var ioBox = document.getElementById("ioBox");
 
-  document.getElementById("exportBtn").addEventListener("click", async function () {
-    var payload = JSON.stringify({
+  function buildExport() {
+    return JSON.stringify({
       app: "SAA-C03 Recall Board",
       appVersion: APP_VERSION,
       dataVersion: DATA.version,
       exported: new Date().toISOString(),
       progress: S
     }, null, 1);
-    ioBox.value = payload;
-    ioBox.focus();
-    ioBox.select();
-    // Offer a real file when the viewer's runtime allows it; the box is always
-    // filled either way, so export never depends on it.
+  }
+
+  // Fills the given box with the progress file, and additionally offers a real
+  // download when the runtime allows one. The box is filled either way, so
+  // export never depends on the download succeeding.
+  async function exportProgress(box) {
+    var payload = buildExport();
+    if (box) {
+      box.hidden = false;
+      box.value = payload;
+      box.focus();
+      box.select();
+    }
     try {
       var downloads = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
       if (downloads) {
@@ -792,7 +889,13 @@ footer .v { font-family: var(--mono); }
           data: payload
         });
       }
-    } catch (e) { /* declined or unavailable: the textarea already has it */ }
+    } catch (e) { /* declined or unavailable: the box already has it */ }
+    exportedAt = S.seen;
+    return payload;
+  }
+
+  document.getElementById("exportBtn").addEventListener("click", function () {
+    exportProgress(ioBox);
   });
 
   document.getElementById("importBtn").addEventListener("click", function () {
@@ -822,6 +925,67 @@ footer .v { font-family: var(--mono); }
     ioBox.value = "";
   });
 
+  // ---------- when the browser will not keep anything ----------
+  // Shown once on load, then again every REPROMPT answers, so a long session
+  // cannot quietly accumulate work that is about to be lost.
+  var REPROMPT = 15;
+  var exportedAt = 0;          // S.seen at the last export
+  var dismissedAt = -1;        // S.seen when the modal was last waved away
+  var modal = document.getElementById("storageModal");
+  var smBox = document.getElementById("smBox");
+
+  function unsaved() { return S.seen - exportedAt; }
+
+  function showStorageWarning() {
+    if (!modal.hidden) return;
+    modal.hidden = false;
+    document.getElementById("smDismiss").focus();
+  }
+
+  function maybeRepromptStorage() {
+    if (storageOK) return;
+    if (dismissedAt >= 0 && S.seen - dismissedAt < REPROMPT) return;
+    if (unsaved() <= 0) return;
+    showStorageWarning();
+  }
+
+  document.getElementById("smExport").addEventListener("click", function () {
+    exportProgress(smBox);
+  });
+  document.getElementById("smDismiss").addEventListener("click", function () {
+    modal.hidden = true;
+    dismissedAt = S.seen;
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) { modal.hidden = true; dismissedAt = S.seen; }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modal.hidden) { modal.hidden = true; dismissedAt = S.seen; }
+  });
+
+  function buildWarnStrip() {
+    var strip = el("div", "warnstrip");
+    var inner = el("div", "warnstrip-in");
+    var msg = el("span");
+    msg.appendChild(el("b", null, "Not saving. "));
+    msg.appendChild(document.createTextNode(
+      "This browser is blocking local storage, so your answers disappear when the tab closes."));
+    inner.appendChild(msg);
+    var b = el("button", "btn", "Download my progress");
+    b.addEventListener("click", function () { showStorageWarning(); exportProgress(smBox); });
+    inner.appendChild(b);
+    strip.appendChild(inner);
+    document.querySelector(".topbar").insertAdjacentElement("afterend", strip);
+  }
+
+  // Last line of defence: the browser's own "leave site?" prompt.
+  window.addEventListener("beforeunload", function (e) {
+    if (storageOK || unsaved() <= 0) return;
+    e.preventDefault();
+    e.returnValue = "";
+    return "";
+  });
+
   // ---------- tabs ----------
   var tabs = [["tab-poster", "view-poster"], ["tab-practice", "view-practice"], ["tab-progress", "view-progress"]];
   tabs.forEach(function (t) {
@@ -846,5 +1010,10 @@ footer .v { font-family: var(--mono); }
 
   renderBoard();
   updateScore();
+
+  if (!storageOK) {
+    buildWarnStrip();
+    showStorageWarning();
+  }
 })();
 </script>
