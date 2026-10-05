@@ -40,9 +40,14 @@ h1.doc-title {
   line-height: 1.1;
   letter-spacing: -0.5pt;
   margin: 46mm 0 0 0;
-  color: var(--ink);
+  color: var(--cyan);
+  /* The generic h1 rule below paints a solid cyan band for section headings;
+     the title page must opt out of all of it. */
+  background: none;
   border: 0;
+  border-radius: 0;
   padding: 0;
+  page-break-before: avoid;
 }
 p.doc-sub {
   font-size: 13pt;
