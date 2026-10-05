@@ -75,13 +75,18 @@
 
 * { box-sizing: border-box; }
 
+/* Everything that gets read is sized in rem against this, so the A-/A+ control
+   moves the whole page by changing one number. Phones get a bigger base. */
+html { font-size: calc(16px * var(--ts, 1)); }
+@media (max-width: 720px) { html { font-size: calc(17.5px * var(--ts, 1)); } }
+
 body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
   font-family: var(--ui);
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 1rem;
+  line-height: 1.5;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -101,19 +106,19 @@ body {
 }
 .brand { display: flex; align-items: baseline; gap: 9px; margin-right: auto; }
 .brand h1 {
-  margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -.2px;
+  margin: 0; font-size: 1.12rem; font-weight: 700; letter-spacing: -.2px;
   color: var(--cyan);
 }
 .brand .exam {
-  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
   color: var(--ink-3); letter-spacing: .4px;
 }
 
 .tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
 .tabs button {
   appearance: none; border: 0; background: none; cursor: pointer;
-  font: 600 13px var(--ui); color: var(--ink-2);
-  padding: 6px 13px; border-radius: 6px; white-space: nowrap;
+  font: 600 0.88rem var(--ui); color: var(--ink-2);
+  padding: 7px 14px; border-radius: 6px; white-space: nowrap;
 }
 .tabs button[aria-selected="true"] { background: var(--surface); color: var(--cyan); box-shadow: var(--shadow); }
 .tabs button:focus-visible, .btn:focus-visible, select:focus-visible,
@@ -121,8 +126,8 @@ body {
 
 .btn {
   appearance: none; cursor: pointer;
-  font: 600 13px var(--ui);
-  padding: 7px 13px; border-radius: 7px;
+  font: 600 0.88rem var(--ui);
+  padding: 8px 14px; border-radius: 7px;
   border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
 }
 .btn:hover { border-color: var(--cyan); color: var(--cyan); }
@@ -135,14 +140,39 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 
 .view[hidden] { display: none !important; }
 
+/* text size control */
+.tsize { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
+.tsize button {
+  appearance: none; border: 0; background: none; cursor: pointer;
+  color: var(--ink-2); font-family: var(--ui); font-weight: 700;
+  width: 32px; height: 30px; border-radius: 6px; line-height: 1;
+}
+.tsize button:hover { color: var(--cyan); }
+.tsize button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.tsize .sm { font-size: 0.78rem; }
+.tsize .lg { font-size: 1.05rem; }
+
+/* right/wrong tallies, on the summary bar and on each block header */
+.tally { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.tally b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tally .g { color: var(--cyan); }
+.tally .r { color: var(--magenta); }
+.sec > header .tally {
+  font-size: 0.74rem; font-weight: 600;
+  padding: 2px 7px; border-radius: 99px;
+  background: var(--surface); border: 1px solid var(--rule);
+}
+.sec > header .tagline { margin-left: auto; }
+.sec > header .tally + .tagline { margin-left: 0; }
+
 /* ---------------- shared bits ---------------- */
 
-.lede { color: var(--ink-2); font-size: 13.5px; max-width: 70ch; margin: 0 0 16px; }
+.lede { color: var(--ink-2); font-size: 0.92rem; max-width: 70ch; margin: 0 0 16px; }
 
 .pill {
   display: inline-flex; align-items: center; gap: 5px;
-  font: 600 11px var(--ui); letter-spacing: .3px;
-  padding: 2px 8px; border-radius: 99px;
+  font: 600 0.74rem var(--ui); letter-spacing: .3px;
+  padding: 3px 9px; border-radius: 99px;
   background: var(--surface-2); color: var(--ink-2);
 }
 .pill.t3 { background: var(--cyan-soft); color: var(--cyan); }
@@ -154,7 +184,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .y2 i:nth-child(-n+2) { background: var(--cyan); }
 .y1 i:nth-child(1) { background: var(--cyan); }
 
-.mk { font-weight: 700; font-size: 12px; }
+.mk { font-weight: 700; font-size: 0.82rem; }
 .mk.trap { color: var(--amber); }
 .mk.alt  { color: var(--ink-3); font-weight: 400; }
 
@@ -180,16 +210,16 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
 }
 .sec > header h3 {
-  margin: 0; font-size: 13px; font-weight: 700;
+  margin: 0; font-size: 0.9rem; font-weight: 700;
   letter-spacing: .5px; text-transform: uppercase; color: var(--cyan);
 }
-.sec > header .tagline { font-size: 11px; color: var(--ink-3); margin-left: auto; }
+.sec > header .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
 
 .row {
   display: grid;
-  grid-template-columns: 16px minmax(0,1fr);
-  gap: 8px;
-  padding: 6px 12px;
+  grid-template-columns: 18px minmax(0,1fr);
+  gap: 9px;
+  padding: 8px 12px;
   border-top: 1px solid var(--rule-2);
   align-items: start;
 }
@@ -197,16 +227,16 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .row .pair { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: 10px; }
 @media (max-width: 520px) { .row .pair { grid-template-columns: 1fr; gap: 2px; } }
 
-.row .cue { font-size: 13px; color: var(--ink); display: flex; gap: 5px; align-items: baseline; flex-wrap: wrap; }
-.row .ans { font-size: 13px; font-weight: 600; color: var(--cyan); }
-.row.mono .ans { font-family: var(--mono); font-size: 12.5px; }
+.row .cue { font-size: 0.95rem; color: var(--ink); display: flex; gap: 5px; align-items: baseline; flex-wrap: wrap; }
+.row .ans { font-size: 0.95rem; font-weight: 600; color: var(--cyan); }
+.row.mono .ans { font-family: var(--mono); font-size: 0.9rem; }
 
 /* right / wrong marks: glyph + colour + edge, so hue is never the only cue */
 .state {
-  width: 16px; height: 16px; margin-top: 1px;
+  width: 18px; height: 18px; margin-top: 1px;
   border-radius: 4px;
   display: grid; place-items: center;
-  font-size: 11px; font-weight: 700; line-height: 1;
+  font-size: 0.75rem; font-weight: 700; line-height: 1;
   border: 1px solid var(--rule);
   color: var(--ink-3); background: var(--surface);
   font-family: var(--mono);
@@ -223,7 +253,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   border-left: 3px solid var(--amber);
   font-size: 12px; color: var(--ink);
 }
-.note { padding: 6px 12px; border-top: 1px solid var(--rule-2); font-size: 12.5px; }
+.note { padding: 7px 12px; border-top: 1px solid var(--rule-2); font-size: 0.88rem; }
 
 /* ---------------- practice ---------------- */
 
@@ -231,7 +261,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 
 .picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
 select {
-  font: 500 13px var(--ui); color: var(--ink);
+  font: 500 0.9rem var(--ui); color: var(--ink);
   background: var(--surface); border: 1px solid var(--rule);
   border-radius: 7px; padding: 7px 10px;
 }
@@ -241,16 +271,16 @@ select {
   border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 20px; margin-bottom: 14px;
 }
-.qmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 11.5px; color: var(--ink-3); }
+.qmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.78rem; color: var(--ink-3); }
 .qmeta .count { font-family: var(--mono); font-weight: 600; color: var(--ink-2); }
-.qtext { font-size: 15px; line-height: 1.55; white-space: pre-wrap; margin: 0 0 16px; }
+.qtext { font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap; margin: 0 0 16px; }
 
 .opts { display: grid; gap: 7px; margin-bottom: 14px; }
 .opt {
   text-align: left; cursor: pointer;
-  font: 400 13.5px var(--ui); color: var(--ink);
+  font: 400 0.97rem var(--ui); color: var(--ink);
   background: var(--surface); border: 1px solid var(--rule);
-  border-radius: 8px; padding: 10px 12px;
+  border-radius: 8px; padding: 12px 14px;
 }
 .opt:hover:not(:disabled) { border-color: var(--cyan); }
 .opt:disabled { cursor: default; }
@@ -258,47 +288,47 @@ select {
 .opt.pick-bad { border-color: var(--magenta); border-width: 2px; background: var(--magenta-soft); }
 
 .reveal { border-top: 1px solid var(--rule); margin-top: 14px; padding-top: 14px; }
-.reveal h4 { margin: 0 0 6px; font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-3); }
-.reveal .ansbox { font-size: 14px; font-weight: 600; color: var(--cyan); margin-bottom: 10px; }
-.reveal .why { font-size: 13px; color: var(--ink-2); white-space: pre-wrap; }
+.reveal h4 { margin: 0 0 6px; font-size: 0.74rem; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-3); }
+.reveal .ansbox { font-size: 1rem; font-weight: 600; color: var(--cyan); margin-bottom: 10px; }
+.reveal .why { font-size: 0.92rem; color: var(--ink-2); white-space: pre-wrap; }
 
 .selfmark { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 
-.scorebar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+.scorebar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 0.88rem; color: var(--ink-2); }
 .scorebar b { font-family: var(--mono); color: var(--ink); }
 
 /* ---------------- progress ---------------- */
 
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; margin-bottom: 22px; }
 .stat { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px 16px; }
-.stat .n { font: 600 26px var(--mono); color: var(--cyan); line-height: 1.1; font-variant-numeric: tabular-nums; }
-.stat .l { font-size: 12px; color: var(--ink-3); margin-top: 3px; }
+.stat .n { font: 600 1.75rem var(--mono); color: var(--cyan); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 0.82rem; color: var(--ink-3); margin-top: 3px; }
 
 .barlist { display: grid; gap: 9px; }
-.barrow { display: grid; grid-template-columns: minmax(130px, 200px) 1fr auto; gap: 12px; align-items: center; font-size: 13px; }
+.barrow { display: grid; grid-template-columns: minmax(130px, 200px) 1fr auto; gap: 12px; align-items: center; font-size: 0.92rem; }
 @media (max-width: 560px) { .barrow { grid-template-columns: 1fr; gap: 3px; } }
 .bar { height: 16px; background: var(--surface-2); border-radius: 4px; overflow: hidden; display: flex; border: 1px solid var(--rule); }
 .bar .ok  { background: var(--cyan); }
 .bar .bad { background: var(--magenta); }
-.barrow .num { font-family: var(--mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.barrow .num { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 .weak { display: grid; gap: 6px; }
 .weakrow {
   display: flex; gap: 10px; align-items: baseline; justify-content: space-between;
   padding: 8px 12px; background: var(--surface);
   border: 1px solid var(--rule); border-left: 3px solid var(--magenta);
-  border-radius: 7px; font-size: 13px;
+  border-radius: 7px; font-size: 0.92rem;
 }
-.weakrow .n { font-family: var(--mono); font-size: 12px; color: var(--magenta); font-weight: 600; white-space: nowrap; }
+.weakrow .n { font-family: var(--mono); font-size: 0.82rem; color: var(--magenta); font-weight: 600; white-space: nowrap; }
 
 textarea {
   width: 100%; min-height: 120px; resize: vertical;
-  font: 400 12px var(--mono); color: var(--ink);
+  font: 400 0.82rem var(--mono); color: var(--ink);
   background: var(--surface-2); border: 1px solid var(--rule);
   border-radius: 8px; padding: 10px;
 }
 
-h2.sub { font-size: 15px; margin: 26px 0 10px; letter-spacing: -.1px; }
+h2.sub { font-size: 1.08rem; margin: 26px 0 10px; letter-spacing: -.1px; }
 h2.sub:first-child { margin-top: 0; }
 
 /* ---------------- storage warning + modal ---------------- */
@@ -307,14 +337,14 @@ h2.sub:first-child { margin-top: 0; }
   background: var(--amber-soft);
   border-bottom: 1px solid var(--amber);
   color: var(--ink);
-  font-size: 12.5px;
+  font-size: 0.88rem;
 }
 .warnstrip-in {
   max-width: 1680px; margin: 0 auto; padding: 8px 16px;
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
 }
 .warnstrip b { color: var(--amber); }
-.warnstrip .btn { padding: 5px 10px; font-size: 12px; }
+.warnstrip .btn { padding: 6px 11px; font-size: 0.82rem; }
 
 .modal-back {
   position: fixed; inset: 0; z-index: 100;
@@ -339,7 +369,7 @@ h2.sub:first-child { margin-top: 0; }
   padding: 22px;
 }
 .modal { position: relative; }
-.modal h2 { margin: 0 32px 10px 0; font-size: 17px; letter-spacing: -.2px; }
+.modal h2 { margin: 0 36px 10px 0; font-size: 1.15rem; letter-spacing: -.2px; }
 .modal .x {
   position: absolute; top: 10px; right: 10px;
   width: 32px; height: 32px; line-height: 1;
@@ -349,16 +379,16 @@ h2.sub:first-child { margin-top: 0; }
   background: var(--surface); color: var(--ink-2); cursor: pointer;
 }
 .modal .x:hover { border-color: var(--magenta); color: var(--magenta); }
-.modal p { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-2); }
+.modal p { margin: 0 0 12px; font-size: 0.94rem; color: var(--ink-2); }
 .modal p.tight { margin-bottom: 7px; }
-.modal ul { margin: 0 0 14px; padding-left: 20px; font-size: 13px; color: var(--ink-2); }
+.modal ul { margin: 0 0 14px; padding-left: 20px; font-size: 0.92rem; color: var(--ink-2); }
 .modal li { margin-bottom: 4px; }
 .modal .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 .modal textarea { min-height: 96px; margin-top: 12px; }
 
 footer {
   max-width: 1680px; margin: 0 auto; padding: 22px 16px 40px;
-  border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 11.5px;
+  border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 0.78rem;
   display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline;
 }
 footer .v { font-family: var(--mono); }
@@ -371,6 +401,10 @@ footer .v { font-family: var(--mono); }
     <div class="brand">
       <h1>SAA-C03 Recall Board</h1>
       <span class="exam" id="examTag"></span>
+    </div>
+    <div class="tsize" role="group" aria-label="Text size">
+      <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
+      <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
     </div>
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-poster"   aria-selected="true"  aria-controls="view-poster">Poster</button>
@@ -534,6 +568,41 @@ footer .v { font-family: var(--mono); }
     if (text != null) n.textContent = text;
     return n;
   }
+
+  // A tick count and a cross count, side by side.
+  function tally(right, wrong, withWords) {
+    var t = el("span", "tally");
+    var g = el("b", "g", "✓ " + right);
+    var r = el("b", "r", "✕ " + wrong);
+    t.appendChild(g);
+    if (withWords) t.appendChild(el("span", null, "right"));
+    t.appendChild(r);
+    if (withWords) t.appendChild(el("span", null, "missed"));
+    return t;
+  }
+
+  // ---------- text size ----------
+  var TS_KEY = STORE_KEY + "/textsize";
+  var TS_STEPS = [0.9, 1, 1.15, 1.3, 1.5];
+  var tsIdx = 1;
+  try {
+    var saved = parseInt(localStorage.getItem(TS_KEY), 10);
+    if (saved >= 0 && saved < TS_STEPS.length) tsIdx = saved;
+  } catch (e) { /* no storage: start at the default */ }
+
+  function applyTextSize() {
+    document.documentElement.style.setProperty("--ts", String(TS_STEPS[tsIdx]));
+    document.getElementById("tsDown").disabled = tsIdx === 0;
+    document.getElementById("tsUp").disabled = tsIdx === TS_STEPS.length - 1;
+    try { localStorage.setItem(TS_KEY, String(tsIdx)); } catch (e) { /* fine */ }
+  }
+  document.getElementById("tsDown").addEventListener("click", function () {
+    if (tsIdx > 0) { tsIdx--; applyTextSize(); }
+  });
+  document.getElementById("tsUp").addEventListener("click", function () {
+    if (tsIdx < TS_STEPS.length - 1) { tsIdx++; applyTextSize(); }
+  });
+  applyTextSize();
   function yq(tier) {
     var s = el("span", "yq y" + tier);
     for (var i = 0; i < 3; i++) s.appendChild(el("i"));
@@ -564,10 +633,11 @@ footer .v { font-family: var(--mono); }
     var shown = 0, okN = 0, badN = 0;
 
     DATA.sections.forEach(function (sec) {
+      var secOk = 0, secBad = 0;
       var rows = sec.rows.filter(function (r) {
         var st = rowState(r);
-        if (st === "ok") okN++;
-        if (st === "bad") badN++;
+        if (st === "ok") { okN++; secOk++; }
+        if (st === "bad") { badN++; secBad++; }
         return onlyMissed ? st === "bad" : true;
       });
       if (!rows.length && (onlyMissed || (!sec.notes.length && !sec.traps.length))) return;
@@ -576,6 +646,8 @@ footer .v { font-family: var(--mono); }
       var box = el("div", "sec");
       var head = el("header");
       head.appendChild(el("h3", null, sec.title));
+      // Per-block score, so you can see at a glance which area is weakest.
+      if (secOk || secBad) head.appendChild(tally(secOk, secBad, false));
       if (sec.tagline) head.appendChild(el("span", "tagline", sec.tagline));
       box.appendChild(head);
 
@@ -612,16 +684,29 @@ footer .v { font-family: var(--mono); }
       board.appendChild(empty);
     }
 
+    // Two different counts, and they answer different questions, so both show:
+    // how many questions you have actually answered, and how much of the board
+    // those answers have settled.
     var sum = document.getElementById("posterSummary");
     sum.textContent = "";
     var total = DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0);
-    sum.appendChild(el("span", null, total + " rows"));
-    if (okN || badN) {
-      var b1 = el("b", null, String(okN)); var b2 = el("b", null, String(badN));
-      var s1 = el("span"); s1.appendChild(b1); s1.appendChild(document.createTextNode(" solid"));
-      var s2 = el("span"); s2.appendChild(b2); s2.appendChild(document.createTextNode(" shaky"));
-      sum.appendChild(s1); sum.appendChild(s2);
+
+    if (S.seen) {
+      var pct = Math.round(100 * S.right / S.seen);
+      var ans = el("span");
+      ans.appendChild(el("b", null, String(S.seen)));
+      ans.appendChild(document.createTextNode(" answered"));
+      sum.appendChild(ans);
+      sum.appendChild(tally(S.right, S.wrong, true));
+      sum.appendChild(el("span", null, pct + "% right"));
+    } else {
+      sum.appendChild(el("span", null, "No questions answered yet"));
     }
+
+    var rowsInfo = el("span");
+    rowsInfo.appendChild(el("b", null, String(okN + badN)));
+    rowsInfo.appendChild(document.createTextNode(" of " + total + " rows covered"));
+    sum.appendChild(rowsInfo);
   }
 
   document.getElementById("posterFilterAll").addEventListener("click", function () {
