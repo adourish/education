@@ -14,6 +14,14 @@
 
 @page { size: 18in 24in; margin: 0.42in 0.42in 0.34in 0.42in; }
 
+/* Print variants. The build script sets <html data-cols="3|2|1">; each one
+   picks its own page size and column count. 1-column is sized for reading on
+   a phone, so it is narrow and very long rather than page-shaped. */
+@media print {
+  html[data-cols="2"] { }
+  html[data-cols="1"] { }
+}
+
 :root {
   --ink:      #15181c;
   --ink-soft: #52585f;
@@ -37,6 +45,11 @@
   --c-dr:     #4a3d7a;   /* indigo-violet */
   --c-cost:   #8a4a00;   /* burnt amber */
   --c-scope:  #4a5a6b;   /* light slate */
+  --c-word:   #6b3a5c;   /* mauve */
+  --c-elb:    #0f6a74;   /* teal-cyan  */
+  --c-api:    #4b3b86;   /* indigo-violet */
+  --c-mig:    #7a4a2a;   /* umber */
+  --c-tail:   #5a5f66;   /* grey slate */
 }
 
 * { box-sizing: border-box; }
@@ -110,17 +123,47 @@ html, body {
 /* ---------------- Column flow ---------------- */
 
 .board {
-  column-count: 3;
+  column-count: var(--cols, 3);
   column-gap: 0.26in;
   column-fill: auto;
-  height: 21.45in;
+  height: var(--board-h, 21.45in);
+}
+
+/* ---- print variants ---------------------------------------------------- */
+html[data-cols="2"] { --cols: 2; --board-h: 21.6in; }
+html[data-cols="1"] { --cols: 1; --board-h: auto; }
+
+/* The 1-column sheet is read on a phone: no fixed height, no pinned footer,
+   and a cue column that does not squeeze the answer into one word per line. */
+html[data-cols="1"] .board { height: auto; }
+html[data-cols="1"] .footer { position: static; }
+html[data-cols="1"] .masthead { display: block; }
+html[data-cols="1"] .legend { flex: none; margin-top: 8pt; padding-left: 7pt; }
+html[data-cols="1"] .q { flex: 0 0 44%; }
+
+/* ---- on screen: reflow to the window, so a phone gets one column free --- */
+@media screen {
+  body { max-width: 1600px; margin: 0 auto; padding: 14px; }
+  .board { height: auto !important; column-fill: balance; }
+  .footer { position: static; }
+}
+@media screen and (max-width: 1150px) {
+  .board { column-count: 2; }
+}
+@media screen and (max-width: 760px) {
+  .board { column-count: 1; }
+  .masthead { display: block; }
+  .legend { flex: none; margin-top: 10px; }
+  .mast-left h1 { font-size: 22pt; }
+  .q, .a { font-size: 10pt; }
+  .q { flex: 0 0 44%; }
 }
 
 /* ---------------- Section blocks ---------------- */
 
 section {
-  break-inside: avoid;
-  page-break-inside: avoid;
+  break-inside: auto;
+  page-break-inside: auto;
   margin: 0 0 6pt 0;
   border: 0.75pt solid var(--rule);
   border-top: 0;
@@ -136,6 +179,8 @@ section > h2 {
   text-transform: uppercase;
   color: #fff;
   background: var(--accent);
+  break-after: avoid;
+  break-inside: avoid;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -151,6 +196,8 @@ section > h2 .tag {
 /* sub-heading inside a section */
 section > h3 {
   margin: 0;
+  break-after: avoid;
+  break-inside: avoid;
   padding: 2.2pt 5.5pt 2pt 5.5pt;
   font-size: 7.3pt;
   letter-spacing: 0.5pt;
@@ -161,7 +208,7 @@ section > h3 {
   border-bottom: 0.75pt solid var(--rule);
 }
 
-.qa { display: flex; align-items: baseline; padding: 1.6pt 5.5pt; }
+.qa { display: flex; align-items: baseline; padding: 1.6pt 5.5pt; break-inside: avoid; }
 .qa:nth-child(even) { background: #f7f9fa; }
 .qa + .qa { border-top: 0.5pt solid #eceff1; }
 
@@ -183,6 +230,7 @@ section > h3 {
 
 /* trap / emphasis strip */
 .trap {
+  break-inside: avoid;
   padding: 3pt 5.5pt;
   background: #fdf4dc;
   border-top: 0.75pt solid var(--rule);
@@ -210,13 +258,44 @@ section > h3 {
 .s-dr     { --accent: var(--c-dr); }
 .s-cost   { --accent: var(--c-cost); }
 .s-scope  { --accent: var(--c-scope); }
+.s-word   { --accent: var(--c-word); }
+.s-elb    { --accent: var(--c-elb); }
+.s-api    { --accent: var(--c-api); }
+.s-mig    { --accent: var(--c-mig); }
+.s-tail   { --accent: var(--c-tail); }
 
 /* mnemonic rows read as one line, not a split */
-.mn { padding: 2.1pt 5.5pt; font-size: 7.9pt; line-height: 1.29; }
+.mn { padding: 2.1pt 5.5pt; font-size: 7.9pt; line-height: 1.29; break-inside: avoid; }
 .mn:nth-child(even) { background: #f7f9fa; }
 .mn + .mn { border-top: 0.5pt solid #eceff1; }
 .mn b { color: var(--accent); }
 .mn i { font-style: normal; color: var(--ink-soft); }
+
+/* ---------------- Recall marks ----------------
+   Three marks, all drawn or typographic rather than colour-coded, so they
+   survive a black-and-white print and do not depend on seeing hue.
+     .y3/.y2/.y1  how often the bank asks this - three bars, filled by tier
+     .tr          a trap sits next to this fact
+     .alt         commonly reworded; see "Also asked as"
+   ------------------------------------------------ */
+.yq { display: inline-block; white-space: nowrap; margin-right: 3pt; vertical-align: 1pt; }
+.yq i {
+  display: inline-block;
+  width: 2.1pt; height: 5.2pt;
+  margin-right: 0.7pt;
+  background: #c8ced3;
+  border-radius: 0.4pt;
+}
+.y3 i { background: var(--accent); }
+.y2 i:nth-child(-n+2) { background: var(--accent); }
+.y1 i:nth-child(1) { background: var(--accent); }
+
+.mk { font-weight: 700; color: var(--c-sec); font-size: 8.4pt; }
+.mk.alt { color: var(--ink-soft); font-weight: 400; }
+
+.legend .marks { margin-top: 4pt; font-size: 6.9pt; line-height: 1.5; }
+.legend .marks b { color: var(--ink); }
+.legend .marks .yq i { background: #8a8f95; }
 
 /* ---------------- Footer ---------------- */
 
@@ -247,6 +326,14 @@ section > h3 {
     column, work down saying answers out loud, then slide it away to check. Blocks are grouped by
     area, so you can drill one area at a time. Amber strips are <b>traps</b> &mdash; where a
     plausible-looking answer is wrong.
+    <div class="marks">
+      <b>Marks:</b>
+      asked a lot &nbsp;
+      asked often &nbsp;
+      asked thinly &mdash; counted across 522 real practice questions, not guessed.
+      &nbsp; a trap sits here.
+      &nbsp; commonly reworded &mdash; see <b>Also asked as</b>.
+    </div>
     <div class="domains">
       <div><b>30%</b> Secure</div>
       <div><b>26%</b> Resilient</div>
@@ -262,29 +349,29 @@ section > h3 {
 <section class="s-num">
   <h2>The numbers<span class="tag">pure rote &mdash; learn these first</span></h2>
   <div class="qa"><div class="q">S3 max object / single PUT</div><div class="a">5 TB / 5 GB</div></div>
-  <div class="qa"><div class="q">Min duration IA / Glacier / Deep</div><div class="a">30 / 90 / 180 days</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Min duration IA / Glacier / Deep <span class="mk">&dagger;</span></div><div class="a">30 / 90 / 180 days</div></div>
   <div class="qa"><div class="q">S3 multipart part size</div><div class="a">5 MB &ndash; 5 GB, max 10,000 parts</div></div>
-  <div class="qa"><div class="q">Glacier expedited / standard / bulk</div><div class="a">1&ndash;5 min / 3&ndash;5 h / 5&ndash;12 h</div></div>
-  <div class="qa"><div class="q">Lambda max duration</div><div class="a">15 min <span class="lo">(900 s)</span></div></div>
-  <div class="qa"><div class="q">Lambda memory</div><div class="a">128 MB &ndash; 10,240 MB</div></div>
-  <div class="qa"><div class="q">Lambda payload sync / async</div><div class="a">6 MB / 256 KB</div></div>
-  <div class="qa"><div class="q">Lambda default concurrency</div><div class="a">1,000 per region</div></div>
-  <div class="qa"><div class="q">SQS max message</div><div class="a">256 KB</div></div>
-  <div class="qa"><div class="q">SQS retention default / max</div><div class="a">4 days / 14 days</div></div>
-  <div class="qa"><div class="q">SQS visibility default / max</div><div class="a">30 s / 12 h</div></div>
-  <div class="qa"><div class="q">SQS long poll wait</div><div class="a">20 seconds</div></div>
-  <div class="qa"><div class="q">Kinesis shard in / out</div><div class="a">1 MB/s / 2 MB/s</div></div>
-  <div class="qa"><div class="q">Kinesis retention default / max</div><div class="a">24 h / 365 days</div></div>
-  <div class="qa"><div class="q">DynamoDB max item</div><div class="a">400 KB</div></div>
-  <div class="qa"><div class="q">DynamoDB RCU / WCU</div><div class="a">4 KB strong read / 1 KB write</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Glacier expedited / standard / bulk</div><div class="a">1&ndash;5 min / 3&ndash;5 h / 5&ndash;12 h</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Lambda max duration <span class="mk">&dagger;</span></div><div class="a">15 min <span class="lo">(900 s)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Lambda memory</div><div class="a">128 MB &ndash; 10,240 MB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Lambda payload sync / async</div><div class="a">6 MB / 256 KB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Lambda default concurrency</div><div class="a">1,000 per region</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>SQS max message</div><div class="a">256 KB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>SQS retention default / max</div><div class="a">4 days / 14 days</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>SQS visibility default / max</div><div class="a">30 s / 12 h</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>SQS long poll wait</div><div class="a">20 seconds</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Kinesis shard in / out</div><div class="a">1 MB/s / 2 MB/s</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Kinesis retention default / max</div><div class="a">24 h / 365 days</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>DynamoDB max item</div><div class="a">400 KB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>DynamoDB RCU / WCU</div><div class="a">4 KB strong read / 1 KB write</div></div>
   <div class="qa"><div class="q">RDS backup retention</div><div class="a">7 days default, 0 &ndash; 35 range</div></div>
-  <div class="qa"><div class="q">DynamoDB LSI / GSI per table</div><div class="a">5 / 20</div></div>
-  <div class="qa"><div class="q">Read replicas RDS / Aurora</div><div class="a">5 / 15</div></div>
-  <div class="qa"><div class="q">Max storage RDS / Aurora</div><div class="a">64 TiB / 128 TiB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>DynamoDB LSI / GSI per table</div><div class="a">5 / 20</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Read replicas RDS / Aurora</div><div class="a">5 / 15</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Max storage RDS / Aurora</div><div class="a">64 TiB / 128 TiB</div></div>
   <div class="qa"><div class="q">VPC CIDR range</div><div class="a">/16 down to /28</div></div>
   <div class="qa"><div class="q">Reserved IPs / usable in a /24</div><div class="a">5 / 251</div></div>
-  <div class="qa"><div class="q">Spot notice; spot &amp; RI discount</div><div class="a">2 min; ~90% / ~72%</div></div>
-  <div class="qa"><div class="q">CloudWatch basic / detailed</div><div class="a">5 min / 1 min</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Spot notice; spot &amp; RI discount</div><div class="a">2 min; ~90% / ~72%</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>CloudWatch basic / detailed</div><div class="a">5 min / 1 min</div></div>
 </section>
 
 <!-- ============ EC2 ============ -->
@@ -297,9 +384,9 @@ section > h3 {
   <div class="qa"><div class="q">Hibernate saves</div><div class="a">RAM, to the root EBS volume</div></div>
   <div class="qa"><div class="q">User data runs</div><div class="a">once, at first boot, as root</div></div>
   <div class="qa"><div class="q">System check vs instance check</div><div class="a">AWS problem, stop/start to move host &mdash; vs your OS or config</div></div>
-  <div class="qa"><div class="q">Low latency / isolation / distributed</div><div class="a">cluster / spread / partition placement group</div></div>
-  <div class="qa"><div class="q">Socket or core-based licence</div><div class="a">Dedicated Host</div></div>
-  <div class="qa"><div class="q">Steady 24/7 vs interruptible batch</div><div class="a">Savings Plan or RI vs Spot</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Low latency / isolation / distributed</div><div class="a">cluster / spread / partition placement group</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Socket or core-based licence <span class="mk">&dagger;</span></div><div class="a">Dedicated Host</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Steady 24/7 vs interruptible batch <span class="mk">&dagger;</span><span class="mk alt">&asymp;</span></div><div class="a">Savings Plan or RI vs Spot</div></div>
   <div class="qa"><div class="q">SSH user: Amazon Linux / Ubuntu</div><div class="a">ec2-user / ubuntu <span class="lo">(CentOS: centos, Debian: admin)</span></div></div>
   <div class="qa"><div class="q">AMI, ECR image, snapshot scope</div><div class="a">region &mdash; must be copied elsewhere</div></div>
   <div class="trap"><b>Trap:</b> Dedicated <b>Instance</b> only isolates hardware per account. Only a Dedicated <b>Host</b> gives you the physical server and its socket and core counts.</div>
@@ -309,16 +396,16 @@ section > h3 {
 <section class="s-scale">
   <h2>Auto Scaling &amp; load balancing</h2>
   <div class="qa"><div class="q">Default cooldown and grace period</div><div class="a">300 seconds each</div></div>
-  <div class="qa"><div class="q">Recommended scaling policy</div><div class="a">target tracking</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Recommended scaling policy</div><div class="a">target tracking</div></div>
   <div class="qa"><div class="q">Known spike / learned pattern</div><div class="a">scheduled / predictive scaling</div></div>
   <div class="qa"><div class="q">Instances killed before app boots</div><div class="a">raise the grace period; use an ELB health check</div></div>
   <div class="qa"><div class="q">Group flapping in and out</div><div class="a">raise cooldown, widen the alarm threshold</div></div>
   <div class="qa"><div class="q">Script before termination / debug one</div><div class="a">lifecycle hook / standby</div></div>
-  <div class="qa"><div class="q">Define the instances</div><div class="a">launch template <span class="lo">(configurations are legacy)</span></div></div>
-  <div class="qa"><div class="q">ALB / NLB / GWLB layer</div><div class="a">7 / 4 / 3</div></div>
-  <div class="qa"><div class="q">Static IP, UDP, millions of req/s</div><div class="a">NLB</div></div>
-  <div class="qa"><div class="q">Path or host routing, dynamic container ports, Cognito auth</div><div class="a">ALB</div></div>
-  <div class="qa"><div class="q">Cross-zone default</div><div class="a">ALB on, NLB off, Classic off</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Define the instances</div><div class="a">launch template <span class="lo">(configurations are legacy)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>ALB / NLB / GWLB layer</div><div class="a">7 / 4 / 3</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Static IP, UDP, millions of req/s</div><div class="a">NLB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Path or host routing, dynamic container ports, Cognito auth</div><div class="a">ALB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Cross-zone default <span class="mk">&dagger;</span></div><div class="a">ALB on, NLB off, Classic off</div></div>
   <div class="qa"><div class="q">Min subnets, internet-facing</div><div class="a">2 subnets in 2 AZs</div></div>
   <div class="qa"><div class="q">Health check lives on / many certs</div><div class="a">the target group / SNI</div></div>
 </section>
@@ -326,82 +413,82 @@ section > h3 {
 <!-- ============ LAMBDA ============ -->
 <section class="s-lambda">
   <h2>Lambda, containers &amp; app platforms</h2>
-  <div class="qa"><div class="q">Needs longer than 15 minutes</div><div class="a">Fargate, ECS, Batch or Step Functions</div></div>
-  <div class="qa"><div class="q">Faster with no code change</div><div class="a">more memory <span class="lo">(CPU scales with it)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Needs longer than 15 minutes <span class="mk alt">&asymp;</span></div><div class="a">Fargate, ECS, Batch or Step Functions</div></div>
+  <div class="qa"><div class="q">Faster with no code change <span class="mk alt">&asymp;</span></div><div class="a">more memory <span class="lo">(CPU scales with it)</span></div></div>
   <div class="qa"><div class="q">Cold starts / starving the account</div><div class="a">provisioned / reserved concurrency</div></div>
   <div class="qa"><div class="q">429 TooManyRequests</div><div class="a">concurrency limit hit</div></div>
-  <div class="qa"><div class="q">Share dependencies / failed async</div><div class="a">layers / dead-letter queue</div></div>
-  <div class="qa"><div class="q">Lambda in a VPC needs internet</div><div class="a">NAT gateway</div></div>
-  <div class="qa"><div class="q">ECS task role vs execution role</div><div class="a">your code's permissions vs ECS pulling the image</div></div>
-  <div class="qa"><div class="q">Kubernetes or kubectl</div><div class="a">EKS</div></div>
-  <div class="qa"><div class="q">Containers: no servers / needs GPU</div><div class="a">Fargate / EC2 launch type</div></div>
-  <div class="qa"><div class="q">Upload code, AWS builds the stack</div><div class="a">Elastic Beanstalk <span class="lo">(Immutable or Blue/Green = zero downtime)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Share dependencies / failed async</div><div class="a">layers / dead-letter queue</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Lambda in a VPC needs internet</div><div class="a">NAT gateway</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>ECS task role vs execution role</div><div class="a">your code's permissions vs ECS pulling the image</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Kubernetes or kubectl</div><div class="a">EKS</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Containers: no servers / needs GPU</div><div class="a">Fargate / EC2 launch type</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Upload code, AWS builds the stack</div><div class="a">Elastic Beanstalk <span class="lo">(Immutable or Blue/Green = zero downtime)</span></div></div>
   <div class="qa"><div class="q">Chef or Puppet / long batch jobs</div><div class="a">OpsWorks / AWS Batch</div></div>
-  <div class="qa"><div class="q">Edge: light rewrite / calls services</div><div class="a">CloudFront Functions / Lambda@Edge</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Edge: light rewrite / calls services</div><div class="a">CloudFront Functions / Lambda@Edge</div></div>
 </section>
 
 <!-- ============ S3 ============ -->
 <section class="s-s3">
   <h2>S3<span class="tag">object storage</span></h2>
   <div class="qa"><div class="q">Consistency model</div><div class="a">strong read-after-write</div></div>
-  <div class="qa"><div class="q">Default encryption today</div><div class="a">SSE-S3, applied automatically</div></div>
-  <div class="qa"><div class="q">SSE-S3 / SSE-KMS / SSE-C</div><div class="a">AWS holds all keys / you own the CMK / you send the key every request</div></div>
-  <div class="qa"><div class="q">Accidental vs permanent delete</div><div class="a">versioning / MFA Delete <span class="lo">(root + CLI)</span></div></div>
-  <div class="qa"><div class="q">Undeletable for seven years</div><div class="a">Object Lock, compliance mode</div></div>
-  <div class="qa"><div class="q">Replication requires</div><div class="a">versioning on both + an IAM role &mdash; and it never copies existing objects</div></div>
-  <div class="qa"><div class="q">Slow uploads from far away</div><div class="a">Transfer Acceleration</div></div>
-  <div class="qa"><div class="q">Browser uploads one file securely</div><div class="a">presigned URL</div></div>
-  <div class="qa"><div class="q">CloudFront reads a private bucket</div><div class="a">Origin Access Control <span class="lo">(OAC)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Default encryption today <span class="mk">&dagger;</span></div><div class="a">SSE-S3, applied automatically</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>SSE-S3 / SSE-KMS / SSE-C</div><div class="a">AWS holds all keys / you own the CMK / you send the key every request</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Accidental vs permanent delete</div><div class="a">versioning / MFA Delete <span class="lo">(root + CLI)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Undeletable for seven years</div><div class="a">Object Lock, compliance mode</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Replication requires <span class="mk">&dagger;</span></div><div class="a">versioning on both + an IAM role &mdash; and it never copies existing objects</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Slow uploads from far away</div><div class="a">Transfer Acceleration</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Browser uploads one file securely</div><div class="a">presigned URL</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>CloudFront reads a private bucket</div><div class="a">Origin Access Control <span class="lo">(OAC)</span></div></div>
   <div class="qa"><div class="q">Stop all public access</div><div class="a">S3 Block Public Access</div></div>
-  <div class="qa"><div class="q">Hot / unknown pattern / infrequent</div><div class="a">Standard / Intelligent-Tiering / Standard-IA</div></div>
-  <div class="qa"><div class="q">Events can go to</div><div class="a">SQS, SNS, Lambda, EventBridge</div></div>
-  <div class="qa"><div class="q">Infrequent and re-creatable</div><div class="a">One Zone-IA <span class="lo">(single AZ)</span></div></div>
-  <div class="qa"><div class="q">Archive: ms / minutes&ndash;hours / cheapest</div><div class="a">Glacier Instant / Flexible / Deep Archive</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Hot / unknown pattern / infrequent <span class="mk alt">&asymp;</span></div><div class="a">Standard / Intelligent-Tiering / Standard-IA</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Events can go to</div><div class="a">SQS, SNS, Lambda, EventBridge</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Infrequent and re-creatable <span class="mk">&dagger;</span></div><div class="a">One Zone-IA <span class="lo">(single AZ)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Archive: ms / minutes&ndash;hours / cheapest</div><div class="a">Glacier Instant / Flexible / Deep Archive</div></div>
   <div class="trap"><b>Trap:</b> One Zone-IA lives in <b>one AZ</b>. If the question says "must survive the loss of an Availability Zone," it is wrong, however cheap it looks.</div>
 </section>
 
 <!-- ============ BLOCK + FILE ============ -->
 <section class="s-block">
   <h2>EBS, EFS, FSx &amp; transfer</h2>
-  <div class="qa"><div class="q">EBS scope</div><div class="a">one AZ &mdash; never spans AZs</div></div>
+  <div class="qa"><div class="q">EBS scope <span class="mk">&dagger;</span></div><div class="a">one AZ &mdash; never spans AZs</div></div>
   <div class="qa"><div class="q">Move a volume to another AZ</div><div class="a">snapshot, then create from it there</div></div>
   <div class="qa"><div class="q">Encrypt an existing volume or RDS</div><div class="a">snapshot &rarr; copy with encryption &rarr; restore</div></div>
   <div class="qa"><div class="q">Changeable while running</div><div class="a">type, size, IOPS <span class="lo">(grow only, never shrink)</span></div></div>
   <div class="qa"><div class="q">Snapshots stored in</div><div class="a">S3, incremental, region-scoped</div></div>
-  <div class="qa"><div class="q">General default volume</div><div class="a">gp3 <span class="lo">(3,000 IOPS / 125 MB/s included)</span></div></div>
-  <div class="qa"><div class="q">Guaranteed IOPS / throughput / cold</div><div class="a">io2 / st1 / sc1 <span class="lo">(st1 &amp; sc1 cannot boot)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>General default volume</div><div class="a">gp3 <span class="lo">(3,000 IOPS / 125 MB/s included)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Guaranteed IOPS / throughput / cold</div><div class="a">io2 / st1 / sc1 <span class="lo">(st1 &amp; sc1 cannot boot)</span></div></div>
   <div class="qa"><div class="q">Highest IOPS, data disposable</div><div class="a">instance store</div></div>
-  <div class="qa"><div class="q">Shared files, Linux, many instances</div><div class="a">EFS <span class="lo">(NFS v4.1, regional)</span></div></div>
-  <div class="qa"><div class="q">SMB, Windows, Active Directory</div><div class="a">FSx for Windows File Server</div></div>
-  <div class="qa"><div class="q">HPC or ML scratch, links to S3</div><div class="a">FSx for Lustre</div></div>
-  <div class="qa"><div class="q">On-prem NFS/SMB backed by S3</div><div class="a">S3 File Gateway</div></div>
-  <div class="qa"><div class="q">Shrink on-prem footprint vs keep it all local</div><div class="a">Volume Gateway cached / stored mode</div></div>
-  <div class="qa"><div class="q">Retire a tape library</div><div class="a">Tape Gateway</div></div>
-  <div class="qa"><div class="q">Petabytes, no bandwidth vs ongoing sync</div><div class="a">Snowball / DataSync</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Shared files, Linux, many instances <span class="mk alt">&asymp;</span></div><div class="a">EFS <span class="lo">(NFS v4.1, regional)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>SMB, Windows, Active Directory <span class="mk alt">&asymp;</span></div><div class="a">FSx for Windows File Server</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>HPC or ML scratch, links to S3</div><div class="a">FSx for Lustre</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>On-prem NFS/SMB backed by S3</div><div class="a">S3 File Gateway</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Shrink on-prem footprint vs keep it all local</div><div class="a">Volume Gateway cached / stored mode</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Retire a tape library</div><div class="a">Tape Gateway</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Petabytes, no bandwidth vs ongoing sync <span class="mk alt">&asymp;</span></div><div class="a">Snowball / DataSync</div></div>
   <div class="qa"><div class="q">One backup policy across services</div><div class="a">AWS Backup</div></div>
 </section>
 
 <!-- ============ DATABASES ============ -->
 <section class="s-db">
   <h2>Databases</h2>
-  <div class="qa"><div class="q">Multi-AZ purpose</div><div class="a">availability &mdash; synchronous, <span class="lo">not readable</span></div></div>
-  <div class="qa"><div class="q">Read replica purpose</div><div class="a">read scaling &mdash; async, readable, cross-region</div></div>
-  <div class="qa"><div class="q">Multi-AZ failover</div><div class="a">automatic, 60&ndash;120 s, same endpoint</div></div>
-  <div class="qa"><div class="q">RDS gives you OS access</div><div class="a">no &mdash; need it? run on EC2</div></div>
-  <div class="qa"><div class="q">Aurora copies / failover</div><div class="a">6 across 3 AZs / under 30 s</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Multi-AZ purpose <span class="mk">&dagger;</span><span class="mk alt">&asymp;</span></div><div class="a">availability &mdash; synchronous, <span class="lo">not readable</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Read replica purpose <span class="mk">&dagger;</span><span class="mk alt">&asymp;</span></div><div class="a">read scaling &mdash; async, readable, cross-region</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Multi-AZ failover</div><div class="a">automatic, 60&ndash;120 s, same endpoint</div></div>
+  <div class="qa"><div class="q">RDS gives you OS access <span class="mk">&dagger;</span></div><div class="a">no &mdash; need it? run on EC2</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Aurora copies / failover</div><div class="a">6 across 3 AZs / under 30 s</div></div>
   <div class="qa"><div class="q">Restoring a snapshot gives</div><div class="a">a new instance with a new endpoint</div></div>
-  <div class="qa"><div class="q">Cross-region DR, sub-second lag</div><div class="a">Aurora Global Database</div></div>
-  <div class="qa"><div class="q">Intermittent load, near-zero idle cost</div><div class="a">Aurora Serverless v2</div></div>
-  <div class="qa"><div class="q">DynamoDB microsecond reads</div><div class="a">DAX <span class="lo">(read-through only)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Cross-region DR, sub-second lag</div><div class="a">Aurora Global Database</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Intermittent load, near-zero idle cost</div><div class="a">Aurora Serverless v2</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>DynamoDB microsecond reads <span class="mk alt">&asymp;</span></div><div class="a">DAX <span class="lo">(read-through only)</span></div></div>
   <div class="qa"><div class="q">LSI vs GSI</div><div class="a">same PK, made with the table / new PK any time, eventually consistent</div></div>
-  <div class="qa"><div class="q">Active-active across regions</div><div class="a">Global Tables</div></div>
-  <div class="qa"><div class="q">Every item change / expire free</div><div class="a">DynamoDB Streams + Lambda / TTL</div></div>
-  <div class="qa"><div class="q">ProvisionedThroughputExceeded</div><div class="a">hot partition &rarr; better key, or on-demand</div></div>
-  <div class="qa"><div class="q">Redis vs Memcached</div><div class="a">persistence, failover, sorted sets / simple multi-threaded cache</div></div>
-  <div class="qa"><div class="q">Warehouse vs ad-hoc SQL on S3</div><div class="a">Redshift / Athena</div></div>
-  <div class="qa"><div class="q">Short queries stuck behind long</div><div class="a">Redshift WLM query queues</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Active-active across regions</div><div class="a">Global Tables</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Every item change / expire free</div><div class="a">DynamoDB Streams + Lambda / TTL</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>ProvisionedThroughputExceeded</div><div class="a">hot partition &rarr; better key, or on-demand</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Redis vs Memcached</div><div class="a">persistence, failover, sorted sets / simple multi-threaded cache</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Warehouse vs ad-hoc SQL on S3</div><div class="a">Redshift / Athena</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Short queries stuck behind long</div><div class="a">Redshift WLM query queues</div></div>
   <div class="qa"><div class="q">Graph / time series / ledger</div><div class="a">Neptune / Timestream / QLDB</div></div>
-  <div class="qa"><div class="q">Migrate engine, low downtime</div><div class="a">DMS + Schema Conversion Tool</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Migrate engine, low downtime</div><div class="a">DMS + Schema Conversion Tool</div></div>
   <div class="trap"><b>Trap:</b> you can never read from a Multi-AZ standby. If an answer offers the standby for reporting queries it is wrong &mdash; that is what a read replica is for.</div>
 </section>
 
@@ -409,19 +496,19 @@ section > h3 {
 <section class="s-vpc">
   <h2>VPC &amp; connectivity</h2>
   <div class="qa"><div class="q">What makes a subnet public</div><div class="a">a route to an internet gateway</div></div>
-  <div class="qa"><div class="q">Private instances reach the internet</div><div class="a">NAT gateway in a public subnet <span class="lo">(one per AZ)</span></div></div>
-  <div class="qa"><div class="q">Security group</div><div class="a">instance level, stateful, allow-only</div></div>
-  <div class="qa"><div class="q">Network ACL</div><div class="a">subnet level, stateless, allow + deny, in rule order</div></div>
-  <div class="qa"><div class="q">Block a single malicious IP</div><div class="a">NACL deny rule <span class="lo">(groups cannot deny)</span></div></div>
-  <div class="qa"><div class="q">Default vs custom NACL</div><div class="a">allows everything / denies everything</div></div>
-  <div class="qa"><div class="q">Ephemeral port range</div><div class="a">1024 &ndash; 65535</div></div>
-  <div class="qa"><div class="q">Two VPCs vs hundreds</div><div class="a">peering <span class="lo">(not transitive)</span> / Transit Gateway</div></div>
-  <div class="qa"><div class="q">Expose your service to another VPC</div><div class="a">PrivateLink + NLB</div></div>
-  <div class="qa"><div class="q">Gateway endpoints work with</div><div class="a">S3 and DynamoDB only <span class="lo">(free)</span></div></div>
-  <div class="qa"><div class="q">Interface endpoint</div><div class="a">everything else &mdash; an ENI with a security group</div></div>
-  <div class="qa"><div class="q">Hybrid in days vs steady bandwidth</div><div class="a">Site-to-Site VPN / Direct Connect <span class="lo">(weeks)</span></div></div>
-  <div class="qa"><div class="q">Why traffic is being dropped</div><div class="a">VPC Flow Logs &mdash; look for REJECT</div></div>
-  <div class="qa"><div class="q">Shell access, no open ports, audited</div><div class="a">SSM Session Manager</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Private instances reach the internet <span class="mk alt">&asymp;</span></div><div class="a">NAT gateway in a public subnet <span class="lo">(one per AZ)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Security group</div><div class="a">instance level, stateful, allow-only</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Network ACL <span class="mk">&dagger;</span></div><div class="a">subnet level, stateless, allow + deny, in rule order</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Block a single malicious IP <span class="mk">&dagger;</span></div><div class="a">NACL deny rule <span class="lo">(groups cannot deny)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Default vs custom NACL <span class="mk">&dagger;</span></div><div class="a">allows everything / denies everything</div></div>
+  <div class="qa"><div class="q">Ephemeral port range <span class="mk">&dagger;</span></div><div class="a">1024 &ndash; 65535</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Two VPCs vs hundreds <span class="mk">&dagger;</span></div><div class="a">peering <span class="lo">(not transitive)</span> / Transit Gateway</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Expose your service to another VPC</div><div class="a">PrivateLink + NLB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Gateway endpoints work with <span class="mk">&dagger;</span></div><div class="a">S3 and DynamoDB only <span class="lo">(free)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Interface endpoint</div><div class="a">everything else &mdash; an ENI with a security group</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Hybrid in days vs steady bandwidth <span class="mk alt">&asymp;</span></div><div class="a">Site-to-Site VPN / Direct Connect <span class="lo">(weeks)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Why traffic is being dropped</div><div class="a">VPC Flow Logs &mdash; look for REJECT</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Shell access, no open ports, audited <span class="mk alt">&asymp;</span></div><div class="a">SSM Session Manager</div></div>
   <div class="trap"><b>Trap:</b> NACLs are stateless. An inbound rule alone is never enough &mdash; you must also allow the <b>outbound ephemeral ports</b> so the reply can get out.</div>
 </section>
 
@@ -430,72 +517,72 @@ section > h3 {
   <h2>Route 53 &amp; the edge</h2>
   <div class="qa"><div class="q">A/B test, gradual migration</div><div class="a">Weighted</div></div>
   <div class="qa"><div class="q">Active-passive disaster recovery</div><div class="a">Failover</div></div>
-  <div class="qa"><div class="q">Compliance, language, licensing</div><div class="a">Geolocation <span class="lo">(the user's location)</span></div></div>
+  <div class="qa"><div class="q">Compliance, language, licensing <span class="mk alt">&asymp;</span></div><div class="a">Geolocation <span class="lo">(the user's location)</span></div></div>
   <div class="qa"><div class="q">Shift load between regions with a bias</div><div class="a">Geoproximity <span class="lo">(your resources)</span></div></div>
-  <div class="qa"><div class="q">Fastest region for each user</div><div class="a">Latency</div></div>
+  <div class="qa"><div class="q">Fastest region for each user <span class="mk alt">&asymp;</span></div><div class="a">Latency</div></div>
   <div class="qa"><div class="q">Up to 8 healthy records</div><div class="a">Multivalue answer</div></div>
-  <div class="qa"><div class="q">Works at the zone apex, free</div><div class="a">Alias <span class="lo">(a CNAME cannot)</span></div></div>
-  <div class="qa"><div class="q">CloudFront default / max TTL</div><div class="a">24 hours / 1 year</div></div>
+  <div class="qa"><div class="q">Works at the zone apex, free <span class="mk">&dagger;</span></div><div class="a">Alias <span class="lo">(a CNAME cannot)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>CloudFront default / max TTL</div><div class="a">24 hours / 1 year</div></div>
   <div class="qa"><div class="q">Health check failure threshold</div><div class="a">3 consecutive checks</div></div>
-  <div class="qa"><div class="q">CloudFront certificate must live in</div><div class="a">us-east-1</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>CloudFront certificate must live in <span class="mk">&dagger;</span></div><div class="a">us-east-1</div></div>
   <div class="qa"><div class="q">Restrict content to paying users</div><div class="a">signed URLs or signed cookies</div></div>
-  <div class="qa"><div class="q">Static anycast IPs, TCP/UDP, gaming</div><div class="a">Global Accelerator <span class="lo">(does not cache)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Static anycast IPs, TCP/UDP, gaming</div><div class="a">Global Accelerator <span class="lo">(does not cache)</span></div></div>
 </section>
 
 <!-- ============ SECURITY ============ -->
 <section class="s-sec">
   <h2>Security &amp; identity<span class="tag">30% of the exam</span></h2>
-  <div class="qa"><div class="q">Policy evaluation order</div><div class="a">explicit Deny &rarr; explicit Allow &rarr; implicit deny</div></div>
+  <div class="qa"><div class="q">Policy evaluation order <span class="mk alt">&asymp;</span></div><div class="a">explicit Deny &rarr; explicit Allow &rarr; implicit deny</div></div>
   <div class="qa"><div class="q">Never grant, only limit</div><div class="a">SCPs, permission boundaries, session policies</div></div>
-  <div class="qa"><div class="q">SCP effect on the management account</div><div class="a">none &mdash; it is never restricted</div></div>
-  <div class="qa"><div class="q">App on EC2 needs S3</div><div class="a">IAM role via an instance profile</div></div>
-  <div class="qa"><div class="q">Another account needs access</div><div class="a">cross-account role + sts:AssumeRole</div></div>
-  <div class="qa"><div class="q">Workforce sign-in / mobile users</div><div class="a">IAM Identity Center / Cognito identity pools</div></div>
-  <div class="qa"><div class="q">Resource-based policy must have</div><div class="a">a Principal</div></div>
-  <div class="qa"><div class="q">KMS direct encryption limit</div><div class="a">4 KB &rarr; above that, envelope encryption</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>SCP effect on the management account <span class="mk">&dagger;</span></div><div class="a">none &mdash; it is never restricted</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>App on EC2 needs S3 <span class="mk alt">&asymp;</span></div><div class="a">IAM role via an instance profile</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Another account needs access</div><div class="a">cross-account role + sts:AssumeRole</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Workforce sign-in / mobile users</div><div class="a">IAM Identity Center / Cognito identity pools</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Resource-based policy must have</div><div class="a">a Principal</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>KMS direct encryption limit</div><div class="a">4 KB &rarr; above that, envelope encryption</div></div>
   <div class="qa"><div class="q">Single-tenant, FIPS 140-2 Level 3</div><div class="a">CloudHSM</div></div>
-  <div class="qa"><div class="q">Rotate DB creds / free config store</div><div class="a">Secrets Manager / SSM Parameter Store</div></div>
-  <div class="qa"><div class="q">SQL injection, XSS, rate limit by IP</div><div class="a">AWS WAF</div></div>
-  <div class="qa"><div class="q">DDoS Response Team, cost protection</div><div class="a">Shield Advanced</div></div>
-  <div class="qa"><div class="q">GuardDuty / Inspector / Macie</div><div class="a">detects threats / scans for CVEs / classifies PII</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Rotate DB creds / free config store</div><div class="a">Secrets Manager / SSM Parameter Store</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>SQL injection, XSS, rate limit by IP</div><div class="a">AWS WAF</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>DDoS Response Team, cost protection</div><div class="a">Shield Advanced</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>GuardDuty / Inspector / Macie</div><div class="a">detects threats / scans for CVEs / classifies PII</div></div>
   <div class="qa"><div class="q">Detective / Security Hub</div><div class="a">investigates / collects all findings</div></div>
-  <div class="qa"><div class="q">Trusted Advisor categories</div><div class="a">Cost, Performance, Fault tolerance, Security, Service limits</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Trusted Advisor categories</div><div class="a">Cost, Performance, Fault tolerance, Security, Service limits</div></div>
   <div class="qa"><div class="q">Four tag categories</div><div class="a">Technical, Automation, Business, Security</div></div>
 </section>
 
 <!-- ============ INTEGRATION ============ -->
 <section class="s-int">
   <h2>Integration &amp; analytics</h2>
-  <div class="qa"><div class="q">Decouple a spiky front end</div><div class="a">SQS + auto-scale workers on queue depth</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Decouple a spiky front end <span class="mk alt">&asymp;</span></div><div class="a">SQS + auto-scale workers on queue depth</div></div>
   <div class="qa"><div class="q">Standard queue guarantees</div><div class="a">at-least-once, best-effort order</div></div>
   <div class="qa"><div class="q">Exactly-once and strict order</div><div class="a">FIFO queue <span class="lo">(name ends .fifo)</span></div></div>
-  <div class="qa"><div class="q">Message processed twice</div><div class="a">visibility timeout shorter than processing</div></div>
-  <div class="qa"><div class="q">Poison messages / empty receives</div><div class="a">dead-letter queue / long polling</div></div>
-  <div class="qa"><div class="q">One message to many queues</div><div class="a">SNS fan-out <span class="lo">(+ filter policies)</span></div></div>
-  <div class="qa"><div class="q">Filter on event body, SaaS, replay</div><div class="a">EventBridge</div></div>
-  <div class="qa"><div class="q">Coordinate steps, retries, approvals</div><div class="a">Step Functions <span class="lo">(SWF is legacy)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Message processed twice</div><div class="a">visibility timeout shorter than processing</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Poison messages / empty receives</div><div class="a">dead-letter queue / long polling</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>One message to many queues</div><div class="a">SNS fan-out <span class="lo">(+ filter policies)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Filter on event body, SaaS, replay</div><div class="a">EventBridge</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Coordinate steps, retries, approvals</div><div class="a">Step Functions <span class="lo">(SWF is legacy)</span></div></div>
   <div class="qa"><div class="q">App already speaks AMQP, MQTT, JMS</div><div class="a">Amazon MQ</div></div>
-  <div class="qa"><div class="q">Many consumers read the same records</div><div class="a">Kinesis Data Streams</div></div>
-  <div class="qa"><div class="q">Load a stream to S3 or Redshift, no code</div><div class="a">Firehose <span class="lo">(~60 s, not real time)</span></div></div>
-  <div class="qa"><div class="q">Ad-hoc SQL on S3 / cut that bill</div><div class="a">Athena / Parquet, compress, partition</div></div>
-  <div class="qa"><div class="q">Hadoop &amp; Spark / search / BI</div><div class="a">EMR / OpenSearch / QuickSight</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Many consumers read the same records</div><div class="a">Kinesis Data Streams</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Load a stream to S3 or Redshift, no code <span class="mk">&dagger;</span></div><div class="a">Firehose <span class="lo">(~60 s, not real time)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Ad-hoc SQL on S3 / cut that bill</div><div class="a">Athena / Parquet, compress, partition</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Hadoop &amp; Spark / search / BI</div><div class="a">EMR / OpenSearch / QuickSight</div></div>
 </section>
 
 <!-- ============ OPS ============ -->
 <section class="s-ops">
   <h2>Monitoring, governance &amp; cost</h2>
-  <div class="qa"><div class="q">CloudWatch / CloudTrail / Config</div><div class="a">performance / who did what / configuration and compliance</div></div>
-  <div class="qa"><div class="q">Metrics needing the agent</div><div class="a">memory and disk space used</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>CloudWatch / CloudTrail / Config</div><div class="a">performance / who did what / configuration and compliance</div></div>
+  <div class="qa"><div class="q">Metrics needing the agent <span class="mk">&dagger;</span></div><div class="a">memory and disk space used</div></div>
   <div class="qa"><div class="q">Count ERROR lines and alarm</div><div class="a">metric filter on a log group</div></div>
-  <div class="qa"><div class="q">CloudTrail free by default</div><div class="a">90 days of management events</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>CloudTrail free by default</div><div class="a">90 days of management events</div></div>
   <div class="qa"><div class="q">Who deleted an S3 object</div><div class="a">enable data events</div></div>
   <div class="qa"><div class="q">Prove logs untampered / all regions</div><div class="a">log file integrity validation / apply the trail everywhere</div></div>
-  <div class="qa"><div class="q">Fix a non-compliant resource</div><div class="a">Config remediation via SSM Automation</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Fix a non-compliant resource</div><div class="a">Config remediation via SSM Automation</div></div>
   <div class="qa"><div class="q">Only required CFN section / preview</div><div class="a">Resources / change set</div></div>
-  <div class="qa"><div class="q">Keep data on delete / spot drift</div><div class="a">DeletionPolicy Retain / drift detection</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Keep data on delete / spot drift</div><div class="a">DeletionPolicy Retain / drift detection</div></div>
   <div class="qa"><div class="q">Many accounts and regions / guard rails</div><div class="a">StackSets / Control Tower + SCPs</div></div>
-  <div class="qa"><div class="q">Right-size / alert on spend</div><div class="a">Compute Optimizer / AWS Budgets</div></div>
-  <div class="qa"><div class="q">Cut the NAT bill for S3 traffic</div><div class="a">S3 gateway endpoint</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Right-size / alert on spend</div><div class="a">Compute Optimizer / AWS Budgets</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Cut the NAT bill for S3 traffic</div><div class="a">S3 gateway endpoint</div></div>
   <div class="qa"><div class="q">Survive an AZ vs a region failure</div><div class="a">multiple AZs / multiple regions</div></div>
 </section>
 
@@ -505,25 +592,25 @@ section > h3 {
   <div class="qa"><div class="q">"minimal operational overhead"</div><div class="a">the serverless or managed option</div></div>
   <div class="qa"><div class="q">"highly available"</div><div class="a">multiple AZs</div></div>
   <div class="qa"><div class="q">"disaster recovery", "region outage"</div><div class="a">multiple regions</div></div>
-  <div class="qa"><div class="q">"cannot be interrupted"</div><div class="a">Spot is wrong, however cheap</div></div>
-  <div class="qa"><div class="q">"decouple" / "notify many subscribers"</div><div class="a">SQS / SNS</div></div>
-  <div class="qa"><div class="q">"microseconds" / "sub-millisecond"</div><div class="a">DAX / ElastiCache</div></div>
-  <div class="qa"><div class="q">"static IP for a firewall allow-list"</div><div class="a">NLB or Global Accelerator</div></div>
-  <div class="qa"><div class="q">"Windows file share"</div><div class="a">FSx for Windows, never EFS</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"cannot be interrupted"</div><div class="a">Spot is wrong, however cheap</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>"decouple" / "notify many subscribers"</div><div class="a">SQS / SNS</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"microseconds" / "sub-millisecond"</div><div class="a">DAX / ElastiCache</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>"static IP for a firewall allow-list"</div><div class="a">NLB or Global Accelerator</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"Windows file share"</div><div class="a">FSx for Windows, never EFS</div></div>
   <div class="qa"><div class="q">"no bandwidth, petabytes, deadline"</div><div class="a">Snow family</div></div>
-  <div class="qa"><div class="q">"urgent" vs "consistent bandwidth"</div><div class="a">Site-to-Site VPN / Direct Connect</div></div>
-  <div class="qa"><div class="q">"do not open port 22"</div><div class="a">Session Manager</div></div>
-  <div class="qa"><div class="q">"never hardcode credentials"</div><div class="a">an IAM role</div></div>
-  <div class="qa"><div class="q">"must be the only key holders"</div><div class="a">CloudHSM, or SSE-C for S3</div></div>
-  <div class="qa"><div class="q">"longer than 15 minutes"</div><div class="a">not Lambda &mdash; Fargate, Batch, Step Functions</div></div>
-  <div class="qa"><div class="q">"we already use Kubernetes"</div><div class="a">EKS</div></div>
-  <div class="qa"><div class="q">"must not leave the AWS network"</div><div class="a">a VPC endpoint</div></div>
-  <div class="qa"><div class="q">"pay per query, nothing running"</div><div class="a">Athena</div></div>
-  <div class="qa"><div class="q">"petabyte warehouse, high concurrency"</div><div class="a">Redshift</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"urgent" vs "consistent bandwidth"</div><div class="a">Site-to-Site VPN / Direct Connect</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>"do not open port 22"</div><div class="a">Session Manager</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>"never hardcode credentials"</div><div class="a">an IAM role</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>"must be the only key holders"</div><div class="a">CloudHSM, or SSE-C for S3</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>"longer than 15 minutes"</div><div class="a">not Lambda &mdash; Fargate, Batch, Step Functions</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>"we already use Kubernetes"</div><div class="a">EKS</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>"must not leave the AWS network"</div><div class="a">a VPC endpoint</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"pay per query, nothing running"</div><div class="a">Athena</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>"petabyte warehouse, high concurrency"</div><div class="a">Redshift</div></div>
   <div class="qa"><div class="q">"MongoDB compatible" / "Cassandra"</div><div class="a">DocumentDB / Keyspaces</div></div>
   <div class="qa"><div class="q">"no central trusted authority"</div><div class="a">Managed Blockchain</div></div>
   <div class="qa"><div class="q">"single pane of glass" for findings</div><div class="a">Security Hub</div></div>
-  <div class="qa"><div class="q">"socket or core-based licence"</div><div class="a">Dedicated Host</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"socket or core-based licence" <span class="mk">&dagger;</span></div><div class="a">Dedicated Host</div></div>
   <h3>Tie-breakers, in order</h3>
   <div class="mn"><b>1.</b> Managed beats self-managed. <b>2.</b> Multi-AZ beats single-AZ. <b>3.</b> Temporary credentials beat long-term keys. <b>4.</b> A guard rail beats trusting people.</div>
   <div class="mn"><b>5.</b> Cheaper wins <i>only</i> if every stated requirement still holds.</div>
@@ -540,42 +627,131 @@ section > h3 {
   <div class="qa"><div class="q">Pilot light</div><div class="a">tens of minutes &mdash; data replicating, servers off</div></div>
   <div class="qa"><div class="q">Warm standby</div><div class="a">minutes &mdash; a scaled-down but working copy</div></div>
   <div class="qa"><div class="q">Multi-site active-active</div><div class="a">near zero &mdash; full capacity, both regions serving</div></div>
-  <div class="qa"><div class="q">Stateless tier survives instance loss</div><div class="a">Auto Scaling across AZs behind an ELB</div></div>
-  <div class="qa"><div class="q">Database survives an AZ loss</div><div class="a">Multi-AZ</div></div>
-  <div class="qa"><div class="q">Database survives a region loss</div><div class="a">cross-region replica or Aurora Global Database</div></div>
-  <div class="qa"><div class="q">Objects survive a region loss</div><div class="a">S3 Cross-Region Replication</div></div>
-  <div class="qa"><div class="q">Static page during an outage</div><div class="a">Route 53 failover to an S3 website</div></div>
-  <div class="qa"><div class="q">Guard against accidental deletion</div><div class="a">versioning + MFA Delete + Object Lock</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Stateless tier survives instance loss</div><div class="a">Auto Scaling across AZs behind an ELB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Database survives an AZ loss</div><div class="a">Multi-AZ</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Database survives a region loss</div><div class="a">cross-region replica or Aurora Global Database</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Objects survive a region loss</div><div class="a">S3 Cross-Region Replication</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Static page during an outage</div><div class="a">Route 53 failover to an S3 website</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Guard against accidental deletion</div><div class="a">versioning + MFA Delete + Object Lock</div></div>
 </section>
 
 <!-- ============ COST ============ -->
 <section class="s-cost">
   <h2>Cost optimization<span class="tag">20% of the exam</span></h2>
-  <div class="qa"><div class="q">Steady 24/7 workload</div><div class="a">Savings Plans or Reserved Instances</div></div>
-  <div class="qa"><div class="q">Fault-tolerant, interruptible work</div><div class="a">Spot Instances</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Steady 24/7 workload</div><div class="a">Savings Plans or Reserved Instances</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Fault-tolerant, interruptible work</div><div class="a">Spot Instances</div></div>
   <div class="qa"><div class="q">Idle at night and weekends</div><div class="a">scheduled scaling or an instance scheduler</div></div>
-  <div class="qa"><div class="q">Over-sized instances</div><div class="a">Compute Optimizer</div></div>
-  <div class="qa"><div class="q">Big NAT bill for S3 traffic</div><div class="a">an S3 gateway endpoint</div></div>
-  <div class="qa"><div class="q">Everything sitting in S3 Standard</div><div class="a">lifecycle rules + Intelligent-Tiering</div></div>
-  <div class="qa"><div class="q">Old snapshots, unattached volumes</div><div class="a">find with Trusted Advisor, automate with DLM</div></div>
-  <div class="qa"><div class="q">Incomplete multipart uploads</div><div class="a">lifecycle rule to abort them</div></div>
-  <div class="qa"><div class="q">High Athena bill</div><div class="a">Parquet, compression, partitioning</div></div>
-  <div class="qa"><div class="q">Spiky DynamoDB traffic</div><div class="a">on-demand capacity mode</div></div>
+  <div class="qa"><div class="q">Over-sized instances <span class="mk alt">&asymp;</span></div><div class="a">Compute Optimizer</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Big NAT bill for S3 traffic</div><div class="a">an S3 gateway endpoint</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Everything sitting in S3 Standard <span class="mk alt">&asymp;</span></div><div class="a">lifecycle rules + Intelligent-Tiering</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Old snapshots, unattached volumes</div><div class="a">find with Trusted Advisor, automate with DLM</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Incomplete multipart uploads</div><div class="a">lifecycle rule to abort them</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>High Athena bill</div><div class="a">Parquet, compression, partitioning</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Spiky DynamoDB traffic</div><div class="a">on-demand capacity mode</div></div>
   <div class="qa"><div class="q">Cross-AZ data transfer charges</div><div class="a">keep chatty tiers in one AZ</div></div>
-  <div class="qa"><div class="q">Warn before overspending</div><div class="a">AWS Budgets + Cost Anomaly Detection</div></div>
-  <div class="qa"><div class="q">See cost by team</div><div class="a">cost allocation tags + Cost Explorer</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Warn before overspending</div><div class="a">AWS Budgets + Cost Anomaly Detection</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>See cost by team</div><div class="a">cost allocation tags + Cost Explorer</div></div>
 </section>
 
 <!-- ============ SCOPE ============ -->
 <section class="s-scope">
   <h2>What is global, regional, or zonal</h2>
-  <div class="qa"><div class="q">Global services</div><div class="a">IAM, Route 53, CloudFront, Organizations, Billing</div></div>
-  <div class="qa"><div class="q">Regional</div><div class="a">EC2, S3 buckets, RDS, VPC, DynamoDB tables</div></div>
-  <div class="qa"><div class="q">AZ-scoped</div><div class="a">subnets, EC2 instances, EBS volumes, ENIs, NAT gateways</div></div>
-  <div class="qa"><div class="q">Must be copied cross-region</div><div class="a">AMIs, EBS &amp; RDS snapshots, ECR images, KMS keys</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Global services</div><div class="a">IAM, Route 53, CloudFront, Organizations, Billing</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Regional</div><div class="a">EC2, S3 buckets, RDS, VPC, DynamoDB tables</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>AZ-scoped</div><div class="a">subnets, EC2 instances, EBS volumes, ENIs, NAT gateways</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Must be copied cross-region</div><div class="a">AMIs, EBS &amp; RDS snapshots, ECR images, KMS keys</div></div>
   <div class="qa"><div class="q">A region has</div><div class="a">3 or more AZs, independent power, cooling and network</div></div>
   <div class="qa"><div class="q">Local Zone / Wavelength / Outposts</div><div class="a">near a big city / in a 5G network / in your datacentre</div></div>
-  <div class="qa"><div class="q">Edge locations</div><div class="a">CloudFront points of presence &mdash; far more numerous than regions</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Edge locations</div><div class="a">CloudFront points of presence &mdash; far more numerous than regions</div></div>
+</section>
+
+<section class="s-elb">
+  <h2>Load balancers in depth<span class="tag">the single most-asked topic</span></h2>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Routes on URL path, host, header, query string</div><div class="a">ALB <span class="lo">(layer 7)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Routes on TCP/UDP port only</div><div class="a">NLB <span class="lo">(layer 4)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Preserves the client source IP natively</div><div class="a">NLB <span class="lo">(ALB uses X-Forwarded-For)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Millions of requests/sec, ultra-low latency</div><div class="a">NLB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>One static IP per AZ, supports Elastic IPs</div><div class="a">NLB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>WebSockets, HTTP/2, gRPC</div><div class="a">ALB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Redirect HTTP to HTTPS with no app change</div><div class="a">ALB listener rule</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Return a fixed response, e.g. a maintenance page</div><div class="a">ALB listener rule</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Authenticate with Cognito or OIDC at the edge</div><div class="a">ALB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Route to Lambda as a target</div><div class="a">ALB</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Route to IP targets, including on-premises</div><div class="a">ALB and NLB <span class="lo">(IP target type)</span></div></div>
+  <div class="qa"><div class="q">Front a third-party firewall appliance</div><div class="a">Gateway Load Balancer <span class="lo">(layer 3, GENEVE)</span></div></div>
+  <div class="qa"><div class="q">Health check lives on</div><div class="a">the target group, not the listener</div></div>
+  <div class="qa"><div class="q">TLS terminates on</div><div class="a">the listener, with an ACM certificate</div></div>
+  <div class="qa"><div class="q">Several certificates on one listener</div><div class="a">SNI</div></div>
+  <div class="qa"><div class="q">Sticky sessions</div><div class="a">a cookie &mdash; duration or application based</div></div>
+  <div class="qa"><div class="q">Deregistration delay default</div><div class="a">300 s <span class="lo">(connection draining)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Spread across AZs but traffic is uneven</div><div class="a">turn on cross-zone load balancing <span class="lo">(off by default on NLB)</span></div></div>
+  <div class="trap"><b>Trap:</b> an ALB has <b>no static IP</b> &mdash; always use its DNS name. If a question needs an address for a customer allow-list, the answer is <b>NLB</b> or <b>Global Accelerator</b>.</div>
+</section>
+
+<section class="s-api">
+  <h2>API Gateway &amp; front doors<span class="tag">4.6% of banked questions</span></h2>
+  <div class="qa"><div class="q">Three API types</div><div class="a">REST <span class="lo">(full)</span>, HTTP <span class="lo">(cheaper, faster)</span>, WebSocket <span class="lo">(two-way)</span></div></div>
+  <div class="qa"><div class="q">Endpoint types</div><div class="a">Edge-optimized, Regional, Private</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Reachable only inside a VPC</div><div class="a">Private endpoint + interface VPC endpoint</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Who may call it</div><div class="a">IAM auth, Lambda authorizer, Cognito user pool, resource policy</div></div>
+  <div class="qa"><div class="q">API key + usage plan is for</div><div class="a">throttling and metering per client &mdash; <span class="lo">not authentication</span></div></div>
+  <div class="qa"><div class="q">Cut repeated backend reads</div><div class="a">stage caching</div></div>
+  <div class="qa"><div class="q">Protect the backend from spikes</div><div class="a">throttling &mdash; steady rate plus burst</div></div>
+  <div class="qa"><div class="q">Client got a 429</div><div class="a">it exceeded the throttle limit</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Block SQL injection at the front door</div><div class="a">attach a WAF web ACL</div></div>
+  <div class="qa"><div class="q">Managed GraphQL with offline sync</div><div class="a">AppSync</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Sign-up and sign-in for your app users</div><div class="a">Cognito user pools</div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Swap a social login for AWS credentials</div><div class="a">Cognito identity pools</div></div>
+</section>
+
+<section class="s-mig">
+  <h2>Migration &amp; hybrid</h2>
+  <div class="qa"><div class="q">Move whole servers to AWS</div><div class="a">Application Migration Service <span class="lo">(MGN)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Move a database with little downtime</div><div class="a">DMS <span class="lo">(+ SCT to change engine)</span></div></div>
+  <div class="qa"><div class="q">Inventory what is running on-premises first</div><div class="a">Application Discovery Service</div></div>
+  <div class="qa"><div class="q">Track a multi-service migration in one place</div><div class="a">Migration Hub</div></div>
+  <div class="qa"><div class="q">Move VMware estate as-is</div><div class="a">VMware Cloud on AWS</div></div>
+  <div class="qa"><div class="q">Keep AWS APIs in your own datacentre</div><div class="a">Outposts</div></div>
+  <div class="qa"><div class="q">Low latency to one metro area</div><div class="a">Local Zones</div></div>
+  <div class="qa"><div class="q">Inside a 5G carrier network</div><div class="a">Wavelength</div></div>
+  <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Run containers on your own hardware</div><div class="a">ECS Anywhere / EKS Anywhere</div></div>
+  <div class="qa"><div class="q">The 7 Rs</div><div class="a">retire, retain, relocate, rehost, replatform, refactor, repurchase</div></div>
+</section>
+
+<section class="s-tail">
+  <h2>The long tail<span class="tag">named in the exam guide, asked rarely</span></h2>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Managed Active Directory, or connect to yours</div><div class="a">AWS Directory Service <span class="lo">(needed by FSx for Windows, WorkSpaces)</span></div></div>
+  <div class="qa"><div class="q">Track BYOL licences against limits</div><div class="a">License Manager</div></div>
+  <div class="qa"><div class="q">Score an architecture against the pillars</div><div class="a">Well-Architected Tool</div></div>
+  <div class="qa"><div class="q">Managed Grafana dashboards / Prometheus metrics</div><div class="a">Amazon Managed Grafana / Managed Service for Prometheus</div></div>
+  <div class="qa"><div class="q">Trace a request across microservices</div><div class="a">AWS X-Ray</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>Ingest and index camera feeds</div><div class="a">Kinesis Video Streams</div></div>
+  <div class="qa"><div class="q">Move SaaS data to AWS with no code</div><div class="a">AppFlow</div></div>
+  <div class="qa"><div class="q">Subscribe to third-party datasets</div><div class="a">AWS Data Exchange</div></div>
+  <div class="qa"><div class="q">Push notifications and campaigns to users</div><div class="a">Pinpoint</div></div>
+  <div class="qa"><div class="q">Intelligent enterprise search</div><div class="a">Kendra</div></div>
+  <div class="qa"><div class="q">Approved self-service infrastructure templates</div><div class="a">Service Catalog / Proton</div></div>
+  <div class="qa"><div class="q">Deliberately break things to test resilience</div><div class="a">Fault Injection Simulator</div></div>
+  <div class="qa"><div class="q">Virtual desktops / stream one app</div><div class="a">WorkSpaces / AppStream 2.0</div></div>
+</section>
+
+<!-- ============ WORDING ============ -->
+<section class="s-word">
+  <h2>Also asked as<span class="tag">the same ask, reworded</span></h2>
+  <div class="qa"><div class="q">"minimal operational overhead"</div><div class="a">least management effort &middot; most operationally efficient &middot; fully managed &middot; no servers to maintain</div></div>
+  <div class="qa"><div class="q">"most cost-effective"</div><div class="a">lowest cost &middot; least expensive &middot; minimize spend &middot; MOST cost-efficient</div></div>
+  <div class="qa"><div class="q">"highly available"</div><div class="a">survive the loss of an AZ &middot; no single point of failure &middot; keep running if one AZ fails</div></div>
+  <div class="qa"><div class="q">"disaster recovery"</div><div class="a">region-wide outage &middot; RTO and RPO &middot; fail over to another Region &middot; business continuity</div></div>
+  <div class="qa"><div class="q">"decouple"</div><div class="a">scale the tiers independently &middot; buffer the requests &middot; absorb bursts without losing them</div></div>
+  <div class="qa"><div class="q">"lowest latency"</div><div class="a">fastest for global users &middot; improve response time &middot; users in Europe report it is slow</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>"least privilege"</div><div class="a">only the permissions required &middot; MOST restrictive &middot; restrict access to only</div></div>
+  <div class="qa"><div class="q">"no hardcoded credentials"</div><div class="a">without storing access keys &middot; without embedding credentials in the code</div></div>
+  <div class="qa"><div class="q">"serverless"</div><div class="a">no servers to manage &middot; no infrastructure to maintain &middot; scales automatically</div></div>
+  <div class="qa"><div class="q">"cannot be interrupted"</div><div class="a">must run to completion &middot; stateful and long-running &middot; cannot tolerate termination</div></div>
+  <div class="qa"><div class="q">"must not traverse the internet"</div><div class="a">keep traffic on the AWS network &middot; private connectivity &middot; without an internet gateway</div></div>
+  <div class="qa"><div class="q">"encrypted at rest"</div><div class="a">protected when stored &middot; meet the compliance requirement for stored data</div></div>
+  <div class="qa"><div class="q">"improve read performance"</div><div class="a">the database is struggling under reads &middot; the same queries repeat &middot; offload reads</div></div>
+  <div class="qa"><div class="q">"needs a static IP"</div><div class="a">the customer firewall only allows specific IPs &middot; allow-list our address</div></div>
 </section>
 
 <!-- ============ MNEMONICS ============ -->
