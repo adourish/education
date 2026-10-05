@@ -1,0 +1,14 @@
+# Build intermediates
+combined.html
+*.tmp
+
+# OS / editor cruft
+desktop.ini
+Thumbs.db
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Office lock files
+~$*
