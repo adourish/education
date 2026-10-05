@@ -724,15 +724,21 @@ footer .v { font-family: var(--mono); }
     reveal.appendChild(el("div", "ansbox", q.a));
     if (q.why) reveal.appendChild(el("div", "why", q.why));
 
-    if (q.opts && q.opts.length) {
-      // Real multiple choice: the source gave us the distractors.
+    // Letters of the correct answer, e.g. "B. foo; D. bar" -> ["B","D"].
+    var answerLetters = (q.a.match(/(?:^|;\s*)([A-E])\./g) || [])
+      .map(function (s) { return s.replace(/[^A-E]/g, ""); });
+
+    // Offer real multiple choice only when the source gave us the distractors
+    // AND exactly one option is right: a single click cannot express "pick two".
+    if (q.opts && q.opts.length && answerLetters.length === 1) {
       var opts = el("div", "opts");
       shuffle(q.opts.slice()).forEach(function (text) {
         var b = el("button", "opt", text);
         b.addEventListener("click", function () {
           if (answered) return;
           answered = true;
-          var ok = q.a.indexOf(text.slice(0, 2)) === 0 || q.a === text;
+          var letter = (text.match(/^\s*([A-E])\./) || [])[1];
+          var ok = letter === answerLetters[0];
           b.classList.add(ok ? "pick-ok" : "pick-bad");
           Array.prototype.forEach.call(opts.children, function (c) { c.disabled = true; });
           reveal.hidden = false;
@@ -742,9 +748,10 @@ footer .v { font-family: var(--mono); }
         opts.appendChild(b);
       });
       card.appendChild(opts);
+      card.appendChild(reveal);
     } else {
-      // No distractors in the source, so this is an honest self-mark instead of
-      // a made-up multiple choice.
+      // No distractors, or more than one right answer: an honest self-mark
+      // rather than a made-up multiple choice.
       var showBtn = el("button", "btn primary", "Show the answer");
       var marks = el("div", "selfmark");
       marks.hidden = true;
@@ -761,15 +768,14 @@ footer .v { font-family: var(--mono); }
       });
       marks.appendChild(good); marks.appendChild(bad);
       showBtn.addEventListener("click", function () {
-        reveal.hidden = false; marks.hidden = false; showBtn.hidden = true;
+        reveal.hidden = false;
+        marks.hidden = false;
+        showBtn.hidden = true;
       });
       card.appendChild(showBtn);
       card.appendChild(reveal);
       card.appendChild(marks);
-      reveal = null;
     }
-
-    if (reveal) card.appendChild(reveal);
 
     var nextBtn = el("button", "btn primary", "Next question");
     nextBtn.hidden = true;
