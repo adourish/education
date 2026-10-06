@@ -754,6 +754,8 @@ footer .v { font-family: var(--mono); }
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "__PASS_SHA__";
   var PASS_KEY    = STORE_KEY + "/unlocked";
+  var SEED_KEY    = STORE_KEY + "/seed";
+  var SEED        = __SEED__;
 
   // ---------- storage (always guarded: can throw or return empty) ----------
   // Probe before trusting it. A private window, blocked site data or a full
@@ -807,8 +809,62 @@ footer .v { font-family: var(--mono); }
     }
   }
 
+  // Merge another progress record into this one. Counts add; a question either
+  // side got wrong stays on the revisit list, because a miss not yet put right
+  // is the one worth seeing again. Used by the Merge button and by the seed
+  // baked into the build, so both behave identically.
+  function mergeProgress(prog) {
+    if (!prog || typeof prog !== "object") return null;
+
+    function mergeCounts(into, from) {
+      Object.keys(from || {}).forEach(function (k) {
+        var a = into[k] || { r: 0, w: 0 };
+        var b = from[k] || { r: 0, w: 0 };
+        into[k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
+      });
+    }
+
+    var before = S.seen || 0;
+    S.concepts = S.concepts || {}; S.rows = S.rows || {}; S.sections = S.sections || {};
+    mergeCounts(S.concepts, prog.concepts);
+    mergeCounts(S.rows, prog.rows);
+    mergeCounts(S.sections, prog.sections);
+
+    var added = 0, disagreed = 0;
+    Object.keys(prog.questions || {}).forEach(function (qid) {
+      var mine = S.questions[qid];
+      var theirs = prog.questions[qid];
+      if (mine === undefined) { S.questions[qid] = theirs; added++; }
+      else if (mine !== theirs) { S.questions[qid] = 0; disagreed++; }
+    });
+
+    S.seen = (S.seen || 0) + (prog.seen || 0);
+    S.right = (S.right || 0) + (prog.right || 0);
+    S.wrong = (S.wrong || 0) + (prog.wrong || 0);
+    if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
+
+    return { answers: S.seen - before, added: added, disagreed: disagreed };
+  }
+
   var S = loadState();
   if (!S.started) S.started = new Date().toISOString().slice(0, 10);
+
+  // Progress baked into the build, so a fresh browser or a cleared one does
+  // not start from nothing. It is merged into whatever this browser already
+  // had rather than replacing it, and stamped once it has been applied: with
+  // no stamp, every reload would add the same answers again and the counts
+  // would climb on their own.
+  (function applySeed() {
+    if (!SEED || !SEED.progress) return;
+    var stamp = SEED.exported || "seed";
+    var done = false;
+    try { done = localStorage.getItem(SEED_KEY) === stamp; } catch (e) { done = false; }
+    if (done) return;
+    mergeProgress(SEED.progress);
+    saveState();
+    try { localStorage.setItem(SEED_KEY, stamp); } catch (e) { /* no storage here,
+      so there is nothing to double up: the page starts fresh each time anyway */ }
+  })();
 
   // ---------- helpers ----------
   function el(tag, cls, text) {
@@ -1693,40 +1749,10 @@ footer .v { font-family: var(--mono); }
       var prog = p.progress || p;
       if (!prog || typeof prog !== "object" || !prog.concepts) throw new Error("not a progress file");
 
-      // Merge rather than replace. Importing one laptop into the other used to
-      // overwrite, so whichever machine you imported into lost everything it
-      // had done. Counts add up; a question either machine marked wrong stays
-      // on the revisit list, because a miss you have not yet put right is the
-      // thing worth keeping.
-      function mergeCounts(into, from) {
-        Object.keys(from || {}).forEach(function (k) {
-          var a = into[k] || { r: 0, w: 0 };
-          var b = from[k] || { r: 0, w: 0 };
-          into[k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
-        });
-      }
-
-      var before = S.seen;
-      mergeCounts(S.concepts, prog.concepts);
-      mergeCounts(S.rows = S.rows || {}, prog.rows);
-      mergeCounts(S.sections = S.sections || {}, prog.sections);
-
-      var added = 0, stillWrong = 0;
-      Object.keys(prog.questions || {}).forEach(function (qid) {
-        var mine = S.questions[qid];
-        var theirs = prog.questions[qid];
-        if (mine === undefined) { S.questions[qid] = theirs; added++; }
-        else if (mine !== theirs) { S.questions[qid] = 0; stillWrong++; }
-      });
-
-      S.seen = (S.seen || 0) + (prog.seen || 0);
-      S.right = (S.right || 0) + (prog.right || 0);
-      S.wrong = (S.wrong || 0) + (prog.wrong || 0);
-      if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
-
+      var r = mergeProgress(prog);
       saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
-      ioBox.value = "Merged. " + (S.seen - before) + " answers added, " + added +
-        " questions this machine had not seen, and " + stillWrong +
+      ioBox.value = "Merged. " + r.answers + " answers added, " + r.added +
+        " questions this machine had not seen, and " + r.disagreed +
         " where the two disagreed are kept on the revisit list.";
     } catch (e) {
       ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
