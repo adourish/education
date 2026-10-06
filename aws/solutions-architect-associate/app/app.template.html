@@ -284,6 +284,32 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
 .flag.sev-wrong { border-left-width: 7px; }
 
+/* what the terms in a question mean. Sits above the options, in the same place
+   every time, so the eye knows where to go. */
+.hintbtn { margin-bottom: 14px; }
+.terms {
+  margin: 0 0 16px;
+  border: 1px solid var(--rule);
+  border-left: 5px solid var(--violet);
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.terms h5 {
+  margin: 0; padding: 8px 13px 6px;
+  font-size: 0.8rem; font-weight: 700; color: var(--violet);
+}
+.terms dl { margin: 0; padding: 0 13px 11px; }
+.terms dt {
+  font-weight: 700; font-size: 0.92rem; color: var(--ink);
+  margin-top: 9px;
+}
+.terms dd {
+  margin: 2px 0 0; font-size: 0.9rem; line-height: 1.55;
+  color: var(--ink-2); max-width: 62ch;
+}
+.terms .none { padding: 0 13px 11px; font-size: 0.9rem; color: var(--ink-2); }
+
 /* banner naming the topic being drilled */
 .drill {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
@@ -1097,6 +1123,35 @@ footer .v { font-family: var(--mono); }
     }
 
     card.appendChild(el("p", "qtext", q.q));
+
+    // A hint explains the services the question names. It never says which
+    // option is right: that would answer the question instead of teaching it.
+    if (q.t && q.t.length && DATA.glossary) {
+      var termsBox = el("div", "terms");
+      termsBox.hidden = true;
+      termsBox.appendChild(el("h5", null, "What these mean"));
+      var dl = document.createElement("dl");
+      q.t.forEach(function (name) {
+        var what = DATA.glossary[name];
+        if (!what) return;
+        var dt = el("dt", null, name);
+        var dd = el("dd", null, what);
+        dl.appendChild(dt); dl.appendChild(dd);
+      });
+      termsBox.appendChild(dl);
+
+      var hint = el("button", "btn hintbtn",
+        "Explain the terms (" + q.t.length + ")");
+      hint.setAttribute("aria-expanded", "false");
+      hint.addEventListener("click", function () {
+        var open = termsBox.hidden;
+        termsBox.hidden = !open;
+        hint.setAttribute("aria-expanded", String(open));
+        hint.textContent = open ? "Hide the terms" : "Explain the terms (" + q.t.length + ")";
+      });
+      card.appendChild(hint);
+      card.appendChild(termsBox);
+    }
 
     var reveal = el("div", "reveal");
     reveal.hidden = true;

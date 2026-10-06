@@ -22,6 +22,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
 
 HERE = Path(__file__).parent
 POSTER = HERE.parent / "poster" / "poster.html"
@@ -30,6 +31,10 @@ YIELD = HERE.parent / "questions" / "yield.json"
 CONCEPTS_SRC = HERE.parent / "questions" / "yield-report.py"
 FLAGS = HERE.parent / "questions" / "review" / "flags.json"
 OUT = HERE / "app-data.json"
+
+# The glossary lives with the questions, so import it from there.
+sys.path.insert(0, str(HERE.parent / "questions"))
+from glossary import GLOSSARY  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
 VERSION = "1.1.0"
@@ -56,6 +61,13 @@ def main() -> None:
 
     def tag(text: str) -> list[str]:
         return [k for k, rx in compiled.items() if rx.search(text)]
+
+    # Glossary terms, matched against the question and every option, so a hint
+    # can explain the services a question names without revealing which is right.
+    gloss = [(name, re.compile(pat, re.I)) for name, (pat, _) in GLOSSARY.items()]
+
+    def terms_in(text: str) -> list[str]:
+        return [name for name, rx in gloss if rx.search(text)]
 
     # ---- poster rows, grouped by the section they sit in --------------------
     html = POSTER.read_text(encoding="utf-8")
@@ -143,6 +155,7 @@ def main() -> None:
             "area": r["area"],
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
+            "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:9],
             "flag": flag_for(r["id"]),
         })
 
@@ -154,6 +167,7 @@ def main() -> None:
         "sections": sections,
         "questions": questions,
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
+        "glossary": {name: what for name, (_, what) in GLOSSARY.items()},
         "areaTitles": {
             "compute": "Compute", "storage": "Storage", "database": "Databases",
             "networking": "Networking", "security": "Security & identity",
@@ -171,6 +185,9 @@ def main() -> None:
     print(f"  {len(sections)} poster sections, {rows} rows")
     print(f"  {len(questions)} questions ({sum(1 for q in questions if q['opts'])} with options)")
     print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
+    withterms = sum(1 for q in questions if q["t"])
+    avg = sum(len(q["t"]) for q in questions) / max(len(questions), 1)
+    print(f"  {withterms} questions have glossary terms, {avg:.1f} on average")
     print(f"  {len(concepts)} concepts")
     print(f"  app-data.json {kb} KB")
 

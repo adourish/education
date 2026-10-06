@@ -35,7 +35,7 @@ DATA = HERE / "app-data.json"
 OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.2.2"
 
 # The wrapper the Artifact publisher would otherwise supply. Mirrors it closely:
 # same charset, same viewport with viewport-fit=cover, same safe-area padding on

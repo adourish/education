@@ -1,0 +1,324 @@
+#!/usr/bin/env python3
+"""
+Plain-English glossary of the AWS terms that turn up in exam questions.
+
+build-data.py matches every entry against each question and its options, and
+attaches the ones it finds. The app then offers a hint showing just those
+entries, so a question full of unfamiliar service names becomes something you
+can learn from rather than guess at.
+
+Each entry is:
+    "name": (pattern, what it is)
+
+The pattern is matched case-insensitively against the question plus all its
+options. Keep patterns tight: a term that matches everything is noise.
+
+The definitions deliberately say what a thing IS and what it is FOR. They never
+say which option is correct, because a hint that answers the question for you
+teaches nothing.
+"""
+
+GLOSSARY: dict[str, tuple[str, str]] = {
+
+    # ---------------- compute ----------------
+    "Amazon EC2": (r"\bEC2\b|Elastic Compute Cloud",
+        "Virtual servers rented by the second. You pick size, OS and disk, and you patch it yourself."),
+    "AWS Lambda": (r"\bLambda\b(?!@)",
+        "Runs your code on a trigger with no server to manage. Billed per request and millisecond, capped at 15 minutes."),
+    "Lambda@Edge": (r"Lambda@Edge",
+        "Lambda functions that run at CloudFront edge locations, close to the viewer, so a request can be changed or answered without reaching your origin."),
+    "Amazon ECS": (r"\bECS\b|Elastic Container Service",
+        "AWS's own container orchestrator: it runs and schedules Docker containers for you."),
+    "Amazon EKS": (r"\bEKS\b|Elastic Kubernetes",
+        "Managed Kubernetes. Pick this when the question says Kubernetes or kubectl, or when a team already runs Kubernetes elsewhere."),
+    "AWS Fargate": (r"\bFargate\b",
+        "Runs containers without you managing any servers underneath. You give it a container and it finds somewhere to run it."),
+    "Amazon ECR": (r"\bECR\b|Elastic Container Registry",
+        "A private store for your container images. Images live in one region, so using them elsewhere means copying them."),
+    "AWS Elastic Beanstalk": (r"Elastic Beanstalk",
+        "You upload code and AWS builds the servers, load balancer and scaling around it. You still own the resources it creates."),
+    "AWS Batch": (r"AWS Batch",
+        "Runs large numbers of batch jobs, working out how much compute to start and when."),
+    "EC2 Auto Scaling": (r"Auto Scaling|scaling polic|launch template|launch configuration",
+        "Adds and removes EC2 instances automatically to match demand, keeping the count between a minimum and a maximum you set."),
+    "Amazon Machine Image (AMI)": (r"\bAMI\b|Amazon Machine Image",
+        "A saved template of a disk, used to launch instances that all start identical. An AMI belongs to one region and must be copied to be used in another."),
+    "Spot Instances": (r"\bSpot\b",
+        "Spare EC2 capacity at up to about 90% off, which AWS can take back with two minutes' warning. Only suitable for work that can be interrupted and retried."),
+    "Reserved Instances": (r"Reserved Instance",
+        "A one or three year commitment to a certain amount of EC2 usage, for up to about 72% off the on-demand price."),
+    "Savings Plans": (r"Savings Plan",
+        "A commitment to spend a certain amount per hour for one or three years, in exchange for a lower rate. More flexible than a Reserved Instance about which instance you run."),
+    "Dedicated Host": (r"Dedicated Host",
+        "A whole physical server reserved for you, where you can see the sockets and cores. Needed when a software licence is tied to physical hardware."),
+    "Placement group": (r"placement group",
+        "How instances sit on hardware. Cluster packs them for speed, spread separates them for safety, partition splits them across racks."),
+    "Instance store": (r"instance store",
+        "Disk physically attached to the host. Very fast, and wiped the moment the instance stops. For scratch space, never for anything you need to keep."),
+    "AWS Outposts": (r"Outposts",
+        "AWS hardware installed in your own datacentre, running the same services and APIs. For data that must stay on your premises."),
+
+    # ---------------- storage ----------------
+    "Amazon S3": (r"\bS3\b|Simple Storage Service",
+        "Object storage: files in a bucket, fetched over the network. Effectively unlimited and very durable."),
+    "S3 storage classes": (r"storage class|Standard-IA|One Zone-IA|Intelligent-Tiering",
+        "Different prices for different access patterns. Standard for hot, Standard-IA for infrequent, One Zone-IA cheaper but single-AZ, Intelligent-Tiering when unknown."),
+    "S3 Glacier": (r"Glacier",
+        "S3's archive tiers. Instant Retrieval in milliseconds, Flexible in minutes to hours, Deep Archive in up to 48 hours and cheapest."),
+    "S3 lifecycle policy": (r"lifecycle (polic|rule|config)",
+        "A rule that moves objects to a cheaper storage class, or deletes them, once they reach a certain age."),
+    "S3 versioning": (r"versioning",
+        "Keeps every version of an object, so an overwrite or delete can be undone. Required before replication or MFA Delete will work."),
+    "S3 Object Lock": (r"Object Lock",
+        "Makes objects undeletable for a set period, even by an administrator. Used where records must be retained for compliance."),
+    "S3 Cross-Region Replication": (r"Cross-Region Replication|\bCRR\b",
+        "Copies new objects automatically into a bucket in another region. Needs versioning on both buckets, and does not touch objects already there."),
+    "S3 Transfer Acceleration": (r"Transfer Acceleration",
+        "Speeds up long-distance uploads by sending them through a nearby CloudFront edge location onto the AWS network."),
+    "S3 presigned URL": (r"presigned|pre-signed",
+        "A temporary link that lets someone upload or download one object without needing an AWS account."),
+    "Multipart upload": (r"multipart upload",
+        "Splits a large upload into parts sent in parallel. Required above 5 GB and sensible above about 100 MB."),
+    "Amazon EBS": (r"\bEBS\b|Elastic Block Store",
+        "A virtual disk attached to one EC2 instance. Lives in one AZ; its data survives the instance stopping."),
+    "EBS volume types": (r"\bgp2\b|\bgp3\b|\bio1\b|\bio2\b|\bst1\b|\bsc1\b|Provisioned IOPS",
+        "gp3 is the general-purpose default. io1 and io2 are for guaranteed high IOPS. st1 is cheap sequential throughput, sc1 is the coldest and cheapest."),
+    "EBS snapshot": (r"snapshot",
+        "A point-in-time backup of a disk, stored in S3 and tied to one region. Copying a snapshot is how you move a volume between zones or regions."),
+    "Amazon EFS": (r"\bEFS\b|Elastic File System",
+        "A shared file system many Linux servers can mount at once, over NFS. It spans Availability Zones and grows and shrinks on its own."),
+    "Amazon FSx": (r"\bFSx\b",
+        "Managed file systems of other kinds: FSx for Windows for SMB and Active Directory, FSx for Lustre for high-performance computing."),
+    "AWS Storage Gateway": (r"Storage Gateway|File Gateway|Volume Gateway|Tape Gateway",
+        "Sits in your own datacentre and gives local applications a normal file share, disk or tape drive, while the data actually lives in AWS."),
+    "AWS Snow Family": (r"Snowball|Snowcone|Snowmobile",
+        "Physical devices AWS ships to you to move large amounts of data when the network would be too slow. Snowball holds 80 TB, Snowmobile up to 100 PB."),
+    "AWS DataSync": (r"DataSync",
+        "Copies files between your datacentre and AWS over the network, on a schedule, repeatedly. The online alternative to shipping a Snowball."),
+    "AWS Backup": (r"AWS Backup",
+        "One place to set backup schedules and retention across many services at once, rather than configuring each separately."),
+
+    # ---------------- databases ----------------
+    "Amazon RDS": (r"\bRDS\b|Relational Database Service",
+        "Managed relational databases: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server and Aurora. AWS handles patching and backups; you get no access to the operating system."),
+    "Amazon Aurora": (r"Aurora",
+        "AWS's MySQL and PostgreSQL-compatible database. Six copies across three AZs, up to 128 TiB."),
+    "Aurora Serverless": (r"Aurora Serverless",
+        "Aurora that scales its capacity up and down automatically, so an idle database costs very little."),
+    "RDS Multi-AZ": (r"Multi-AZ",
+        "A synchronous standby in another AZ that takes over automatically. For availability only; you cannot read from it."),
+    "RDS read replica": (r"read replica",
+        "An asynchronous readable copy that takes read load off the main database. Can be cross-region; promoted by hand."),
+    "Amazon DynamoDB": (r"DynamoDB",
+        "A serverless key-value database, single-digit milliseconds at any size. You design around a partition key, not joins."),
+    "DynamoDB Accelerator (DAX)": (r"\bDAX\b",
+        "An in-memory cache in front of DynamoDB that brings reads down to microseconds. It helps reads only, not writes."),
+    "DynamoDB Global Tables": (r"Global Table",
+        "The same DynamoDB table kept in several regions at once, writable in all of them."),
+    "Amazon ElastiCache": (r"ElastiCache|Memcached|\bRedis\b",
+        "Managed in-memory caching. Redis adds persistence, failover and data structures; Memcached is a simpler multi-threaded cache."),
+    "Amazon Redshift": (r"Redshift",
+        "A data warehouse for analytics over large structured datasets. Built for reporting, not transactions."),
+    "Amazon Neptune": (r"Neptune",
+        "A graph database, for data that is mostly about relationships: social networks, fraud rings, recommendations."),
+    "Amazon DocumentDB": (r"DocumentDB",
+        "A managed document database that speaks MongoDB's API."),
+    "Amazon QLDB": (r"\bQLDB\b|Quantum Ledger",
+        "A ledger database with a complete, cryptographically verifiable history of every change, owned by a single trusted party."),
+    "AWS DMS": (r"\bDMS\b|Database Migration Service",
+        "Moves a database into AWS while the original keeps running, so the switchover is short. Paired with the Schema Conversion Tool when the engine changes."),
+    "RDS Proxy": (r"RDS Proxy",
+        "Pools and reuses database connections, so many short-lived clients such as Lambda functions do not exhaust the database. It does not add read capacity."),
+
+    # ---------------- networking ----------------
+    "Amazon VPC": (r"\bVPC\b|Virtual Private Cloud",
+        "Your own private network inside AWS, with its own address range, subnets and routing."),
+    "Subnet": (r"subnet",
+        "A slice of a VPC's address range, living in exactly one Availability Zone. It is public if its route table has a path to an internet gateway."),
+    "Security group": (r"security group",
+        "A stateful firewall on an instance: replies to allowed traffic come back automatically, and it can only allow, never deny."),
+    "Network ACL": (r"network ACL|\bNACL\b",
+        "A stateless firewall on a subnet: traffic must be allowed both ways, and unlike a security group it can deny."),
+    "NAT gateway": (r"NAT gateway|NAT instance",
+        "Lets servers in a private subnet reach the internet to fetch updates, while stopping anything on the internet from starting a connection to them."),
+    "Internet gateway": (r"internet gateway",
+        "The VPC's door to the internet. A subnet is only public if its route table points at one."),
+    "VPC peering": (r"VPC peering",
+        "A private link between two VPCs. It is not transitive, so A to B and B to C does not give A to C, and the address ranges must not overlap."),
+    "AWS Transit Gateway": (r"Transit Gateway",
+        "A hub that connects many VPCs and on-premises networks to each other, which peering cannot do once there are more than a few."),
+    "AWS PrivateLink": (r"PrivateLink",
+        "Exposes a service privately to another VPC, without peering and without the traffic crossing the internet."),
+    "VPC endpoint": (r"VPC endpoint|gateway endpoint|interface endpoint",
+        "A private route to an AWS service, so traffic never leaves AWS. Gateway endpoints serve S3 and DynamoDB and are free; everything else is an interface endpoint."),
+    "AWS Direct Connect": (r"Direct Connect",
+        "A dedicated physical line into AWS. Steady bandwidth, but weeks or months to install."),
+    "Site-to-Site VPN": (r"Site-to-Site VPN|virtual private gateway|customer gateway",
+        "An encrypted tunnel from your network to AWS over the ordinary internet. Much quicker to set up than Direct Connect."),
+    "Amazon Route 53": (r"Route ?53",
+        "AWS's DNS. Routes by latency, geography or weight, and away from anything failing a health check."),
+    "Amazon CloudFront": (r"CloudFront",
+        "A content delivery network. It caches your content at edge locations around the world so users are served from somewhere near them."),
+    "AWS Global Accelerator": (r"Global Accelerator",
+        "Two fixed IP addresses routing over the AWS backbone to the nearest healthy region. No caching, and any protocol, not just web."),
+    "Application Load Balancer (ALB)": (r"Application Load Balancer|\bALB\b",
+        "A load balancer that understands HTTP, so it can route on the URL path, the hostname or a header. It has no fixed IP address."),
+    "Network Load Balancer (NLB)": (r"Network Load Balancer|\bNLB\b",
+        "A load balancer that works at the TCP and UDP level. Extremely fast, and it can have a fixed IP address."),
+    "VPC Flow Logs": (r"Flow Logs",
+        "A record of which traffic was allowed and which was rejected in your VPC. The first place to look when a connection is being blocked and you do not know why."),
+    "Elastic IP": (r"[Ee]lastic IP",
+        "A fixed public address you own and can move between instances."),
+    "CIDR block": (r"\bCIDR\b",
+        "The notation for an address range. The number after the slash says how many addresses: /32 is one address, /24 is 256, /16 is 65,536, and /0 means everything."),
+
+    # ---------------- security ----------------
+    "AWS IAM": (r"\bIAM\b",
+        "Controls who can do what. Users and roles are given policies, and the rule is that an explicit deny always beats an allow."),
+    "IAM role": (r"IAM role|instance profile|AssumeRole",
+        "A set of permissions something can borrow temporarily, with no password or long-lived key. This is how an EC2 instance or a Lambda function should get its access."),
+    "AWS STS": (r"\bSTS\b|Security Token Service",
+        "Issues the short-lived credentials behind a role, used for cross-account access and for federating outside identities."),
+    "AWS Organizations": (r"Organizations",
+        "Groups many AWS accounts under one roof for central billing and central control."),
+    "Service Control Policy (SCP)": (r"\bSCP\b|service control polic",
+        "A ceiling on what accounts in an organization are allowed to do. It can only take permissions away, never grant them, and it never restricts the management account."),
+    "AWS Control Tower": (r"Control Tower",
+        "Sets up new AWS accounts with guard rails and logging already in place."),
+    "Amazon Cognito": (r"Cognito",
+        "Handles sign-up and sign-in for your application's users, and can swap a social or corporate login for temporary AWS credentials."),
+    "AWS KMS": (r"\bKMS\b|Key Management Service|customer master key|\bCMK\b",
+        "Creates and controls encryption keys, and is wired into nearly every AWS service. It encrypts up to 4 KB directly; anything larger uses a data key it hands out."),
+    "AWS CloudHSM": (r"CloudHSM",
+        "A dedicated hardware security module that only you use, where AWS cannot see the keys. For rules that demand single-tenant, FIPS 140-2 Level 3 hardware."),
+    "AWS Secrets Manager": (r"Secrets Manager",
+        "Stores passwords and API keys, and can rotate a database password automatically on a schedule."),
+    "SSM Parameter Store": (r"Parameter Store",
+        "A free place to keep configuration values, with an encrypted option. No built-in rotation."),
+    "AWS Certificate Manager (ACM)": (r"\bACM\b|Certificate Manager",
+        "Issues and renews TLS certificates at no cost. A certificate for CloudFront must be created in the us-east-1 region."),
+    "AWS WAF": (r"\bWAF\b",
+        "A firewall for web traffic. It blocks things like SQL injection and cross-site scripting, and can rate-limit a single address."),
+    "AWS Shield": (r"\bShield\b",
+        "Protection against denial-of-service attacks. Standard is free and automatic; Advanced adds a response team and refunds the cost of scaling under attack."),
+    "Amazon GuardDuty": (r"GuardDuty",
+        "Watches your logs for signs of compromise, such as unusual API calls or crypto-mining. It detects; it does not scan software."),
+    "Amazon Inspector": (r"Inspector",
+        "Scans your EC2 instances, container images and Lambda functions for known software vulnerabilities."),
+    "Amazon Macie": (r"Macie",
+        "Looks through S3 for sensitive data such as personal details or card numbers."),
+    "AWS Security Hub": (r"Security Hub",
+        "Collects findings from GuardDuty, Inspector, Macie, Config and others into one list, and scores you against standards."),
+    "Amazon Detective": (r"Detective",
+        "Helps work out the root cause of a security finding after it has been raised."),
+    "AWS Directory Service": (r"Directory Service|Active Directory",
+        "Managed Microsoft Active Directory, or a connection to the one you already run. Needed by FSx for Windows and WorkSpaces."),
+    "Multi-factor authentication (MFA)": (r"\bMFA\b|multi-factor",
+        "A second proof of identity beyond the password, such as a code from a phone or a hardware key."),
+
+    # ---------------- integration ----------------
+    "Amazon SQS": (r"\bSQS\b|Simple Queue Service",
+        "A queue holding messages until a worker takes them, so a busy front end cannot swamp the back end. Standard may duplicate and reorder; FIFO does neither."),
+    "SQS visibility timeout": (r"visibility timeout",
+        "How long a message stays hidden after a worker takes it. Shorter than the processing time and the message gets handled twice."),
+    "Dead-letter queue": (r"dead-letter|dead letter",
+        "Where a message goes after failing to be processed a set number of times, so one bad message does not block the queue."),
+    "Amazon SNS": (r"\bSNS\b|Simple Notification Service",
+        "Publishes one message to many subscribers at once: queues, functions, email addresses, phone numbers or web endpoints."),
+    "Amazon EventBridge": (r"EventBridge|CloudWatch Events",
+        "Routes events between services based on what is inside the event, and can run things on a schedule. Also receives events from outside SaaS products."),
+    "AWS Step Functions": (r"Step Functions",
+        "Strings several steps into one workflow, handling the retries, branches and waiting for you, so your code does not have to."),
+    "Amazon MQ": (r"Amazon MQ",
+        "Managed RabbitMQ or ActiveMQ, for applications that already speak a standard broker protocol and are being moved as-is."),
+    "Amazon Kinesis Data Streams": (r"Kinesis Data Stream|Kinesis Stream",
+        "Takes in a continuous stream of records and keeps them, so several applications can read the same data, in order, and go back over it."),
+    "Kinesis Data Firehose": (r"Firehose",
+        "Delivers a stream straight into S3, Redshift, OpenSearch or Splunk with no code. It buffers for about a minute, so it is near-real-time rather than instant."),
+    "Amazon API Gateway": (r"API Gateway",
+        "A managed front door for an API. It handles authentication, throttling and caching in front of Lambda or any other backend."),
+    "AWS AppSync": (r"AppSync",
+        "A managed GraphQL API, with offline syncing for mobile applications."),
+
+    # ---------------- analytics ----------------
+    "Amazon Athena": (r"\bAthena\b",
+        "Runs SQL straight against files sitting in S3, with nothing to set up. You pay for the data each query reads."),
+    "AWS Glue": (r"\bGlue\b",
+        "Serverless data preparation, plus a catalogue that records what your data looks like so Athena and Redshift can query it."),
+    "Amazon EMR": (r"\bEMR\b|Elastic MapReduce",
+        "Runs Hadoop, Spark, Hive and similar frameworks on EC2 instances you can see and log into."),
+    "Amazon OpenSearch Service": (r"OpenSearch|Elasticsearch",
+        "Full-text search and log analytics, with dashboards."),
+    "Amazon QuickSight": (r"QuickSight",
+        "Business intelligence dashboards for non-technical readers."),
+
+    # ---------------- management ----------------
+    "Amazon CloudWatch": (r"CloudWatch",
+        "Collects metrics, logs and alarms, and tells you how things are performing. Memory and disk space are not collected unless you install the agent."),
+    "AWS CloudTrail": (r"CloudTrail",
+        "Records who called which AWS API, when, and from where. The audit trail, as opposed to CloudWatch's performance view."),
+    "AWS Config": (r"AWS Config",
+        "Records how your resources were configured over time and checks them against rules, so you can see what changed and whether it is compliant."),
+    "AWS CloudFormation": (r"CloudFormation",
+        "Describes your infrastructure in a template file so the same stack can be built again identically."),
+    "AWS Systems Manager": (r"Systems Manager|\bSSM\b",
+        "A toolbox for running and maintaining instances: shell access without opening ports, patching, running commands across a fleet, and storing parameters."),
+    "Session Manager": (r"Session Manager",
+        "Gives a shell on an instance with no open inbound port, no SSH key and no bastion host, and records the whole session."),
+    "AWS Trusted Advisor": (r"Trusted Advisor",
+        "Checks your account against best practice in five areas: cost, performance, fault tolerance, security and service limits."),
+    "AWS Compute Optimizer": (r"Compute Optimizer",
+        "Looks at real usage and tells you where an instance or volume is bigger than it needs to be."),
+    "AWS Cost Explorer": (r"Cost Explorer",
+        "Shows and forecasts your spending, broken down by service, tag or account."),
+    "AWS Budgets": (r"AWS Budgets",
+        "Alerts you when spending or usage passes a threshold you set."),
+    "AWS X-Ray": (r"X-Ray",
+        "Traces a single request as it passes through several services, so you can see which step is slow or failing."),
+    "AWS Service Catalog": (r"Service Catalog",
+        "A list of approved infrastructure templates teams can deploy for themselves without raising a ticket."),
+
+    # ---------------- concepts ----------------
+    "Availability Zone": (r"Availability Zone|\bAZ\b",
+        "One or more separate datacentres within a region, with their own power and networking. Spreading across zones is how you survive one of them failing."),
+    "Region": (r"\bRegion\b",
+        "A geographic area containing several Availability Zones. Spreading across regions is how you survive a whole region failing."),
+    "Edge location": (r"edge location",
+        "A small CloudFront site close to users, used for caching. There are far more of these than there are regions."),
+    "High availability": (r"highly available|high availability",
+        "Designed to keep working when a component fails, usually by running in more than one Availability Zone with something in front sharing the load."),
+    "Disaster recovery": (r"disaster recovery|\bRTO\b|\bRPO\b|pilot light|warm standby",
+        "Planning for a whole region going down. RTO is how long you may be offline; RPO is how much recent data you may lose."),
+    "Encryption at rest": (r"encrypt",
+        "Scrambling stored data so it is unreadable without the key. Encryption in transit does the same for data moving over the network, usually with TLS."),
+    "Least privilege": (r"least privilege",
+        "Giving an identity only the permissions it actually needs, and nothing more."),
+    "Decoupling": (r"decoupl",
+        "Putting a queue or a topic between two parts of a system so each can fail, restart or scale without breaking the other."),
+}
+
+
+def compile_glossary():
+    """Return [(name, compiled pattern, definition)], longest name first.
+
+    Longest first so that a specific term is reported before a general one when
+    both match, which keeps the hint's first lines the most relevant.
+    """
+    import re
+    items = []
+    for name, (pattern, what) in GLOSSARY.items():
+        items.append((name, re.compile(pattern, re.I), what))
+    items.sort(key=lambda t: -len(t[0]))
+    return items
+
+
+if __name__ == "__main__":
+    print(f"{len(GLOSSARY)} terms defined")
+    import re
+    for name, (pattern, what) in GLOSSARY.items():
+        try:
+            re.compile(pattern)
+        except re.error as e:
+            print(f"  BAD PATTERN  {name}: {e}")
+        if len(what) < 40:
+            print(f"  THIN         {name}: {what!r}")
