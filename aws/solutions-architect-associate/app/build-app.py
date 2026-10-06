@@ -34,8 +34,9 @@ TEMPLATE = HERE / "app.template.html"
 DATA = HERE / "app-data.json"
 OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
+SEED = HERE / "progress-seed.json"
 
-APP_VERSION = "1.7.0"
+APP_VERSION = "1.8.0"
 
 # SHA-256 of the board's password. The hash rather than the word, so the
 # password is not sitting in the published file in plain text. This is a
@@ -88,10 +89,22 @@ def main() -> None:
     html = html.replace("__APP_VERSION__", APP_VERSION)
     html = html.replace("__BUILD_DATE__", build_date)
 
+    # Progress shipped with the build. Merged into whatever a browser already
+    # has, once, so a new machine or a cleared browser is not back at zero.
+    seed = "null"
+    if SEED.exists():
+        seed = json.dumps(json.loads(SEED.read_text(encoding="utf-8")),
+                          separators=(",", ":")).replace("</script", "<\\/script")
+    html = html.replace("__SEED__", seed)
+
     import hashlib
     html = html.replace("__PASS_SHA__", hashlib.sha256(PASSWORD.encode()).hexdigest())
 
-    if "__DATA__" in html or "__APP_VERSION__" in html:
+    for left in ("__DATA__", "__APP_VERSION__", "__BUILD_DATE__",
+             "__PASS_SHA__", "__SEED__"):
+        if left in html:
+            raise SystemExit(f"placeholder {left} was left unreplaced")
+    if False:
         raise SystemExit("A placeholder was left unreplaced.")
 
     OUT.write_text(html, encoding="utf-8")

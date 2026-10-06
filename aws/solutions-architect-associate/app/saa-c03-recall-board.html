@@ -767,11 +767,13 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.7.0";
+  var APP_VERSION = "1.8.0";
   var BUILD_DATE  = "2026-10-06";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
   var PASS_KEY    = STORE_KEY + "/unlocked";
+  var SEED_KEY    = STORE_KEY + "/seed";
+  var SEED        = {"app":"SAA-C03 Recall Board","appVersion":"1.7.0","dataVersion":"1.2.0","exported":"2026-10-06T16:34:36.765Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":12,"w":0},"API Gateway":{"r":4,"w":0},"S3 storage classes / lifecycle":{"r":12,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":4,"w":0},"ALB vs NLB":{"r":4,"w":0},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4}},"rows":{"num:spot-notice-spot-ri-discount":{"r":12,"w":0},"ec2:socket-or-core-based-licence":{"r":12,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":12,"w":0},"db:provisionedthroughputexceeded":{"r":12,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":12,"w":0},"trig:cannot-be-interrupted":{"r":12,"w":0},"trig:socket-or-core-based-licence":{"r":12,"w":0},"cost:steady-24-7-workload":{"r":12,"w":0},"cost:fault-tolerant-interruptible-work":{"r":12,"w":0},"cost:spiky-dynamodb-traffic":{"r":12,"w":0},"num:min-duration-ia-glacier-deep":{"r":12,"w":8},"num:glacier-expedited-standard-bulk":{"r":12,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":12,"w":8},"s3:infrequent-and-re-creatable":{"r":12,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":12,"w":8},"cost:everything-sitting-in-s3-standard":{"r":12,"w":8},"cost:incomplete-multipart-uploads":{"r":12,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":4,"w":0},"scale:define-the-instances":{"r":4,"w":0},"dr:stateless-tier-survives-instance-loss":{"r":4,"w":0},"scale:alb-nlb-gwlb-layer":{"r":4,"w":0},"scale:static-ip-udp-millions-of-req-s":{"r":4,"w":0},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":4,"w":0},"scale:cross-zone-default":{"r":4,"w":0},"vpc:expose-your-service-to-another-vpc":{"r":4,"w":0},"trig:static-ip-for-a-firewall-allow-list":{"r":4,"w":0},"elb:routes-on-url-path-host-header-query-string":{"r":4,"w":0},"elb:routes-on-tcp-udp-port-only":{"r":4,"w":0},"elb:preserves-the-client-source-ip-natively":{"r":4,"w":0},"elb:millions-of-requests-sec-ultra-low-latency":{"r":4,"w":0},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":4,"w":0},"elb:websockets-http-2-grpc":{"r":4,"w":0},"elb:redirect-http-to-https-with-no-app-change":{"r":4,"w":0},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":4,"w":0},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":4,"w":0},"elb:route-to-lambda-as-a-target":{"r":4,"w":0},"elb:route-to-ip-targets-including-on-premises":{"r":4,"w":0},"elb:spread-across-azs-but-traffic-is-uneven":{"r":4,"w":0},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":4}},"sections":{"num":{"r":20,"w":12},"ec2":{"r":12,"w":0},"db":{"r":12,"w":8},"ops":{"r":12,"w":0},"trig":{"r":12,"w":0},"cost":{"r":20,"w":8},"s3":{"r":12,"w":8},"dr":{"r":8,"w":8},"scale":{"r":4,"w":0},"vpc":{"r":4,"w":0},"elb":{"r":4,"w":0},"sec":{"r":0,"w":4},"scope":{"r":0,"w":4}},"questions":{"dt-117":1,"q-670":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1},"seen":32,"right":20,"wrong":12,"started":"2026-10-06"}};
 
   // ---------- storage (always guarded: can throw or return empty) ----------
   // Probe before trusting it. A private window, blocked site data or a full
@@ -825,8 +827,62 @@ footer .v { font-family: var(--mono); }
     }
   }
 
+  // Merge another progress record into this one. Counts add; a question either
+  // side got wrong stays on the revisit list, because a miss not yet put right
+  // is the one worth seeing again. Used by the Merge button and by the seed
+  // baked into the build, so both behave identically.
+  function mergeProgress(prog) {
+    if (!prog || typeof prog !== "object") return null;
+
+    function mergeCounts(into, from) {
+      Object.keys(from || {}).forEach(function (k) {
+        var a = into[k] || { r: 0, w: 0 };
+        var b = from[k] || { r: 0, w: 0 };
+        into[k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
+      });
+    }
+
+    var before = S.seen || 0;
+    S.concepts = S.concepts || {}; S.rows = S.rows || {}; S.sections = S.sections || {};
+    mergeCounts(S.concepts, prog.concepts);
+    mergeCounts(S.rows, prog.rows);
+    mergeCounts(S.sections, prog.sections);
+
+    var added = 0, disagreed = 0;
+    Object.keys(prog.questions || {}).forEach(function (qid) {
+      var mine = S.questions[qid];
+      var theirs = prog.questions[qid];
+      if (mine === undefined) { S.questions[qid] = theirs; added++; }
+      else if (mine !== theirs) { S.questions[qid] = 0; disagreed++; }
+    });
+
+    S.seen = (S.seen || 0) + (prog.seen || 0);
+    S.right = (S.right || 0) + (prog.right || 0);
+    S.wrong = (S.wrong || 0) + (prog.wrong || 0);
+    if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
+
+    return { answers: S.seen - before, added: added, disagreed: disagreed };
+  }
+
   var S = loadState();
   if (!S.started) S.started = new Date().toISOString().slice(0, 10);
+
+  // Progress baked into the build, so a fresh browser or a cleared one does
+  // not start from nothing. It is merged into whatever this browser already
+  // had rather than replacing it, and stamped once it has been applied: with
+  // no stamp, every reload would add the same answers again and the counts
+  // would climb on their own.
+  (function applySeed() {
+    if (!SEED || !SEED.progress) return;
+    var stamp = SEED.exported || "seed";
+    var done = false;
+    try { done = localStorage.getItem(SEED_KEY) === stamp; } catch (e) { done = false; }
+    if (done) return;
+    mergeProgress(SEED.progress);
+    saveState();
+    try { localStorage.setItem(SEED_KEY, stamp); } catch (e) { /* no storage here,
+      so there is nothing to double up: the page starts fresh each time anyway */ }
+  })();
 
   // ---------- helpers ----------
   function el(tag, cls, text) {
@@ -1711,40 +1767,10 @@ footer .v { font-family: var(--mono); }
       var prog = p.progress || p;
       if (!prog || typeof prog !== "object" || !prog.concepts) throw new Error("not a progress file");
 
-      // Merge rather than replace. Importing one laptop into the other used to
-      // overwrite, so whichever machine you imported into lost everything it
-      // had done. Counts add up; a question either machine marked wrong stays
-      // on the revisit list, because a miss you have not yet put right is the
-      // thing worth keeping.
-      function mergeCounts(into, from) {
-        Object.keys(from || {}).forEach(function (k) {
-          var a = into[k] || { r: 0, w: 0 };
-          var b = from[k] || { r: 0, w: 0 };
-          into[k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
-        });
-      }
-
-      var before = S.seen;
-      mergeCounts(S.concepts, prog.concepts);
-      mergeCounts(S.rows = S.rows || {}, prog.rows);
-      mergeCounts(S.sections = S.sections || {}, prog.sections);
-
-      var added = 0, stillWrong = 0;
-      Object.keys(prog.questions || {}).forEach(function (qid) {
-        var mine = S.questions[qid];
-        var theirs = prog.questions[qid];
-        if (mine === undefined) { S.questions[qid] = theirs; added++; }
-        else if (mine !== theirs) { S.questions[qid] = 0; stillWrong++; }
-      });
-
-      S.seen = (S.seen || 0) + (prog.seen || 0);
-      S.right = (S.right || 0) + (prog.right || 0);
-      S.wrong = (S.wrong || 0) + (prog.wrong || 0);
-      if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
-
+      var r = mergeProgress(prog);
       saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
-      ioBox.value = "Merged. " + (S.seen - before) + " answers added, " + added +
-        " questions this machine had not seen, and " + stillWrong +
+      ioBox.value = "Merged. " + r.answers + " answers added, " + r.added +
+        " questions this machine had not seen, and " + r.disagreed +
         " where the two disagreed are kept on the revisit list.";
     } catch (e) {
       ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
