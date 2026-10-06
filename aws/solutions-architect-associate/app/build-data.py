@@ -37,7 +37,7 @@ sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 # Where each question came from. The short code travels with every question so
 # the app can filter by provider; the name and note are for the picker and the
@@ -67,8 +67,29 @@ def strip_tags(s: str) -> str:
              .strip())
 
 
+def check_patterns(named: dict[str, str], what: str) -> None:
+    """Catch a word boundary that has turned into a control character.
+
+    A pattern written as \\b matches a word boundary. If a tool ever writes the
+    file without the r prefix, or interprets the escape on the way in, the two
+    characters become a single backspace character, which matches nothing and
+    looks almost identical in an editor. Two patterns sat broken that way for
+    weeks, quietly explaining nothing. Nothing here should contain a control
+    character, so say so loudly rather than build a file that does less than it
+    appears to.
+    """
+    bad = {k: v for k, v in named.items() if any(ord(c) < 32 for c in v)}
+    if bad:
+        for k, v in bad.items():
+            print(f"  {what} {k!r}: {v!r}")
+        raise SystemExit(f"{len(bad)} {what} pattern(s) contain a control character "
+                         f"where a word boundary was meant")
+
+
 def main() -> None:
     concepts = load_concepts()
+    check_patterns(concepts, "concept")
+    check_patterns({k: v[0] for k, v in GLOSSARY.items()}, "glossary")
     compiled = {k: re.compile(v, re.I) for k, v in concepts.items()}
     tiers = {r["concept"]: r["tier"] for r in json.loads(YIELD.read_text(encoding="utf-8"))}
 
