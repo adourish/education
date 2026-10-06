@@ -164,7 +164,27 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .view[hidden] { display: none !important; }
 
 /* text size control */
-.tsize { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
+.optline { display: flex; align-items: stretch; gap: 8px; }
+.optline .opt { flex: 1; }
+.optspeak {
+  flex: 0 0 auto; align-self: center;
+  width: 34px; min-height: 34px; padding: 0;
+  font-size: 0.72rem; line-height: 1;
+  color: var(--ink-2);
+}
+.optspeak[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
+.lookback {
+  display: flex; align-items: center; gap: 7px;
+  font: 500 0.82rem var(--ui); color: var(--ink-2);
+}
+.lookback select {
+  font: 600 0.82rem var(--ui); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 7px; padding: 5px 8px;
+}
+.lookback.narrowed select { border-color: var(--cyan); color: var(--cyan); }
+@media (max-width: 700px) { .lookback span { display: none; } }
+.tsize {
 .tsize button {
   appearance: none; border: 0; background: none; cursor: pointer;
   color: var(--ink-2); font-family: var(--ui); font-weight: 700;
@@ -639,6 +659,10 @@ footer .v { font-family: var(--mono); }
       <span class="exam" id="examTag"></span>
     </div>
     <button class="misschip" id="missChip" hidden></button>
+    <label class="lookback">
+      <span>Showing</span>
+      <select id="lookbackSel" aria-label="Stretch of time the scores cover"></select>
+    </label>
     <div class="tsize" role="group" aria-label="Text size">
       <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
       <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
@@ -771,14 +795,14 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.10.1";
+  var APP_VERSION = "1.11.0";
   var BUILD_DATE  = "2026-10-06";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
   var PASS_KEY    = STORE_KEY + "/unlocked";
   var SEED_KEY    = STORE_KEY + "/seed";
   var SEED_HAD    = STORE_KEY + "/seed-applied";
-  var SEED        = {"app":"SAA-C03 Recall Board","appVersion":"1.9.0","dataVersion":"1.2.0","exported":"2026-10-06T21:53:04.850Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":14,"w":0},"API Gateway":{"r":5,"w":2},"S3 storage classes / lifecycle":{"r":13,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":10,"w":3},"ALB vs NLB":{"r":14,"w":11},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4},"Direct Connect / Site-to-Site VPN":{"r":0,"w":2},"Cognito":{"r":0,"w":1},"Directory Service / AD":{"r":0,"w":1},"AWS WAF":{"r":0,"w":1},"Global Accelerator":{"r":1,"w":0},"Route 53 routing policies":{"r":0,"w":2},"NAT gateway":{"r":0,"w":1},"EFS":{"r":1,"w":0},"VPC security groups vs NACLs":{"r":0,"w":1},"DynamoDB":{"r":1,"w":2},"Containers (ECS/EKS/Fargate)":{"r":0,"w":3},"VPC endpoints / PrivateLink":{"r":0,"w":1},"SQS":{"r":4,"w":4},"Lambda":{"r":1,"w":1},"RDS Multi-AZ":{"r":1,"w":0},"EventBridge":{"r":1,"w":0},"Step Functions":{"r":1,"w":0},"SNS":{"r":0,"w":1}},"rows":{"num:spot-notice-spot-ri-discount":{"r":14,"w":0},"ec2:socket-or-core-based-licence":{"r":14,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":14,"w":0},"db:provisionedthroughputexceeded":{"r":14,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":14,"w":0},"trig:cannot-be-interrupted":{"r":14,"w":0},"trig:socket-or-core-based-licence":{"r":14,"w":0},"cost:steady-24-7-workload":{"r":14,"w":0},"cost:fault-tolerant-interruptible-work":{"r":14,"w":0},"cost:spiky-dynamodb-traffic":{"r":15,"w":2},"num:min-duration-ia-glacier-deep":{"r":13,"w":8},"num:glacier-expedited-standard-bulk":{"r":13,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":13,"w":8},"s3:infrequent-and-re-creatable":{"r":13,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":13,"w":8},"cost:everything-sitting-in-s3-standard":{"r":13,"w":8},"cost:incomplete-multipart-uploads":{"r":13,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":10,"w":3},"scale:define-the-instances":{"r":10,"w":3},"dr:stateless-tier-survives-instance-loss":{"r":10,"w":3},"scale:alb-nlb-gwlb-layer":{"r":14,"w":11},"scale:static-ip-udp-millions-of-req-s":{"r":14,"w":11},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":14,"w":11},"scale:cross-zone-default":{"r":14,"w":11},"vpc:expose-your-service-to-another-vpc":{"r":14,"w":11},"trig:static-ip-for-a-firewall-allow-list":{"r":14,"w":11},"elb:routes-on-url-path-host-header-query-string":{"r":14,"w":11},"elb:routes-on-tcp-udp-port-only":{"r":14,"w":11},"elb:preserves-the-client-source-ip-natively":{"r":14,"w":11},"elb:millions-of-requests-sec-ultra-low-latency":{"r":14,"w":11},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":14,"w":11},"elb:websockets-http-2-grpc":{"r":14,"w":11},"elb:redirect-http-to-https-with-no-app-change":{"r":14,"w":11},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":14,"w":11},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":14,"w":11},"elb:route-to-lambda-as-a-target":{"r":14,"w":12},"elb:route-to-ip-targets-including-on-premises":{"r":14,"w":11},"elb:spread-across-azs-but-traffic-is-uneven":{"r":14,"w":11},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":6},"vpc:hybrid-in-days-vs-steady-bandwidth":{"r":0,"w":2},"trig:urgent-vs-consistent-bandwidth":{"r":0,"w":2},"sec:workforce-sign-in-mobile-users":{"r":0,"w":1},"api:who-may-call-it":{"r":1,"w":2},"api:sign-up-and-sign-in-for-your-app-users":{"r":0,"w":1},"api:swap-a-social-login-for-aws-credentials":{"r":0,"w":1},"block:smb-windows-active-directory":{"r":0,"w":1},"tail:managed-active-directory-or-connect-to-yours":{"r":0,"w":1},"sec:sql-injection-xss-rate-limit-by-ip":{"r":0,"w":1},"api:block-sql-injection-at-the-front-door":{"r":0,"w":1},"edge:static-anycast-ips-tcp-udp-gaming":{"r":1,"w":0},"dr:static-page-during-an-outage":{"r":0,"w":2},"lambda:lambda-in-a-vpc-needs-internet":{"r":1,"w":2},"vpc:private-instances-reach-the-internet":{"r":0,"w":1},"scope:az-scoped":{"r":0,"w":1},"block:shared-files-linux-many-instances":{"r":1,"w":0},"trig:windows-file-share":{"r":1,"w":0},"vpc:security-group":{"r":0,"w":1},"vpc:network-acl":{"r":0,"w":1},"vpc:block-a-single-malicious-ip":{"r":0,"w":1},"vpc:default-vs-custom-nacl":{"r":0,"w":1},"vpc:interface-endpoint":{"r":0,"w":2},"num:dynamodb-max-item":{"r":1,"w":2},"num:dynamodb-rcu-wcu":{"r":1,"w":2},"num:dynamodb-lsi-gsi-per-table":{"r":1,"w":2},"db:dynamodb-microsecond-reads":{"r":1,"w":2},"db:every-item-change-expire-free":{"r":2,"w":3},"vpc:gateway-endpoints-work-with":{"r":1,"w":3},"scope:regional":{"r":1,"w":2},"lambda:needs-longer-than-15-minutes":{"r":1,"w":3},"lambda:ecs-task-role-vs-execution-role":{"r":0,"w":3},"lambda:kubernetes-or-kubectl":{"r":0,"w":3},"lambda:containers-no-servers-needs-gpu":{"r":0,"w":3},"trig:longer-than-15-minutes":{"r":2,"w":4},"trig:we-already-use-kubernetes":{"r":0,"w":3},"mig:run-containers-on-your-own-hardware":{"r":0,"w":3},"ops:cut-the-nat-bill-for-s3-traffic":{"r":0,"w":1},"trig:must-not-leave-the-aws-network":{"r":0,"w":1},"cost:big-nat-bill-for-s3-traffic":{"r":0,"w":1},"api:reachable-only-inside-a-vpc":{"r":0,"w":1},"num:sqs-max-message":{"r":4,"w":4},"num:sqs-retention-default-max":{"r":4,"w":4},"num:sqs-visibility-default-max":{"r":4,"w":4},"num:sqs-long-poll-wait":{"r":4,"w":4},"s3:events-can-go-to":{"r":4,"w":4},"int:decouple-a-spiky-front-end":{"r":4,"w":4},"trig:decouple-notify-many-subscribers":{"r":4,"w":4},"num:lambda-max-duration":{"r":1,"w":1},"num:lambda-memory":{"r":1,"w":1},"num:lambda-payload-sync-async":{"r":1,"w":1},"num:lambda-default-concurrency":{"r":1,"w":1},"lambda:edge-light-rewrite-calls-services":{"r":1,"w":1},"db:multi-az-purpose":{"r":1,"w":0},"db:multi-az-failover":{"r":1,"w":0},"dr:database-survives-an-az-loss":{"r":1,"w":0},"int:filter-on-event-body-saas-replay":{"r":1,"w":0},"int:coordinate-steps-retries-approvals":{"r":1,"w":0},"int:one-message-to-many-queues":{"r":0,"w":1}},"sections":{"num":{"r":26,"w":17},"ec2":{"r":14,"w":0},"db":{"r":17,"w":11},"ops":{"r":14,"w":1},"trig":{"r":23,"w":14},"cost":{"r":23,"w":11},"s3":{"r":17,"w":12},"dr":{"r":14,"w":13},"scale":{"r":14,"w":11},"vpc":{"r":14,"w":11},"elb":{"r":14,"w":12},"sec":{"r":0,"w":6},"scope":{"r":1,"w":9},"api":{"r":1,"w":4},"block":{"r":1,"w":1},"tail":{"r":0,"w":1},"edge":{"r":1,"w":0},"lambda":{"r":2,"w":5},"mig":{"r":0,"w":3},"int":{"r":4,"w":4}},"questions":{"dt-117":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1,"ce-132":0,"ce-734":1,"ce-460":0,"ce-506":1,"ce-808":1,"ce-620":1,"ce-362":0,"ce-683":0,"ce-236":0,"ce-839":0,"ce-629":1,"ce-370":1,"ce-148":0,"ce-912":0,"ce-310":0,"ce-497":1,"ce-368":0,"ce-455":0,"ce-730":1,"ce-363":1,"ce-573":0,"ce-570":1,"ce-753":0},"seen":57,"right":31,"wrong":26,"started":"2026-10-06"},"history":[{"exported":"2026-10-06T18:44:15.077Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":14,"w":0},"API Gateway":{"r":4,"w":0},"S3 storage classes / lifecycle":{"r":13,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":8,"w":3},"ALB vs NLB":{"r":11,"w":11},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4},"Direct Connect / Site-to-Site VPN":{"r":0,"w":2},"Cognito":{"r":0,"w":1},"Directory Service / AD":{"r":0,"w":1},"AWS WAF":{"r":0,"w":1},"Global Accelerator":{"r":1,"w":0},"Route 53 routing policies":{"r":0,"w":2},"NAT gateway":{"r":0,"w":1},"EFS":{"r":1,"w":0},"VPC security groups vs NACLs":{"r":0,"w":1},"DynamoDB":{"r":0,"w":2},"Containers (ECS/EKS/Fargate)":{"r":0,"w":1},"VPC endpoints / PrivateLink":{"r":0,"w":1},"SQS":{"r":0,"w":1}},"rows":{"num:spot-notice-spot-ri-discount":{"r":14,"w":0},"ec2:socket-or-core-based-licence":{"r":14,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":14,"w":0},"db:provisionedthroughputexceeded":{"r":14,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":14,"w":0},"trig:cannot-be-interrupted":{"r":14,"w":0},"trig:socket-or-core-based-licence":{"r":14,"w":0},"cost:steady-24-7-workload":{"r":14,"w":0},"cost:fault-tolerant-interruptible-work":{"r":14,"w":0},"cost:spiky-dynamodb-traffic":{"r":14,"w":2},"num:min-duration-ia-glacier-deep":{"r":13,"w":8},"num:glacier-expedited-standard-bulk":{"r":13,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":13,"w":8},"s3:infrequent-and-re-creatable":{"r":13,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":13,"w":8},"cost:everything-sitting-in-s3-standard":{"r":13,"w":8},"cost:incomplete-multipart-uploads":{"r":13,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":8,"w":3},"scale:define-the-instances":{"r":8,"w":3},"dr:stateless-tier-survives-instance-loss":{"r":8,"w":3},"scale:alb-nlb-gwlb-layer":{"r":11,"w":11},"scale:static-ip-udp-millions-of-req-s":{"r":11,"w":11},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":11,"w":11},"scale:cross-zone-default":{"r":11,"w":11},"vpc:expose-your-service-to-another-vpc":{"r":11,"w":11},"trig:static-ip-for-a-firewall-allow-list":{"r":11,"w":11},"elb:routes-on-url-path-host-header-query-string":{"r":11,"w":11},"elb:routes-on-tcp-udp-port-only":{"r":11,"w":11},"elb:preserves-the-client-source-ip-natively":{"r":11,"w":11},"elb:millions-of-requests-sec-ultra-low-latency":{"r":11,"w":11},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":11,"w":11},"elb:websockets-http-2-grpc":{"r":11,"w":11},"elb:redirect-http-to-https-with-no-app-change":{"r":11,"w":11},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":11,"w":11},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":11,"w":11},"elb:route-to-lambda-as-a-target":{"r":11,"w":11},"elb:route-to-ip-targets-including-on-premises":{"r":11,"w":11},"elb:spread-across-azs-but-traffic-is-uneven":{"r":11,"w":11},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":6},"vpc:hybrid-in-days-vs-steady-bandwidth":{"r":0,"w":2},"trig:urgent-vs-consistent-bandwidth":{"r":0,"w":2},"sec:workforce-sign-in-mobile-users":{"r":0,"w":1},"api:who-may-call-it":{"r":0,"w":1},"api:sign-up-and-sign-in-for-your-app-users":{"r":0,"w":1},"api:swap-a-social-login-for-aws-credentials":{"r":0,"w":1},"block:smb-windows-active-directory":{"r":0,"w":1},"tail:managed-active-directory-or-connect-to-yours":{"r":0,"w":1},"sec:sql-injection-xss-rate-limit-by-ip":{"r":0,"w":1},"api:block-sql-injection-at-the-front-door":{"r":0,"w":1},"edge:static-anycast-ips-tcp-udp-gaming":{"r":1,"w":0},"dr:static-page-during-an-outage":{"r":0,"w":2},"lambda:lambda-in-a-vpc-needs-internet":{"r":0,"w":1},"vpc:private-instances-reach-the-internet":{"r":0,"w":1},"scope:az-scoped":{"r":0,"w":1},"block:shared-files-linux-many-instances":{"r":1,"w":0},"trig:windows-file-share":{"r":1,"w":0},"vpc:security-group":{"r":0,"w":1},"vpc:network-acl":{"r":0,"w":1},"vpc:block-a-single-malicious-ip":{"r":0,"w":1},"vpc:default-vs-custom-nacl":{"r":0,"w":1},"vpc:interface-endpoint":{"r":0,"w":2},"num:dynamodb-max-item":{"r":0,"w":2},"num:dynamodb-rcu-wcu":{"r":0,"w":2},"num:dynamodb-lsi-gsi-per-table":{"r":0,"w":2},"db:dynamodb-microsecond-reads":{"r":0,"w":2},"db:every-item-change-expire-free":{"r":0,"w":2},"vpc:gateway-endpoints-work-with":{"r":0,"w":3},"scope:regional":{"r":0,"w":2},"lambda:needs-longer-than-15-minutes":{"r":0,"w":1},"lambda:ecs-task-role-vs-execution-role":{"r":0,"w":1},"lambda:kubernetes-or-kubectl":{"r":0,"w":1},"lambda:containers-no-servers-needs-gpu":{"r":0,"w":1},"trig:longer-than-15-minutes":{"r":0,"w":1},"trig:we-already-use-kubernetes":{"r":0,"w":1},"mig:run-containers-on-your-own-hardware":{"r":0,"w":1},"ops:cut-the-nat-bill-for-s3-traffic":{"r":0,"w":1},"trig:must-not-leave-the-aws-network":{"r":0,"w":1},"cost:big-nat-bill-for-s3-traffic":{"r":0,"w":1},"api:reachable-only-inside-a-vpc":{"r":0,"w":1},"num:sqs-max-message":{"r":0,"w":1},"num:sqs-retention-default-max":{"r":0,"w":1},"num:sqs-visibility-default-max":{"r":0,"w":1},"num:sqs-long-poll-wait":{"r":0,"w":1},"s3:events-can-go-to":{"r":0,"w":1},"int:decouple-a-spiky-front-end":{"r":0,"w":1},"trig:decouple-notify-many-subscribers":{"r":0,"w":1}},"sections":{"num":{"r":22,"w":14},"ec2":{"r":14,"w":0},"db":{"r":14,"w":10},"ops":{"r":14,"w":1},"trig":{"r":19,"w":11},"cost":{"r":22,"w":11},"s3":{"r":13,"w":9},"dr":{"r":12,"w":13},"scale":{"r":11,"w":11},"vpc":{"r":11,"w":11},"elb":{"r":11,"w":11},"sec":{"r":0,"w":6},"scope":{"r":0,"w":9},"api":{"r":0,"w":3},"block":{"r":1,"w":1},"tail":{"r":0,"w":1},"edge":{"r":1,"w":0},"lambda":{"r":0,"w":2},"mig":{"r":0,"w":1},"int":{"r":0,"w":1}},"questions":{"dt-117":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1,"ce-132":0,"ce-734":1,"ce-460":0,"ce-506":1,"ce-808":1,"ce-620":1,"ce-362":0,"ce-683":0,"ce-236":0,"ce-839":0,"ce-629":1,"ce-370":1,"ce-148":0,"ce-912":0,"ce-310":0,"ce-497":0,"ce-368":0},"seen":50,"right":27,"wrong":23,"started":"2026-10-06"}},{"exported":"2026-10-06T16:34:36.765Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":12,"w":0},"API Gateway":{"r":4,"w":0},"S3 storage classes / lifecycle":{"r":12,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":4,"w":0},"ALB vs NLB":{"r":4,"w":0},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4}},"rows":{"num:spot-notice-spot-ri-discount":{"r":12,"w":0},"ec2:socket-or-core-based-licence":{"r":12,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":12,"w":0},"db:provisionedthroughputexceeded":{"r":12,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":12,"w":0},"trig:cannot-be-interrupted":{"r":12,"w":0},"trig:socket-or-core-based-licence":{"r":12,"w":0},"cost:steady-24-7-workload":{"r":12,"w":0},"cost:fault-tolerant-interruptible-work":{"r":12,"w":0},"cost:spiky-dynamodb-traffic":{"r":12,"w":0},"num:min-duration-ia-glacier-deep":{"r":12,"w":8},"num:glacier-expedited-standard-bulk":{"r":12,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":12,"w":8},"s3:infrequent-and-re-creatable":{"r":12,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":12,"w":8},"cost:everything-sitting-in-s3-standard":{"r":12,"w":8},"cost:incomplete-multipart-uploads":{"r":12,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":4,"w":0},"scale:define-the-instances":{"r":4,"w":0},"dr:stateless-tier-survives-instance-loss":{"r":4,"w":0},"scale:alb-nlb-gwlb-layer":{"r":4,"w":0},"scale:static-ip-udp-millions-of-req-s":{"r":4,"w":0},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":4,"w":0},"scale:cross-zone-default":{"r":4,"w":0},"vpc:expose-your-service-to-another-vpc":{"r":4,"w":0},"trig:static-ip-for-a-firewall-allow-list":{"r":4,"w":0},"elb:routes-on-url-path-host-header-query-string":{"r":4,"w":0},"elb:routes-on-tcp-udp-port-only":{"r":4,"w":0},"elb:preserves-the-client-source-ip-natively":{"r":4,"w":0},"elb:millions-of-requests-sec-ultra-low-latency":{"r":4,"w":0},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":4,"w":0},"elb:websockets-http-2-grpc":{"r":4,"w":0},"elb:redirect-http-to-https-with-no-app-change":{"r":4,"w":0},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":4,"w":0},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":4,"w":0},"elb:route-to-lambda-as-a-target":{"r":4,"w":0},"elb:route-to-ip-targets-including-on-premises":{"r":4,"w":0},"elb:spread-across-azs-but-traffic-is-uneven":{"r":4,"w":0},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":4}},"sections":{"num":{"r":20,"w":12},"ec2":{"r":12,"w":0},"db":{"r":12,"w":8},"ops":{"r":12,"w":0},"trig":{"r":12,"w":0},"cost":{"r":20,"w":8},"s3":{"r":12,"w":8},"dr":{"r":8,"w":8},"scale":{"r":4,"w":0},"vpc":{"r":4,"w":0},"elb":{"r":4,"w":0},"sec":{"r":0,"w":4},"scope":{"r":0,"w":4}},"questions":{"dt-117":1,"q-670":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1},"seen":32,"right":20,"wrong":12,"started":"2026-10-06"}}]};
+  var SEED        = {"app":"SAA-C03 Recall Board","appVersion":"1.10.1","dataVersion":"1.3.0","exported":"2026-10-06T22:37:13.857Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":14,"w":0},"API Gateway":{"r":6,"w":5},"S3 storage classes / lifecycle":{"r":13,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":1},"Auto Scaling":{"r":14,"w":3},"ALB vs NLB":{"r":18,"w":11},"Aurora":{"r":0,"w":9},"GuardDuty / Inspector / Macie":{"r":1,"w":4},"Organizations / SCPs":{"r":0,"w":4},"Direct Connect / Site-to-Site VPN":{"r":0,"w":2},"Cognito":{"r":0,"w":1},"Directory Service / AD":{"r":0,"w":1},"AWS WAF":{"r":0,"w":1},"Global Accelerator":{"r":1,"w":0},"Route 53 routing policies":{"r":0,"w":2},"NAT gateway":{"r":0,"w":1},"EFS":{"r":1,"w":0},"VPC security groups vs NACLs":{"r":0,"w":1},"DynamoDB":{"r":2,"w":3},"Containers (ECS/EKS/Fargate)":{"r":0,"w":5},"VPC endpoints / PrivateLink":{"r":0,"w":2},"SQS":{"r":11,"w":8},"Lambda":{"r":2,"w":3},"RDS Multi-AZ":{"r":2,"w":1},"EventBridge":{"r":2,"w":0},"Step Functions":{"r":2,"w":0},"SNS":{"r":0,"w":2},"CloudFront":{"r":0,"w":1},"IAM policies / least privilege":{"r":0,"w":1},"Storage Gateway":{"r":0,"w":1},"S3 replication (CRR/SRR)":{"r":0,"w":1},"FSx (Windows / Lustre)":{"r":0,"w":1}},"rows":{"num:spot-notice-spot-ri-discount":{"r":14,"w":0},"ec2:socket-or-core-based-licence":{"r":14,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":14,"w":0},"db:provisionedthroughputexceeded":{"r":14,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":14,"w":0},"trig:cannot-be-interrupted":{"r":14,"w":0},"trig:socket-or-core-based-licence":{"r":14,"w":0},"cost:steady-24-7-workload":{"r":14,"w":0},"cost:fault-tolerant-interruptible-work":{"r":14,"w":0},"cost:spiky-dynamodb-traffic":{"r":16,"w":3},"num:min-duration-ia-glacier-deep":{"r":13,"w":8},"num:glacier-expedited-standard-bulk":{"r":13,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":13,"w":8},"s3:infrequent-and-re-creatable":{"r":13,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":13,"w":8},"cost:everything-sitting-in-s3-standard":{"r":13,"w":8},"cost:incomplete-multipart-uploads":{"r":13,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":1},"s3:undeletable-for-seven-years":{"r":4,"w":1},"s3:replication-requires":{"r":4,"w":1},"dr:guard-against-accidental-deletion":{"r":4,"w":1},"scale:recommended-scaling-policy":{"r":14,"w":3},"scale:define-the-instances":{"r":14,"w":3},"dr:stateless-tier-survives-instance-loss":{"r":14,"w":3},"scale:alb-nlb-gwlb-layer":{"r":18,"w":11},"scale:static-ip-udp-millions-of-req-s":{"r":18,"w":11},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":18,"w":11},"scale:cross-zone-default":{"r":18,"w":11},"vpc:expose-your-service-to-another-vpc":{"r":18,"w":12},"trig:static-ip-for-a-firewall-allow-list":{"r":18,"w":11},"elb:routes-on-url-path-host-header-query-string":{"r":18,"w":11},"elb:routes-on-tcp-udp-port-only":{"r":18,"w":11},"elb:preserves-the-client-source-ip-natively":{"r":18,"w":11},"elb:millions-of-requests-sec-ultra-low-latency":{"r":18,"w":11},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":18,"w":11},"elb:websockets-http-2-grpc":{"r":18,"w":11},"elb:redirect-http-to-https-with-no-app-change":{"r":18,"w":11},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":18,"w":11},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":18,"w":11},"elb:route-to-lambda-as-a-target":{"r":18,"w":14},"elb:route-to-ip-targets-including-on-premises":{"r":18,"w":11},"elb:spread-across-azs-but-traffic-is-uneven":{"r":18,"w":11},"num:read-replicas-rds-aurora":{"r":0,"w":9},"num:max-storage-rds-aurora":{"r":0,"w":9},"db:aurora-copies-failover":{"r":0,"w":9},"db:cross-region-dr-sub-second-lag":{"r":0,"w":9},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":9},"dr:database-survives-a-region-loss":{"r":0,"w":9},"sec:guardduty-inspector-macie":{"r":1,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":7},"vpc:hybrid-in-days-vs-steady-bandwidth":{"r":0,"w":2},"trig:urgent-vs-consistent-bandwidth":{"r":0,"w":2},"sec:workforce-sign-in-mobile-users":{"r":0,"w":1},"api:who-may-call-it":{"r":2,"w":4},"api:sign-up-and-sign-in-for-your-app-users":{"r":0,"w":1},"api:swap-a-social-login-for-aws-credentials":{"r":0,"w":1},"block:smb-windows-active-directory":{"r":0,"w":2},"tail:managed-active-directory-or-connect-to-yours":{"r":0,"w":2},"sec:sql-injection-xss-rate-limit-by-ip":{"r":0,"w":1},"api:block-sql-injection-at-the-front-door":{"r":0,"w":1},"edge:static-anycast-ips-tcp-udp-gaming":{"r":1,"w":0},"dr:static-page-during-an-outage":{"r":0,"w":2},"lambda:lambda-in-a-vpc-needs-internet":{"r":2,"w":4},"vpc:private-instances-reach-the-internet":{"r":0,"w":1},"scope:az-scoped":{"r":0,"w":1},"block:shared-files-linux-many-instances":{"r":1,"w":0},"trig:windows-file-share":{"r":1,"w":1},"vpc:security-group":{"r":0,"w":1},"vpc:network-acl":{"r":0,"w":1},"vpc:block-a-single-malicious-ip":{"r":0,"w":1},"vpc:default-vs-custom-nacl":{"r":0,"w":1},"vpc:interface-endpoint":{"r":0,"w":3},"num:dynamodb-max-item":{"r":2,"w":3},"num:dynamodb-rcu-wcu":{"r":2,"w":3},"num:dynamodb-lsi-gsi-per-table":{"r":2,"w":3},"db:dynamodb-microsecond-reads":{"r":2,"w":3},"db:every-item-change-expire-free":{"r":4,"w":5},"vpc:gateway-endpoints-work-with":{"r":2,"w":4},"scope:regional":{"r":2,"w":3},"lambda:needs-longer-than-15-minutes":{"r":2,"w":5},"lambda:ecs-task-role-vs-execution-role":{"r":0,"w":5},"lambda:kubernetes-or-kubectl":{"r":0,"w":5},"lambda:containers-no-servers-needs-gpu":{"r":0,"w":5},"trig:longer-than-15-minutes":{"r":4,"w":8},"trig:we-already-use-kubernetes":{"r":0,"w":5},"mig:run-containers-on-your-own-hardware":{"r":0,"w":5},"ops:cut-the-nat-bill-for-s3-traffic":{"r":0,"w":2},"trig:must-not-leave-the-aws-network":{"r":0,"w":2},"cost:big-nat-bill-for-s3-traffic":{"r":0,"w":2},"api:reachable-only-inside-a-vpc":{"r":0,"w":2},"num:sqs-max-message":{"r":11,"w":8},"num:sqs-retention-default-max":{"r":11,"w":8},"num:sqs-visibility-default-max":{"r":11,"w":8},"num:sqs-long-poll-wait":{"r":11,"w":8},"s3:events-can-go-to":{"r":11,"w":8},"int:decouple-a-spiky-front-end":{"r":11,"w":8},"trig:decouple-notify-many-subscribers":{"r":11,"w":8},"num:lambda-max-duration":{"r":2,"w":3},"num:lambda-memory":{"r":2,"w":3},"num:lambda-payload-sync-async":{"r":2,"w":3},"num:lambda-default-concurrency":{"r":2,"w":3},"lambda:edge-light-rewrite-calls-services":{"r":2,"w":4},"db:multi-az-purpose":{"r":2,"w":1},"db:multi-az-failover":{"r":2,"w":1},"dr:database-survives-an-az-loss":{"r":2,"w":1},"int:filter-on-event-body-saas-replay":{"r":2,"w":0},"int:coordinate-steps-retries-approvals":{"r":2,"w":0},"int:one-message-to-many-queues":{"r":0,"w":2},"s3:cloudfront-reads-a-private-bucket":{"r":0,"w":1},"edge:cloudfront-default-max-ttl":{"r":0,"w":1},"edge:cloudfront-certificate-must-live-in":{"r":0,"w":1},"scope:edge-locations":{"r":0,"w":1},"sec:resource-based-policy-must-have":{"r":0,"w":1},"word:least-privilege":{"r":0,"w":1},"block:on-prem-nfs-smb-backed-by-s3":{"r":0,"w":1},"block:shrink-on-prem-footprint-vs-keep-it-all-local":{"r":0,"w":1},"block:retire-a-tape-library":{"r":0,"w":1},"dr:objects-survive-a-region-loss":{"r":0,"w":1},"block:hpc-or-ml-scratch-links-to-s3":{"r":0,"w":1}},"sections":{"num":{"r":33,"w":22},"ec2":{"r":14,"w":0},"db":{"r":20,"w":15},"ops":{"r":14,"w":2},"trig":{"r":30,"w":19},"cost":{"r":24,"w":12},"s3":{"r":24,"w":17},"dr":{"r":18,"w":16},"scale":{"r":19,"w":11},"vpc":{"r":18,"w":12},"elb":{"r":18,"w":14},"sec":{"r":1,"w":7},"scope":{"r":2,"w":11},"api":{"r":2,"w":6},"block":{"r":1,"w":3},"tail":{"r":0,"w":2},"edge":{"r":1,"w":1},"lambda":{"r":4,"w":10},"mig":{"r":0,"w":5},"int":{"r":11,"w":8},"word":{"r":0,"w":1}},"questions":{"dt-117":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1,"ce-132":0,"ce-734":1,"ce-460":0,"ce-506":1,"ce-808":1,"ce-620":1,"ce-362":0,"ce-683":0,"ce-236":0,"ce-839":0,"ce-629":1,"ce-370":1,"ce-148":0,"ce-912":0,"ce-310":0,"ce-497":1,"ce-368":0,"ce-455":0,"ce-730":1,"ce-363":1,"ce-573":0,"ce-570":1,"ce-753":0,"ce-728":1,"ce-591":1,"ce-511":0,"ce-718":1,"ce-67":0,"ce-496":0,"ce-395":0,"ce-133":1,"ce-685":0},"seen":73,"right":39,"wrong":34,"started":"2026-10-06"},"history":[{"exported":"2026-10-06T21:53:04.850Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":14,"w":0},"API Gateway":{"r":5,"w":2},"S3 storage classes / lifecycle":{"r":13,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":10,"w":3},"ALB vs NLB":{"r":14,"w":11},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4},"Direct Connect / Site-to-Site VPN":{"r":0,"w":2},"Cognito":{"r":0,"w":1},"Directory Service / AD":{"r":0,"w":1},"AWS WAF":{"r":0,"w":1},"Global Accelerator":{"r":1,"w":0},"Route 53 routing policies":{"r":0,"w":2},"NAT gateway":{"r":0,"w":1},"EFS":{"r":1,"w":0},"VPC security groups vs NACLs":{"r":0,"w":1},"DynamoDB":{"r":1,"w":2},"Containers (ECS/EKS/Fargate)":{"r":0,"w":3},"VPC endpoints / PrivateLink":{"r":0,"w":1},"SQS":{"r":4,"w":4},"Lambda":{"r":1,"w":1},"RDS Multi-AZ":{"r":1,"w":0},"EventBridge":{"r":1,"w":0},"Step Functions":{"r":1,"w":0},"SNS":{"r":0,"w":1}},"rows":{"num:spot-notice-spot-ri-discount":{"r":14,"w":0},"ec2:socket-or-core-based-licence":{"r":14,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":14,"w":0},"db:provisionedthroughputexceeded":{"r":14,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":14,"w":0},"trig:cannot-be-interrupted":{"r":14,"w":0},"trig:socket-or-core-based-licence":{"r":14,"w":0},"cost:steady-24-7-workload":{"r":14,"w":0},"cost:fault-tolerant-interruptible-work":{"r":14,"w":0},"cost:spiky-dynamodb-traffic":{"r":15,"w":2},"num:min-duration-ia-glacier-deep":{"r":13,"w":8},"num:glacier-expedited-standard-bulk":{"r":13,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":13,"w":8},"s3:infrequent-and-re-creatable":{"r":13,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":13,"w":8},"cost:everything-sitting-in-s3-standard":{"r":13,"w":8},"cost:incomplete-multipart-uploads":{"r":13,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":10,"w":3},"scale:define-the-instances":{"r":10,"w":3},"dr:stateless-tier-survives-instance-loss":{"r":10,"w":3},"scale:alb-nlb-gwlb-layer":{"r":14,"w":11},"scale:static-ip-udp-millions-of-req-s":{"r":14,"w":11},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":14,"w":11},"scale:cross-zone-default":{"r":14,"w":11},"vpc:expose-your-service-to-another-vpc":{"r":14,"w":11},"trig:static-ip-for-a-firewall-allow-list":{"r":14,"w":11},"elb:routes-on-url-path-host-header-query-string":{"r":14,"w":11},"elb:routes-on-tcp-udp-port-only":{"r":14,"w":11},"elb:preserves-the-client-source-ip-natively":{"r":14,"w":11},"elb:millions-of-requests-sec-ultra-low-latency":{"r":14,"w":11},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":14,"w":11},"elb:websockets-http-2-grpc":{"r":14,"w":11},"elb:redirect-http-to-https-with-no-app-change":{"r":14,"w":11},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":14,"w":11},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":14,"w":11},"elb:route-to-lambda-as-a-target":{"r":14,"w":12},"elb:route-to-ip-targets-including-on-premises":{"r":14,"w":11},"elb:spread-across-azs-but-traffic-is-uneven":{"r":14,"w":11},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":6},"vpc:hybrid-in-days-vs-steady-bandwidth":{"r":0,"w":2},"trig:urgent-vs-consistent-bandwidth":{"r":0,"w":2},"sec:workforce-sign-in-mobile-users":{"r":0,"w":1},"api:who-may-call-it":{"r":1,"w":2},"api:sign-up-and-sign-in-for-your-app-users":{"r":0,"w":1},"api:swap-a-social-login-for-aws-credentials":{"r":0,"w":1},"block:smb-windows-active-directory":{"r":0,"w":1},"tail:managed-active-directory-or-connect-to-yours":{"r":0,"w":1},"sec:sql-injection-xss-rate-limit-by-ip":{"r":0,"w":1},"api:block-sql-injection-at-the-front-door":{"r":0,"w":1},"edge:static-anycast-ips-tcp-udp-gaming":{"r":1,"w":0},"dr:static-page-during-an-outage":{"r":0,"w":2},"lambda:lambda-in-a-vpc-needs-internet":{"r":1,"w":2},"vpc:private-instances-reach-the-internet":{"r":0,"w":1},"scope:az-scoped":{"r":0,"w":1},"block:shared-files-linux-many-instances":{"r":1,"w":0},"trig:windows-file-share":{"r":1,"w":0},"vpc:security-group":{"r":0,"w":1},"vpc:network-acl":{"r":0,"w":1},"vpc:block-a-single-malicious-ip":{"r":0,"w":1},"vpc:default-vs-custom-nacl":{"r":0,"w":1},"vpc:interface-endpoint":{"r":0,"w":2},"num:dynamodb-max-item":{"r":1,"w":2},"num:dynamodb-rcu-wcu":{"r":1,"w":2},"num:dynamodb-lsi-gsi-per-table":{"r":1,"w":2},"db:dynamodb-microsecond-reads":{"r":1,"w":2},"db:every-item-change-expire-free":{"r":2,"w":3},"vpc:gateway-endpoints-work-with":{"r":1,"w":3},"scope:regional":{"r":1,"w":2},"lambda:needs-longer-than-15-minutes":{"r":1,"w":3},"lambda:ecs-task-role-vs-execution-role":{"r":0,"w":3},"lambda:kubernetes-or-kubectl":{"r":0,"w":3},"lambda:containers-no-servers-needs-gpu":{"r":0,"w":3},"trig:longer-than-15-minutes":{"r":2,"w":4},"trig:we-already-use-kubernetes":{"r":0,"w":3},"mig:run-containers-on-your-own-hardware":{"r":0,"w":3},"ops:cut-the-nat-bill-for-s3-traffic":{"r":0,"w":1},"trig:must-not-leave-the-aws-network":{"r":0,"w":1},"cost:big-nat-bill-for-s3-traffic":{"r":0,"w":1},"api:reachable-only-inside-a-vpc":{"r":0,"w":1},"num:sqs-max-message":{"r":4,"w":4},"num:sqs-retention-default-max":{"r":4,"w":4},"num:sqs-visibility-default-max":{"r":4,"w":4},"num:sqs-long-poll-wait":{"r":4,"w":4},"s3:events-can-go-to":{"r":4,"w":4},"int:decouple-a-spiky-front-end":{"r":4,"w":4},"trig:decouple-notify-many-subscribers":{"r":4,"w":4},"num:lambda-max-duration":{"r":1,"w":1},"num:lambda-memory":{"r":1,"w":1},"num:lambda-payload-sync-async":{"r":1,"w":1},"num:lambda-default-concurrency":{"r":1,"w":1},"lambda:edge-light-rewrite-calls-services":{"r":1,"w":1},"db:multi-az-purpose":{"r":1,"w":0},"db:multi-az-failover":{"r":1,"w":0},"dr:database-survives-an-az-loss":{"r":1,"w":0},"int:filter-on-event-body-saas-replay":{"r":1,"w":0},"int:coordinate-steps-retries-approvals":{"r":1,"w":0},"int:one-message-to-many-queues":{"r":0,"w":1}},"sections":{"num":{"r":26,"w":17},"ec2":{"r":14,"w":0},"db":{"r":17,"w":11},"ops":{"r":14,"w":1},"trig":{"r":23,"w":14},"cost":{"r":23,"w":11},"s3":{"r":17,"w":12},"dr":{"r":14,"w":13},"scale":{"r":14,"w":11},"vpc":{"r":14,"w":11},"elb":{"r":14,"w":12},"sec":{"r":0,"w":6},"scope":{"r":1,"w":9},"api":{"r":1,"w":4},"block":{"r":1,"w":1},"tail":{"r":0,"w":1},"edge":{"r":1,"w":0},"lambda":{"r":2,"w":5},"mig":{"r":0,"w":3},"int":{"r":4,"w":4}},"questions":{"dt-117":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1,"ce-132":0,"ce-734":1,"ce-460":0,"ce-506":1,"ce-808":1,"ce-620":1,"ce-362":0,"ce-683":0,"ce-236":0,"ce-839":0,"ce-629":1,"ce-370":1,"ce-148":0,"ce-912":0,"ce-310":0,"ce-497":1,"ce-368":0,"ce-455":0,"ce-730":1,"ce-363":1,"ce-573":0,"ce-570":1,"ce-753":0},"seen":57,"right":31,"wrong":26,"started":"2026-10-06"}},{"exported":"2026-10-06T18:44:15.077Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":14,"w":0},"API Gateway":{"r":4,"w":0},"S3 storage classes / lifecycle":{"r":13,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":8,"w":3},"ALB vs NLB":{"r":11,"w":11},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4},"Direct Connect / Site-to-Site VPN":{"r":0,"w":2},"Cognito":{"r":0,"w":1},"Directory Service / AD":{"r":0,"w":1},"AWS WAF":{"r":0,"w":1},"Global Accelerator":{"r":1,"w":0},"Route 53 routing policies":{"r":0,"w":2},"NAT gateway":{"r":0,"w":1},"EFS":{"r":1,"w":0},"VPC security groups vs NACLs":{"r":0,"w":1},"DynamoDB":{"r":0,"w":2},"Containers (ECS/EKS/Fargate)":{"r":0,"w":1},"VPC endpoints / PrivateLink":{"r":0,"w":1},"SQS":{"r":0,"w":1}},"rows":{"num:spot-notice-spot-ri-discount":{"r":14,"w":0},"ec2:socket-or-core-based-licence":{"r":14,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":14,"w":0},"db:provisionedthroughputexceeded":{"r":14,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":14,"w":0},"trig:cannot-be-interrupted":{"r":14,"w":0},"trig:socket-or-core-based-licence":{"r":14,"w":0},"cost:steady-24-7-workload":{"r":14,"w":0},"cost:fault-tolerant-interruptible-work":{"r":14,"w":0},"cost:spiky-dynamodb-traffic":{"r":14,"w":2},"num:min-duration-ia-glacier-deep":{"r":13,"w":8},"num:glacier-expedited-standard-bulk":{"r":13,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":13,"w":8},"s3:infrequent-and-re-creatable":{"r":13,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":13,"w":8},"cost:everything-sitting-in-s3-standard":{"r":13,"w":8},"cost:incomplete-multipart-uploads":{"r":13,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":8,"w":3},"scale:define-the-instances":{"r":8,"w":3},"dr:stateless-tier-survives-instance-loss":{"r":8,"w":3},"scale:alb-nlb-gwlb-layer":{"r":11,"w":11},"scale:static-ip-udp-millions-of-req-s":{"r":11,"w":11},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":11,"w":11},"scale:cross-zone-default":{"r":11,"w":11},"vpc:expose-your-service-to-another-vpc":{"r":11,"w":11},"trig:static-ip-for-a-firewall-allow-list":{"r":11,"w":11},"elb:routes-on-url-path-host-header-query-string":{"r":11,"w":11},"elb:routes-on-tcp-udp-port-only":{"r":11,"w":11},"elb:preserves-the-client-source-ip-natively":{"r":11,"w":11},"elb:millions-of-requests-sec-ultra-low-latency":{"r":11,"w":11},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":11,"w":11},"elb:websockets-http-2-grpc":{"r":11,"w":11},"elb:redirect-http-to-https-with-no-app-change":{"r":11,"w":11},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":11,"w":11},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":11,"w":11},"elb:route-to-lambda-as-a-target":{"r":11,"w":11},"elb:route-to-ip-targets-including-on-premises":{"r":11,"w":11},"elb:spread-across-azs-but-traffic-is-uneven":{"r":11,"w":11},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":6},"vpc:hybrid-in-days-vs-steady-bandwidth":{"r":0,"w":2},"trig:urgent-vs-consistent-bandwidth":{"r":0,"w":2},"sec:workforce-sign-in-mobile-users":{"r":0,"w":1},"api:who-may-call-it":{"r":0,"w":1},"api:sign-up-and-sign-in-for-your-app-users":{"r":0,"w":1},"api:swap-a-social-login-for-aws-credentials":{"r":0,"w":1},"block:smb-windows-active-directory":{"r":0,"w":1},"tail:managed-active-directory-or-connect-to-yours":{"r":0,"w":1},"sec:sql-injection-xss-rate-limit-by-ip":{"r":0,"w":1},"api:block-sql-injection-at-the-front-door":{"r":0,"w":1},"edge:static-anycast-ips-tcp-udp-gaming":{"r":1,"w":0},"dr:static-page-during-an-outage":{"r":0,"w":2},"lambda:lambda-in-a-vpc-needs-internet":{"r":0,"w":1},"vpc:private-instances-reach-the-internet":{"r":0,"w":1},"scope:az-scoped":{"r":0,"w":1},"block:shared-files-linux-many-instances":{"r":1,"w":0},"trig:windows-file-share":{"r":1,"w":0},"vpc:security-group":{"r":0,"w":1},"vpc:network-acl":{"r":0,"w":1},"vpc:block-a-single-malicious-ip":{"r":0,"w":1},"vpc:default-vs-custom-nacl":{"r":0,"w":1},"vpc:interface-endpoint":{"r":0,"w":2},"num:dynamodb-max-item":{"r":0,"w":2},"num:dynamodb-rcu-wcu":{"r":0,"w":2},"num:dynamodb-lsi-gsi-per-table":{"r":0,"w":2},"db:dynamodb-microsecond-reads":{"r":0,"w":2},"db:every-item-change-expire-free":{"r":0,"w":2},"vpc:gateway-endpoints-work-with":{"r":0,"w":3},"scope:regional":{"r":0,"w":2},"lambda:needs-longer-than-15-minutes":{"r":0,"w":1},"lambda:ecs-task-role-vs-execution-role":{"r":0,"w":1},"lambda:kubernetes-or-kubectl":{"r":0,"w":1},"lambda:containers-no-servers-needs-gpu":{"r":0,"w":1},"trig:longer-than-15-minutes":{"r":0,"w":1},"trig:we-already-use-kubernetes":{"r":0,"w":1},"mig:run-containers-on-your-own-hardware":{"r":0,"w":1},"ops:cut-the-nat-bill-for-s3-traffic":{"r":0,"w":1},"trig:must-not-leave-the-aws-network":{"r":0,"w":1},"cost:big-nat-bill-for-s3-traffic":{"r":0,"w":1},"api:reachable-only-inside-a-vpc":{"r":0,"w":1},"num:sqs-max-message":{"r":0,"w":1},"num:sqs-retention-default-max":{"r":0,"w":1},"num:sqs-visibility-default-max":{"r":0,"w":1},"num:sqs-long-poll-wait":{"r":0,"w":1},"s3:events-can-go-to":{"r":0,"w":1},"int:decouple-a-spiky-front-end":{"r":0,"w":1},"trig:decouple-notify-many-subscribers":{"r":0,"w":1}},"sections":{"num":{"r":22,"w":14},"ec2":{"r":14,"w":0},"db":{"r":14,"w":10},"ops":{"r":14,"w":1},"trig":{"r":19,"w":11},"cost":{"r":22,"w":11},"s3":{"r":13,"w":9},"dr":{"r":12,"w":13},"scale":{"r":11,"w":11},"vpc":{"r":11,"w":11},"elb":{"r":11,"w":11},"sec":{"r":0,"w":6},"scope":{"r":0,"w":9},"api":{"r":0,"w":3},"block":{"r":1,"w":1},"tail":{"r":0,"w":1},"edge":{"r":1,"w":0},"lambda":{"r":0,"w":2},"mig":{"r":0,"w":1},"int":{"r":0,"w":1}},"questions":{"dt-117":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1,"ce-132":0,"ce-734":1,"ce-460":0,"ce-506":1,"ce-808":1,"ce-620":1,"ce-362":0,"ce-683":0,"ce-236":0,"ce-839":0,"ce-629":1,"ce-370":1,"ce-148":0,"ce-912":0,"ce-310":0,"ce-497":0,"ce-368":0},"seen":50,"right":27,"wrong":23,"started":"2026-10-06"}},{"exported":"2026-10-06T16:34:36.765Z","progress":{"concepts":{"EC2 purchasing (Spot/RI/Savings Plans)":{"r":12,"w":0},"API Gateway":{"r":4,"w":0},"S3 storage classes / lifecycle":{"r":12,"w":8},"S3 versioning / Object Lock / MFA Delete":{"r":4,"w":0},"Auto Scaling":{"r":4,"w":0},"ALB vs NLB":{"r":4,"w":0},"Aurora":{"r":0,"w":8},"GuardDuty / Inspector / Macie":{"r":0,"w":4},"Organizations / SCPs":{"r":0,"w":4}},"rows":{"num:spot-notice-spot-ri-discount":{"r":12,"w":0},"ec2:socket-or-core-based-licence":{"r":12,"w":0},"ec2:steady-24-7-vs-interruptible-batch":{"r":12,"w":0},"db:provisionedthroughputexceeded":{"r":12,"w":0},"ops:keep-data-on-delete-spot-drift":{"r":12,"w":0},"trig:cannot-be-interrupted":{"r":12,"w":0},"trig:socket-or-core-based-licence":{"r":12,"w":0},"cost:steady-24-7-workload":{"r":12,"w":0},"cost:fault-tolerant-interruptible-work":{"r":12,"w":0},"cost:spiky-dynamodb-traffic":{"r":12,"w":0},"num:min-duration-ia-glacier-deep":{"r":12,"w":8},"num:glacier-expedited-standard-bulk":{"r":12,"w":8},"s3:hot-unknown-pattern-infrequent":{"r":12,"w":8},"s3:infrequent-and-re-creatable":{"r":12,"w":8},"s3:archive-ms-minutes-hours-cheapest":{"r":12,"w":8},"cost:everything-sitting-in-s3-standard":{"r":12,"w":8},"cost:incomplete-multipart-uploads":{"r":12,"w":8},"s3:accidental-vs-permanent-delete":{"r":4,"w":0},"s3:undeletable-for-seven-years":{"r":4,"w":0},"s3:replication-requires":{"r":4,"w":0},"dr:guard-against-accidental-deletion":{"r":4,"w":0},"scale:recommended-scaling-policy":{"r":4,"w":0},"scale:define-the-instances":{"r":4,"w":0},"dr:stateless-tier-survives-instance-loss":{"r":4,"w":0},"scale:alb-nlb-gwlb-layer":{"r":4,"w":0},"scale:static-ip-udp-millions-of-req-s":{"r":4,"w":0},"scale:path-or-host-routing-dynamic-container-ports-c":{"r":4,"w":0},"scale:cross-zone-default":{"r":4,"w":0},"vpc:expose-your-service-to-another-vpc":{"r":4,"w":0},"trig:static-ip-for-a-firewall-allow-list":{"r":4,"w":0},"elb:routes-on-url-path-host-header-query-string":{"r":4,"w":0},"elb:routes-on-tcp-udp-port-only":{"r":4,"w":0},"elb:preserves-the-client-source-ip-natively":{"r":4,"w":0},"elb:millions-of-requests-sec-ultra-low-latency":{"r":4,"w":0},"elb:one-static-ip-per-az-supports-elastic-ips":{"r":4,"w":0},"elb:websockets-http-2-grpc":{"r":4,"w":0},"elb:redirect-http-to-https-with-no-app-change":{"r":4,"w":0},"elb:return-a-fixed-response-e-g-a-maintenance-page":{"r":4,"w":0},"elb:authenticate-with-cognito-or-oidc-at-the-edge":{"r":4,"w":0},"elb:route-to-lambda-as-a-target":{"r":4,"w":0},"elb:route-to-ip-targets-including-on-premises":{"r":4,"w":0},"elb:spread-across-azs-but-traffic-is-uneven":{"r":4,"w":0},"num:read-replicas-rds-aurora":{"r":0,"w":8},"num:max-storage-rds-aurora":{"r":0,"w":8},"db:aurora-copies-failover":{"r":0,"w":8},"db:cross-region-dr-sub-second-lag":{"r":0,"w":8},"db:intermittent-load-near-zero-idle-cost":{"r":0,"w":8},"dr:database-survives-a-region-loss":{"r":0,"w":8},"sec:guardduty-inspector-macie":{"r":0,"w":4},"sec:scp-effect-on-the-management-account":{"r":0,"w":4},"scope:global-services":{"r":0,"w":4}},"sections":{"num":{"r":20,"w":12},"ec2":{"r":12,"w":0},"db":{"r":12,"w":8},"ops":{"r":12,"w":0},"trig":{"r":12,"w":0},"cost":{"r":20,"w":8},"s3":{"r":12,"w":8},"dr":{"r":8,"w":8},"scale":{"r":4,"w":0},"vpc":{"r":4,"w":0},"elb":{"r":4,"w":0},"sec":{"r":0,"w":4},"scope":{"r":0,"w":4}},"questions":{"dt-117":1,"q-670":1,"ce-898":1,"ce-821":1,"ce-207":0,"ce-830":0,"ce-781":0,"ce-775":1},"seen":32,"right":20,"wrong":12,"started":"2026-10-06"}}]};
 
   // ---------- storage (always guarded: can throw or return empty) ----------
   // Probe before trusting it. A private window, blocked site data or a full
@@ -794,9 +818,50 @@ footer .v { font-family: var(--mono); }
     } catch (e) { return false; }
   })();
 
-  function blankState() {
+  var CONCEPT_ROWS = {};   // concept -> [rowId]
+  var CONCEPT_SECS = {};   // concept -> [sectionKey]
+  DATA.sections.forEach(function (sec) {
+    sec.rows.forEach(function (r) {
+      r.c.forEach(function (k) {
+        (CONCEPT_ROWS[k] || (CONCEPT_ROWS[k] = [])).push(r.id);
+        var list = CONCEPT_SECS[k] || (CONCEPT_SECS[k] = []);
+        if (list.indexOf(sec.key) < 0) list.push(sec.key);
+      });
+    });
+  });
+
+  // ---------- progress, and the stretch of time being shown ----------
+  //
+  // Two things are kept. A lump of everything answered before this version
+  // existed, which has one date because there is no record of when any of it
+  // happened, and a log of every answer since, each with the time it was
+  // given. Every score on the board is worked out from those two, so the
+  // poster marks, the practice pools and the progress figures can all be shown
+  // for any stretch of time without being stored twice.
+  //
+  // S holds the all-time scores and is what gets written down and exported.
+  // V holds the scores for the chosen stretch, and is what every view reads.
+
+  var BASE_DAY = "2026-10-06";   // the day the log started
+
+  function blankCounts() {
     return { concepts: {}, rows: {}, sections: {}, questions: {},
-             seen: 0, right: 0, wrong: 0, started: null };
+             seen: 0, right: 0, wrong: 0 };
+  }
+
+  function blankState() {
+    var s = blankCounts();
+    s.base = blankCounts();
+    s.baseAt = BASE_DAY;
+    s.log = [];
+    s.started = null;
+    return s;
+  }
+
+  function countsOf(p) {
+    return { concepts: p.concepts || {}, rows: p.rows || {},
+             sections: p.sections || {}, questions: p.questions || {},
+             seen: p.seen || 0, right: p.right || 0, wrong: p.wrong || 0 };
   }
 
   function loadState() {
@@ -806,16 +871,17 @@ footer .v { font-family: var(--mono); }
       var raw = localStorage.getItem(STORE_KEY);
       if (!raw) return base;
       var p = JSON.parse(raw);
-      return {
-        concepts:  p.concepts  || {},
-        rows:      p.rows      || {},   // added in 1.2: per-line scores
-        sections:  p.sections  || {},
-        questions: p.questions || {},
-        seen:  p.seen  || 0,
-        right: p.right || 0,
-        wrong: p.wrong || 0,
-        started: p.started || null
-      };
+      var s = blankCounts();
+      s.started = p.started || null;
+      s.log = Array.isArray(p.log) ? p.log : [];
+      s.baseAt = p.baseAt || BASE_DAY;
+      // Anything written by a version before the log existed becomes the lump.
+      s.base = p.base ? {
+        concepts: p.base.concepts || {}, rows: p.base.rows || {},
+        sections: p.base.sections || {}, questions: p.base.questions || {},
+        seen: p.base.seen || 0, right: p.base.right || 0, wrong: p.base.wrong || 0
+      } : countsOf(p);
+      return s;
     } catch (e) { return base; }
   }
 
@@ -832,56 +898,154 @@ footer .v { font-family: var(--mono); }
     }
   }
 
-  // Merge another progress record into this one. Counts add; a question either
-  // side got wrong stays on the revisit list, because a miss not yet put right
-  // is the one worth seeing again. Used by the Merge button and by the seed
-  // baked into the build, so both behave identically.
-  function mergeProgress(prog) {
-    if (!prog || typeof prog !== "object") return null;
+  // Move one answer onto a set of scores. Used both when a question is
+  // answered and when the log is replayed to work out the score for a stretch
+  // of time, so a replayed answer and a fresh one can never drift apart.
+  function applyAnswer(T, q, ok) {
+    T.seen++;
+    if (ok) T.right++; else T.wrong++;
+    T.questions[q.id] = ok ? 1 : 0;
 
-    function mergeCounts(into, from) {
-      Object.keys(from || {}).forEach(function (k) {
-        var a = into[k] || { r: 0, w: 0 };
-        var b = from[k] || { r: 0, w: 0 };
-        into[k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
-      });
-    }
-
-    var before = S.seen || 0;
-    S.concepts = S.concepts || {}; S.rows = S.rows || {}; S.sections = S.sections || {};
-    mergeCounts(S.concepts, prog.concepts);
-    mergeCounts(S.rows, prog.rows);
-    mergeCounts(S.sections, prog.sections);
-
-    var added = 0, disagreed = 0;
-    Object.keys(prog.questions || {}).forEach(function (qid) {
-      var mine = S.questions[qid];
-      var theirs = prog.questions[qid];
-      if (mine === undefined) { S.questions[qid] = theirs; added++; }
-      else if (mine !== theirs) { S.questions[qid] = 0; disagreed++; }
+    var rowsHit = {}, secsHit = {};
+    q.c.forEach(function (k) {
+      var c = T.concepts[k] || { r: 0, w: 0 };
+      if (ok) c.r++; else c.w++;
+      T.concepts[k] = c;
+      (CONCEPT_ROWS[k] || []).forEach(function (id) { rowsHit[id] = 1; });
+      (CONCEPT_SECS[k] || []).forEach(function (key) { secsHit[key] = 1; });
     });
 
-    S.seen = (S.seen || 0) + (prog.seen || 0);
-    S.right = (S.right || 0) + (prog.right || 0);
-    S.wrong = (S.wrong || 0) + (prog.wrong || 0);
+    // One question moves each related line and each related block by one, not
+    // by the number of concepts that happened to connect them.
+    Object.keys(rowsHit).forEach(function (id) {
+      var s = T.rows[id] || { r: 0, w: 0 };
+      if (ok) s.r++; else s.w++;
+      T.rows[id] = s;
+    });
+    Object.keys(secsHit).forEach(function (key) {
+      var s = T.sections[key] || { r: 0, w: 0 };
+      if (ok) s.r++; else s.w++;
+      T.sections[key] = s;
+    });
+  }
+
+  function addLump(into, from) {
+    if (!from) return;
+    ["concepts", "rows", "sections"].forEach(function (part) {
+      Object.keys(from[part] || {}).forEach(function (k) {
+        var a = into[part][k] || { r: 0, w: 0 };
+        var b = from[part][k] || { r: 0, w: 0 };
+        into[part][k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
+      });
+    });
+    Object.keys(from.questions || {}).forEach(function (qid) {
+      into.questions[qid] = from.questions[qid];
+    });
+    into.seen  += from.seen  || 0;
+    into.right += from.right || 0;
+    into.wrong += from.wrong || 0;
+  }
+
+  var LOOKBACKS = [
+    { days: 0,  label: "All time" },
+    { days: 1,  label: "Last 24 hours" },
+    { days: 3,  label: "Last 3 days" },
+    { days: 7,  label: "Last 7 days" },
+    { days: 14, label: "Last 14 days" },
+    { days: 30, label: "Last 30 days" }
+  ];
+  var LOOKBACK_KEY = STORE_KEY + "/lookback";
+  var lookback = 0;                    // days, 0 meaning all time
+  try {
+    var savedLb = localStorage.getItem(LOOKBACK_KEY);
+    if (savedLb !== null) lookback = parseInt(savedLb, 10) || 0;
+  } catch (e) { /* no storage: all time, every time */ }
+
+  var QBYID = {};
+  DATA.questions.forEach(function (q) { QBYID[q.id] = q; });
+
+  function scoresFor(days) {
+    var out = blankCounts();
+    var cut = days ? Math.floor(Date.now() / 1000) - days * 86400 : -1;
+    // The lump has one date. Either the whole of it is inside the window or
+    // none of it is; there is no way to split it, because nothing recorded
+    // when any single one of those answers was given.
+    var lumpDay = Date.parse((S.baseAt || BASE_DAY) + "T12:00:00Z") / 1000;
+    if (!days || lumpDay >= cut) addLump(out, S.base);
+    (S.log || []).forEach(function (e) {
+      if (!e || (days && e[0] < cut)) return;
+      var q = QBYID[e[1]];
+      if (q) applyAnswer(out, q, !!e[2]);
+    });
+    return out;
+  }
+
+  var V = blankCounts();
+
+  // Work out the all-time scores and the scores for the chosen stretch. S keeps
+  // its own identity so anything holding a reference to it stays valid.
+  function recompute() {
+    var all = scoresFor(0);
+    S.concepts = all.concepts; S.rows = all.rows; S.sections = all.sections;
+    S.questions = all.questions;
+    S.seen = all.seen; S.right = all.right; S.wrong = all.wrong;
+    V = lookback ? scoresFor(lookback) : S;
+  }
+
+  // Merge another progress record into this one. The lumps add, the logs join
+  // with any answer already present left alone, and a question either side got
+  // wrong stays on the revisit list, because a miss not yet put right is the
+  // one worth seeing again. Used by the Merge button and by the progress baked
+  // into the build, so both behave identically.
+  function mergeProgress(prog) {
+    if (!prog || typeof prog !== "object") return null;
+    var before = S.seen || 0;
+
+    var theirs = prog.base || countsOf(prog);
+    var added = 0, disagreed = 0;
+    Object.keys(theirs.questions || {}).forEach(function (qid) {
+      var mine = S.base.questions[qid];
+      var yours = theirs.questions[qid];
+      if (mine === undefined) { S.base.questions[qid] = yours; added++; }
+      else if (mine !== yours) { S.base.questions[qid] = 0; disagreed++; }
+    });
+
+    var keepQs = S.base.questions;
+    addLump(S.base, { concepts: theirs.concepts, rows: theirs.rows,
+                      sections: theirs.sections, questions: {},
+                      seen: theirs.seen, right: theirs.right, wrong: theirs.wrong });
+    S.base.questions = keepQs;
+
+    // Joining the logs by time and question means the same answer arriving
+    // twice, from a second laptop or from the build, is only counted once.
+    var seenKeys = {};
+    (S.log || []).forEach(function (e) { seenKeys[e[0] + "|" + e[1]] = 1; });
+    (prog.log || []).forEach(function (e) {
+      if (!e || seenKeys[e[0] + "|" + e[1]]) return;
+      seenKeys[e[0] + "|" + e[1]] = 1;
+      S.log.push(e);
+    });
+    S.log.sort(function (a, b) { return a[0] - b[0]; });
+
     if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
 
+    recompute();
     return { answers: S.seen - before, added: added, disagreed: disagreed };
   }
 
   var S = loadState();
+  recompute();
   if (!S.started) S.started = new Date().toISOString().slice(0, 10);
 
   // Progress baked into the build, so a fresh browser or a cleared one does
   // not start from nothing.
   //
-  // Only the part this browser has not already been given is applied. Counts
-  // add when merging, so handing a browser a second, larger build-in progress
-  // record would otherwise count the same answers twice: a browser that took
-  // 32 answers from one build and 50 from the next would show 82 instead of
-  // 50. So the browser keeps a copy of what it was last given, and the new
-  // record minus that copy is what gets merged. A browser that has answered
-  // questions of its own keeps all of them.
+  // Only the part this browser has not already been given is applied. The
+  // lumps add, so handing a browser a second, larger record would count the
+  // same answers twice: a browser given 32 answers by one build and 50 by the
+  // next would show 82 instead of 50. So the browser keeps a copy of the
+  // record it was last given, and the new record minus that copy is what gets
+  // merged. A browser that has answered questions of its own keeps all of them.
   (function applySeed() {
     if (!SEED || !SEED.progress) return;
     var stamp = SEED.exported || "seed";
@@ -922,21 +1086,28 @@ footer .v { font-family: var(--mono); }
     }
 
     var now = SEED.progress;
-    var delta = {
-      concepts: less(now.concepts, had && had.concepts),
-      rows:     less(now.rows,     had && had.rows),
-      sections: less(now.sections, had && had.sections),
-      // Right-or-wrong per question is not a running total, and merging it is
-      // already safe to repeat: an id this browser has not seen is copied, and
-      // where the two disagree the miss wins. So it is passed through whole.
-      questions: now.questions,
-      seen:  Math.max(0, (now.seen  || 0) - ((had && had.seen)  || 0)),
-      right: Math.max(0, (now.right || 0) - ((had && had.right) || 0)),
-      wrong: Math.max(0, (now.wrong || 0) - ((had && had.wrong) || 0)),
-      started: now.started
-    };
+    var nowLump = now.base || countsOf(now);
+    var hadLump = had ? (had.base || countsOf(had)) : null;
 
-    mergeProgress(delta);
+    mergeProgress({
+      base: {
+        concepts: less(nowLump.concepts, hadLump && hadLump.concepts),
+        rows:     less(nowLump.rows,     hadLump && hadLump.rows),
+        sections: less(nowLump.sections, hadLump && hadLump.sections),
+        // Right-or-wrong per question is not a running total, and merging it
+        // is already safe to repeat: an id this browser has not seen is
+        // copied, and where the two disagree the miss wins.
+        questions: nowLump.questions,
+        seen:  Math.max(0, (nowLump.seen  || 0) - ((hadLump && hadLump.seen)  || 0)),
+        right: Math.max(0, (nowLump.right || 0) - ((hadLump && hadLump.right) || 0)),
+        wrong: Math.max(0, (nowLump.wrong || 0) - ((hadLump && hadLump.wrong) || 0))
+      },
+      // Joining the logs drops anything already present, so passing the whole
+      // of it rather than working out a difference is safe.
+      log: now.log || [],
+      started: now.started
+    });
+
     saveState();
     try {
       localStorage.setItem(SEED_HAD, JSON.stringify(now));
@@ -993,7 +1164,7 @@ footer .v { font-family: var(--mono); }
   }
   // A concept counts as "known" once right answers outnumber wrong ones.
   function conceptState(key) {
-    var c = S.concepts[key];
+    var c = V.concepts[key];
     if (!c || (!c.r && !c.w)) return "";
     return c.r > c.w ? "ok" : "bad";
   }
@@ -1001,23 +1172,12 @@ footer .v { font-family: var(--mono); }
   // Which rows and which blocks a question touches. Built once: a question and
   // a row are related when they share a concept. A row is counted once per
   // question even when several concepts connect them.
-  var CONCEPT_ROWS = {};   // concept -> [rowId]
-  var CONCEPT_SECS = {};   // concept -> [sectionKey]
-  DATA.sections.forEach(function (sec) {
-    sec.rows.forEach(function (r) {
-      r.c.forEach(function (k) {
-        (CONCEPT_ROWS[k] || (CONCEPT_ROWS[k] = [])).push(r.id);
-        var list = CONCEPT_SECS[k] || (CONCEPT_SECS[k] = []);
-        if (list.indexOf(sec.key) < 0) list.push(sec.key);
-      });
-    });
-  });
 
   function score(bucket, key) {
     var s = bucket[key];
     return s ? s : { r: 0, w: 0 };
   }
-  function rowScore(row) { return score(S.rows, row.id); }
+  function rowScore(row) { return score(V.rows, row.id); }
 
   // A line is solid once right beats wrong, shaky as soon as it has been
   // missed more often than not.
@@ -1069,7 +1229,7 @@ footer .v { font-family: var(--mono); }
       head.appendChild(el("h3", null, sec.title));
       // Questions answered on this block, counted once each however many lines
       // in the block they touched.
-      var ss = score(S.sections, sec.key);
+      var ss = score(V.sections, sec.key);
       if (ss.r || ss.w) head.appendChild(tally(ss.r, ss.w, false));
       if (sec.tagline) head.appendChild(el("span", "tagline", sec.tagline));
       box.appendChild(head);
@@ -1156,13 +1316,13 @@ footer .v { font-family: var(--mono); }
     sum.textContent = "";
     var total = DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0);
 
-    if (S.seen) {
-      var pct = Math.round(100 * S.right / S.seen);
+    if (V.seen) {
+      var pct = Math.round(100 * V.right / V.seen);
       var ans = el("span");
-      ans.appendChild(el("b", null, String(S.seen)));
+      ans.appendChild(el("b", null, String(V.seen)));
       ans.appendChild(document.createTextNode(" answered"));
       sum.appendChild(ans);
-      sum.appendChild(tally(S.right, S.wrong, true));
+      sum.appendChild(tally(V.right, V.wrong, true));
       sum.appendChild(el("span", null, pct + "% right"));
     } else {
       sum.appendChild(el("span", null, "No questions answered yet"));
@@ -1317,7 +1477,7 @@ footer .v { font-family: var(--mono); }
   // worth going back to, so it gets a one-tap route from the header, the
   // practice picker and the progress page rather than being three taps deep.
   function missedQuestions() {
-    return DATA.questions.filter(function (q) { return S.questions[q.id] === 0; });
+    return DATA.questions.filter(function (q) { return V.questions[q.id] === 0; });
   }
 
   function drillMisses() {
@@ -1377,32 +1537,13 @@ footer .v { font-family: var(--mono); }
     // A question the reviewers found wrong teaches nothing, so it is shown but
     // never scored: counting it would put a cross on a line you actually know.
     if (q.flag && q.flag.kind === "wrong") { updateScore(); return; }
-    S.seen++;
-    if (ok) S.right++; else S.wrong++;
-    S.questions[q.id] = ok ? 1 : 0;
 
-    var rowsHit = {}, secsHit = {};
-    q.c.forEach(function (k) {
-      var c = S.concepts[k] || { r: 0, w: 0 };
-      if (ok) c.r++; else c.w++;
-      S.concepts[k] = c;
-
-      (CONCEPT_ROWS[k] || []).forEach(function (id) { rowsHit[id] = 1; });
-      (CONCEPT_SECS[k] || []).forEach(function (key) { secsHit[key] = 1; });
-    });
-
-    // One question moves each related line and each related block by one, not
-    // by the number of concepts that happened to connect them.
-    Object.keys(rowsHit).forEach(function (id) {
-      var s = S.rows[id] || { r: 0, w: 0 };
-      if (ok) s.r++; else s.w++;
-      S.rows[id] = s;
-    });
-    Object.keys(secsHit).forEach(function (key) {
-      var s = S.sections[key] || { r: 0, w: 0 };
-      if (ok) s.r++; else s.w++;
-      S.sections[key] = s;
-    });
+    // The answer goes in the log and nowhere else. Every score on the board is
+    // worked out from the log and the lump, so writing the counters here as
+    // well would only be a second copy waiting to disagree with the first.
+    // Seconds, not milliseconds: the list travels in every export.
+    S.log.push([Math.floor(Date.now() / 1000), q.id, ok ? 1 : 0]);
+    recompute();
 
     saveState();
     maybeRepromptStorage();
@@ -1416,8 +1557,8 @@ footer .v { font-family: var(--mono); }
     if (!queue.length) { s.textContent = "Pick a category and press Start."; return; }
     var parts = [
       ["Question", (Math.min(qi + 1, queue.length)) + " of " + queue.length],
-      ["Right", String(S.right)],
-      ["Missed", String(S.wrong)]
+      ["Right", String(V.right)],
+      ["Missed", String(V.wrong)]
     ];
     parts.forEach(function (p) {
       var w = el("span");
@@ -1583,36 +1724,37 @@ footer .v { font-family: var(--mono); }
     var tools = el("div", "qtools");
     card.appendChild(tools);
 
-    // Read the question aloud. It reads what is on screen and no more: the
-    // options once they are showing, the answer only after it is revealed, so
-    // listening never gives the answer away early.
+    // Reading aloud. Every speak button on the card goes through the same
+    // toggle, so starting one stops whichever was going and no two voices
+    // ever overlap.
+    var speakers = [];
+    function speakersIdle() {
+      speakers.forEach(function (b) {
+        b.textContent = b.getAttribute("data-idle");
+        b.setAttribute("aria-pressed", "false");
+      });
+    }
+    function speakWith(btn, text, idleLabel) {
+      var wasMine = btn.getAttribute("aria-pressed") === "true";
+      if (speech) speech.stop();
+      speakersIdle();
+      if (wasMine) return;                 // a second press stops it
+      btn.textContent = btn.classList.contains("optspeak") ? "■" : "Stop reading";
+      btn.setAttribute("aria-pressed", "true");
+      speech.say(text, speakersIdle);
+    }
+
+    // The question button reads the question and nothing else.
     if (speech) {
-      var speakBtn = el("button", "btn speakbtn", "Read it aloud");
+      // One button for the question and one on each option, rather than one
+      // button that reads the lot: sitting through every option again to
+      // hear the one you wanted takes longer than reading it.
+      var speakBtn = el("button", "btn speakbtn", "Read the question");
       speakBtn.setAttribute("aria-pressed", "false");
-      var idle = function () {
-        speakBtn.textContent = "Read it aloud";
-        speakBtn.setAttribute("aria-pressed", "false");
-      };
+      speakBtn.setAttribute("data-idle", "Read the question");
+      speakers.push(speakBtn);
       speakBtn.addEventListener("click", function () {
-        if (speech.speaking()) { speech.stop(); idle(); return; }
-        // Read what is on the card, not the stored question. The letters are
-        // shuffled for each run, so reading the stored list would call out
-        // letters that do not match the ones being looked at.
-        var say = [q.q];
-        var shown = card.querySelector(".opts");
-        if (shown && shown.children.length) {
-          say.push("The options are.");
-          Array.prototype.forEach.call(shown.children, function (b) {
-            say.push(b.textContent);
-          });
-        }
-        if (reveal && !reveal.hidden) {
-          say.push("The answer is. " + q.a);
-          if (q.why) say.push(q.why);
-        }
-        speakBtn.textContent = "Stop reading";
-        speakBtn.setAttribute("aria-pressed", "true");
-        speech.say(say.join(" "), idle);
+        speakWith(speakBtn, q.q, "Read the question");
       });
       tools.appendChild(speakBtn);
     }
@@ -1652,6 +1794,18 @@ footer .v { font-family: var(--mono); }
     var ansbox = el("div", "ansbox", q.a);
     reveal.appendChild(ansbox);
     if (q.why) reveal.appendChild(el("div", "why", q.why));
+    // And one for the answer, once it is showing. Nothing reads it before
+    // then, so listening cannot give the answer away early.
+    if (speech) {
+      var ansSpeak = el("button", "btn speakbtn", "Read the answer");
+      ansSpeak.setAttribute("data-idle", "Read the answer");
+      ansSpeak.setAttribute("aria-pressed", "false");
+      speakers.push(ansSpeak);
+      ansSpeak.addEventListener("click", function () {
+        speakWith(ansSpeak, q.a + (q.why ? ". " + q.why : ""), "Read the answer");
+      });
+      reveal.appendChild(ansSpeak);
+    }
 
     // Letters of the correct answer, e.g. "B. foo; D. bar" -> ["B","D"].
     var answerLetters = (q.a.match(/(?:^|;\s*)([A-E])\./g) || [])
@@ -1685,24 +1839,42 @@ footer .v { font-family: var(--mono); }
       }
 
       var opts = el("div", "opts");
+      var optBtns = [];
       pool.forEach(function (o) {
+        var line = el("div", "optline");
+        if (speech) {
+          var sp = el("button", "btn optspeak", "▶");
+          sp.type = "button";
+          sp.setAttribute("data-idle", "▶");
+          sp.setAttribute("aria-pressed", "false");
+          sp.setAttribute("aria-label", "Read option " + o.shown + " aloud");
+          sp.title = "Read option " + o.shown + " aloud";
+          speakers.push(sp);
+          sp.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            speakWith(sp, "Option " + o.shown + ". " + o.text, "▶");
+          });
+          line.appendChild(sp);
+        }
         var b = el("button", "opt", o.shown + ". " + o.text);
         b.addEventListener("click", function () {
           if (answered) return;
           answered = true;
           var ok = right ? o === right : false;
           b.classList.add(ok ? "pick-ok" : "pick-bad");
-          Array.prototype.forEach.call(opts.children, function (c) { c.disabled = true; });
+          optBtns.forEach(function (c) { c.disabled = true; });
           if (!ok && right) {
-            for (var k = 0; k < opts.children.length; k++) {
-              if (pool[k] === right) opts.children[k].classList.add("pick-ok");
+            for (var k = 0; k < optBtns.length; k++) {
+              if (pool[k] === right) optBtns[k].classList.add("pick-ok");
             }
           }
           reveal.hidden = false;
           record(q, ok);
           nextBtn.hidden = false;
         });
-        opts.appendChild(b);
+        optBtns.push(b);
+        line.appendChild(b);
+        opts.appendChild(line);
       });
       card.appendChild(opts);
       card.appendChild(reveal);
@@ -1770,16 +1942,16 @@ footer .v { font-family: var(--mono); }
     var cards = document.getElementById("statCards");
     cards.textContent = "";
     var known = 0, shaky = 0;
-    Object.keys(S.concepts).forEach(function (k) {
+    Object.keys(V.concepts).forEach(function (k) {
       var st = conceptState(k);
       if (st === "ok") known++; else if (st === "bad") shaky++;
     });
-    var pct = S.seen ? Math.round(100 * S.right / S.seen) : 0;
-    [[S.seen, "questions answered"],
+    var pct = V.seen ? Math.round(100 * V.right / V.seen) : 0;
+    [[V.seen, "questions answered"],
      [pct + "%", "answered correctly"],
      [known, "concepts solid"],
      [shaky, "concepts shaky"],
-     [DATA.questions.length - Object.keys(S.questions).length, "questions untouched"]
+     [DATA.questions.length - Object.keys(V.questions).length, "questions untouched"]
     ].forEach(function (s) {
       var c = el("div", "stat");
       c.appendChild(el("div", "n", String(s[0])));
@@ -1790,9 +1962,9 @@ footer .v { font-family: var(--mono); }
     // per-area right/wrong
     var byArea = {};
     DATA.questions.forEach(function (q) {
-      if (!(q.id in S.questions)) return;
+      if (!(q.id in V.questions)) return;
       var a = byArea[q.area] || (byArea[q.area] = { r: 0, w: 0 });
-      if (S.questions[q.id]) a.r++; else a.w++;
+      if (V.questions[q.id]) a.r++; else a.w++;
     });
     var bars = document.getElementById("areaBars");
     bars.textContent = "";
@@ -1846,8 +2018,8 @@ footer .v { font-family: var(--mono); }
 
     var weak = document.getElementById("weakList");
     weak.textContent = "";
-    var ranked = Object.keys(S.concepts)
-      .map(function (k) { return { k: k, c: S.concepts[k] }; })
+    var ranked = Object.keys(V.concepts)
+      .map(function (k) { return { k: k, c: V.concepts[k] }; })
       .filter(function (x) { return x.c.w > 0; })
       .sort(function (a, b) { return (b.c.w - b.c.r) - (a.c.w - a.c.r); })
       .slice(0, 18);
@@ -2061,6 +2233,36 @@ footer .v { font-family: var(--mono); }
       });
     });
   });
+
+  // ---------- the look-back control ----------
+  // Changing it changes everything at once: the marks against each poster
+  // line, which questions count as missed, and every figure on the progress
+  // page. Nothing is thrown away by narrowing it; the answers are all still
+  // there, and setting it back to all time shows them again.
+  var lookbackSel = document.getElementById("lookbackSel");
+  LOOKBACKS.forEach(function (lb) {
+    var o = document.createElement("option");
+    o.value = String(lb.days);
+    o.textContent = lb.label;
+    if (lb.days === lookback) o.selected = true;
+    lookbackSel.appendChild(o);
+  });
+
+  function markLookback() {
+    lookbackSel.parentNode.classList.toggle("narrowed", lookback > 0);
+  }
+
+  lookbackSel.addEventListener("change", function () {
+    lookback = parseInt(lookbackSel.value, 10) || 0;
+    try { localStorage.setItem(LOOKBACK_KEY, String(lookback)); } catch (e) { /* fine */ }
+    recompute();
+    markLookback();
+    renderBoard();
+    renderProgress();
+    refreshMissChip();
+    updateScore();
+  });
+  markLookback();
 
   // ---------- boot ----------
   // One version in the header, and it is this app's own: a number sitting next
