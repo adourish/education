@@ -284,12 +284,21 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
 .flag.sev-wrong { border-left-width: 7px; }
 
-/* which set a question came from */
-.srcpill {
-  font: 600 0.72rem var(--mono);
-  color: var(--ink-2); background: var(--surface-2);
-  border: 1px solid var(--rule); border-radius: 99px; padding: 2px 8px;
-  letter-spacing: .03em;
+/* separate publishers carrying the same question */
+.agree {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: 700 0.74rem var(--ui);
+  color: var(--violet); background: #efe9fb;
+  border: 1px solid var(--violet); border-radius: 99px; padding: 2px 9px;
+}
+:root:not([data-theme="light"]) .agree { background: #241a3d; }
+:root[data-theme="dark"] .agree { background: #241a3d; }
+
+/* a poster line the question bank does not cover */
+.gap {
+  font: 600 0.7rem var(--ui); letter-spacing: .02em;
+  color: var(--ink-3); border: 1px dashed var(--rule);
+  border-radius: 99px; padding: 1px 7px; margin-left: 6px;
 }
 
 /* which set a question came from */
@@ -299,6 +308,26 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   border: 1px solid var(--rule); border-radius: 99px; padding: 2px 8px;
   letter-spacing: .03em;
 }
+
+/* separate publishers carrying the same question */
+.agree {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: 700 0.74rem var(--ui);
+  color: var(--violet); background: #efe9fb;
+  border: 1px solid var(--violet); border-radius: 99px; padding: 2px 9px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .agree { background: #241a3d; }
+}
+:root[data-theme="dark"] .agree { background: #241a3d; }
+
+/* a poster line nothing in the bank drills */
+.gap {
+  font: 600 0.7rem var(--ui); letter-spacing: .02em;
+  color: var(--ink-3); background: none;
+  border: 1px dashed var(--rule); border-radius: 99px; padding: 1px 7px;
+}
+
 
 /* a question a person has checked, rather than one scraped and never read */
 .star {
@@ -910,6 +939,13 @@ footer .v { font-family: var(--mono); }
         if (r.trap) cue.appendChild(el("span", "mk trap", "†"));
         if (r.alt)  cue.appendChild(el("span", "mk alt", "≈"));
         if (hot)    cue.appendChild(el("span", "needs", "needs work"));
+        // No question touches this line. That is a hole in the bank, not a
+        // sign the line does not matter, so learn it from the line itself.
+        if (!r.qn) {
+          var g = el("span", "gap", "no questions");
+          g.title = "Nothing in the bank drills this line. Learn it from the line itself.";
+          cue.appendChild(g);
+        }
         pair.appendChild(cue);
         pair.appendChild(el("div", "ans", r.ans));
         row.appendChild(pair);
@@ -988,7 +1024,9 @@ footer .v { font-family: var(--mono); }
     DATA.questions.forEach(function (q) { counts[q.src] = (counts[q.src] || 0) + 1; });
     var opts = [["__all", "Every set (" + DATA.questions.length + ")"],
                 ["__star", "Reviewed only (" +
-                  DATA.questions.filter(function (q) { return q.star; }).length + ")"]];
+                  DATA.questions.filter(function (q) { return q.star; }).length + ")"],
+                ["__agree", "In two or more sets (" +
+                  DATA.questions.filter(function (q) { return q.agree > 1; }).length + ")"]];
     Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })
       .forEach(function (code) {
         opts.push([code, ((DATA.sources || {})[code] || code) + " (" + counts[code] + ")"]);
@@ -1014,6 +1052,7 @@ footer .v { font-family: var(--mono); }
     var pick = srcSel.value;
     if (pick === "__all") return true;
     if (pick === "__star") return !!q.star;
+    if (pick === "__agree") return q.agree > 1;
     return q.src === pick;
   }
   var qhost = document.getElementById("qhost");
@@ -1233,6 +1272,13 @@ footer .v { font-family: var(--mono); }
       var sp = el("span", "srcpill", q.src);
       sp.title = (DATA.sources || {})[q.src] || "Source";
       meta.appendChild(sp);
+    }
+    if (q.agree > 1) {
+      // Separate publishers carrying the same question is independent
+      // agreement that the exam asks it.
+      var ag = el("span", "agree", "★ " + q.agree + " publishers");
+      ag.title = q.agree + " independent sets carry this question";
+      meta.appendChild(ag);
     }
     if (q.star) {
       var st = el("span", "star", "★ reviewed");

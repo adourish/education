@@ -172,8 +172,21 @@ def main() -> None:
             "src": SOURCES.get(r.get("source"), UNKNOWN_SOURCE)[0],
             # A star means a person has checked this question, not a scraper.
             "star": bool(r.get("reviewed")),
+            # How many independent publishers carry this question. Two or more
+            # means separate outfits both think the exam asks it.
+            "agree": len(r.get("in_origins") or [r.get("source")]),
             "flag": flag_for(r["id"]),
         })
+
+    # How many questions touch each poster line. A line nothing covers is a gap
+    # in the question bank, not evidence the line does not matter, so it is
+    # marked rather than removed.
+    for sec in sections:
+        for row in sec["rows"]:
+            row["qn"] = sum(1 for q in questions
+                            if any(k in row["c"] for k in q["c"]))
+    bare = sum(1 for sec in sections for row in sec["rows"] if not row["qn"])
+    print(f"  {bare} poster lines have no question covering them")
 
     data = {
         "version": VERSION,
@@ -196,12 +209,14 @@ def main() -> None:
 
     OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
+
     rows = sum(len(s["rows"]) for s in sections)
     kb = OUT.stat().st_size // 1024
     print(f"version {VERSION} built {data['built']}")
     print(f"  {len(sections)} poster sections, {rows} rows")
     print(f"  {len(questions)} questions ({sum(1 for q in questions if q['opts'])} with options)")
     print(f"  {sum(1 for q in questions if q['star'])} starred as human-reviewed")
+    print(f"  {sum(1 for q in questions if q['agree'] > 1)} carried by two or more publishers")
     print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
     withterms = sum(1 for q in questions if q["t"])
     avg = sum(len(q["t"]) for q in questions) / max(len(questions), 1)

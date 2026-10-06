@@ -47,6 +47,24 @@ ID_PREFIX = {
 }
 
 
+# Who actually published a set. Two of the source files come from one GitHub
+# repository - its text dump and its PDF - so a question in both is the same
+# question from one publisher, not two independent sets agreeing. Counting
+# files rather than publishers would have called 381 questions corroborated
+# when they are nothing of the sort.
+ORIGIN = {
+    "iamrushabhshahh-saa-c03": "iamrushabhshahh",
+    "saa-c03-optioned": "iamrushabhshahh",
+    "certempire": "certempire",
+    "ditectrev-saa-c03": "ditectrev",
+    "whizlabs-25": "whizlabs",
+}
+
+
+def origin_of(source: str) -> str:
+    return ORIGIN.get(source, source)
+
+
 def prefix_for(source: str) -> str:
     return ID_PREFIX.get(source, re.sub(r"[^a-z0-9]", "", source.lower())[:3] or "x")
 PRIVATE_SOURCES: set[str] = set()   # nothing is held back from the build
@@ -570,14 +588,37 @@ def main() -> None:
     # the optioned source and the option-less dump, the usable one wins.
     records.sort(key=lambda r: 0 if r.get("options") else 1)
 
-    seen, unique = set(), []
+    # Which sets a question turned up in is worth keeping, not discarding. The
+    # same question written independently by two outfits is a question the exam
+    # is widely believed to ask, so the copy that survives records the others.
+    seen: dict[str, dict] = {}
+    unique = []
     for r in records:
         key = re.sub(r"\W+", "", r["question"].lower())[:150]
-        if key in seen:
+        kept = seen.get(key)
+        if kept is None:
+            seen[key] = r
+            r["in_sources"] = [r["source"]]
+            unique.append(r)
             continue
-        seen.add(key)
-        unique.append(r)
+        if r["source"] not in kept["in_sources"]:
+            kept["in_sources"].append(r["source"])
+        # A question a person checked keeps its star even when the copy that
+        # survived came from a set nobody reviewed.
+        if r.get("reviewed"):
+            kept["reviewed"] = True
     dropped = len(records) - len(unique)
+
+    # Count publishers, not files: two of the source files come from one
+    # repository, so counting files would call 381 questions corroborated when
+    # they are one publisher's question appearing twice.
+    for r in unique:
+        r["in_origins"] = sorted({origin_of(s) for s in r["in_sources"]})
+    agreed = sum(1 for r in unique if len(r["in_origins"]) > 1)
+    print(f"{agreed} questions are published by more than one outfit")
+
+    corroborated = sum(1 for r in unique if len(r["in_sources"]) > 1)
+    print(f"{corroborated} questions appear in more than one set")
 
     (HERE / "bank.json").write_text(
         json.dumps(unique, indent=1, ensure_ascii=False), encoding="utf-8"
