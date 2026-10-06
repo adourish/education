@@ -755,6 +755,7 @@ footer .v { font-family: var(--mono); }
   var PASS_SHA    = "__PASS_SHA__";
   var PASS_KEY    = STORE_KEY + "/unlocked";
   var SEED_KEY    = STORE_KEY + "/seed";
+  var SEED_HAD    = STORE_KEY + "/seed-applied";
   var SEED        = __SEED__;
 
   // ---------- storage (always guarded: can throw or return empty) ----------
@@ -850,20 +851,75 @@ footer .v { font-family: var(--mono); }
   if (!S.started) S.started = new Date().toISOString().slice(0, 10);
 
   // Progress baked into the build, so a fresh browser or a cleared one does
-  // not start from nothing. It is merged into whatever this browser already
-  // had rather than replacing it, and stamped once it has been applied: with
-  // no stamp, every reload would add the same answers again and the counts
-  // would climb on their own.
+  // not start from nothing.
+  //
+  // Only the part this browser has not already been given is applied. Counts
+  // add when merging, so handing a browser a second, larger build-in progress
+  // record would otherwise count the same answers twice: a browser that took
+  // 32 answers from one build and 50 from the next would show 82 instead of
+  // 50. So the browser keeps a copy of what it was last given, and the new
+  // record minus that copy is what gets merged. A browser that has answered
+  // questions of its own keeps all of them.
   (function applySeed() {
     if (!SEED || !SEED.progress) return;
     var stamp = SEED.exported || "seed";
     var done = false;
     try { done = localStorage.getItem(SEED_KEY) === stamp; } catch (e) { done = false; }
     if (done) return;
-    mergeProgress(SEED.progress);
+
+    var had = null;
+    try { had = JSON.parse(localStorage.getItem(SEED_HAD) || "null"); } catch (e) { had = null; }
+
+    // A browser that was given a record by an older build kept only the stamp,
+    // not the record itself, so it cannot subtract what it already has. The
+    // build carries the records it has shipped before, so look the stamp up
+    // and subtract the right one. Without this, upgrading would count every
+    // one of those answers a second time.
+    if (!had) {
+      var seenStamp = null;
+      try { seenStamp = localStorage.getItem(SEED_KEY); } catch (e) { seenStamp = null; }
+      (SEED.history || []).forEach(function (h) {
+        if (h && h.exported === seenStamp) had = h.progress;
+      });
+    }
+
+    function less(now, before) {
+      // What is new since the record this browser was last given. Never below
+      // zero: a count that went down is treated as nothing new rather than as
+      // something to take away, because taking away would wipe out answers
+      // this browser gave on its own.
+      var out = {};
+      Object.keys(now || {}).forEach(function (k) {
+        var a = now[k] || { r: 0, w: 0 };
+        var b = (before || {})[k] || { r: 0, w: 0 };
+        var r = Math.max(0, (a.r || 0) - (b.r || 0));
+        var w = Math.max(0, (a.w || 0) - (b.w || 0));
+        if (r || w) out[k] = { r: r, w: w };
+      });
+      return out;
+    }
+
+    var now = SEED.progress;
+    var delta = {
+      concepts: less(now.concepts, had && had.concepts),
+      rows:     less(now.rows,     had && had.rows),
+      sections: less(now.sections, had && had.sections),
+      // Right-or-wrong per question is not a running total, and merging it is
+      // already safe to repeat: an id this browser has not seen is copied, and
+      // where the two disagree the miss wins. So it is passed through whole.
+      questions: now.questions,
+      seen:  Math.max(0, (now.seen  || 0) - ((had && had.seen)  || 0)),
+      right: Math.max(0, (now.right || 0) - ((had && had.right) || 0)),
+      wrong: Math.max(0, (now.wrong || 0) - ((had && had.wrong) || 0)),
+      started: now.started
+    };
+
+    mergeProgress(delta);
     saveState();
-    try { localStorage.setItem(SEED_KEY, stamp); } catch (e) { /* no storage here,
-      so there is nothing to double up: the page starts fresh each time anyway */ }
+    try {
+      localStorage.setItem(SEED_HAD, JSON.stringify(now));
+      localStorage.setItem(SEED_KEY, stamp);
+    } catch (e) { /* no storage here, so nothing carries over to double up */ }
   })();
 
   // ---------- helpers ----------

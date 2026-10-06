@@ -2,100 +2,922 @@
  "app": "SAA-C03 Recall Board",
  "appVersion": "1.7.0",
  "dataVersion": "1.2.0",
- "exported": "2026-10-06T16:34:36.765Z",
+ "exported": "2026-10-06T18:44:15.077Z",
  "progress": {
   "concepts": {
-   "EC2 purchasing (Spot/RI/Savings Plans)": { "r": 12, "w": 0 },
-   "API Gateway": { "r": 4, "w": 0 },
-   "S3 storage classes / lifecycle": { "r": 12, "w": 8 },
-   "S3 versioning / Object Lock / MFA Delete": { "r": 4, "w": 0 },
-   "Auto Scaling": { "r": 4, "w": 0 },
-   "ALB vs NLB": { "r": 4, "w": 0 },
-   "Aurora": { "r": 0, "w": 8 },
-   "GuardDuty / Inspector / Macie": { "r": 0, "w": 4 },
-   "Organizations / SCPs": { "r": 0, "w": 4 }
+   "EC2 purchasing (Spot/RI/Savings Plans)": {
+    "r": 14,
+    "w": 0
+   },
+   "API Gateway": {
+    "r": 4,
+    "w": 0
+   },
+   "S3 storage classes / lifecycle": {
+    "r": 13,
+    "w": 8
+   },
+   "S3 versioning / Object Lock / MFA Delete": {
+    "r": 4,
+    "w": 0
+   },
+   "Auto Scaling": {
+    "r": 8,
+    "w": 3
+   },
+   "ALB vs NLB": {
+    "r": 11,
+    "w": 11
+   },
+   "Aurora": {
+    "r": 0,
+    "w": 8
+   },
+   "GuardDuty / Inspector / Macie": {
+    "r": 0,
+    "w": 4
+   },
+   "Organizations / SCPs": {
+    "r": 0,
+    "w": 4
+   },
+   "Direct Connect / Site-to-Site VPN": {
+    "r": 0,
+    "w": 2
+   },
+   "Cognito": {
+    "r": 0,
+    "w": 1
+   },
+   "Directory Service / AD": {
+    "r": 0,
+    "w": 1
+   },
+   "AWS WAF": {
+    "r": 0,
+    "w": 1
+   },
+   "Global Accelerator": {
+    "r": 1,
+    "w": 0
+   },
+   "Route 53 routing policies": {
+    "r": 0,
+    "w": 2
+   },
+   "NAT gateway": {
+    "r": 0,
+    "w": 1
+   },
+   "EFS": {
+    "r": 1,
+    "w": 0
+   },
+   "VPC security groups vs NACLs": {
+    "r": 0,
+    "w": 1
+   },
+   "DynamoDB": {
+    "r": 0,
+    "w": 2
+   },
+   "Containers (ECS/EKS/Fargate)": {
+    "r": 0,
+    "w": 1
+   },
+   "VPC endpoints / PrivateLink": {
+    "r": 0,
+    "w": 1
+   },
+   "SQS": {
+    "r": 0,
+    "w": 1
+   }
   },
   "rows": {
-   "num:spot-notice-spot-ri-discount": { "r": 12, "w": 0 },
-   "ec2:socket-or-core-based-licence": { "r": 12, "w": 0 },
-   "ec2:steady-24-7-vs-interruptible-batch": { "r": 12, "w": 0 },
-   "db:provisionedthroughputexceeded": { "r": 12, "w": 0 },
-   "ops:keep-data-on-delete-spot-drift": { "r": 12, "w": 0 },
-   "trig:cannot-be-interrupted": { "r": 12, "w": 0 },
-   "trig:socket-or-core-based-licence": { "r": 12, "w": 0 },
-   "cost:steady-24-7-workload": { "r": 12, "w": 0 },
-   "cost:fault-tolerant-interruptible-work": { "r": 12, "w": 0 },
-   "cost:spiky-dynamodb-traffic": { "r": 12, "w": 0 },
-   "num:min-duration-ia-glacier-deep": { "r": 12, "w": 8 },
-   "num:glacier-expedited-standard-bulk": { "r": 12, "w": 8 },
-   "s3:hot-unknown-pattern-infrequent": { "r": 12, "w": 8 },
-   "s3:infrequent-and-re-creatable": { "r": 12, "w": 8 },
-   "s3:archive-ms-minutes-hours-cheapest": { "r": 12, "w": 8 },
-   "cost:everything-sitting-in-s3-standard": { "r": 12, "w": 8 },
-   "cost:incomplete-multipart-uploads": { "r": 12, "w": 8 },
-   "s3:accidental-vs-permanent-delete": { "r": 4, "w": 0 },
-   "s3:undeletable-for-seven-years": { "r": 4, "w": 0 },
-   "s3:replication-requires": { "r": 4, "w": 0 },
-   "dr:guard-against-accidental-deletion": { "r": 4, "w": 0 },
-   "scale:recommended-scaling-policy": { "r": 4, "w": 0 },
-   "scale:define-the-instances": { "r": 4, "w": 0 },
-   "dr:stateless-tier-survives-instance-loss": { "r": 4, "w": 0 },
-   "scale:alb-nlb-gwlb-layer": { "r": 4, "w": 0 },
-   "scale:static-ip-udp-millions-of-req-s": { "r": 4, "w": 0 },
-   "scale:path-or-host-routing-dynamic-container-ports-c": { "r": 4, "w": 0 },
-   "scale:cross-zone-default": { "r": 4, "w": 0 },
-   "vpc:expose-your-service-to-another-vpc": { "r": 4, "w": 0 },
-   "trig:static-ip-for-a-firewall-allow-list": { "r": 4, "w": 0 },
-   "elb:routes-on-url-path-host-header-query-string": { "r": 4, "w": 0 },
-   "elb:routes-on-tcp-udp-port-only": { "r": 4, "w": 0 },
-   "elb:preserves-the-client-source-ip-natively": { "r": 4, "w": 0 },
-   "elb:millions-of-requests-sec-ultra-low-latency": { "r": 4, "w": 0 },
-   "elb:one-static-ip-per-az-supports-elastic-ips": { "r": 4, "w": 0 },
-   "elb:websockets-http-2-grpc": { "r": 4, "w": 0 },
-   "elb:redirect-http-to-https-with-no-app-change": { "r": 4, "w": 0 },
-   "elb:return-a-fixed-response-e-g-a-maintenance-page": { "r": 4, "w": 0 },
-   "elb:authenticate-with-cognito-or-oidc-at-the-edge": { "r": 4, "w": 0 },
-   "elb:route-to-lambda-as-a-target": { "r": 4, "w": 0 },
-   "elb:route-to-ip-targets-including-on-premises": { "r": 4, "w": 0 },
-   "elb:spread-across-azs-but-traffic-is-uneven": { "r": 4, "w": 0 },
-   "num:read-replicas-rds-aurora": { "r": 0, "w": 8 },
-   "num:max-storage-rds-aurora": { "r": 0, "w": 8 },
-   "db:aurora-copies-failover": { "r": 0, "w": 8 },
-   "db:cross-region-dr-sub-second-lag": { "r": 0, "w": 8 },
-   "db:intermittent-load-near-zero-idle-cost": { "r": 0, "w": 8 },
-   "dr:database-survives-a-region-loss": { "r": 0, "w": 8 },
-   "sec:guardduty-inspector-macie": { "r": 0, "w": 4 },
-   "sec:scp-effect-on-the-management-account": { "r": 0, "w": 4 },
-   "scope:global-services": { "r": 0, "w": 4 }
+   "num:spot-notice-spot-ri-discount": {
+    "r": 14,
+    "w": 0
+   },
+   "ec2:socket-or-core-based-licence": {
+    "r": 14,
+    "w": 0
+   },
+   "ec2:steady-24-7-vs-interruptible-batch": {
+    "r": 14,
+    "w": 0
+   },
+   "db:provisionedthroughputexceeded": {
+    "r": 14,
+    "w": 0
+   },
+   "ops:keep-data-on-delete-spot-drift": {
+    "r": 14,
+    "w": 0
+   },
+   "trig:cannot-be-interrupted": {
+    "r": 14,
+    "w": 0
+   },
+   "trig:socket-or-core-based-licence": {
+    "r": 14,
+    "w": 0
+   },
+   "cost:steady-24-7-workload": {
+    "r": 14,
+    "w": 0
+   },
+   "cost:fault-tolerant-interruptible-work": {
+    "r": 14,
+    "w": 0
+   },
+   "cost:spiky-dynamodb-traffic": {
+    "r": 14,
+    "w": 2
+   },
+   "num:min-duration-ia-glacier-deep": {
+    "r": 13,
+    "w": 8
+   },
+   "num:glacier-expedited-standard-bulk": {
+    "r": 13,
+    "w": 8
+   },
+   "s3:hot-unknown-pattern-infrequent": {
+    "r": 13,
+    "w": 8
+   },
+   "s3:infrequent-and-re-creatable": {
+    "r": 13,
+    "w": 8
+   },
+   "s3:archive-ms-minutes-hours-cheapest": {
+    "r": 13,
+    "w": 8
+   },
+   "cost:everything-sitting-in-s3-standard": {
+    "r": 13,
+    "w": 8
+   },
+   "cost:incomplete-multipart-uploads": {
+    "r": 13,
+    "w": 8
+   },
+   "s3:accidental-vs-permanent-delete": {
+    "r": 4,
+    "w": 0
+   },
+   "s3:undeletable-for-seven-years": {
+    "r": 4,
+    "w": 0
+   },
+   "s3:replication-requires": {
+    "r": 4,
+    "w": 0
+   },
+   "dr:guard-against-accidental-deletion": {
+    "r": 4,
+    "w": 0
+   },
+   "scale:recommended-scaling-policy": {
+    "r": 8,
+    "w": 3
+   },
+   "scale:define-the-instances": {
+    "r": 8,
+    "w": 3
+   },
+   "dr:stateless-tier-survives-instance-loss": {
+    "r": 8,
+    "w": 3
+   },
+   "scale:alb-nlb-gwlb-layer": {
+    "r": 11,
+    "w": 11
+   },
+   "scale:static-ip-udp-millions-of-req-s": {
+    "r": 11,
+    "w": 11
+   },
+   "scale:path-or-host-routing-dynamic-container-ports-c": {
+    "r": 11,
+    "w": 11
+   },
+   "scale:cross-zone-default": {
+    "r": 11,
+    "w": 11
+   },
+   "vpc:expose-your-service-to-another-vpc": {
+    "r": 11,
+    "w": 11
+   },
+   "trig:static-ip-for-a-firewall-allow-list": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:routes-on-url-path-host-header-query-string": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:routes-on-tcp-udp-port-only": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:preserves-the-client-source-ip-natively": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:millions-of-requests-sec-ultra-low-latency": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:one-static-ip-per-az-supports-elastic-ips": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:websockets-http-2-grpc": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:redirect-http-to-https-with-no-app-change": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:return-a-fixed-response-e-g-a-maintenance-page": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:authenticate-with-cognito-or-oidc-at-the-edge": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:route-to-lambda-as-a-target": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:route-to-ip-targets-including-on-premises": {
+    "r": 11,
+    "w": 11
+   },
+   "elb:spread-across-azs-but-traffic-is-uneven": {
+    "r": 11,
+    "w": 11
+   },
+   "num:read-replicas-rds-aurora": {
+    "r": 0,
+    "w": 8
+   },
+   "num:max-storage-rds-aurora": {
+    "r": 0,
+    "w": 8
+   },
+   "db:aurora-copies-failover": {
+    "r": 0,
+    "w": 8
+   },
+   "db:cross-region-dr-sub-second-lag": {
+    "r": 0,
+    "w": 8
+   },
+   "db:intermittent-load-near-zero-idle-cost": {
+    "r": 0,
+    "w": 8
+   },
+   "dr:database-survives-a-region-loss": {
+    "r": 0,
+    "w": 8
+   },
+   "sec:guardduty-inspector-macie": {
+    "r": 0,
+    "w": 4
+   },
+   "sec:scp-effect-on-the-management-account": {
+    "r": 0,
+    "w": 4
+   },
+   "scope:global-services": {
+    "r": 0,
+    "w": 6
+   },
+   "vpc:hybrid-in-days-vs-steady-bandwidth": {
+    "r": 0,
+    "w": 2
+   },
+   "trig:urgent-vs-consistent-bandwidth": {
+    "r": 0,
+    "w": 2
+   },
+   "sec:workforce-sign-in-mobile-users": {
+    "r": 0,
+    "w": 1
+   },
+   "api:who-may-call-it": {
+    "r": 0,
+    "w": 1
+   },
+   "api:sign-up-and-sign-in-for-your-app-users": {
+    "r": 0,
+    "w": 1
+   },
+   "api:swap-a-social-login-for-aws-credentials": {
+    "r": 0,
+    "w": 1
+   },
+   "block:smb-windows-active-directory": {
+    "r": 0,
+    "w": 1
+   },
+   "tail:managed-active-directory-or-connect-to-yours": {
+    "r": 0,
+    "w": 1
+   },
+   "sec:sql-injection-xss-rate-limit-by-ip": {
+    "r": 0,
+    "w": 1
+   },
+   "api:block-sql-injection-at-the-front-door": {
+    "r": 0,
+    "w": 1
+   },
+   "edge:static-anycast-ips-tcp-udp-gaming": {
+    "r": 1,
+    "w": 0
+   },
+   "dr:static-page-during-an-outage": {
+    "r": 0,
+    "w": 2
+   },
+   "lambda:lambda-in-a-vpc-needs-internet": {
+    "r": 0,
+    "w": 1
+   },
+   "vpc:private-instances-reach-the-internet": {
+    "r": 0,
+    "w": 1
+   },
+   "scope:az-scoped": {
+    "r": 0,
+    "w": 1
+   },
+   "block:shared-files-linux-many-instances": {
+    "r": 1,
+    "w": 0
+   },
+   "trig:windows-file-share": {
+    "r": 1,
+    "w": 0
+   },
+   "vpc:security-group": {
+    "r": 0,
+    "w": 1
+   },
+   "vpc:network-acl": {
+    "r": 0,
+    "w": 1
+   },
+   "vpc:block-a-single-malicious-ip": {
+    "r": 0,
+    "w": 1
+   },
+   "vpc:default-vs-custom-nacl": {
+    "r": 0,
+    "w": 1
+   },
+   "vpc:interface-endpoint": {
+    "r": 0,
+    "w": 2
+   },
+   "num:dynamodb-max-item": {
+    "r": 0,
+    "w": 2
+   },
+   "num:dynamodb-rcu-wcu": {
+    "r": 0,
+    "w": 2
+   },
+   "num:dynamodb-lsi-gsi-per-table": {
+    "r": 0,
+    "w": 2
+   },
+   "db:dynamodb-microsecond-reads": {
+    "r": 0,
+    "w": 2
+   },
+   "db:every-item-change-expire-free": {
+    "r": 0,
+    "w": 2
+   },
+   "vpc:gateway-endpoints-work-with": {
+    "r": 0,
+    "w": 3
+   },
+   "scope:regional": {
+    "r": 0,
+    "w": 2
+   },
+   "lambda:needs-longer-than-15-minutes": {
+    "r": 0,
+    "w": 1
+   },
+   "lambda:ecs-task-role-vs-execution-role": {
+    "r": 0,
+    "w": 1
+   },
+   "lambda:kubernetes-or-kubectl": {
+    "r": 0,
+    "w": 1
+   },
+   "lambda:containers-no-servers-needs-gpu": {
+    "r": 0,
+    "w": 1
+   },
+   "trig:longer-than-15-minutes": {
+    "r": 0,
+    "w": 1
+   },
+   "trig:we-already-use-kubernetes": {
+    "r": 0,
+    "w": 1
+   },
+   "mig:run-containers-on-your-own-hardware": {
+    "r": 0,
+    "w": 1
+   },
+   "ops:cut-the-nat-bill-for-s3-traffic": {
+    "r": 0,
+    "w": 1
+   },
+   "trig:must-not-leave-the-aws-network": {
+    "r": 0,
+    "w": 1
+   },
+   "cost:big-nat-bill-for-s3-traffic": {
+    "r": 0,
+    "w": 1
+   },
+   "api:reachable-only-inside-a-vpc": {
+    "r": 0,
+    "w": 1
+   },
+   "num:sqs-max-message": {
+    "r": 0,
+    "w": 1
+   },
+   "num:sqs-retention-default-max": {
+    "r": 0,
+    "w": 1
+   },
+   "num:sqs-visibility-default-max": {
+    "r": 0,
+    "w": 1
+   },
+   "num:sqs-long-poll-wait": {
+    "r": 0,
+    "w": 1
+   },
+   "s3:events-can-go-to": {
+    "r": 0,
+    "w": 1
+   },
+   "int:decouple-a-spiky-front-end": {
+    "r": 0,
+    "w": 1
+   },
+   "trig:decouple-notify-many-subscribers": {
+    "r": 0,
+    "w": 1
+   }
   },
   "sections": {
-   "num": { "r": 20, "w": 12 },
-   "ec2": { "r": 12, "w": 0 },
-   "db": { "r": 12, "w": 8 },
-   "ops": { "r": 12, "w": 0 },
-   "trig": { "r": 12, "w": 0 },
-   "cost": { "r": 20, "w": 8 },
-   "s3": { "r": 12, "w": 8 },
-   "dr": { "r": 8, "w": 8 },
-   "scale": { "r": 4, "w": 0 },
-   "vpc": { "r": 4, "w": 0 },
-   "elb": { "r": 4, "w": 0 },
-   "sec": { "r": 0, "w": 4 },
-   "scope": { "r": 0, "w": 4 }
+   "num": {
+    "r": 22,
+    "w": 14
+   },
+   "ec2": {
+    "r": 14,
+    "w": 0
+   },
+   "db": {
+    "r": 14,
+    "w": 10
+   },
+   "ops": {
+    "r": 14,
+    "w": 1
+   },
+   "trig": {
+    "r": 19,
+    "w": 11
+   },
+   "cost": {
+    "r": 22,
+    "w": 11
+   },
+   "s3": {
+    "r": 13,
+    "w": 9
+   },
+   "dr": {
+    "r": 12,
+    "w": 13
+   },
+   "scale": {
+    "r": 11,
+    "w": 11
+   },
+   "vpc": {
+    "r": 11,
+    "w": 11
+   },
+   "elb": {
+    "r": 11,
+    "w": 11
+   },
+   "sec": {
+    "r": 0,
+    "w": 6
+   },
+   "scope": {
+    "r": 0,
+    "w": 9
+   },
+   "api": {
+    "r": 0,
+    "w": 3
+   },
+   "block": {
+    "r": 1,
+    "w": 1
+   },
+   "tail": {
+    "r": 0,
+    "w": 1
+   },
+   "edge": {
+    "r": 1,
+    "w": 0
+   },
+   "lambda": {
+    "r": 0,
+    "w": 2
+   },
+   "mig": {
+    "r": 0,
+    "w": 1
+   },
+   "int": {
+    "r": 0,
+    "w": 1
+   }
   },
   "questions": {
    "dt-117": 1,
-   "q-670": 1,
    "ce-898": 1,
    "ce-821": 1,
    "ce-207": 0,
    "ce-830": 0,
    "ce-781": 0,
-   "ce-775": 1
+   "ce-775": 1,
+   "ce-132": 0,
+   "ce-734": 1,
+   "ce-460": 0,
+   "ce-506": 1,
+   "ce-808": 1,
+   "ce-620": 1,
+   "ce-362": 0,
+   "ce-683": 0,
+   "ce-236": 0,
+   "ce-839": 0,
+   "ce-629": 1,
+   "ce-370": 1,
+   "ce-148": 0,
+   "ce-912": 0,
+   "ce-310": 0,
+   "ce-497": 0,
+   "ce-368": 0
   },
-  "seen": 32,
-  "right": 20,
-  "wrong": 12,
+  "seen": 50,
+  "right": 27,
+  "wrong": 23,
   "started": "2026-10-06"
- }
+ },
+ "history": [
+  {
+   "exported": "2026-10-06T16:34:36.765Z",
+   "progress": {
+    "concepts": {
+     "EC2 purchasing (Spot/RI/Savings Plans)": {
+      "r": 12,
+      "w": 0
+     },
+     "API Gateway": {
+      "r": 4,
+      "w": 0
+     },
+     "S3 storage classes / lifecycle": {
+      "r": 12,
+      "w": 8
+     },
+     "S3 versioning / Object Lock / MFA Delete": {
+      "r": 4,
+      "w": 0
+     },
+     "Auto Scaling": {
+      "r": 4,
+      "w": 0
+     },
+     "ALB vs NLB": {
+      "r": 4,
+      "w": 0
+     },
+     "Aurora": {
+      "r": 0,
+      "w": 8
+     },
+     "GuardDuty / Inspector / Macie": {
+      "r": 0,
+      "w": 4
+     },
+     "Organizations / SCPs": {
+      "r": 0,
+      "w": 4
+     }
+    },
+    "rows": {
+     "num:spot-notice-spot-ri-discount": {
+      "r": 12,
+      "w": 0
+     },
+     "ec2:socket-or-core-based-licence": {
+      "r": 12,
+      "w": 0
+     },
+     "ec2:steady-24-7-vs-interruptible-batch": {
+      "r": 12,
+      "w": 0
+     },
+     "db:provisionedthroughputexceeded": {
+      "r": 12,
+      "w": 0
+     },
+     "ops:keep-data-on-delete-spot-drift": {
+      "r": 12,
+      "w": 0
+     },
+     "trig:cannot-be-interrupted": {
+      "r": 12,
+      "w": 0
+     },
+     "trig:socket-or-core-based-licence": {
+      "r": 12,
+      "w": 0
+     },
+     "cost:steady-24-7-workload": {
+      "r": 12,
+      "w": 0
+     },
+     "cost:fault-tolerant-interruptible-work": {
+      "r": 12,
+      "w": 0
+     },
+     "cost:spiky-dynamodb-traffic": {
+      "r": 12,
+      "w": 0
+     },
+     "num:min-duration-ia-glacier-deep": {
+      "r": 12,
+      "w": 8
+     },
+     "num:glacier-expedited-standard-bulk": {
+      "r": 12,
+      "w": 8
+     },
+     "s3:hot-unknown-pattern-infrequent": {
+      "r": 12,
+      "w": 8
+     },
+     "s3:infrequent-and-re-creatable": {
+      "r": 12,
+      "w": 8
+     },
+     "s3:archive-ms-minutes-hours-cheapest": {
+      "r": 12,
+      "w": 8
+     },
+     "cost:everything-sitting-in-s3-standard": {
+      "r": 12,
+      "w": 8
+     },
+     "cost:incomplete-multipart-uploads": {
+      "r": 12,
+      "w": 8
+     },
+     "s3:accidental-vs-permanent-delete": {
+      "r": 4,
+      "w": 0
+     },
+     "s3:undeletable-for-seven-years": {
+      "r": 4,
+      "w": 0
+     },
+     "s3:replication-requires": {
+      "r": 4,
+      "w": 0
+     },
+     "dr:guard-against-accidental-deletion": {
+      "r": 4,
+      "w": 0
+     },
+     "scale:recommended-scaling-policy": {
+      "r": 4,
+      "w": 0
+     },
+     "scale:define-the-instances": {
+      "r": 4,
+      "w": 0
+     },
+     "dr:stateless-tier-survives-instance-loss": {
+      "r": 4,
+      "w": 0
+     },
+     "scale:alb-nlb-gwlb-layer": {
+      "r": 4,
+      "w": 0
+     },
+     "scale:static-ip-udp-millions-of-req-s": {
+      "r": 4,
+      "w": 0
+     },
+     "scale:path-or-host-routing-dynamic-container-ports-c": {
+      "r": 4,
+      "w": 0
+     },
+     "scale:cross-zone-default": {
+      "r": 4,
+      "w": 0
+     },
+     "vpc:expose-your-service-to-another-vpc": {
+      "r": 4,
+      "w": 0
+     },
+     "trig:static-ip-for-a-firewall-allow-list": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:routes-on-url-path-host-header-query-string": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:routes-on-tcp-udp-port-only": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:preserves-the-client-source-ip-natively": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:millions-of-requests-sec-ultra-low-latency": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:one-static-ip-per-az-supports-elastic-ips": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:websockets-http-2-grpc": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:redirect-http-to-https-with-no-app-change": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:return-a-fixed-response-e-g-a-maintenance-page": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:authenticate-with-cognito-or-oidc-at-the-edge": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:route-to-lambda-as-a-target": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:route-to-ip-targets-including-on-premises": {
+      "r": 4,
+      "w": 0
+     },
+     "elb:spread-across-azs-but-traffic-is-uneven": {
+      "r": 4,
+      "w": 0
+     },
+     "num:read-replicas-rds-aurora": {
+      "r": 0,
+      "w": 8
+     },
+     "num:max-storage-rds-aurora": {
+      "r": 0,
+      "w": 8
+     },
+     "db:aurora-copies-failover": {
+      "r": 0,
+      "w": 8
+     },
+     "db:cross-region-dr-sub-second-lag": {
+      "r": 0,
+      "w": 8
+     },
+     "db:intermittent-load-near-zero-idle-cost": {
+      "r": 0,
+      "w": 8
+     },
+     "dr:database-survives-a-region-loss": {
+      "r": 0,
+      "w": 8
+     },
+     "sec:guardduty-inspector-macie": {
+      "r": 0,
+      "w": 4
+     },
+     "sec:scp-effect-on-the-management-account": {
+      "r": 0,
+      "w": 4
+     },
+     "scope:global-services": {
+      "r": 0,
+      "w": 4
+     }
+    },
+    "sections": {
+     "num": {
+      "r": 20,
+      "w": 12
+     },
+     "ec2": {
+      "r": 12,
+      "w": 0
+     },
+     "db": {
+      "r": 12,
+      "w": 8
+     },
+     "ops": {
+      "r": 12,
+      "w": 0
+     },
+     "trig": {
+      "r": 12,
+      "w": 0
+     },
+     "cost": {
+      "r": 20,
+      "w": 8
+     },
+     "s3": {
+      "r": 12,
+      "w": 8
+     },
+     "dr": {
+      "r": 8,
+      "w": 8
+     },
+     "scale": {
+      "r": 4,
+      "w": 0
+     },
+     "vpc": {
+      "r": 4,
+      "w": 0
+     },
+     "elb": {
+      "r": 4,
+      "w": 0
+     },
+     "sec": {
+      "r": 0,
+      "w": 4
+     },
+     "scope": {
+      "r": 0,
+      "w": 4
+     }
+    },
+    "questions": {
+     "dt-117": 1,
+     "q-670": 1,
+     "ce-898": 1,
+     "ce-821": 1,
+     "ce-207": 0,
+     "ce-830": 0,
+     "ce-781": 0,
+     "ce-775": 1
+    },
+    "seen": 32,
+    "right": 20,
+    "wrong": 12,
+    "started": "2026-10-06"
+   }
+  }
+ ]
 }

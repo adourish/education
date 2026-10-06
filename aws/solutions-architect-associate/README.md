@@ -69,6 +69,34 @@ Options:
 | `-OutFile <name>` | Change the output filename |
 | `-KeepHtml` | Keep the intermediate `combined.html` for inspection |
 
+## Keeping the app's starting progress up to date
+
+The drill board at https://adourish.github.io/education/ ships with a copy of
+the current study progress, so a new laptop or a cleared browser starts where
+the last session left off rather than at zero. That copy lives in
+`app/progress-seed.json`.
+
+To refresh it from a file exported with the app's own Export button:
+
+```powershell
+cd app
+python update-seed.py <exported-progress.json> --dry-run   # look at the change
+python update-seed.py <exported-progress.json>             # then apply it
+```
+
+The script checks the export, drops question ids that no longer exist, writes
+the new progress, bumps the app version, and rebuilds the app and the `docs/`
+folder that GitHub Pages serves. Commit on a feature branch and open a pull
+request as usual; the script deliberately does not touch git.
+
+The shipped progress is merged into whatever a browser already has, never
+substituted, so a second laptop keeps its own answers. Because counts add when
+merging, each browser also keeps a copy of the record it was last given and
+merges only the difference — otherwise a second, larger record would count the
+same answers twice. `progress-seed.json` carries the last five records shipped
+so a browser that skipped a build can still work out what is new to it; leave
+that `history` to the script rather than editing it by hand.
+
 ## Design notes
 
 The print stylesheet uses a cyan, magenta, and yellow accent palette. Red and
