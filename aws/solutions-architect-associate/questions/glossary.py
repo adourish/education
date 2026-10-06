@@ -61,8 +61,16 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     # ---------------- storage ----------------
     "Amazon S3": (r"\bS3\b|Simple Storage Service",
         "Object storage: files in a bucket, fetched over the network. Effectively unlimited and very durable."),
-    "S3 storage classes": (r"storage class|Standard-IA|One Zone-IA|Intelligent-Tiering",
-        "Different prices for different access patterns. Standard for hot, Standard-IA for infrequent, One Zone-IA cheaper but single-AZ, Intelligent-Tiering when unknown."),
+    "S3 storage classes": (r"storage class",
+        "One bucket, several prices. Which class an object sits in decides what it costs to keep and what it costs to read back."),
+    "S3 Standard": (r"S3 Standard(?!-)|Standard storage class",
+        "The default class: data you read often, held across at least three Availability Zones, with no retrieval charge."),
+    "S3 Standard-IA": (r"Standard-IA|Standard-Infrequent Access",
+        "For data you keep but rarely read. Cheaper to store than Standard, charged to retrieve, still across three Availability Zones. Minimum 30 days."),
+    "S3 One Zone-IA": (r"One Zone-IA|One Zone-Infrequent Access",
+        "Like Standard-IA and about 20% cheaper, but held in a single Availability Zone. Only for data you could recreate if that zone were lost."),
+    "S3 Intelligent-Tiering": (r"Intelligent-Tiering",
+        "Watches how each object is actually used and moves it between tiers automatically. The answer when the access pattern is unknown or changes, because you never pay a retrieval charge for guessing wrong."),
     "S3 Glacier": (r"Glacier",
         "S3's archive tiers. Instant Retrieval in milliseconds, Flexible in minutes to hours, Deep Archive in up to 48 hours and cheapest."),
     "S3 lifecycle policy": (r"lifecycle (polic|rule|config)",
@@ -98,6 +106,9 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS Backup": (r"AWS Backup",
         "One place to set backup schedules and retention across many services at once, rather than configuring each separately."),
 
+    "AWS Snowball Edge": (r"Snowball Edge",
+        "The common Snow device: 80 TB usable, shipped to you, filled over your local network, posted back. For moving data the network would take too long to carry."),
+
     # ---------------- databases ----------------
     "Amazon RDS": (r"\bRDS\b|Relational Database Service",
         "Managed relational databases: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server and Aurora. AWS handles patching and backups; you get no access to the operating system."),
@@ -129,6 +140,9 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Moves a database into AWS while the original keeps running, so the switchover is short. Paired with the Schema Conversion Tool when the engine changes."),
     "RDS Proxy": (r"RDS Proxy",
         "Pools and reuses database connections, so many short-lived clients such as Lambda functions do not exhaust the database. It does not add read capacity."),
+
+    "AWS Schema Conversion Tool": (r"Schema Conversion Tool|SCT",
+        "Rewrites a database's schema and stored code for a different engine. Paired with DMS when the migration changes engine, not just location."),
 
     # ---------------- networking ----------------
     "Amazon VPC": (r"\bVPC\b|Virtual Private Cloud",
@@ -240,6 +254,9 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS AppSync": (r"AppSync",
         "A managed GraphQL API, with offline syncing for mobile applications."),
 
+    "Amazon SES": (r"SES|Simple Email Service",
+        "Sends and receives email at volume: transactional messages, newsletters, and the deliverability reporting that goes with them."),
+
     # ---------------- analytics ----------------
     "Amazon Athena": (r"\bAthena\b",
         "Runs SQL straight against files sitting in S3, with nothing to set up. You pay for the data each query reads."),
@@ -275,6 +292,10 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Alerts you when spending or usage passes a threshold you set."),
     "AWS X-Ray": (r"X-Ray",
         "Traces a single request as it passes through several services, so you can see which step is slow or failing."),
+    "AWS OpsWorks": (r"OpsWorks",
+        "Managed Chef and Puppet servers. The answer only when a team already runs Chef or Puppet and is bringing it with them."),
+    "AWS CLI": (r"AWS CLI|command line interface",
+        "The command line tool for AWS. Worth noting when a question contrasts doing something by script against doing it in the console."),
     "AWS Service Catalog": (r"Service Catalog",
         "A list of approved infrastructure templates teams can deploy for themselves without raising a ticket."),
 

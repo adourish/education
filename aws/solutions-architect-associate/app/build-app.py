@@ -35,7 +35,7 @@ DATA = HERE / "app-data.json"
 OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 
-APP_VERSION = "1.6.0"
+APP_VERSION = "1.6.1"
 
 # SHA-256 of the board's password. The hash rather than the word, so the
 # password is not sitting in the published file in plain text. This is a
