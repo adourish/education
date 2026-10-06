@@ -364,6 +364,59 @@ def parse_optioned(raw: str, source: str) -> list[dict]:
     return records
 
 
+def parse_ditectrev(raw: str, source: str) -> list[dict]:
+    """
+    The Ditectrev community question set, which marks the answer in a checkbox:
+
+        ### <question>
+
+        - [ ] <wrong option>
+        - [x] <right option>
+
+    Corrections to this set arrive as pull requests, so the answers carry a bit
+    more scrutiny than a one-author dump.
+    """
+    raw = raw.replace("\r\n", "\n")
+    records = []
+    chunks = re.split(r"(?m)^###\s+", raw)[1:]
+
+    for n, chunk in enumerate(chunks, 1):
+        lines = chunk.split("\n")
+        question = lines[0].strip()
+        opts = re.findall(r"(?m)^- \[([ xX])\]\s+(.+?)\s*$", chunk)
+        if len(opts) < 2 or len(question) < 25:
+            continue
+
+        letters = "ABCDEFGH"
+        options, correct = [], []
+        for i, (mark, text) in enumerate(opts):
+            if i >= len(letters):
+                break
+            options.append(f"{letters[i]}. {text}")
+            if mark.lower() == "x":
+                correct.append(f"{letters[i]}. {text}")
+        if not correct:
+            continue
+
+        answer = "; ".join(correct)
+        full = f"{question}\n{answer}"
+        area, scores = classify(full)
+        records.append({
+            "id": f"dt-{n}",
+            "source": source,
+            "number": n,
+            "question": question,
+            "answer": answer,
+            "options": options,
+            "explanation": "",
+            "area": area,
+            "domain": domain(full),
+            "scores": scores,
+            "qualifiers": qualifiers(question),
+        })
+    return records
+
+
 def parse_qa_markdown(raw: str, source: str) -> list[dict]:
     """
     Generic fallback for simple interview-style sources:
@@ -398,6 +451,7 @@ def parse_qa_markdown(raw: str, source: str) -> list[dict]:
 
 PARSERS = {
     "optioned": parse_optioned,
+    "ditectrev": parse_ditectrev,
     "github-dump": parse_github_dump,
     "whizlabs": parse_whizlabs,
     "qa": parse_qa_markdown,

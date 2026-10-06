@@ -1,22 +1,10 @@
 # Application integration — queues, topics, events, streams, APIs
 
-25 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
+49 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
 
 ---
 
-### 1. q-7
-
-A company has an application that ingests incoming messages. Dozens of other applications and microservices then quickly consume these messages. The number of messages varies drastically and sometimes increases suddenly to 100,000 each second. The company wants to decouple the solution and increase scalability. Which solution meets these requirements?
-
-<details><summary>Answer</summary>
-
-**D. Publish the messages to an Amazon Simple Notification Service (Amazon SNS) topic with multiple Amazon Simple Queue Service (Amazon SQS) queue subscriptions. Configure the consumer applications to process the messages from the queues.**
-
-The fan-out pattern has the producer publish each message once to an SNS topic, which then delivers a copy into every subscribed SQS queue, so each of the dozens of consumers reads from its own queue and can scale, slow down or fail without affecting the others. The queues absorb the sudden spikes, which is what decouples the producer from consumer speed. Standard SQS queues give at-least-once delivery, best-effort ordering, and a nearly unlimited number of transactions per second, so a burst of 100,000 messages per second needs no quota request; it is FIFO queues that are capped, at 300 API calls per second per action or 3,000 messages per second when batching, with high throughput mode raising that further. Optionally give each subscription a filter policy so a consumer's queue only receives the message types it cares about.
-
-</details>
-
-### 2. wl-7
+### 1. wl-7
 
 You have an S3 bucket that receives photos uploaded by customers. When an object is uploaded, an event notification is sent to an SQS queue with the object details. You also have an ECS cluster that gets messages from the queue to do the batch processing. The queue size may change greatly depending on the number of incoming messages and backend processing speed. Which metric would you use to scale up/down the ECS cluster capacity?
 
@@ -56,7 +44,7 @@ used as a metric to trigger an auto-scaling event.
 
 </details>
 
-### 3. q-10
+### 2. q-10
 
 A company is building an ecommerce web application on AWS. The application sends information about new orders to an Amazon API Gateway REST API to process. The company wants to ensure that orders are processed in the order that they are received. Which solution will meet these requirements?
 
@@ -68,7 +56,7 @@ Use an API Gateway integration to send a message to an Amazon Simple Queue Servi
 
 </details>
 
-### 4. wl-21
+### 3. wl-21
 
 You have configured AWS S3 event notification to send a message to AWS Simple Queue Service whenever an object is deleted. You are performing a ReceiveMessage API operation on the AWS SQS queue to receive the S3 delete object message onto AWS EC2 instance. For any successful message operations, you are deleting them from the queue. For failed operations, you are not deleting the messages. You have developed a retry mechanism which reruns the application every 5 minutes for failed ReceiveMessage operations. However, you are not receiving the messages again during the rerun. What could have caused this?
 
@@ -87,19 +75,17 @@ qs-visibility-timeout.html
 
 </details>
 
-### 5. q-25
+### 4. dt-26
 
-A company is designing an application. The application uses an AWS Lambda function to receive information through Amazon API Gateway and to store the information in an Amazon Aurora PostgreSQL database. During the proof-of-concept stage, the company has to increase the Lambda quotas significantly to handle the high volumes of data that the company needs to load into the database. A solutions architect must recommend a new design to improve scalability and minimize the configuration effort. Which solution will meet these requirements?
+Which of the following AWS CLI commands is syntactically incorrect?
 
 <details><summary>Answer</summary>
 
-**D. Set up two Lambda functions. Configure one function to receive the information. Configure the other function to load the information into the database. Integrate the Lambda functions by using an Amazon Simple Queue Service (Amazon SQS) queue.**
-
-"By dividing the functionality into two Lambda functions, one for receiving the information and the other for loading it into the database, you can independently scale and optimize each function based on their specific requirements. This approach allows for more efficient resource allocation and reduces the potential impact of high volumes of data on the overall system.
+**C. `$ aws sns publish --topic-arn arn:aws:sns:us-east-1:546419318123:OperationsError -message "Script Failure"`.**
 
 </details>
 
-### 6. q-41 `least-ops`
+### 5. q-41 `least-ops`
 
 A company's application integrates with multiple software-as-a-service (SaaS) sources for data collection. The company runs Amazon EC2 instances to receive the data and to upload the data to an Amazon S3 bucket for analysis. The same EC2 instance that receives and uploads the data also sends a notification to the user when an upload is complete. The company has noticed slow application performance and wants to improve the performance as much as possible. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -111,7 +97,7 @@ Amazon AppFlow is a fully-managed integration service that enables you to secure
 
 </details>
 
-### 7. q-45
+### 6. q-45
 
 A company has a data ingestion workflow that consists of the following: • An Amazon Simple Notification Service (Amazon SNS) topic for notifications about new data deliveries • An AWS Lambda function to process the data and record metadata The company observes that the ingestion workflow fails occasionally because of network connectivity issues. When such a failure occurs, the Lambda function does not ingest the corresponding data unless the company manually reruns the job. Which combination of actions should a solutions architect take to ensure that the Lambda function ingests all data in the future? (Choose two.)
 
@@ -120,6 +106,16 @@ A company has a data ingestion workflow that consists of the following: • An A
 **B. Create an Amazon Simple Queue Service (Amazon SQS) queue, and subscribe it to the SNS topic.**
 
 E. Modify the Lambda function to read from an Amazon Simple Queue Service (Amazon SQS) queue.  B. Create an Amazon Simple Queue Service (Amazon SQS) queue, and subscribe it to the SNS topic. This will decouple the ingestion workflow and provide a buffer to temporarily store the data in case of network connectivity issues.  E. Modify the Lambda function to read from an Amazon Simple Queue Service (Amazon SQS) queue. This will allow the Lambda function to process the data from the SQS queue at its own pace, decoupling the data ingestion from the data delivery and providing more flexibility and fault tolerance.
+
+</details>
+
+### 7. dt-123
+
+Your application provides data transformation services. Files containing data to be transformed are first uploaded to Amazon S3 and then transformed by a fleet of spot EC2 instances. Fi les submitted by your premium customers must be transformed with the highest priority. How should you implement such a system?
+
+<details><summary>Answer</summary>
+
+**C. Use two SQS queues, one for high priority messages, the other for default priority. Transformation instances first poll the high priority queue; if there is no message, they poll the default priority queue.**
 
 </details>
 
@@ -147,7 +143,17 @@ AWS Resource Groups Tag Editor allows you to search and filter resources based o
 
 </details>
 
-### 10. q-225 `least-ops` `availability`
+### 10. dt-223
+
+[...] is a fast, flexible, fully managed push messaging service.
+
+<details><summary>Answer</summary>
+
+**A. Amazon SNS.**
+
+</details>
+
+### 11. q-225 `least-ops` `availability`
 
 A media company collects and analyzes user activity data on premises. The company wants to migrate this capability to AWS. The user activity data store will continue to grow and will be petabytes in size. The company needs to build a highly available data ingestion solution that facilitates on-demand analytics of existing data and new data with SQL. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -159,7 +165,17 @@ Amazon Kinesis Data Firehose: It is a fully managed service that simplifies the 
 
 </details>
 
-### 11. q-255
+### 12. dt-236
+
+Which AWS service helps this functionality?
+
+<details><summary>Answer</summary>
+
+**A. AWS Simple Queue Service.**
+
+</details>
+
+### 13. q-255
 
 A company has an ecommerce checkout workflow that writes an order to a database and calls a service to process the payment. Users are experiencing timeouts during the checkout process. When users resubmit the checkout form, multiple unique orders are created for the same desired transaction. How should a solutions architect refactor this workflow to prevent the creation of multiple orders?
 
@@ -171,7 +187,7 @@ Storing the order in the database first ensures that the order information is sa
 
 </details>
 
-### 12. q-267 `least-ops`
+### 14. q-267 `least-ops`
 
 A company has one million users that use its mobile app. The company must analyze the data usage in near-real time. The company also must encrypt the data in near-real time and must store the data in a centralized location in Apache Parquet format for further processing. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -183,19 +199,7 @@ Firehose is fully managed with no shards to size or scale, it can encrypt data w
 
 </details>
 
-### 13. q-285 `cost`
-
-A company hosts its static website by using Amazon S3. The company wants to add a contact form to its webpage. The contact form will have dynamic server-side components for users to input their name, email address, phone number, and user message. The company anticipates that there will be fewer than 100 site visits each month. Which solution will meet these requirements MOST cost-effectively?
-
-<details><summary>Answer</summary>
-
-**B. Create an Amazon API Gateway endpoint with an AWS Lambda backend that makes a call to Amazon Simple Email Service (Amazon SES).**
-
-Amazon API Gateway: Acts as the endpoint for the contact form. It enables you to create, publish, maintain, monitor, and secure APIs at any scale. AWS Lambda: Serves as the backend for handling the dynamic components of the contact form. Lambda allows you to run code without provisioning or managing servers. Amazon Simple Email Service (Amazon SES): Can be used to send emails, making it suitable for handling the form submissions. This serverless architecture eliminates the need for managing and maintaining infrastructure, and costs are based on actual usage, making it cost-effective for low-traffic scenarios.
-
-</details>
-
-### 14. q-292
+### 15. q-292
 
 A company is preparing a new data platform that will ingest real-time streaming data from multiple sources. The company needs to transform the data before writing the data to Amazon S3. The company needs the ability to use SQL to query the transformed data. Which solutions will meet these requirements? (Choose two.)
 
@@ -207,7 +211,7 @@ Both answers follow the same shape the requirement calls for: ingest a stream, t
 
 </details>
 
-### 15. q-316
+### 16. q-316
 
 A company uses an Amazon EC2 instance to run a script to poll for and process messages in an Amazon Simple Queue Service (Amazon SQS) queue. The company wants to reduce operational costs while maintaining its ability to process a growing number of messages that are added to the queue. What should a solutions architect recommend to meet these requirements?
 
@@ -219,7 +223,7 @@ AWS Lambda: Lambda is a serverless computing service that allows you to run code
 
 </details>
 
-### 16. q-322
+### 17. q-322
 
 A solutions architect is designing a multi-tier application for a company. The application's users upload images from a mobile device. The application generates a thumbnail of each image and returns a message to the user to confirm that the image was uploaded successfully. The thumbnail generation can take up to 60 seconds, but the company wants to provide a faster response time to its users to notify them that the original image was received. The solutions architect must design the application to asynchronously dispatch requests to the different application tiers. What should the solutions architect do to meet these requirements?
 
@@ -231,7 +235,7 @@ Amazon SQS (Simple Queue Service): SQS is a fully managed message queuing servic
 
 </details>
 
-### 17. q-323 `availability`
+### 18. q-323 `availability`
 
 A company’s facility has badge readers at every entrance throughout the building. When badges are scanned, the readers send a message over HTTPS to indicate who attempted to access that particular entrance. A solutions architect must design a system to process these messages from the sensors. The solution must be highly available, and the results must be made available for the company’s security team to analyze. Which system architecture should the solutions architect recommend?
 
@@ -241,7 +245,7 @@ A company’s facility has badge readers at every entrance throughout the buildi
 
 </details>
 
-### 18. q-344
+### 19. q-344
 
 A company has a Java application that uses Amazon Simple Queue Service (Amazon SQS) to parse messages. The application cannot parse messages that are larger than 256 KB in size. The company wants to implement a solution to give the application the ability to parse messages as large as 50 MB. Which solution will meet these requirements with the FEWEST changes to the code?
 
@@ -253,7 +257,7 @@ Amazon SQS Extended Client Library for Java: This library is specifically design
 
 </details>
 
-### 19. q-351
+### 20. q-351
 
 A company is moving its data management application to AWS. The company wants to transition to an event-driven architecture. The architecture needs to be more distributed and to use serverless concepts while performing the different aspects of the workflow. The company also wants to minimize operational overhead. Which solution will meet these requirements?
 
@@ -265,7 +269,27 @@ AWS Step Functions allows you to coordinate the components of distributed applic
 
 </details>
 
-### 20. q-362
+### 21. dt-355
+
+Your customer is willing to consolidate their log streams (access logs, application logs, security logs, etc.) in one single system. Once consolidated, the customer wants to analyze these logs in real-time based on heuristics. From time to time, the customer needs to validate heuristics, which requires going back to data samples extracted from the last 12 hours. What is the best approach to meet your customer's requirements?
+
+<details><summary>Answer</summary>
+
+**B. Send all the log events to Amazon Kinesis. Develop a client process to apply heuristics on the logs.**
+
+</details>
+
+### 22. dt-361 `cost`
+
+A customer has a 10 GB AWS Direct Connect connection to an AWS region where they have a web application hosted on Amazon Elastic Computer Cloud (EC2). The application has dependencies on an on-premises mainframe database that uses a BASE (Basic Available. Sort stale Eventual consistency) rather than an ACID (Atomicity. Consistency isolation. Durability) consistency model. The application is exhibiting undesirable behavior because the database is not able to handle the volume of writes. How can you reduce the load on your on-premises database resources in the most cost-effective way?
+
+<details><summary>Answer</summary>
+
+**B. Modify the application to write to an Amazon SQS queue and develop a worker process to flush the queue to the on-premises database.**
+
+</details>
+
+### 23. q-362
 
 A company uses a payment processing system that requires messages for a particular payment ID to be received in the same order that they were sent. Otherwise, the payments might be processed incorrectly. Which actions should a solutions architect take to meet this requirement? (Choose two.)
 
@@ -277,7 +301,7 @@ E. Write the messages to an Amazon Simple Queue Service (Amazon SQS) FIFO queue.
 
 </details>
 
-### 21. q-363
+### 24. q-363
 
 A company is building a game system that needs to send unique events to separate leaderboard, matchmaking, and authentication services concurrently. The company needs an AWS event-driven system that guarantees the order of the events. Which solution will meet these requirements?
 
@@ -289,7 +313,17 @@ SNS FIFO also can send events or messages cocurrently to many subscribers while 
 
 </details>
 
-### 22. q-400 `least-ops`
+### 25. dt-399
+
+After deciding that EMR will be useful in analysing vast amounts of data for a gaming website that you are architecting you have just deployed an Amazon EMR Cluster and wish to monitor the cluster performance. Which of the following tools cannot be used to monitor the cluster performance?
+
+<details><summary>Answer</summary>
+
+**A. Kinesis.**
+
+</details>
+
+### 26. q-400 `least-ops`
 
 A meteorological startup company has a custom web application to sell weather data to its users online. The company uses Amazon DynamoDB to store its data and wants to build a new service that sends an alert to the managers of four internal teams every time a new weather event is recorded. The company does not want this new service to affect the performance of the current application. What should a solutions architect do to meet these requirements with the LEAST amount of operational overhead?
 
@@ -301,7 +335,37 @@ Using a single SNS topic simplifies the notification process. The trigger can pu
 
 </details>
 
-### 23. q-489
+### 27. dt-405
+
+A user has deployed an application on his private cloud. The user is using his own monitoring tool. He wants to configure it so that whenever there is an error, the monitoring tool will notify him via SMS. Which of the below mentioned AWS services will help in this scenario?
+
+<details><summary>Answer</summary>
+
+**B. AWS SNS.**
+
+</details>
+
+### 28. dt-474
+
+You have a number of image files to encode. In an Amazon SQS worker queue, you create an Amazon SQS message for each file specifying the command (jpeg-encode) and the location of the file in Amazon S3. Which of the following statements best describes the functionality of Amazon SQS?
+
+<details><summary>Answer</summary>
+
+**A. Amazon SQS is a distributed queuing system that is optimized for horizontal scalability, not for single-threaded sending or receiving speeds.**
+
+</details>
+
+### 29. dt-489
+
+You are the new IT architect in a company that operates a mobile sleep tracking application. When activated at night, the mobile app is sending collected data points of 1 kilobyte every 5 minutes to your backend. The backend takes care of authenticating the user and writing the data points into an Amazon DynamoDB table. Every morning, you scan the table to extract and aggregate last night's data on a per user basis, and store the results in Amazon S3. Users are notified via Amazon SNS mobile push notifications that new data is available, which is parsed and visualized by the mobile app. Currently you have around 100k users who are mostly based out of North America. You have been tasked to optimize the architecture of the backend system to lower cost. What would you recommend? (Choose 2 answers)
+
+<details><summary>Answer</summary>
+
+**A. Create a new Amazon DynamoDB table each day and drop the one for the previous day after its data is on Amazon S3.; C. Introduce an Amazon SQS queue to buffer writes to the Amazon DynamoDB table and reduce provisioned write throughput.**
+
+</details>
+
+### 30. q-489
 
 An ecommerce company runs an application in the AWS Cloud that is integrated with an on-premises warehouse solution. The company uses Amazon Simple Notification Service (Amazon SNS) to send order messages to an on-premises HTTPS endpoint so the warehouse application can process the orders. The local data center team has detected that some of the order messages were not received. A solutions architect needs to retain messages that are not delivered and analyze the messages for up to 14 days. Which solution will meet these requirements with the LEAST development effort?
 
@@ -313,7 +377,57 @@ Amazon SNS allows you to set up a dead letter queue to capture and retain messag
 
 </details>
 
-### 24. q-587
+### 31. dt-533
+
+Which of the following notification endpoints or clients are supported by Amazon Simple Notification Service? (Choose 2 answers)
+
+<details><summary>Answer</summary>
+
+**A. Email.; D. Short Message Service.**
+
+</details>
+
+### 32. dt-542
+
+Your company has been storing a lot of data in Amazon Glacier and has asked for an inventory of what is in there exactly. So you have decided that you need to download a vault inventory. Which of the following statements is incorrect in relation to Vault Operations in Amazon Glacier?
+
+<details><summary>Answer</summary>
+
+**C. You can use Amazon Simple Queue Service (Amazon SQS) notifications to notify you when the job completes.**
+
+</details>
+
+### 33. dt-548
+
+You are deploying an application to track GPS coordinates of delivery trucks in the United States. Coordinates are transmitted from each delivery truck once every three seconds. You need to design an architecture that will enable real-time processing of these coordinates from multiple consumers. Which service should you use to implement data ingestion?
+
+<details><summary>Answer</summary>
+
+**A. Amazon Kinesis.**
+
+</details>
+
+### 34. dt-572
+
+You require the ability to analyze a customer's clickstream data on a website so they can do behavioral analysis. Your customer needs to know what sequence of pages and ads their customer clicked on. This data will be used in real time to modify the page layouts as customers click through the site to increase stickiness and advertising click-through. Which option meets the requirements for captioning and analyzing this data?
+
+<details><summary>Answer</summary>
+
+**B. Push web clicks by session to Amazon Kinesis and analyze behavior using Kinesis workers.**
+
+</details>
+
+### 35. dt-573
+
+What happens when you create a topic on Amazon SNS?
+
+<details><summary>Answer</summary>
+
+**B. An ARN (Amazon Resource Name) is created.**
+
+</details>
+
+### 36. q-587
 
 A company is designing a solution to capture customer activity in different web applications to process analytics and make predictions. Customer activity in the web applications is unpredictable and can increase suddenly. The company requires a solution that integrates with other web applications. The solution must include an authorization step for security purposes. Which solution will meet these requirements?
 
@@ -325,12 +439,132 @@ Amazon API Gateway: It provides a fully managed service for creating, publishing
 
 </details>
 
-### 25. q-636
+### 37. dt-588
+
+You are architecting an auto-scalable batch processing system using video processing pipelines and Amazon Simple Queue Service (Amazon SQS) for a customer. You are unsure of the limitations of SQS and need to find out. What do you think is a correct statement about the limitations of Amazon SQS?
+
+<details><summary>Answer</summary>
+
+**B. It supports an unlimited number of queues and unlimited number of messages per queue for each user but automatically deletes messages that have been in the queue for more than 4 days.**
+
+</details>
+
+### 38. q-636
 
 A development team is creating an event-based application that uses AWS Lambda functions. Events will be generated when files are added to an Amazon S3 bucket. The development team currently has Amazon Simple Notification Service (Amazon SNS) configured as the event target from Amazon S3. What should a solutions architect do to process the events from Amazon S3 in a scalable way?
 
 <details><summary>Answer</summary>
 
 **C. Create an SNS subscription that sends the event to Amazon Simple Queue Service (Amazon SQS). Configure the SOS queue to trigger a Lambda function.**
+
+</details>
+
+### 39. dt-665
+
+A company wants to enhance its ecommerce order-processing application that is deployed on AWS. The application must process each order exactly once without affecting the customer experience during unpredictable traffic surges. Which solution will meet these requirements?
+
+<details><summary>Answer</summary>
+
+**A. Create an Amazon Simple Queue Service (Amazon SQS) FIFO queue. Put all the orders in the SQS queue. Configure an AWS Lambda function as the target to process the orders.**
+
+</details>
+
+### 40. dt-673 `cost`
+
+A company hosts its static website by using Amazon S3. The company wants to add a contact form to its webpage. The contact form will have dynamic server-side components for users to input their name, email address, phone number, and user message. The company anticipates that there will be fewer than 100 site visits each month. Which solution will meet these requirements MOST cost-effectively?
+
+<details><summary>Answer</summary>
+
+**B. Create an Amazon API Gateway endpoint that returns the contact form from an AWS Lambda function. Configure another Lambda function on the API Gateway to publish a message to an Amazon Simple Notification Service (Amazon SNS) topic.**
+
+</details>
+
+### 41. dt-681
+
+A company has an application that ingests incoming messages. Dozens of other applications and microservices then quickly consume these messages. The number of messages varies drastically and sometimes increases suddenly to 100,000 each second. The company wants to decouple the solution and increase scalability. Which solution meets these requirements?
+
+<details><summary>Answer</summary>
+
+**D. Publish the messages to an Amazon Simple Notification Service (Amazon SNS) topic with multiple Amazon Simple Queue Service (Amazon SOS) subscriptions. Configure the consumer applications to process the messages from the queues.**
+
+</details>
+
+### 42. dt-682
+
+An application development team is designing a microservice that will convert large images to smaller, compressed images. When a user uploads an image through the web interface, the microservice should store the image in an Amazon S3 bucket, process and compress the image with an AWS Lambda function, and store the image in its compressed form in a different S3 bucket. A solutions architect needs to design a solution that uses durable, stateless components to process the images automatically. Which combination of actions will meet these requirements? (Choose two.)
+
+<details><summary>Answer</summary>
+
+**A. Create an Amazon Simple Queue Service (Amazon SQS) queue. Configure the S3 bucket to send a notification to the SQS queue when an image is uploaded to the S3 bucket.; B. Configure the Lambda function to use the Amazon Simple Queue Service (Amazon SQS) queue as the invocation source. When the SQS message is successfully processed, delete the message in the queue.**
+
+</details>
+
+### 43. dt-689
+
+A company is designing an application. The application uses an AWS Lambda function to receive information through Amazon API Gateway and to store the information in an Amazon Aurora PostgreSQL database. During the proof-of-concept stage, the company has to increase the Lambda quotas significantly to handle the high volumes of data that the company needs to load into the database. A solutions architect must recommend a new design to improve scalability and minimize the configuration effort. Which solution will meet these requirements?
+
+<details><summary>Answer</summary>
+
+**D. Set up two Lambda functions. Configure one function to receive the information. Configure the other function to load the information into the database. Integrate the Lambda functions by using an Amazon Simple Queue Service (Amazon SQS) queue.**
+
+</details>
+
+### 44. dt-710
+
+An ecommerce company wants to collect user clickstream data from the company's website for real-time analysis. The website experiences fluctuating traffic patterns throughout the day. The company needs a scalable solution that can adapt to varying levels of traffic. Which solution will meet these requirements?
+
+<details><summary>Answer</summary>
+
+**A. Use a data stream in Amazon Kinesis Data Streams in on-demand mode to capture the clickstream data. Use AWS Lambda to process the data in real time.**
+
+</details>
+
+### 45. dt-732
+
+A company plans to host a survey website on AWS. The company anticipates an unpredictable amount of traffic. This traffic results in asynchronous updates to the database. The company wants to ensure that writes to the database hosted on AWS do not get dropped. How should the company write its application to handle these database requests?
+
+<details><summary>Answer</summary>
+
+**D. Use Amazon Simple Queue Service (Amazon SQS) FIFO queues for capturing the writes and draining the queue as each write is made to the database.**
+
+</details>
+
+### 46. dt-737
+
+A development team is collaborating with another company to create an integrated product. The other company needs to access an Amazon Simple Queue Service (Amazon SQS) queue that is contained in the development team's account. The other company wants to poll the queue without giving up its own account permissions to do so. How should a solutions architect provide access to the SQS queue?
+
+<details><summary>Answer</summary>
+
+**C. Create an SQS access policy that provides the other company access to the SQS queue.**
+
+</details>
+
+### 47. dt-738 `cost`
+
+A company is developing a video conversion application hosted on AWS. The application will be available in two tiers: a free tier and a paid tier. Users in the paid tier will have their videos converted first and then the free tier users will have their videos converted. Which solution meets these requirements and is MOST cost-effective?
+
+<details><summary>Answer</summary>
+
+**D. Two standard Amazon Simple Queue Service (Amazon SQS) queues with one for the paid tier and one for the free tier.**
+
+</details>
+
+### 48. dt-759
+
+A mobile gaming company runs application servers on Amazon EC2 instances. The servers receive updates from players every 15 minutes. The mobile game creates a JSON object of the progress made in the game since the last update, and sends the JSON object to an Application Load Balancer. As the mobile game is played, game updates are being lost. The company wants to create a durable way to get the updates in order. What should a solutions architect recommend to decouple the system?
+
+<details><summary>Answer</summary>
+
+**C. Use Amazon Simple Queue Service (Amazon SQS) FIFO queues to capture the data and EC2 instances to process the messages in the queue.**
+
+</details>
+
+### 49. dt-765
+
+A company has an API-based inventory reporting application running on Amazon EC2 instances. The application stores information in an Amazon DynamoDB table. The company's distribution centers have an on-premises shipping application that calls an API to update the inventory before printing shipping labels. The company has been experiencing application interruptions several times each day, resulting in lost transactions. What should a solutions architect recommend to improve application resiliency?
+
+<details><summary>Answer</summary>
+
+**D. Modify the application to send inventory updates using Amazon Simple Queue Service (Amazon SQS).**
 
 </details>
