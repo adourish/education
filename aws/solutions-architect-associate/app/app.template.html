@@ -389,8 +389,12 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .gate input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
 .gate .wrong { color: var(--magenta); font-size: 0.9rem; margin: 0 0 12px; }
 
-/* what the terms in a question mean. Sits above the options, in the same place
-   every time, so the eye knows where to go. */
+/* the two helpers for a question, read aloud and explain the terms, side by
+   side above the options. Always the same place, whether or not both are
+   there, so the eye knows where to go. */
+.qtools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.qtools .btn { margin-bottom: 0; }
+.speakbtn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
 .hintbtn { margin-bottom: 14px; }
 .terms {
   margin: 0 0 16px;
@@ -1405,9 +1409,82 @@ footer .v { font-family: var(--mono); }
     });
   }
 
+  // Reading a question aloud. This is the browser's own speech, built in since
+  // about 2014 — no service to call, no key, nothing sent anywhere, and it
+  // works with no network. Where a browser has none, speech is null and the
+  // button is simply not drawn.
+  var speech = (function () {
+    var synth = window.speechSynthesis;
+    if (!synth || typeof SpeechSynthesisUtterance === "undefined") return null;
+
+    // Short forms a reader gets wrong often enough to be distracting. IAM is
+    // the worst of them: left alone it comes out as the words "I am".
+    var SAY = [
+      [/\bIAM\b/g, "I A M"],
+      [/\bNACLs\b/g, "N A C Ls"], [/\bNACL\b/g, "N A C L"],
+      [/\bACLs\b/g, "A C Ls"], [/\bACL\b/g, "A C L"],
+      [/\bAZs\b/g, "availability zones"], [/\bAZ\b/g, "availability zone"],
+      [/\bGbps\b/g, "gigabits per second"], [/\bMbps\b/g, "megabits per second"],
+      [/\bIOPS\b/g, "I O P S"],
+      [/\bSLA\b/g, "S L A"], [/\bTTL\b/g, "T T L"],
+      [/\bRPO\b/g, "R P O"], [/\bRTO\b/g, "R T O"]
+    ];
+
+    function plain(text) {
+      var t = String(text || "").replace(/\s+/g, " ").trim();
+      SAY.forEach(function (pair) { t = t.replace(pair[0], pair[1]); });
+      return t;
+    }
+
+    // Chrome stops after roughly fifteen seconds of one utterance, so the text
+    // goes in as a queue of sentence-sized pieces instead of one long one.
+    function pieces(text) {
+      var out = [], buf = "";
+      plain(text).split(/(?<=[.!?:;])\s+/).forEach(function (part) {
+        if ((buf + " " + part).length > 180 && buf) { out.push(buf); buf = part; }
+        else { buf = buf ? buf + " " + part : part; }
+      });
+      if (buf) out.push(buf);
+      return out;
+    }
+
+    var voice = null;
+    function pickVoice() {
+      var all = synth.getVoices() || [];
+      voice = all.filter(function (v) { return /^en(-|_|$)/i.test(v.lang); })[0] || all[0] || null;
+    }
+    pickVoice();
+    if (typeof synth.addEventListener === "function") {
+      synth.addEventListener("voiceschanged", pickVoice);
+    }
+
+    var onDone = null;
+
+    return {
+      speaking: function () { return synth.speaking || synth.pending; },
+      stop: function () { onDone = null; try { synth.cancel(); } catch (e) { /* fine */ } },
+      say: function (text, whenDone) {
+        this.stop();
+        onDone = whenDone || null;
+        var parts = pieces(text);
+        if (!parts.length) { if (onDone) onDone(); return; }
+        parts.forEach(function (part, n) {
+          var u = new SpeechSynthesisUtterance(part);
+          if (voice) { u.voice = voice; u.lang = voice.lang; }
+          u.rate = 0.95;          // a shade under normal, easier to follow
+          if (n === parts.length - 1) {
+            u.onend = function () { if (onDone) { var f = onDone; onDone = null; f(); } };
+          }
+          try { synth.speak(u); } catch (e) { /* nothing to do but stay quiet */ }
+        });
+      }
+    };
+  })();
+
   function renderQuestion() {
     qhost.textContent = "";
     answered = false;
+    if (speech) speech.stop();   // moving on stops the last question mid-word
     if (!queue.length) return;
     if (qi >= queue.length) {
       var done = el("div", "card");
@@ -1485,6 +1562,43 @@ footer .v { font-family: var(--mono); }
 
     card.appendChild(el("p", "qtext", q.q));
 
+    var tools = el("div", "qtools");
+    card.appendChild(tools);
+
+    // Read the question aloud. It reads what is on screen and no more: the
+    // options once they are showing, the answer only after it is revealed, so
+    // listening never gives the answer away early.
+    if (speech) {
+      var speakBtn = el("button", "btn speakbtn", "Read it aloud");
+      speakBtn.setAttribute("aria-pressed", "false");
+      var idle = function () {
+        speakBtn.textContent = "Read it aloud";
+        speakBtn.setAttribute("aria-pressed", "false");
+      };
+      speakBtn.addEventListener("click", function () {
+        if (speech.speaking()) { speech.stop(); idle(); return; }
+        // Read what is on the card, not the stored question. The letters are
+        // shuffled for each run, so reading the stored list would call out
+        // letters that do not match the ones being looked at.
+        var say = [q.q];
+        var shown = card.querySelector(".opts");
+        if (shown && shown.children.length) {
+          say.push("The options are.");
+          Array.prototype.forEach.call(shown.children, function (b) {
+            say.push(b.textContent);
+          });
+        }
+        if (reveal && !reveal.hidden) {
+          say.push("The answer is. " + q.a);
+          if (q.why) say.push(q.why);
+        }
+        speakBtn.textContent = "Stop reading";
+        speakBtn.setAttribute("aria-pressed", "true");
+        speech.say(say.join(" "), idle);
+      });
+      tools.appendChild(speakBtn);
+    }
+
     // A hint explains the services the question names. It never says which
     // option is right: that would answer the question instead of teaching it.
     if (q.t && q.t.length && DATA.glossary) {
@@ -1510,7 +1624,7 @@ footer .v { font-family: var(--mono); }
         hint.setAttribute("aria-expanded", String(open));
         hint.textContent = open ? "Hide the terms" : "Explain the terms (" + q.t.length + ")";
       });
-      card.appendChild(hint);
+      tools.appendChild(hint);
       card.appendChild(termsBox);
     }
 

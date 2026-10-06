@@ -556,6 +556,11 @@ section > h3 {
   <div class="qa"><div class="q"><span class="yq y3"><i></i><i></i><i></i></span>Decouple a spiky front end <span class="mk alt">&asymp;</span></div><div class="a">SQS + auto-scale workers on queue depth</div></div>
   <div class="qa"><div class="q">Standard queue guarantees</div><div class="a">at-least-once, best-effort order</div></div>
   <div class="qa"><div class="q">Exactly-once and strict order</div><div class="a">FIFO queue <span class="lo">(name ends .fifo)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>FIFO keeps order within</div><div class="a">one message group ID <span class="lo">(groups run side by side)</span></div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>FIFO drops a repeat when <span class="mk">&dagger;</span></div><div class="a">same dedup ID inside 5 minutes <span class="lo">(set it, or hash the body)</span></div></div>
+  <div class="qa"><div class="q">Content-based deduplication uses</div><div class="a">a SHA-256 hash of the message body</div></div>
+  <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>FIFO throughput ceiling</div><div class="a">300/s, 3,000 batched, 70,000+ high-throughput <span class="lo">(standard: no ceiling)</span></div></div>
+  <div class="qa"><div class="q">S3 event notifications to a FIFO queue <span class="mk">&dagger;</span></div><div class="a">not supported &mdash; standard queue only</div></div>
   <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Message processed twice</div><div class="a">visibility timeout shorter than processing</div></div>
   <div class="qa"><div class="q"><span class="yq y1"><i></i><i></i><i></i></span>Poison messages / empty receives</div><div class="a">dead-letter queue / long polling</div></div>
   <div class="qa"><div class="q"><span class="yq y2"><i></i><i></i><i></i></span>One message to many queues</div><div class="a">SNS fan-out <span class="lo">(+ filter policies)</span></div></div>
