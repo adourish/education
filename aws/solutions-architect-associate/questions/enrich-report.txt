@@ -1,0 +1,34 @@
+Joining the PDF's options to the text file's answers
+
+questions in the PDF          684
+answers in the solutions file 497
+successfully joined           475
+no answer found               187
+stems disagreed               7
+answer matched no option      15
+
+Unjoined questions are left out rather than guessed at: attaching an
+answer to the wrong stem would be worse than having fewer questions.
+
+248: stems disagree, not joined
+253: stems disagree, not joined
+297: stems disagree, not joined
+366: stems disagree, not joined
+494: stems disagree, not joined
+563: stems disagree, not joined
+652: ambiguous (best 0.85, next 0.80)
+653: ambiguous (best 0.09, next 0.09)
+654: ambiguous (best 0.38, next 0.03)
+657: ambiguous (best 0.23, next 0.19)
+663: ambiguous (best 0.05, next 0.04)
+664: ambiguous (best 0.57, next 0.56)
+665: ambiguous (best 0.54, next 0.47)
+667: ambiguous (best 0.30, next 0.27)
+672: ambiguous (best 0.48, next 0.43)
+673: ambiguous (best 0.52, next 0.44)
+676: ambiguous (best 0.44, next 0.41)
+677: ambiguous (best 0.37, next 0.36)
+678: ambiguous (best 0.41, next 0.36)
+680: stems disagree, not joined
+682: ambiguous (best 0.33, next 0.33)
+684: ambiguous (best 0.33, next 0.26)

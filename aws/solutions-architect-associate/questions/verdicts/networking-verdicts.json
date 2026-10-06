@@ -1,0 +1,74 @@
+{
+  "gh-208": {
+    "verdict": "fix",
+    "truth": "The reviewer is right. A gateway endpoint for S3 is a route-table target: it is not created in a subnet or an Availability Zone and it cannot have a security group attached, so option B describes something AWS does not let you build. An interface endpoint for S3 (PrivateLink) does live in a subnet and does take security groups, so option A is the only buildable choice, and the explanation already printed under the answer argues for exactly that.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "A. Create an interface VPC endpoint for Amazon S3 in the subnet where the EC2 instance is located. Attach a resource policy to the S3 bucket to only allow the EC2 instance's IAM role for access.",
+    "why": "An interface VPC endpoint for Amazon S3 is backed by AWS PrivateLink: it places an elastic network interface with a private IP in the chosen subnet, so the instance reaches S3 over the AWS network and neither the API calls nor the object data touch the public internet. The bucket policy is what limits who may upload, so restricting it to the EC2 instance's IAM role satisfies the \"only the EC2 instance\" requirement. The gateway-endpoint option is not just second best, it is not buildable as written, because a gateway endpoint is a route-table target rather than something you place in an Availability Zone, and it accepts no security group. The two remaining options try to discover a private IP for the S3 service endpoint and route to it by hand, which is not how S3 is reached.",
+    "reason": "The answer key named option B, which cannot be built, while the explanation underneath described option A. Answer corrected to A and the explanation rewritten so the two agree."
+  },
+  "gh-240": {
+    "verdict": "fix",
+    "truth": "Option D is the right answer, but for the reason the reviewer gives, not the one stated. The saving comes from payload size and the Direct Connect rate card: with the tool next to the warehouse only the rendered ~500 KB page leaves AWS instead of the 50 MB result set, and Direct Connect data transfer out is billed at a lower per-GB rate than internet egress. The stated claim that same-Region traffic simply avoids egress charges is wrong, since cross-AZ traffic inside a Region is still billed.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "D. Host the visualization tool in the same AWS Region as the data warehouse and access it over a Direct Connect connection at a location in the same Region.",
+    "why": "Egress is billed on the bytes that actually leave AWS, so the cheapest design is the one that shrinks the payload crossing the boundary. Putting the visualization tool in the same Region as the warehouse keeps the 50 MB result sets inside the Region and sends only the roughly 500 KB rendered webpage to the corporate office, about a hundredfold reduction in billable bytes. Routing that remaining traffic over Direct Connect rather than the internet lowers the cost further, because Direct Connect data transfer out is priced below internet data transfer out, and using a Direct Connect location in the same Region as the warehouse avoids the higher remote-location rate. Any option that leaves the tool on premises pays egress on the full 50 MB of every query, which the question makes worse by telling you result sets are not cached.",
+    "reason": "Answer unchanged. The explanation named the wrong mechanism and asserted that same-Region transfer is free, so it has been replaced with the payload-size and Direct Connect rate reasoning."
+  },
+  "gh-265": {
+    "verdict": "fix",
+    "truth": "The reviewer is right about the explanation. Option C is still the best answer, but an internet-facing ALB must sit in at least two public subnets with a route to an internet gateway and is reachable from the internet by definition, so the claim that a public ALB in private subnets is hidden from the internet is false. The security gain in option C comes from the EC2 instances being in private subnets behind the load balancer, not from the ALB's own placement.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "C. Configure a public Application Load Balancer (ALB) with multiple redundant Amazon EC2 instances in private subnets. Configure Amazon CloudFront to deliver HTTPS content using the public ALB as the origin.",
+    "why": "CloudFront terminates HTTPS at edge locations close to users, which is what the \"as close to the edge as possible, least delivery time\" requirement asks for, and it needs an origin it can reach, so the ALB has to be internet-facing. Putting the EC2 instances in private subnets behind that ALB is where the security comes from: the instances have no public IPs and no inbound path from the internet, and only the load balancer's security group can reach them. Spreading the ALB and the instances across multiple Availability Zones gives the high availability the question asks for. The options that place the instances in public subnets expose them directly, and the options that use the EC2 instances as the CloudFront origin lose the load balancer, so a single instance becomes the entry point.",
+    "reason": "Answer unchanged. The explanation misdescribed ALB subnet placement and said the instances host the database tier, so it has been replaced."
+  },
+  "gh-29": {
+    "verdict": "fix",
+    "truth": "Option A is correct and the explanation is not an explanation at all, just the author wondering whether the option mentions Global Accelerator. It does. A Network Load Balancer is the only AWS load balancer that handles UDP, and Global Accelerator provides the anycast static IPs, latency-based routing to the nearest healthy Region, and automatic cross-Region failover on endpoint health checks that the question asks for.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "A. Deploy a Network Load Balancer (NLB) and an associated target group. Associate the target group with the Auto Scaling group. Use the NLB as an AWS Global Accelerator endpoint in each Region.",
+    "why": "The service uses UDP, which rules out the Application Load Balancer and CloudFront, because both handle only HTTP and HTTPS. A Network Load Balancer supports UDP listeners and can front the Auto Scaling group in each Region. AWS Global Accelerator then gives two static anycast IP addresses that enter the AWS network at the edge location nearest the user and forward to the Region with the lowest latency, and it health checks each endpoint and shifts traffic to another Region within seconds when one fails, which is the automated failover the question requires. Route 53 could also route by latency, but DNS failover depends on record TTLs expiring on the client, so it is slower and less reliable than Global Accelerator for a real-time voice workload.",
+    "reason": "Answer unchanged. The stated explanation was unfinished author commentary that questioned its own answer, so it has been replaced with the real reasoning."
+  },
+  "gh-366": {
+    "verdict": "fix",
+    "truth": "Option A is correct and the compliance requirement is not broken by it. A Network Load Balancer can use IP addresses as targets, including on-premises addresses reached over Direct Connect or a VPN, so the application keeps running in the company's own data centers while Global Accelerator provides anycast entry points in front of it. The stated explanation rejects the very option it selects, which is a distractor rationale pasted under the right answer.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "A. Configure three Network Load Balancers (NLBs) in the three AWS Regions to address the on-premises endpoints. Create an accelerator by using AWS Global Accelerator, and register the NLBs as its endpoints. Provide access to the application by using a CNAME that points to the accelerator DNS.",
+    "why": "A Network Load Balancer supports UDP listeners and accepts IP addresses as targets, so each Regional NLB can point at the redundant on-premises servers across Direct Connect or a VPN. The application therefore stays hosted on premises, which is what the compliance rule requires, while AWS Global Accelerator puts anycast static IPs at the edge so user traffic enters the AWS backbone close to the user and is carried to the nearest healthy on-premises site. Global Accelerator also health checks each endpoint and reroutes in seconds, which improves availability over the Route 53 latency records the company uses today, because those depend on client DNS caches expiring. The Application Load Balancer and Classic Load Balancer options cannot carry UDP, and the CloudFront option cannot either.",
+    "reason": "Answer unchanged. The explanation was a rejection rationale copied under the correct option, so it has been replaced."
+  },
+  "gh-582": {
+    "verdict": "fix",
+    "truth": "Option A is correct given the options on offer. Latency-based routing records are tied to an AWS Region, so the latency option as written, associated only with us-west-1, cannot steer any traffic to eu-central-1 or describe the on-premises site; a simple policy returns one answer set regardless of the requester, and a weighted split ignores location entirely. Geolocation is the only policy among the four that can send each user to the nearer of the two sites.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "A. Set up a geolocation routing policy. Send the traffic that is near us-west-1 to the on-premises data center. Send the traffic that is near eu-central-1 to eu-central-1.",
+    "why": "The website runs in two places, an on-premises data center near us-west-1 and the eu-central-1 Region, so the shortest load time comes from sending each visitor to whichever is nearer. A geolocation routing policy resolves the name differently depending on where the query comes from, so North American users get the on-premises site and European users get eu-central-1. Latency-based routing would normally be the better tool for a pure latency goal, but Route 53 latency records measure latency to an AWS Region you associate with each record, and the latency option here associates only us-west-1, which cannot direct anyone to eu-central-1 and cannot represent an on-premises endpoint properly. A simple policy gives every requester the same answer and a weighted policy splits traffic by percentage, so neither takes location into account.",
+    "reason": "Answer unchanged. The explanation ended by casting doubt on its own answer instead of saying why geolocation beats the three alternatives given, so it has been replaced."
+  },
+  "gh-676": {
+    "verdict": "fix",
+    "truth": "The delivery path in option B is still the correct answer, and the reviewer is right that the service name is stale. Amazon Kinesis Data Firehose was renamed Amazon Data Firehose in February 2024, so the answer text and explanation should use the current name. The reasoning also needs stating properly: VPC Flow Logs capture network interface traffic metadata while CloudTrail records API calls, which is why the CloudTrail options fail.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "B. Turn on VPC Flow Logs and publish them to Amazon CloudWatch Logs. Create a CloudWatch Logs subscription filter that sends the log events to Amazon Data Firehose (formerly Amazon Kinesis Data Firehose). Configure the Firehose delivery stream to deliver the records to Amazon OpenSearch Service.",
+    "why": "VPC Flow Logs are the feature that records information about IP traffic going to and from the elastic network interfaces in a VPC, which covers the Network Load Balancers, EC2 instances and databases in question. Publishing the flow logs to CloudWatch Logs and attaching a subscription filter streams each log event onward as it arrives, which gives the near real time behaviour the question asks for. Amazon Data Firehose, the service formerly called Amazon Kinesis Data Firehose, has a built-in delivery target for Amazon OpenSearch Service, so it loads the records for analysis without any code to maintain. The CloudTrail options are wrong because CloudTrail records AWS API activity, not packet-level network traffic.",
+    "reason": "The route is right but the answer line used the retired Kinesis Data Firehose name and the explanation was too thin to stand on its own, so both have been updated."
+  },
+  "wl-23": {
+    "verdict": "fix",
+    "truth": "Option C is the correct answer. A gateway endpoint policy that lists only specific buckets causes requests to any other bucket to be rejected by S3 authorization with HTTP 403 AccessDenied, which matches the symptom exactly. The reviewer is right that the stated elimination of option B is backwards: a security group that drops traffic produces a connection timeout, never a 403, and that is precisely why option B can be ruled out.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "C. VPC endpoint might have a restrictive policy and does not contain the new S3 bucket.",
+    "why": "The failure is an HTTP 403 AccessDenied, which means the request reached Amazon S3 and was refused on authorization rather than being lost on the network. A VPC endpoint policy narrows what the endpoint is allowed to do, so an existing policy that names only the original buckets will reject calls to the newly added bucket with exactly that error, and the fix is to add the new bucket to the endpoint policy. The other options all produce different symptoms: a security group that does not permit outbound traffic to the S3 prefix list silently drops the packets, so the CLI hangs and then reports a connection timeout rather than a 403, and a bucket in another Region is not served by the gateway endpoint at all, so without a NAT gateway or internet gateway route the request also times out. CORS applies only to browser requests from a web page in another origin and has no bearing on an AWS CLI call.",
+    "reason": "Answer unchanged. The explanation claimed a blocked security group yields a 403, which is the opposite of the truth and argued for the option it was dismissing, so it has been replaced."
+  }
+}

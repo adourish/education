@@ -1,0 +1,1545 @@
+<title>SAA-C03 Recall Board</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ===========================================================================
+   SAA-C03 Recall Board
+   Palette is cyan / magenta / amber. Right and wrong are never carried by hue
+   alone -- each also has its own glyph and its own border weight -- so the
+   board stays readable with protanopia and in a black-and-white print.
+   =========================================================================== */
+
+:root {
+  --ground:      #eef3f4;
+  --surface:     #fbfcfc;
+  --surface-2:   #e3ebed;
+  --ink:         #10181b;
+  --ink-2:       #46545a;
+  --ink-3:       #7b888d;
+  --rule:        #d3dde0;
+  --rule-2:      #e5ecee;
+
+  --cyan:        #00707e;
+  --cyan-soft:   #d9eef1;
+  --magenta:     #99206c;
+  --magenta-soft:#f7e3ef;
+  --amber:       #8a6508;
+  --amber-soft:  #fbf0d5;
+  --violet:      #553a87;
+
+  --shadow:      0 1px 2px rgba(16,24,27,.06), 0 4px 14px rgba(16,24,27,.05);
+  --radius:      10px;
+
+  /* Atkinson Hyperlegible was drawn by the Braille Institute to keep letters
+     apart from one another: b and d, I and l and 1 are all distinct. */
+  --ui: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:    #0c1417;
+    --surface:   #121d21;
+    --surface-2: #19272c;
+    --ink:       #e8eff1;
+    --ink-2:     #a8b7bc;
+    --ink-3:     #76868c;
+    --rule:      #26383e;
+    --rule-2:    #1d2d32;
+
+    --cyan:        #4fd0e0;
+    --cyan-soft:   #0d2f36;
+    --magenta:     #f08fc8;
+    --magenta-soft:#36132a;
+    --amber:       #e8bc5a;
+    --amber-soft:  #322613;
+    --violet:      #b49ae8;
+    --shadow:      0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"] {
+  --ground:    #0c1417;
+  --surface:   #121d21;
+  --surface-2: #19272c;
+  --ink:       #e8eff1;
+  --ink-2:     #a8b7bc;
+  --ink-3:     #76868c;
+  --rule:      #26383e;
+  --rule-2:    #1d2d32;
+  --cyan:        #4fd0e0;
+  --cyan-soft:   #0d2f36;
+  --magenta:     #f08fc8;
+  --magenta-soft:#36132a;
+  --amber:       #e8bc5a;
+  --amber-soft:  #322613;
+  --violet:      #b49ae8;
+  --shadow:      0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.28);
+}
+
+* { box-sizing: border-box; }
+
+/* Everything that gets read is sized in rem against this, so the A-/A+ control
+   moves the whole page by changing one number. Phones get a bigger base. */
+html { font-size: calc(16px * var(--ts, 1)); }
+@media (max-width: 720px) { html { font-size: calc(17.5px * var(--ts, 1)); } }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: .01em;
+  word-spacing: .04em;
+  text-align: left;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---------------- chrome ---------------- */
+
+.topbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+.topbar-in {
+  max-width: 1680px; margin: 0 auto;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: baseline; gap: 9px; margin-right: auto; }
+.brand h1 {
+  margin: 0; font-size: 1.12rem; font-weight: 700; letter-spacing: -.2px;
+  color: var(--cyan);
+}
+.brand .exam {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
+  color: var(--ink-3); letter-spacing: .4px;
+}
+
+.tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
+.tabs button {
+  appearance: none; border: 0; background: none; cursor: pointer;
+  font: 600 0.88rem var(--ui); color: var(--ink-2);
+  padding: 7px 14px; border-radius: 6px; white-space: nowrap;
+}
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--cyan); box-shadow: var(--shadow); }
+.tabs button:focus-visible, .btn:focus-visible, select:focus-visible,
+.row:focus-visible, .opt:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.btn {
+  appearance: none; cursor: pointer;
+  font: 600 0.88rem var(--ui);
+  padding: 8px 14px; border-radius: 7px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+}
+.btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn.primary { background: var(--cyan); border-color: var(--cyan); color: var(--surface); }
+.btn.primary:hover { filter: brightness(1.08); color: var(--surface); }
+.btn.good { border-color: var(--cyan); color: var(--cyan); }
+.btn.bad  { border-color: var(--magenta); color: var(--magenta); }
+
+main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
+
+.view[hidden] { display: none !important; }
+
+/* text size control */
+.tsize { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
+.tsize button {
+  appearance: none; border: 0; background: none; cursor: pointer;
+  color: var(--ink-2); font-family: var(--ui); font-weight: 700;
+  width: 32px; height: 30px; border-radius: 6px; line-height: 1;
+}
+.tsize button:hover { color: var(--cyan); }
+.tsize button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.tsize .sm { font-size: 0.78rem; }
+.tsize .lg { font-size: 1.05rem; }
+
+/* right/wrong tallies, on the summary bar and on each block header */
+.tally { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.tally b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tally .g { color: var(--cyan); }
+.tally .r { color: var(--magenta); }
+.sec > header .tally {
+  font-size: 0.74rem; font-weight: 600;
+  padding: 2px 7px; border-radius: 99px;
+  background: var(--surface); border: 1px solid var(--rule);
+}
+.sec > header .tagline { margin-left: auto; }
+.sec > header .tally + .tagline { margin-left: 0; }
+
+/* ---------------- shared bits ---------------- */
+
+.lede { color: var(--ink-2); font-size: 0.95rem; line-height: 1.65; max-width: 62ch; margin: 0 0 16px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: 600 0.74rem var(--ui); letter-spacing: .3px;
+  padding: 3px 9px; border-radius: 99px;
+  background: var(--surface-2); color: var(--ink-2);
+}
+.pill.t3 { background: var(--cyan-soft); color: var(--cyan); }
+.pill.t2 { background: var(--surface-2); color: var(--ink-2); }
+
+.yq { display: inline-flex; gap: 1.5px; vertical-align: 1px; flex: none; }
+.yq i { width: 3px; height: 9px; border-radius: 1px; background: var(--rule); display: block; }
+.y3 i { background: var(--cyan); }
+.y2 i:nth-child(-n+2) { background: var(--cyan); }
+.y1 i:nth-child(1) { background: var(--cyan); }
+
+.mk { font-weight: 700; font-size: 0.82rem; }
+.mk.trap { color: var(--amber); }
+.mk.alt  { color: var(--ink-3); font-weight: 400; }
+
+/* ---------------- poster board ---------------- */
+
+.board { columns: 3; column-gap: 18px; }
+@media (max-width: 1180px) { .board { columns: 2; } }
+@media (max-width: 720px)  { .board { columns: 1; } }
+
+.sec {
+  break-inside: avoid; page-break-inside: avoid;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin: 0 0 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.sec > header {
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+}
+.sec > header h3 {
+  margin: 0; font-size: 0.95rem; font-weight: 700;
+  letter-spacing: .01em; color: var(--cyan);
+}
+.sec > header .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
+
+.row {
+  display: grid;
+  grid-template-columns: 18px minmax(0,1fr) auto;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--rule-2);
+  align-items: start;
+}
+.sec .row:first-of-type { border-top: 0; }
+.row .pair { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: 10px; }
+@media (max-width: 520px) { .row .pair { grid-template-columns: 1fr; gap: 2px; } }
+
+.row .cue { font-size: 0.95rem; line-height: 1.5; color: var(--ink); display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.row .ans { font-size: 0.95rem; line-height: 1.5; font-weight: 700; color: var(--cyan); }
+.row.mono .ans { font-family: var(--mono); font-size: 0.9rem; }
+
+/* the line you just came back from, so the eye finds it without searching */
+.row.justleft {
+  outline: 3px solid var(--cyan);
+  outline-offset: -3px;
+  animation: settle 2.2s ease-out forwards;
+}
+@keyframes settle { 0%, 55% { outline-color: var(--cyan); } 100% { outline-color: transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .row.justleft { animation: none; outline-color: var(--cyan); }
+}
+
+/* a line is a button: tap it to drill just that topic */
+.row { cursor: pointer; border-left: 3px solid transparent; }
+.row:hover { background: var(--surface-2); }
+.row:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+.row .cue::after {
+  content: " ▸";
+  color: var(--ink-3); font-size: 0.8em; opacity: 0;
+}
+.row:hover .cue::after, .row:focus-visible .cue::after { opacity: 1; }
+
+/* Heat: the more a line has been missed, the louder it gets. The left edge
+   thickens and the cross count grows, so it is weight and size carrying the
+   signal as well as colour. */
+.row.bad  { border-left-color: var(--magenta); }
+.row.hot  { border-left-width: 6px; }
+.row.hot .rowtally .r { font-size: 1.05rem; }
+.row.hot .cue { font-weight: 600; }
+.needs {
+  display: inline-block; margin-left: 6px;
+  font: 700 0.74rem var(--ui); letter-spacing: .01em;
+  color: var(--magenta); background: var(--magenta-soft);
+  border: 1px solid var(--magenta); border-radius: 99px; padding: 1px 7px;
+  vertical-align: 1px;
+}
+
+/* a question the reviewers found fault with. Amber, bordered and labelled in
+   words, so it does not rely on noticing a colour. */
+.flag {
+  border: 1px solid var(--amber);
+  border-left: 5px solid var(--amber);
+  background: var(--amber-soft);
+  border-radius: 8px; padding: 10px 13px; margin-bottom: 14px;
+  font-size: 0.92rem; line-height: 1.6;
+}
+.flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
+.flag.sev-wrong { border-left-width: 7px; }
+
+/* what the terms in a question mean. Sits above the options, in the same place
+   every time, so the eye knows where to go. */
+.hintbtn { margin-bottom: 14px; }
+.terms {
+  margin: 0 0 16px;
+  border: 1px solid var(--rule);
+  border-left: 5px solid var(--violet);
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.terms h5 {
+  margin: 0; padding: 8px 13px 6px;
+  font-size: 0.8rem; font-weight: 700; color: var(--violet);
+}
+.terms dl { margin: 0; padding: 0 13px 11px; }
+.terms dt {
+  font-weight: 700; font-size: 0.92rem; color: var(--ink);
+  margin-top: 9px;
+}
+.terms dd {
+  margin: 2px 0 0; font-size: 0.9rem; line-height: 1.55;
+  color: var(--ink-2); max-width: 62ch;
+}
+.terms .none { padding: 0 13px 11px; font-size: 0.9rem; color: var(--ink-2); }
+
+/* banner naming the topic being drilled */
+.drill {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  background: var(--cyan-soft); border: 1px solid var(--cyan);
+  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px;
+}
+.drill .what { font-weight: 600; font-size: 0.95rem; }
+.drill .count { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-2); }
+.drill .btn { margin-left: auto; }
+
+/* per-line score: how many questions on this line you have had right and wrong */
+.rowtally {
+  align-self: start;
+  display: flex; gap: 6px;
+  font-family: var(--mono); font-size: 0.76rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap; padding-top: 1px;
+}
+.rowtally .g { color: var(--cyan); }
+.rowtally .r { color: var(--magenta); }
+.rowtally .z { color: var(--ink-3); font-weight: 400; }
+
+/* right / wrong marks: glyph + colour + edge, so hue is never the only cue */
+.state {
+  width: 18px; height: 18px; margin-top: 1px;
+  border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 0.75rem; font-weight: 700; line-height: 1;
+  border: 1px solid var(--rule);
+  color: var(--ink-3); background: var(--surface);
+  font-family: var(--mono);
+}
+.row.ok  .state { border-color: var(--cyan); background: var(--cyan-soft); color: var(--cyan); border-width: 1px; }
+.row.bad .state { border-color: var(--magenta); background: var(--magenta-soft); color: var(--magenta); border-width: 2px; }
+.row.bad { background: var(--magenta-soft); }
+.row.ok  { background: var(--cyan-soft); }
+
+.callout {
+  margin: 0; padding: 8px 12px;
+  border-top: 1px solid var(--rule-2);
+  background: var(--amber-soft);
+  border-left: 3px solid var(--amber);
+  font-size: 0.9rem; line-height: 1.6; color: var(--ink);
+}
+.note { padding: 8px 12px; border-top: 1px solid var(--rule-2); font-size: 0.92rem; line-height: 1.6; }
+
+/* ---------------- practice ---------------- */
+
+.practice-wrap { max-width: 820px; margin: 0 auto; }
+
+.picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+select {
+  font: 500 0.9rem var(--ui); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 7px; padding: 7px 10px;
+}
+
+.card {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 20px; margin-bottom: 14px;
+}
+.qmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.78rem; color: var(--ink-3); }
+.qmeta .count { font-family: var(--mono); font-weight: 600; color: var(--ink-2); }
+.qmeta .qid {
+  font-family: var(--mono); font-weight: 600; font-size: 0.78rem;
+  color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 2px 8px;
+  letter-spacing: .02em;
+}
+/* where the answer sat in the original source, kept for traceability */
+.reveal .src { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); margin-top: 8px; }
+.qtext { font-size: 1.05rem; line-height: 1.75; max-width: 62ch; white-space: pre-wrap; margin: 0 0 16px; }
+
+.opts { display: grid; gap: 7px; margin-bottom: 14px; }
+.opt {
+  text-align: left; cursor: pointer;
+  font: 400 0.97rem/1.6 var(--ui); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 12px 14px;
+}
+.opt:hover:not(:disabled) { border-color: var(--cyan); }
+.opt:disabled { cursor: default; }
+.opt.pick-ok  { border-color: var(--cyan); border-width: 2px; background: var(--cyan-soft); }
+.opt.pick-bad { border-color: var(--magenta); border-width: 2px; background: var(--magenta-soft); }
+
+.reveal { border-top: 1px solid var(--rule); margin-top: 14px; padding-top: 14px; }
+.reveal h4 { margin: 0 0 6px; font-size: 0.8rem; font-weight: 700; color: var(--ink-3); }
+.reveal .ansbox { font-size: 1rem; font-weight: 600; color: var(--cyan); margin-bottom: 10px; }
+.reveal .why { font-size: 0.95rem; line-height: 1.7; max-width: 62ch; color: var(--ink-2); white-space: pre-wrap; }
+
+.selfmark { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+.scorebar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 0.88rem; color: var(--ink-2); }
+.scorebar b { font-family: var(--mono); color: var(--ink); }
+
+/* ---------------- progress ---------------- */
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; margin-bottom: 22px; }
+.stat { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px 16px; }
+.stat .n { font: 600 1.75rem var(--mono); color: var(--cyan); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 0.82rem; color: var(--ink-3); margin-top: 3px; }
+
+.barlist { display: grid; gap: 9px; }
+.barrow { display: grid; grid-template-columns: minmax(130px, 200px) 1fr auto; gap: 12px; align-items: center; font-size: 0.92rem; }
+@media (max-width: 560px) { .barrow { grid-template-columns: 1fr; gap: 3px; } }
+.bar { height: 16px; background: var(--surface-2); border-radius: 4px; overflow: hidden; display: flex; border: 1px solid var(--rule); }
+.bar .ok  { background: var(--cyan); }
+.bar .bad { background: var(--magenta); }
+.barrow .num { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+.weak { display: grid; gap: 6px; }
+.weakrow {
+  display: flex; gap: 10px; align-items: baseline; justify-content: space-between;
+  padding: 8px 12px; background: var(--surface);
+  border: 1px solid var(--rule); border-left: 3px solid var(--magenta);
+  border-radius: 7px; font-size: 0.92rem;
+}
+.weakrow .n { font-family: var(--mono); font-size: 0.82rem; color: var(--magenta); font-weight: 600; white-space: nowrap; }
+
+textarea {
+  width: 100%; min-height: 120px; resize: vertical;
+  font: 400 0.82rem var(--mono); color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 10px;
+}
+
+h2.sub { font-size: 1.08rem; margin: 26px 0 10px; letter-spacing: -.1px; }
+h2.sub:first-child { margin-top: 0; }
+
+/* ---------------- storage warning + modal ---------------- */
+
+.warnstrip {
+  background: var(--amber-soft);
+  border-bottom: 1px solid var(--amber);
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+.warnstrip-in {
+  max-width: 1680px; margin: 0 auto; padding: 8px 16px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.warnstrip b { color: var(--amber); }
+.warnstrip .btn { padding: 6px 11px; font-size: 0.82rem; }
+
+.modal-back {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(8, 14, 16, .55);
+  /* flex + margin:auto on the panel, rather than place-items:center, because
+     centring a scrollable overflow clips its top edge out of reach. */
+  display: flex;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.modal {
+  margin: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--amber);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+  max-width: 540px; width: 100%;
+  padding: 22px;
+}
+.modal { position: relative; }
+.modal h2 { margin: 0 36px 10px 0; font-size: 1.15rem; letter-spacing: -.2px; }
+.modal .x {
+  position: absolute; top: 10px; right: 10px;
+  width: 32px; height: 32px; line-height: 1;
+  display: grid; place-items: center;
+  font-size: 20px; font-family: var(--mono);
+  border-radius: 7px; border: 1px solid var(--rule);
+  background: var(--surface); color: var(--ink-2); cursor: pointer;
+}
+.modal .x:hover { border-color: var(--magenta); color: var(--magenta); }
+.modal p { margin: 0 0 12px; font-size: 0.96rem; line-height: 1.65; color: var(--ink-2); }
+.modal p.tight { margin-bottom: 7px; }
+.modal ul { margin: 0 0 14px; padding-left: 22px; font-size: 0.95rem; line-height: 1.7; color: var(--ink-2); }
+.modal li { margin-bottom: 4px; }
+.modal .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.modal textarea { min-height: 96px; margin-top: 12px; }
+
+footer {
+  max-width: 1680px; margin: 0 auto; padding: 22px 16px 40px;
+  border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 0.78rem;
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline;
+}
+footer .v { font-family: var(--mono); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <h1>SAA-C03 Recall Board</h1>
+      <span class="exam" id="examTag"></span>
+    </div>
+    <div class="tsize" role="group" aria-label="Text size">
+      <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
+      <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-poster"   aria-selected="true"  aria-controls="view-poster">Poster</button>
+      <button role="tab" id="tab-practice" aria-selected="false" aria-controls="view-practice">Practice</button>
+      <button role="tab" id="tab-progress" aria-selected="false" aria-controls="view-progress">Progress</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- ============ POSTER ============ -->
+  <section class="view" id="view-poster" role="tabpanel" aria-labelledby="tab-poster">
+    <p class="lede">
+      Cue on the left, answer on the right. The bars show how often the question bank actually asks
+      about that concept &mdash; <span class="yq y3"><i></i><i></i><i></i></span> a lot,
+      <span class="yq y1"><i></i><i></i><i></i></span> thinly. <span class="mk trap">&dagger;</span> marks a trap,
+      <span class="mk alt">&asymp;</span> marks something the exam likes to reword.
+      The figures on the right of each line are <b>your own score on that topic</b>
+      &mdash; <b style="color:var(--cyan)">&check;</b> questions right and
+      <b style="color:var(--magenta)">&times;</b> wrong &mdash; and they build up every
+      time you answer a question that touches it. A line with more crosses than ticks
+      is tinted, and each block header carries the same count for the whole block.
+      <b>Tap any line to drill just that topic.</b> Lines marked
+      <span class="needs">needs work</span> are the ones to go at first.
+    </p>
+    <div class="picker">
+      <button class="btn" id="posterFilterAll">Show all rows</button>
+      <button class="btn" id="posterFilterMissed">Only what I missed</button>
+      <span class="scorebar" id="posterSummary"></span>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- ============ PRACTICE ============ -->
+  <section class="view" id="view-practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <div class="practice-wrap">
+      <div class="picker">
+        <label for="areaSel" style="font-size:13px;color:var(--ink-2)">Category</label>
+        <select id="areaSel"></select>
+        <button class="btn primary" id="startBtn">Start</button>
+        <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
+      </div>
+      <div id="drillBanner" hidden></div>
+      <div class="scorebar" id="practiceScore" style="margin-bottom:14px"></div>
+      <div id="qhost"></div>
+    </div>
+  </section>
+
+  <!-- ============ PROGRESS ============ -->
+  <section class="view" id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
+    <div class="stats" id="statCards"></div>
+
+    <h2 class="sub">By category</h2>
+    <div class="barlist" id="areaBars"></div>
+
+    <h2 class="sub">Weakest concepts</h2>
+    <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
+    <div class="weak" id="weakList"></div>
+
+    <h2 class="sub">Your progress file</h2>
+    <p class="lede">
+      Progress is kept in this browser only. Export it to move to another device or to keep a
+      snapshot before a reset.
+    </p>
+    <div class="picker">
+      <button class="btn primary" id="exportBtn">Export progress</button>
+      <button class="btn" id="importBtn">Import from box below</button>
+      <button class="btn bad" id="resetBtn">Reset all progress</button>
+    </div>
+    <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Paste a progress file in and press Import."></textarea>
+  </section>
+</main>
+
+<footer>
+  <span class="v" id="buildInfo"></span>
+  <span id="dataInfo"></span>
+  <span>Progress stored in this browser only.</span>
+</footer>
+
+<div class="modal-back" id="storageModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="smTitle" aria-describedby="smBody">
+    <button class="x" id="smClose" aria-label="Close and carry on">&times;</button>
+    <h2 id="smTitle">This browser will not save your progress</h2>
+    <div id="smBody">
+      <p class="tight">The board keeps your answers in this browser's local storage, and this browser
+        is refusing it. That usually means one of:</p>
+      <ul>
+        <li>a private or incognito window</li>
+        <li>site data turned off, or blocked for this site</li>
+        <li>storage already full</li>
+      </ul>
+      <p><b>Everything still works</b> &mdash; drill as normal. But when you close this tab, your
+        answers go with it. Export the file before you finish and import it next time.</p>
+    </div>
+    <div class="acts">
+      <button class="btn primary" id="smExport">Download my progress</button>
+      <button class="btn" id="smDismiss">Carry on without saving</button>
+    </div>
+    <textarea id="smBox" spellcheck="false" hidden
+      placeholder="Your progress file appears here. Copy it somewhere safe."></textarea>
+  </div>
+</div>
+
+<script id="appdata" type="application/json">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+
+  var DATA = JSON.parse(document.getElementById("appdata").textContent);
+  var APP_VERSION = "__APP_VERSION__";
+  var BUILD_DATE  = "__BUILD_DATE__";
+  var STORE_KEY   = "saa-c03-recall-board/v1";
+
+  // ---------- storage (always guarded: can throw or return empty) ----------
+  // Probe before trusting it. A private window, blocked site data or a full
+  // quota all present as a throw, and some browsers accept the write then hand
+  // back nothing, so the probe reads its own value back.
+  var storageOK = (function () {
+    try {
+      var k = STORE_KEY + "/probe";
+      localStorage.setItem(k, "1");
+      var v = localStorage.getItem(k);
+      localStorage.removeItem(k);
+      return v === "1";
+    } catch (e) { return false; }
+  })();
+
+  function blankState() {
+    return { concepts: {}, rows: {}, sections: {}, questions: {},
+             seen: 0, right: 0, wrong: 0, started: null };
+  }
+
+  function loadState() {
+    var base = blankState();
+    if (!storageOK) return base;
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return base;
+      var p = JSON.parse(raw);
+      return {
+        concepts:  p.concepts  || {},
+        rows:      p.rows      || {},   // added in 1.2: per-line scores
+        sections:  p.sections  || {},
+        questions: p.questions || {},
+        seen:  p.seen  || 0,
+        right: p.right || 0,
+        wrong: p.wrong || 0,
+        started: p.started || null
+      };
+    } catch (e) { return base; }
+  }
+
+  // Returns false when the answer did not reach disk, so the caller can warn.
+  function saveState() {
+    if (!storageOK) return false;
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(S));
+      return true;
+    } catch (e) {
+      storageOK = false;      // quota can fill up mid-session
+      showStorageWarning();
+      return false;
+    }
+  }
+
+  var S = loadState();
+  if (!S.started) S.started = new Date().toISOString().slice(0, 10);
+
+  // ---------- helpers ----------
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // A tick count and a cross count, side by side.
+  function tally(right, wrong, withWords) {
+    var t = el("span", "tally");
+    var g = el("b", "g", "✓ " + right);
+    var r = el("b", "r", "✕ " + wrong);
+    t.appendChild(g);
+    if (withWords) t.appendChild(el("span", null, "right"));
+    t.appendChild(r);
+    if (withWords) t.appendChild(el("span", null, "missed"));
+    return t;
+  }
+
+  // ---------- text size ----------
+  var TS_KEY = STORE_KEY + "/textsize";
+  var TS_STEPS = [0.9, 1, 1.15, 1.3, 1.5];
+  var tsIdx = 1;
+  try {
+    var saved = parseInt(localStorage.getItem(TS_KEY), 10);
+    if (saved >= 0 && saved < TS_STEPS.length) tsIdx = saved;
+  } catch (e) { /* no storage: start at the default */ }
+
+  function applyTextSize() {
+    document.documentElement.style.setProperty("--ts", String(TS_STEPS[tsIdx]));
+    document.getElementById("tsDown").disabled = tsIdx === 0;
+    document.getElementById("tsUp").disabled = tsIdx === TS_STEPS.length - 1;
+    try { localStorage.setItem(TS_KEY, String(tsIdx)); } catch (e) { /* fine */ }
+  }
+  document.getElementById("tsDown").addEventListener("click", function () {
+    if (tsIdx > 0) { tsIdx--; applyTextSize(); }
+  });
+  document.getElementById("tsUp").addEventListener("click", function () {
+    if (tsIdx < TS_STEPS.length - 1) { tsIdx++; applyTextSize(); }
+  });
+  applyTextSize();
+  function yq(tier) {
+    var s = el("span", "yq y" + tier);
+    for (var i = 0; i < 3; i++) s.appendChild(el("i"));
+    return s;
+  }
+  // A concept counts as "known" once right answers outnumber wrong ones.
+  function conceptState(key) {
+    var c = S.concepts[key];
+    if (!c || (!c.r && !c.w)) return "";
+    return c.r > c.w ? "ok" : "bad";
+  }
+
+  // Which rows and which blocks a question touches. Built once: a question and
+  // a row are related when they share a concept. A row is counted once per
+  // question even when several concepts connect them.
+  var CONCEPT_ROWS = {};   // concept -> [rowId]
+  var CONCEPT_SECS = {};   // concept -> [sectionKey]
+  DATA.sections.forEach(function (sec) {
+    sec.rows.forEach(function (r) {
+      r.c.forEach(function (k) {
+        (CONCEPT_ROWS[k] || (CONCEPT_ROWS[k] = [])).push(r.id);
+        var list = CONCEPT_SECS[k] || (CONCEPT_SECS[k] = []);
+        if (list.indexOf(sec.key) < 0) list.push(sec.key);
+      });
+    });
+  });
+
+  function score(bucket, key) {
+    var s = bucket[key];
+    return s ? s : { r: 0, w: 0 };
+  }
+  function rowScore(row) { return score(S.rows, row.id); }
+
+  // A line is solid once right beats wrong, shaky as soon as it has been
+  // missed more often than not.
+  function rowState(row) {
+    var s = rowScore(row);
+    if (!s.r && !s.w) return "";
+    return s.r > s.w ? "ok" : "bad";
+  }
+
+  // ---------- poster ----------
+  var board = document.getElementById("board");
+  var onlyMissed = false;
+
+  function renderBoard() {
+    board.textContent = "";
+    var shown = 0, okN = 0, badN = 0;
+
+    // When hunting gaps, float the weakest blocks to the top as well as the
+    // weakest lines inside them, so the worst thing on the board is the first
+    // thing read. Normal view keeps the teaching order.
+    var ordered = DATA.sections;
+    if (onlyMissed) {
+      ordered = DATA.sections.slice().sort(function (a, b) {
+        function worst(sec) {
+          var d = 0;
+          sec.rows.forEach(function (r) {
+            var s = rowScore(r);
+            if (s.w > s.r) d = Math.max(d, s.w - s.r);
+          });
+          return d;
+        }
+        return worst(b) - worst(a);
+      });
+    }
+
+    ordered.forEach(function (sec) {
+      var secOk = 0, secBad = 0;
+      var rows = sec.rows.filter(function (r) {
+        var st = rowState(r);
+        if (st === "ok") { okN++; secOk++; }
+        if (st === "bad") { badN++; secBad++; }
+        return onlyMissed ? st === "bad" : true;
+      });
+      if (!rows.length && (onlyMissed || (!sec.notes.length && !sec.traps.length))) return;
+      if (onlyMissed && !rows.length) return;
+
+      var box = el("div", "sec");
+      var head = el("header");
+      head.appendChild(el("h3", null, sec.title));
+      // Questions answered on this block, counted once each however many lines
+      // in the block they touched.
+      var ss = score(S.sections, sec.key);
+      if (ss.r || ss.w) head.appendChild(tally(ss.r, ss.w, false));
+      if (sec.tagline) head.appendChild(el("span", "tagline", sec.tagline));
+      box.appendChild(head);
+
+      // Worst first when filtering to misses, so the biggest holes come first.
+      if (onlyMissed) {
+        rows = rows.slice().sort(function (a, b) {
+          var sa = rowScore(a), sb = rowScore(b);
+          return (sb.w - sb.r) - (sa.w - sa.r);
+        });
+      }
+
+      rows.forEach(function (r) {
+        shown++;
+        var st = rowState(r);
+        var sc0 = rowScore(r);
+        // "Needs work" once a line has been missed at least three times and is
+        // still being missed more often than not.
+        var hot = st === "bad" && sc0.w >= 3;
+        var row = el("div", "row" + (st ? " " + st : "") + (hot ? " hot" : ""));
+        row.dataset.row = r.id;
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-label", "Practise: " + r.cue);
+        row.addEventListener("click", function () { drillRow(r); });
+        row.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drillRow(r); }
+        });
+        var mark = el("div", "state", st === "ok" ? "✓" : (st === "bad" ? "✕" : ""));
+        row.appendChild(mark);
+
+        var pair = el("div", "pair");
+        var cue = el("div", "cue");
+        if (r.tier) cue.appendChild(yq(r.tier));
+        cue.appendChild(el("span", null, r.cue));
+        if (r.trap) cue.appendChild(el("span", "mk trap", "†"));
+        if (r.alt)  cue.appendChild(el("span", "mk alt", "≈"));
+        if (hot)    cue.appendChild(el("span", "needs", "needs work"));
+        pair.appendChild(cue);
+        pair.appendChild(el("div", "ans", r.ans));
+        row.appendChild(pair);
+
+        // How this one line has gone: questions on this topic, right and wrong.
+        var sc = rowScore(r);
+        var rt = el("div", "rowtally");
+        if (sc.r || sc.w) {
+          rt.appendChild(el("span", "g", "✓" + sc.r));
+          rt.appendChild(el("span", "r", "✕" + sc.w));
+          rt.title = sc.r + " right, " + sc.w + " missed on this topic";
+        } else {
+          rt.appendChild(el("span", "z", "–"));
+          rt.title = "No questions answered on this topic yet";
+        }
+        row.appendChild(rt);
+
+        box.appendChild(row);
+      });
+
+      if (!onlyMissed) {
+        sec.traps.forEach(function (t) { box.appendChild(el("p", "callout", t)); });
+        sec.notes.forEach(function (n) { box.appendChild(el("div", "note", n)); });
+      }
+      board.appendChild(box);
+    });
+
+    if (onlyMissed && !shown) {
+      var empty = el("div", "card");
+      empty.appendChild(el("p", null,
+        badN ? "Nothing matches." : "Nothing missed yet. Answer some practice questions and the gaps will show up here."));
+      board.appendChild(empty);
+    }
+
+    // Two different counts, and they answer different questions, so both show:
+    // how many questions you have actually answered, and how much of the board
+    // those answers have settled.
+    var sum = document.getElementById("posterSummary");
+    sum.textContent = "";
+    var total = DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0);
+
+    if (S.seen) {
+      var pct = Math.round(100 * S.right / S.seen);
+      var ans = el("span");
+      ans.appendChild(el("b", null, String(S.seen)));
+      ans.appendChild(document.createTextNode(" answered"));
+      sum.appendChild(ans);
+      sum.appendChild(tally(S.right, S.wrong, true));
+      sum.appendChild(el("span", null, pct + "% right"));
+    } else {
+      sum.appendChild(el("span", null, "No questions answered yet"));
+    }
+
+    var rowsInfo = el("span");
+    rowsInfo.appendChild(el("b", null, String(okN + badN)));
+    rowsInfo.appendChild(document.createTextNode(" of " + total + " rows covered"));
+    sum.appendChild(rowsInfo);
+  }
+
+  document.getElementById("posterFilterAll").addEventListener("click", function () {
+    onlyMissed = false; renderBoard();
+  });
+  document.getElementById("posterFilterMissed").addEventListener("click", function () {
+    onlyMissed = true; renderBoard();
+  });
+
+  // ---------- practice ----------
+  var areaSel = document.getElementById("areaSel");
+  var qhost = document.getElementById("qhost");
+  var queue = [], qi = 0, answered = false;
+
+  (function fillAreas() {
+    var counts = {};
+    DATA.questions.forEach(function (q) { counts[q.area] = (counts[q.area] || 0) + 1; });
+    var opts = [["__all", "Everything (" + DATA.questions.length + ")"]];
+    Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })
+      .forEach(function (a) {
+        opts.push([a, (DATA.areaTitles[a] || a) + " (" + counts[a] + ")"]);
+      });
+    opts.push(["__weak", "Just my weak spots"]);
+    opts.forEach(function (o) {
+      var n = el("option", null, o[1]); n.value = o[0]; areaSel.appendChild(n);
+    });
+  })();
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  // When set, the queue is the questions for one poster line rather than a
+  // whole category. Cleared by Start, Shuffle, or the banner's own button.
+  var drilling = null;
+  var drillBanner = document.getElementById("drillBanner");
+
+  function questionsForRow(row) {
+    return DATA.questions.filter(function (q) {
+      return q.c.some(function (k) { return row.c.indexOf(k) >= 0; });
+    });
+  }
+
+  function renderDrillBanner() {
+    drillBanner.textContent = "";
+    if (!drilling) { drillBanner.hidden = true; return; }
+    drillBanner.hidden = false;
+    var box = el("div", "drill");
+    var what = el("div", "what", drilling.cue);
+    box.appendChild(what);
+    var sc = rowScore(drilling);
+    box.appendChild(el("span", "count",
+      queue.length + (queue.length === 1 ? " question" : " questions") +
+      " · so far ✓" + sc.r + " ✕" + sc.w));
+    var back = el("button", "btn", "Drill everything instead");
+    back.addEventListener("click", function () {
+      drilling = null; buildQueue(); renderDrillBanner(); renderQuestion();
+    });
+    box.appendChild(back);
+    drillBanner.appendChild(box);
+  }
+
+  function drillRow(row) {
+    var list = questionsForRow(row);
+    if (!list.length) {
+      drilling = null;
+      renderDrillBanner();
+      window.alert("No questions in the bank touch “" + row.cue +
+        "” yet. It is still on the exam guide, so learn the line itself — " +
+        "the bank is thin here, not the exam.");
+      return;
+    }
+    drilling = row;
+    cameFromRow = row.id;
+    queue = shuffle(list);
+    qi = 0;
+    // Practice starts at the top because it is a fresh question; the poster's
+    // own position is kept and restored when you go back.
+    scrollPos["view-practice"] = 0;
+    document.getElementById("tab-practice").click();
+    renderDrillBanner();
+    renderQuestion();
+  }
+
+  function buildQueue() {
+    drilling = null;
+    var pick = areaSel.value;
+    var list;
+    if (pick === "__all") {
+      list = DATA.questions.slice();
+    } else if (pick === "__weak") {
+      list = DATA.questions.filter(function (q) {
+        return q.c.some(function (k) { return conceptState(k) === "bad"; });
+      });
+      if (!list.length) list = DATA.questions.slice();
+    } else {
+      list = DATA.questions.filter(function (q) { return q.area === pick; });
+    }
+    queue = shuffle(list);
+    qi = 0;
+    renderDrillBanner();
+  }
+
+  function record(q, ok) {
+    // A question the reviewers found wrong teaches nothing, so it is shown but
+    // never scored: counting it would put a cross on a line you actually know.
+    if (q.flag && q.flag.kind === "wrong") { updateScore(); return; }
+    S.seen++;
+    if (ok) S.right++; else S.wrong++;
+    S.questions[q.id] = ok ? 1 : 0;
+
+    var rowsHit = {}, secsHit = {};
+    q.c.forEach(function (k) {
+      var c = S.concepts[k] || { r: 0, w: 0 };
+      if (ok) c.r++; else c.w++;
+      S.concepts[k] = c;
+
+      (CONCEPT_ROWS[k] || []).forEach(function (id) { rowsHit[id] = 1; });
+      (CONCEPT_SECS[k] || []).forEach(function (key) { secsHit[key] = 1; });
+    });
+
+    // One question moves each related line and each related block by one, not
+    // by the number of concepts that happened to connect them.
+    Object.keys(rowsHit).forEach(function (id) {
+      var s = S.rows[id] || { r: 0, w: 0 };
+      if (ok) s.r++; else s.w++;
+      S.rows[id] = s;
+    });
+    Object.keys(secsHit).forEach(function (key) {
+      var s = S.sections[key] || { r: 0, w: 0 };
+      if (ok) s.r++; else s.w++;
+      S.sections[key] = s;
+    });
+
+    saveState();
+    maybeRepromptStorage();
+    updateScore();
+  }
+
+  function updateScore() {
+    var s = document.getElementById("practiceScore");
+    s.textContent = "";
+    if (!queue.length) { s.textContent = "Pick a category and press Start."; return; }
+    var parts = [
+      ["Question", (Math.min(qi + 1, queue.length)) + " of " + queue.length],
+      ["Right", String(S.right)],
+      ["Missed", String(S.wrong)]
+    ];
+    parts.forEach(function (p) {
+      var w = el("span");
+      w.appendChild(document.createTextNode(p[0] + " "));
+      w.appendChild(el("b", null, p[1]));
+      s.appendChild(w);
+    });
+  }
+
+  function renderQuestion() {
+    qhost.textContent = "";
+    answered = false;
+    if (!queue.length) return;
+    if (qi >= queue.length) {
+      var done = el("div", "card");
+      done.appendChild(el("h2", "sub", "Set finished"));
+      if (drilling) {
+        var sc = rowScore(drilling);
+        done.appendChild(el("p", "lede",
+          "That is every question in the bank touching “" + drilling.cue +
+          "”. You are now ✓" + sc.r + " ✕" + sc.w + " on it."));
+      } else {
+        done.appendChild(el("p", "lede",
+          "You worked through " + queue.length +
+          " questions. The Poster tab now shows your score against every line you touched."));
+      }
+      var again = el("button", "btn primary", drilling ? "Go round again" : "Go again");
+      again.addEventListener("click", function () {
+        if (drilling) { queue = shuffle(queue); qi = 0; renderDrillBanner(); }
+        else { buildQueue(); }
+        renderQuestion();
+      });
+      done.appendChild(again);
+      if (drilling) {
+        var all = el("button", "btn", "Drill everything instead");
+        all.style.marginLeft = "8px";
+        all.addEventListener("click", function () {
+          drilling = null; buildQueue(); renderDrillBanner(); renderQuestion();
+        });
+        done.appendChild(all);
+      }
+      qhost.appendChild(done);
+      return;
+    }
+
+    var q = queue[qi];
+    var card = el("div", "card");
+
+    var meta = el("div", "qmeta");
+    // A stable reference, so a question can be looked up in the bank or quoted
+    // back when something about it looks wrong.
+    var ref = el("span", "qid", q.id);
+    ref.title = "Question reference — quote this if the question looks wrong";
+    meta.appendChild(ref);
+    meta.appendChild(el("span", "pill", DATA.areaTitles[q.area] || q.area));
+    if (q.dom) meta.appendChild(el("span", "pill", q.dom));
+    card.appendChild(meta);
+
+    if (q.flag) {
+      var fl = el("div", "flag sev-" + q.flag.kind);
+      fl.appendChild(el("b", "what",
+        q.flag.kind === "wrong" ? "Heads up — the answer below is wrong"
+        : q.flag.kind === "stale" ? "Heads up — the answer below is out of date"
+        : "Heads up — the explanation below is unreliable"));
+      fl.appendChild(el("span", null, q.flag.note));
+      card.appendChild(fl);
+    }
+
+    card.appendChild(el("p", "qtext", q.q));
+
+    // A hint explains the services the question names. It never says which
+    // option is right: that would answer the question instead of teaching it.
+    if (q.t && q.t.length && DATA.glossary) {
+      var termsBox = el("div", "terms");
+      termsBox.hidden = true;
+      termsBox.appendChild(el("h5", null, "What these mean"));
+      var dl = document.createElement("dl");
+      q.t.forEach(function (name) {
+        var what = DATA.glossary[name];
+        if (!what) return;
+        var dt = el("dt", null, name);
+        var dd = el("dd", null, what);
+        dl.appendChild(dt); dl.appendChild(dd);
+      });
+      termsBox.appendChild(dl);
+
+      var hint = el("button", "btn hintbtn",
+        "Explain the terms (" + q.t.length + ")");
+      hint.setAttribute("aria-expanded", "false");
+      hint.addEventListener("click", function () {
+        var open = termsBox.hidden;
+        termsBox.hidden = !open;
+        hint.setAttribute("aria-expanded", String(open));
+        hint.textContent = open ? "Hide the terms" : "Explain the terms (" + q.t.length + ")";
+      });
+      card.appendChild(hint);
+      card.appendChild(termsBox);
+    }
+
+    var reveal = el("div", "reveal");
+    reveal.hidden = true;
+    reveal.appendChild(el("h4", null, "Answer"));
+    var ansbox = el("div", "ansbox", q.a);
+    reveal.appendChild(ansbox);
+    if (q.why) reveal.appendChild(el("div", "why", q.why));
+
+    // Letters of the correct answer, e.g. "B. foo; D. bar" -> ["B","D"].
+    var answerLetters = (q.a.match(/(?:^|;\s*)([A-E])\./g) || [])
+      .map(function (s) { return s.replace(/[^A-E]/g, ""); });
+
+    // Offer real multiple choice only when the source gave us the distractors
+    // AND exactly one option is right: a single click cannot express "pick two".
+    if (q.opts && q.opts.length && answerLetters.length === 1) {
+      // Strip the source letter, shuffle, then letter them afresh from A in the
+      // order shown. Without the re-lettering the options appear out of
+      // sequence (C, A, D, B), which looks broken and tells you where the
+      // right answer sat in the original. Correctness is tracked on the option
+      // itself, never on the letter the reader sees.
+      var LETTERS = "ABCDEFGH";
+      var pool = q.opts.map(function (t) {
+        var m = t.match(/^\s*([A-E])[.)]\s*([\s\S]*)$/);
+        return { src: m ? m[1] : "", text: (m ? m[2] : t).trim() };
+      });
+      shuffle(pool);
+      pool.forEach(function (o, i) { o.shown = LETTERS[i]; });
+
+      var right = null;
+      for (var pi = 0; pi < pool.length; pi++) {
+        if (pool[pi].src === answerLetters[0]) { right = pool[pi]; break; }
+      }
+      // Show the answer under the letter the reader actually saw.
+      if (right) {
+        ansbox.textContent = right.shown + ". " + right.text;
+        reveal.appendChild(el("div", "src",
+          q.id + "  ·  shown as " + right.shown + ", option " + right.src + " in the source"));
+      }
+
+      var opts = el("div", "opts");
+      pool.forEach(function (o) {
+        var b = el("button", "opt", o.shown + ". " + o.text);
+        b.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var ok = right ? o === right : false;
+          b.classList.add(ok ? "pick-ok" : "pick-bad");
+          Array.prototype.forEach.call(opts.children, function (c) { c.disabled = true; });
+          if (!ok && right) {
+            for (var k = 0; k < opts.children.length; k++) {
+              if (pool[k] === right) opts.children[k].classList.add("pick-ok");
+            }
+          }
+          reveal.hidden = false;
+          record(q, ok);
+          nextBtn.hidden = false;
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+      card.appendChild(reveal);
+    } else {
+      // No distractors, or more than one right answer: an honest self-mark
+      // rather than a made-up multiple choice.
+      var showBtn = el("button", "btn primary", "Show the answer");
+      var marks = el("div", "selfmark");
+      marks.hidden = true;
+      var good = el("button", "btn good", "✓  I had it");
+      var bad  = el("button", "btn bad",  "✕  I missed it");
+      [[good, true], [bad, false]].forEach(function (pair) {
+        pair[0].addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          good.disabled = bad.disabled = true;
+          record(q, pair[1]);
+          nextBtn.hidden = false;
+        });
+      });
+      marks.appendChild(good); marks.appendChild(bad);
+      showBtn.addEventListener("click", function () {
+        reveal.hidden = false;
+        marks.hidden = false;
+        showBtn.hidden = true;
+      });
+      card.appendChild(showBtn);
+      card.appendChild(reveal);
+      card.appendChild(marks);
+    }
+
+    var nextBtn = el("button", "btn primary", "Next question");
+    nextBtn.hidden = true;
+    nextBtn.style.marginTop = "14px";
+    nextBtn.addEventListener("click", function () {
+      qi++; renderQuestion(); renderBoard();
+      if (drilling) renderDrillBanner();
+    });
+    card.appendChild(nextBtn);
+
+    qhost.appendChild(card);
+    updateScore();
+  }
+
+  document.getElementById("startBtn").addEventListener("click", function () {
+    buildQueue(); renderQuestion();
+  });
+  document.getElementById("shuffleBtn").addEventListener("click", function () {
+    buildQueue(); renderQuestion();
+  });
+
+  // ---------- progress ----------
+  function renderProgress() {
+    var cards = document.getElementById("statCards");
+    cards.textContent = "";
+    var known = 0, shaky = 0;
+    Object.keys(S.concepts).forEach(function (k) {
+      var st = conceptState(k);
+      if (st === "ok") known++; else if (st === "bad") shaky++;
+    });
+    var pct = S.seen ? Math.round(100 * S.right / S.seen) : 0;
+    [[S.seen, "questions answered"],
+     [pct + "%", "answered correctly"],
+     [known, "concepts solid"],
+     [shaky, "concepts shaky"],
+     [DATA.questions.length - Object.keys(S.questions).length, "questions untouched"]
+    ].forEach(function (s) {
+      var c = el("div", "stat");
+      c.appendChild(el("div", "n", String(s[0])));
+      c.appendChild(el("div", "l", s[1]));
+      cards.appendChild(c);
+    });
+
+    // per-area right/wrong
+    var byArea = {};
+    DATA.questions.forEach(function (q) {
+      if (!(q.id in S.questions)) return;
+      var a = byArea[q.area] || (byArea[q.area] = { r: 0, w: 0 });
+      if (S.questions[q.id]) a.r++; else a.w++;
+    });
+    var bars = document.getElementById("areaBars");
+    bars.textContent = "";
+    var areas = Object.keys(byArea).sort(function (x, y) {
+      var ax = byArea[x], ay = byArea[y];
+      return (ax.r / (ax.r + ax.w)) - (ay.r / (ay.r + ay.w));
+    });
+    if (!areas.length) {
+      bars.appendChild(el("p", "lede", "Nothing answered yet."));
+    }
+    areas.forEach(function (a) {
+      var d = byArea[a], tot = d.r + d.w;
+      var row = el("div", "barrow");
+      row.appendChild(el("div", null, DATA.areaTitles[a] || a));
+      var bar = el("div", "bar");
+      var okb = el("div", "ok"); okb.style.width = (100 * d.r / tot) + "%";
+      var bdb = el("div", "bad"); bdb.style.width = (100 * d.w / tot) + "%";
+      bar.appendChild(okb); bar.appendChild(bdb);
+      row.appendChild(bar);
+      row.appendChild(el("div", "num", d.r + "/" + tot));
+      bars.appendChild(row);
+    });
+
+    var weak = document.getElementById("weakList");
+    weak.textContent = "";
+    var ranked = Object.keys(S.concepts)
+      .map(function (k) { return { k: k, c: S.concepts[k] }; })
+      .filter(function (x) { return x.c.w > 0; })
+      .sort(function (a, b) { return (b.c.w - b.c.r) - (a.c.w - a.c.r); })
+      .slice(0, 18);
+    if (!ranked.length) {
+      weak.appendChild(el("p", "lede", "Nothing missed yet."));
+    }
+    ranked.forEach(function (x) {
+      var r = el("div", "weakrow");
+      r.appendChild(el("span", null, x.k));
+      r.appendChild(el("span", "n", x.c.r + " right / " + x.c.w + " missed"));
+      weak.appendChild(r);
+    });
+  }
+
+  // ---------- export / import ----------
+  var ioBox = document.getElementById("ioBox");
+
+  function buildExport() {
+    return JSON.stringify({
+      app: "SAA-C03 Recall Board",
+      appVersion: APP_VERSION,
+      dataVersion: DATA.version,
+      exported: new Date().toISOString(),
+      progress: S
+    }, null, 1);
+  }
+
+  // Fills the given box with the progress file, and additionally offers a real
+  // download when the runtime allows one. The box is filled either way, so
+  // export never depends on the download succeeding.
+  async function exportProgress(box) {
+    var payload = buildExport();
+    if (box) { box.hidden = false; box.value = payload; }
+    var name = "saa-c03-progress-" + new Date().toISOString().slice(0, 10) + ".json";
+
+    // Two ways to hand over a file, tried in order. Inside the claude.ai viewer
+    // the sandbox blocks a plain download link, so the runtime has to do it;
+    // in an ordinary browser, opening the saved page straight off disk, there
+    // is no runtime and a Blob link is the one that works.
+    var saved = false;
+    try {
+      var downloads = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+      if (downloads) {
+        await downloads.save({ filename: name, data: payload });
+        saved = true;
+      }
+    } catch (e) { /* declined or unavailable: fall through */ }
+
+    if (!saved) {
+      try {
+        var blob = new Blob([payload], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        saved = true;
+      } catch (e) { /* the box still holds it */ }
+    }
+
+    // Only pull focus to the copy box when no file was handed over. Selecting
+    // it opens the keyboard on a phone, which is a nuisance if the download
+    // already worked.
+    if (!saved && box) { box.focus(); box.select(); }
+
+    exportedAt = S.seen;
+    return payload;
+  }
+
+  document.getElementById("exportBtn").addEventListener("click", function () {
+    exportProgress(ioBox);
+  });
+
+  document.getElementById("importBtn").addEventListener("click", function () {
+    var raw = ioBox.value.trim();
+    if (!raw) { ioBox.placeholder = "Paste an exported progress file here first."; return; }
+    try {
+      var p = JSON.parse(raw);
+      var prog = p.progress || p;
+      if (!prog || typeof prog !== "object" || !prog.concepts) throw new Error("not a progress file");
+      S = {
+        concepts: prog.concepts || {},
+        questions: prog.questions || {},
+        seen: prog.seen || 0, right: prog.right || 0, wrong: prog.wrong || 0,
+        started: prog.started || new Date().toISOString().slice(0, 10)
+      };
+      saveState(); renderBoard(); renderProgress(); updateScore();
+      ioBox.value = "Imported. " + S.seen + " answers restored.";
+    } catch (e) {
+      ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
+    }
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    if (!window.confirm("Clear every answer and start again? Export first if you want a copy.")) return;
+    S = { concepts: {}, questions: {}, seen: 0, right: 0, wrong: 0, started: new Date().toISOString().slice(0, 10) };
+    saveState(); renderBoard(); renderProgress(); updateScore();
+    ioBox.value = "";
+  });
+
+  // ---------- when the browser will not keep anything ----------
+  // Shown once on load, then again every REPROMPT answers, so a long session
+  // cannot quietly accumulate work that is about to be lost.
+  var REPROMPT = 15;
+  var exportedAt = 0;          // S.seen at the last export
+  var dismissedAt = -1;        // S.seen when the modal was last waved away
+  var modal = document.getElementById("storageModal");
+  var smBox = document.getElementById("smBox");
+
+  function unsaved() { return S.seen - exportedAt; }
+
+  function showStorageWarning() {
+    if (!modal.hidden) return;
+    modal.hidden = false;
+    document.getElementById("smDismiss").focus();
+  }
+
+  function maybeRepromptStorage() {
+    if (storageOK) return;
+    if (dismissedAt >= 0 && S.seen - dismissedAt < REPROMPT) return;
+    if (unsaved() <= 0) return;
+    showStorageWarning();
+  }
+
+  document.getElementById("smExport").addEventListener("click", function () {
+    exportProgress(smBox);
+  });
+  function closeModal() { modal.hidden = true; dismissedAt = S.seen; }
+  document.getElementById("smDismiss").addEventListener("click", closeModal);
+  document.getElementById("smClose").addEventListener("click", closeModal);
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) { modal.hidden = true; dismissedAt = S.seen; }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modal.hidden) { modal.hidden = true; dismissedAt = S.seen; }
+  });
+
+  function buildWarnStrip() {
+    var strip = el("div", "warnstrip");
+    var inner = el("div", "warnstrip-in");
+    var msg = el("span");
+    msg.appendChild(el("b", null, "Not saving. "));
+    msg.appendChild(document.createTextNode(
+      "This browser is blocking local storage, so your answers disappear when the tab closes."));
+    inner.appendChild(msg);
+    var b = el("button", "btn", "Download my progress");
+    b.addEventListener("click", function () { showStorageWarning(); exportProgress(smBox); });
+    inner.appendChild(b);
+    strip.appendChild(inner);
+    document.querySelector(".topbar").insertAdjacentElement("afterend", strip);
+  }
+
+  // Last line of defence: the browser's own "leave site?" prompt.
+  window.addEventListener("beforeunload", function (e) {
+    if (storageOK || unsaved() <= 0) return;
+    e.preventDefault();
+    e.returnValue = "";
+    return "";
+  });
+
+  // ---------- tabs ----------
+  // Each tab keeps its own scroll position, so flipping between the board and a
+  // question does not throw away where you were reading.
+  var scrollPos = { "view-poster": 0, "view-practice": 0, "view-progress": 0 };
+  var currentView = "view-poster";
+  var cameFromRow = null;
+
+  function showRow(id) {
+    var node = document.querySelector('[data-row="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if (!node) return false;
+    node.classList.add("justleft");
+    node.scrollIntoView({ block: "center", behavior: "auto" });
+    window.setTimeout(function () { node.classList.remove("justleft"); }, 2400);
+    return true;
+  }
+
+  var tabs = [["tab-poster", "view-poster"], ["tab-practice", "view-practice"], ["tab-progress", "view-progress"]];
+  tabs.forEach(function (t) {
+    document.getElementById(t[0]).addEventListener("click", function () {
+      scrollPos[currentView] = window.scrollY;
+      tabs.forEach(function (o) {
+        var sel = o[0] === t[0];
+        document.getElementById(o[0]).setAttribute("aria-selected", String(sel));
+        document.getElementById(o[1]).hidden = !sel;
+      });
+      currentView = t[1];
+
+      if (t[0] === "tab-progress") renderProgress();
+      if (t[0] === "tab-poster") renderBoard();
+
+      // Restore after the view has been laid out, or the page has no height to
+      // scroll into yet. A timeout rather than requestAnimationFrame, which a
+      // browser throttles in a background tab and never fires.
+      window.setTimeout(function () {
+        if (t[0] === "tab-poster" && cameFromRow) {
+          var found = showRow(cameFromRow);
+          cameFromRow = null;
+          if (found) return;
+        }
+        window.scrollTo(0, scrollPos[currentView] || 0);
+      });
+    });
+  });
+
+  // ---------- boot ----------
+  // One version in the header, and it is this app's own: a number sitting next
+  // to a product name gets read as that product's version. AWS's exam-guide
+  // version is a different thing and belongs in the footer, labelled as theirs.
+  document.getElementById("examTag").textContent = DATA.exam + " · v" + APP_VERSION;
+  document.getElementById("buildInfo").textContent =
+    "App v" + APP_VERSION + " · built " + BUILD_DATE + " · questions v" + DATA.version;
+  document.getElementById("dataInfo").textContent =
+    DATA.questions.length + " questions · " +
+    DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0) +
+    " recall rows · built against " + DATA.guide.replace(/^Exam guide/, "AWS exam guide");
+
+  renderBoard();
+  updateScore();
+
+  if (!storageOK) {
+    buildWarnStrip();
+    showStorageWarning();
+  }
+})();
+</script>

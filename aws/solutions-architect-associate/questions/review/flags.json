@@ -1,0 +1,267 @@
+{
+ "gh-245": {
+  "kind": "wrong",
+  "note": "Stated answer: A. Reconfigure the target group in the development environment to have only one EC2 instance as a target. Should be: D. Reduce the maximum number of EC2 instances in the development environment's Auto Scaling group. Why: The question states the application uses the ALB to direct traffic to *at least two* EC2 instances in a single target group, so dropping the development environment",
+  "area": "compute"
+ },
+ "gh-523": {
+  "kind": "wrong",
+  "note": "Stated answer: B. Amazon CloudFront with Lambda@Edge functions. Should be: A. AWS AppSync pipeline resolvers. Why: AppSync pipeline resolvers chain several data-source calls — here several DynamoDB tables — inside a single GraphQL request, which is exactly \"retrieve data from multiple DynamoDB tables\" with no change to baseline performance and nothing to operate. Lambda@Edge is for rewriting reque",
+  "area": "compute"
+ },
+ "gh-584": {
+  "kind": "wrong",
+  "note": "Stated answer: A. Run the EC2 instances in a spread placement group. Should be: The partition placement group option. Why: AWS defines a partition placement group as one where \"groups of instances in one partition do not share the underlying hardware with groups of instances in different partitions\" — the question's wording about preventing *groups of nodes* from sharing hardware, and about the ar",
+  "area": "compute"
+ },
+ "gh-677": {
+  "kind": "wrong",
+  "note": "Stated answer: B. Use mixed On-Demand and Spot Instances in managed node groups. Should be: A. Use Spot Instances in managed node groups (all Spot). Why: The qualifier is MOST cost-effective, and the cluster is a development cluster used infrequently whose stated purpose is testing the application's resiliency — Spot interruptions are tolerable there, and are arguably the point. Managed node group",
+  "area": "compute"
+ },
+ "wl-10": {
+  "kind": "stale",
+  "note": "Stated answer: D. AWS Lambda (as the option that is *not* a CloudFront origin), with the explanation \"AWS Lambda is not supported directly as the CloudFront origin\". Now: A Lambda function URL is a supported CloudFront origin type and is listed as such in the CloudFront console. CloudFront added Origin Access Control for Lambda function URL origins on 11 April 2024, so you can both point a distrib",
+  "area": "compute"
+ },
+ "gh-320": {
+  "kind": "stale",
+  "note": "Stated answer: A. Publish data to Amazon Kinesis Data Streams, use Kinesis Data Analytics to query the data. Now: The service was renamed Amazon Managed Service for Apache Flink in August 2023. The SQL variant the explanation actually describes (\"provides an SQL-like language for querying\") — Kinesis Data Analytics for SQL Applications — is gone: no new applications could be created after 15 Octob",
+  "area": "compute"
+ },
+ "gh-51": {
+  "kind": "explanation",
+  "note": "Issue: The answer block is corrupted. After the two correct choices (the EventBridge/Lambda query and Amazon SES for the email) it continues with the full text and answers of three unrelated source questions — numbered 52, 53 and 54, covering EFS storage, S3 Object Lock and Windows file shares — and the last one is cut off mid-sentence. Anyone opening the toggle gets three other questions' answers",
+  "area": "compute"
+ },
+ "gh-422": {
+  "kind": "explanation",
+  "note": "Issue: The explanation does not describe the stated answer. The answer is SQS plus ECS services scaled on queue depth, but the explanation discusses an Application Load Balancer \"to direct requests from the API to the ECS services\" and claims \"AWS App Mesh can be used to scale the instances of the ECS cluster based on the SQS queue size\". App Mesh is a service mesh for service-to-service traffic a",
+  "area": "compute"
+ },
+ "gh-531": {
+  "kind": "explanation",
+  "note": "Issue: The explanation opens with \"AWS Lambda supports API Gateway integration, which allows you to create an HTTP endpoint (URL) for your Lambda function,\" which describes the wrong mechanism. The stated answer is a Lambda function URL — a built-in Lambda feature that gives the function its own dedicated HTTPS endpoint with no API Gateway in the path. The later sentences about avoiding extra serv",
+  "area": "compute"
+ },
+ "gh-563": {
+  "kind": "explanation",
+  "note": "Issue: The explanation says Amazon EKS Connector is for centralizing \"multiple Amazon EKS clusters\" and for \"register and connect multiple EKS clusters\". EKS Connector exists to register Kubernetes clusters that are *not* EKS — on-premises, self-managed on EC2, or on another cloud — so they show up alongside EKS clusters in the EKS console. EKS clusters in the account already appear there and need",
+  "area": "compute"
+ },
+ "gh-576": {
+  "kind": "explanation",
+  "note": "Issue: The explanation says edge-optimized API Gateway endpoints \"leverage the AWS Global Accelerator and CloudFront\". Global Accelerator is not involved in any way. An edge-optimized endpoint is fronted by an API Gateway-managed CloudFront distribution, and that is the whole mechanism.",
+  "area": "compute"
+ },
+ "gh-671": {
+  "kind": "explanation",
+  "note": "Issue: The explanation justifies the answer with \"CloudWatch (Option D) lacks built-in anomaly detection\", which is false — CloudWatch has had metric anomaly detection (machine-learning bands on any metric, usable as an alarm) since 2019. The correct reason to choose AWS Cost Anomaly Detection is that it is purpose-built for cost and usage data, segments spend by service, account and tag, and noti",
+  "area": "compute"
+ },
+ "gh-268": {
+  "kind": "wrong",
+  "note": "Stated answer: B. Use RDS Proxy between the application and the database. Should be: The caching option — put Amazon ElastiCache between the application and the RDS for MySQL database (a read replica would also address the symptom; RDS Proxy does not). Why: The stated problem is *read performance* (\"long delays and interruptions that are caused by database read performance\"). RDS Proxy pools and r",
+  "area": "database"
+ },
+ "gh-338": {
+  "kind": "wrong",
+  "note": "Stated answer: D. Set up an Aurora global database for the DB cluster. Specify a minimum of one DB instance in the secondary Region. Should be: Set up the Aurora global database and then remove the DB instance from the secondary Region (a \"headless\" secondary cluster). Why: Aurora global databases support a headless secondary — a secondary cluster with zero DB instances. Storage-level replication",
+  "area": "database"
+ },
+ "gh-536": {
+  "kind": "wrong",
+  "note": "Stated answer: C. Change the setup from a Single-AZ to a Multi-AZ instance deployment. Provide two additional read replicas for the data scientists. Should be: Change the setup to a Multi-AZ DB cluster** deployment (two readable standby instances) and give the data scientists the cluster reader endpoint. **Why: The qualifier is MOST cost-effectively. The stated answer provisions four instances (pr",
+  "area": "database"
+ },
+ "gh-31": {
+  "kind": "explanation",
+  "note": "Issue: The explanation says \"you can use AWS Config to create tags for your resources… rules that automatically tag resources when they are created or when their configurations change.\" AWS Config does not tag anything. It evaluates resource configuration against rules (here, the managed `required-tags` rule) and reports non-compliance; applying a tag would require a separate remediation action (f",
+  "area": "database"
+ },
+ "gh-420": {
+  "kind": "explanation",
+  "note": "Issue: The explanation describes an RDS Multi-AZ DB cluster as \"automatically replicating data to a standby instance in a different Availability Zone\" — the single, non-readable standby of a Multi-AZ *instance* deployment. A Multi-AZ DB cluster has two standby instances in two other AZs and both are readable via the reader endpoint. That readability is the entire reason the stated answer (\"point t",
+  "area": "database"
+ },
+ "gh-472": {
+  "kind": "explanation",
+  "note": "Issue: The explanation ends with an unrelated paragraph pasted in from a different question: \"A company hosts a website on Amazon EC2 instances behind an Application Load Balancer (ALB). The website serves static content. Website traffic is increasing, and the company is concerned about a potential increase in cost.\" Nothing in it relates to DynamoDB or DAX. The DAX reasoning itself is correct.",
+  "area": "database"
+ },
+ "gh-515": {
+  "kind": "explanation",
+  "note": "Issue: The explanation justifies only two of the three required options (B and C) and never addresses E. Option E as worded — \"scaling globally to support petabytes of data and tens of millions of requests per minute\" — describes DynamoDB, not Redshift; Redshift is a petabyte-scale data warehouse for analytic queries, not a service characterised by tens of millions of requests per minute. A reader",
+  "area": "database"
+ },
+ "gh-670": {
+  "kind": "explanation",
+  "note": "Issue: The explanation states \"On-demand (Option A) is expensive for infrequent use.\" That is backwards. DynamoDB on-demand mode bills per request with no charge for idle capacity, which makes it the cheap option for a table exercised for 4 hours a week; provisioned capacity bills per RCU/WCU-hour for all 168 hours of the week whether the tests are running or not. On the numbers, on-demand is seve",
+  "area": "database"
+ },
+ "gh-208": {
+  "kind": "wrong",
+  "note": "Stated answer: B. Create a gateway VPC endpoint for Amazon S3 in the Availability Zone where the EC2 instance is located. Attach appropriate security groups to the endpoint. Attach a resource policy to the S3 bucket to only allow the EC2 instance's IAM role for access. Should be: A. Create an interface VPC endpoint for Amazon S3 in the subnet where the EC2 instance is located. Attach a resource po",
+  "area": "networking"
+ },
+ "gh-676": {
+  "kind": "stale",
+  "note": "Stated answer: B. Use VPC Flow Logs to CloudWatch Logs, then Kinesis Data Firehose to OpenSearch Service. Now: The answer is still correct, but the service name is stale. Amazon Kinesis Data Firehose was renamed **Amazon Data Firehose** in February 2024. The option text in the current exam pool and in AWS documentation uses the new name; the delivery path itself is unchanged.",
+  "area": "networking"
+ },
+ "wl-23": {
+  "kind": "explanation",
+  "note": "Issue: The rationale for ruling out the security-group option says \"when the security group does not allow traffic, the failure cause will be 403 access denied.\" That is backwards, and it contradicts the sentence it opens with (\"Same as above\"). A security group that drops traffic produces a connection timeout, not an HTTP 403 — which is precisely why the security-group option can be eliminated. A",
+  "area": "networking"
+ },
+ "gh-29": {
+  "kind": "explanation",
+  "note": "Issue: The explanation is unfinished author commentary rather than a justification: \"Answer A does not mention service Global Accelerator, it mentions the NLB would act like one. Not sure if the wording is wrong or not.\" The option plainly does name AWS Global Accelerator, and Global Accelerator is the reason the answer works (anycast static IPs, UDP listeners, latency-based routing, automatic cro",
+  "area": "networking"
+ },
+ "gh-240": {
+  "kind": "explanation",
+  "note": "Issue: The explanation gives the wrong reason. It claims the saving comes from the data warehouse and the visualization tool being in the same Region so \"the data transfer between them doesn't incur the usual costs associated with data leaving the AWS network.\" The actual reason the answer wins is payload size: moving the tool next to the warehouse means only the ~500 KB rendered webpage egresses",
+  "area": "networking"
+ },
+ "gh-265": {
+  "kind": "explanation",
+  "note": "Issue: The explanation states \"Deploy a public Application Load Balancer (ALB) in private subnets. This ensures that the ALB is not directly accessible from the internet.\" Both halves are wrong. An internet-facing ALB must have at least two public subnets with a route to an internet gateway, and it is by definition reachable from the internet. The answer is defensible (EC2 instances in private sub",
+  "area": "networking"
+ },
+ "gh-366": {
+  "kind": "explanation",
+  "note": "Issue: The explanation ends by rejecting the answer it just selected: \"This does not meet the requirement of hosting the application on premises.\" It does meet it — Global Accelerator fronts Network Load Balancers that use IP targets pointing at the on-premises servers over Direct Connect or VPN, so the application stays on premises while gaining anycast entry points and UDP support. This looks li",
+  "area": "networking"
+ },
+ "gh-582": {
+  "kind": "explanation",
+  "note": "Issue: Same pattern — the explanation undercuts the stated answer: \"While this approach considers geographic location, it might not always result in the lowest latency.\" The question's qualifier is \"minimize load time as much as possible,\" and geolocation is the right pick here because the only latency-routing option on offer associates a single Region, which cannot steer traffic to both the on-pr",
+  "area": "networking"
+ },
+ "gh-267": {
+  "kind": "stale",
+  "note": "Stated answer: D. Create an Amazon Kinesis Data Firehose delivery stream to store the data in Amazon S3. Create an Amazon Kinesis Data Analytics application to analyze the data. Now: The architecture is still the right one — Firehose can encrypt on the way through and convert records to Apache Parquet before landing them in S3, which is the \"near-real time\" and \"centralized Parquet\" part of the re",
+  "area": "other"
+ },
+ "gh-292": {
+  "kind": "stale",
+  "note": "Stated answer: A (Kinesis Data Streams → Amazon Kinesis Data Analytics to transform → Firehose to S3 → Athena) and B (Amazon MSK → AWS Glue → S3 → Athena). Now: Both answer choices are still correct, so a candidate would score this right. The wording carries the same stale name as gh-267: \"Amazon Kinesis Data Analytics\" is now \"Amazon Managed Service for Apache Flink\" (renamed August 2023). Worth",
+  "area": "other"
+ },
+ "gh-201": {
+  "kind": "stale",
+  "note": "Stated answer: B. Build an Amazon Pinpoint journey. Configure Amazon Pinpoint to send events to an Amazon Kinesis data stream for analysis and archiving. Now: This was the accepted answer when the question was written, and streaming Pinpoint events into Kinesis so they can be retained and analysed is still the right *shape* of solution. But the product has been split and renamed: the SMS, voice an",
+  "area": "other"
+ },
+ "gh-7": {
+  "kind": "explanation",
+  "note": "Issue: The answer (publish to an SNS topic with multiple SQS queue subscriptions, one per consumer) is correct, but the second half of the explanation states throughput limits that do not exist for the queue type being used. It claims \"an SQS queue can handle a maximum of 3,000 messages per second... AWS can increase the message throughput... up to a maximum of 10,000 messages per second.\" Standar",
+  "area": "other"
+ },
+ "gh-50": {
+  "kind": "explanation",
+  "note": "Issue: The answer (Systems Manager Run Command) is correct — it is the quickest way to push an ad hoc patch command to 1,000 instances at once, which is what the question asks for. The reasoning used to reject the other options is wrong on two counts. First, it says \"Patch Manager is not designed to apply third-party software patches.\" Patch Manager **does** patch third-party applications (applica",
+  "area": "other"
+ },
+ "gh-585": {
+  "kind": "explanation",
+  "note": "Issue: The answer (purchase a Capacity Reservation in the failover Region) is correct, but the explanation misstates how On-Demand Capacity Reservations work: \"Capacity Reservations offer flexibility, allowing you to launch different instance types and sizes within the reserved capacity.\" An On-Demand Capacity Reservation is pinned to a **specific instance type, platform/OS, tenancy and single Ava",
+  "area": "other"
+ },
+ "gh-454": {
+  "kind": "explanation",
+  "note": "Issue: The answer (Workload Discovery on AWS) is correct, but the explanation invents a relationship between two products: \"AWS has a service called AWS Well-Architected Tool, which includes Workload Discovery.\" It does not. **Workload Discovery on AWS** is a standalone AWS Solutions Library implementation that you deploy into your own account from a CloudFormation template; it inventories resourc",
+  "area": "other"
+ },
+ "gh-232": {
+  "kind": "wrong",
+  "note": "Stated answer: B. Configure the EC2 instances with an IAM instance profile that has an IAM role with the AmazonSSMManagedInstanceCore policy attached. Should be: C. Publish VPC flow logs to Amazon CloudWatch Logs. Create the required metric filters. Create a CloudWatch metric alarm with a notification action for when the alarm is in the ALARM state. Why: Attaching an SSM instance profile only enab",
+  "area": "security"
+ },
+ "gh-28": {
+  "kind": "stale",
+  "note": "Stated answer: B. Enable AWS Single Sign-On (AWS SSO) from the AWS SSO console. Create a two-way forest trust to connect the self-managed Microsoft Active Directory with AWS SSO by using AWS Directory Service for Microsoft Active Directory. Now: The substance is still correct — IAM Identity Center does require a two-way forest trust to AWS Managed Microsoft AD so it can read users and groups from",
+  "area": "security"
+ },
+ "gh-418": {
+  "kind": "explanation",
+  "note": "Issue: The explanation says the approach is least privilege because users \"access only the specific resources (S3 bucket) defined in the trust policy of the IAM role.\" A trust policy defines *who may assume* the role (its Principal); it never defines resources or actions. The resource restriction comes from the permissions policy attached to the role. The stated answer (add the development account",
+  "area": "security"
+ },
+ "gh-668": {
+  "kind": "explanation",
+  "note": "Issue: The explanation claims \"IAM policies (Option A) cannot validate tag values.\" That is factually wrong. IAM policies can and routinely do validate tag values using the `aws:RequestTag/${TagKey}` and `aws:TagKeys` condition keys — for example, denying resource creation unless `aws:RequestTag/application` matches an approved value. The tag policy answer is still the better fit for an Organizati",
+  "area": "security"
+ },
+ "gh-644": {
+  "kind": "explanation",
+  "note": "Issue: The explanation states \"For wildcard certificates, DNS validation is necessary.\" ACM supports both DNS validation and email validation for wildcard domain names; DNS validation is merely recommended because it can renew the certificate automatically. The answer (request a certificate covering the apex plus `*.example.com`, then validate ownership via DNS records) is correct, but the \"necess",
+  "area": "security"
+ },
+ "gh-492": {
+  "kind": "explanation",
+  "note": "Issue: This explanation — and the near-identical wording reused in gh-412, gh-433, gh-488, gh-548 and gh-619 — describes SCPs as policies that \"set fine-grained permissions on AWS accounts.\" SCPs never grant any permission; they only set the maximum permissions an account's principals can have, and a principal still needs an identity-based or resource-based policy that allows the action. Two furth",
+  "area": "security"
+ },
+ "gh-667": {
+  "kind": "wrong",
+  "note": "Stated answer: Create S3 gateway endpoints, with the note \"Interface endpoints are for private-link services, not S3.\" Should be: Create interface endpoints (AWS PrivateLink) for Amazon S3. Why: A gateway endpoint is only reachable from inside the VPC that holds the route-table entry — it cannot be used from an on-premises network over Direct Connect or VPN. Amazon S3 has supported interface endpo",
+  "area": "storage"
+ },
+ "gh-534": {
+  "kind": "wrong",
+  "note": "Stated answer: Transition to S3 Standard-IA after 30 days, move all objects to S3 Glacier Flexible Retrieval after 90 days, and expire objects after 90 days. Should be: The option that transitions to an infrequent-access class at day 30 and expires objects at day 90, with no Glacier step. Since high availability is only required for the first 30 days and the remaining 60 days are backup only, S3 O",
+  "area": "storage"
+ },
+ "wl-8": {
+  "kind": "stale",
+  "note": "Stated answer: Launch an unencrypted EC2 instance, snapshot the root volume, then copy the snapshot with encryption — because \"when launching an EC2 instance, the EBS volume for root cannot be encrypted.\" Now: That restriction was removed in February 2019. You can turn on \"EBS encryption by default\" for an account in a Region, or set `Encrypted: true` (with a KMS key) on the root device in the lau",
+  "area": "storage"
+ },
+ "gh-205": {
+  "kind": "stale",
+  "note": "Stated answer: Private S3 bucket with a bucket policy allowing a CloudFront origin access identity (OAI). Now: Origin Access Control (OAC) replaced OAI in August 2022 and is what AWS recommends for S3 origins; OAI is documented as legacy and does not support SSE-KMS, dynamic requests, or all Regions. The shape of the answer (private bucket, CloudFront-only access) is still right, but the mechanism",
+  "area": "storage"
+ },
+ "gh-302": {
+  "kind": "stale",
+  "note": "Stated answer: CloudFront for delivery plus Amazon Elastic Transcoder to convert the video files. Now: Amazon Elastic Transcoder is retired — AWS stopped accepting new customers in 2024 and the service reached end of support on 13 November 2025. The current service for this job is AWS Elemental MediaConvert.",
+  "area": "storage"
+ },
+ "gh-49": {
+  "kind": "stale",
+  "note": "Stated answer: S3 Intelligent-Tiering, lifecycle to S3 Glacier Flexible Retrieval after 1 year, Athena for recent files, S3 Glacier Select for archived files. Now: S3 Glacier Select (and S3 Select) is no longer available to new customers as of mid-2024; existing users were grandfathered. The storage-class part of the answer is still the best of the options, but the retrieval mechanism named has be",
+  "area": "storage"
+ },
+ "gh-501": {
+  "kind": "stale",
+  "note": "Stated answer: Amazon Kinesis Data Firehose to ingest, Amazon Kinesis Data Analytics to analyse in real time. Now: Both services have been renamed. Kinesis Data Analytics became Amazon Managed Service for Apache Flink in August 2023, and Kinesis Data Firehose became Amazon Data Firehose in February 2024. The architecture is still correct; only the names are stale. The old Firehose name also appear",
+  "area": "storage"
+ },
+ "gh-46": {
+  "kind": "explanation",
+  "note": "Issue: The explanation has nothing to do with the question or the answer — it is boilerplate text about requesting service quota increases through the Service Quotas console. There is no justification given for using S3 as a transfer point with Macie scanning and SNS alerting.",
+  "area": "storage"
+ },
+ "gh-517": {
+  "kind": "explanation",
+  "note": "Issue: The explanation argues against the stated answer. It says Systems Manager S3 logging \"is primarily for storing the output of commands... not specifically for Session Manager logs\" and \"may not capture all the detailed session logs\", which would rule out the option the answer picks. It is also wrong: Session Manager has a built-in S3 logging preference that writes full session output to a ch",
+  "area": "storage"
+ },
+ "gh-651": {
+  "kind": "explanation",
+  "note": "Issue: The explanation ends with a stray block answering a completely different question — \"Answer: C) Configure the General Purpose SSD (gp3) EBS volume storage type and provision 15,000 IOPS\", with notes about gp2 and magnetic volumes. It appears to be copy-paste contamination from an EBS question and has no bearing on the S3 lifecycle answer above it.",
+  "area": "storage"
+ },
+ "gh-44": {
+  "kind": "explanation",
+  "note": "Issue: The explanation says MFA Delete \"requires you to enter a one-time password from a multi-factor authentication (MFA) device before you can delete an object\". That is not how it works. In a versioned bucket a plain DELETE just writes a delete marker and needs no MFA; MFA is required only to permanently delete a specific object version or to change the bucket's versioning state. The same incor",
+  "area": "storage"
+ },
+ "gh-22": {
+  "kind": "explanation",
+  "note": "Issue: The explanation states that S3 Intelligent-Tiering \"can store objects in two access tiers: the frequent access tier and the infrequent access tier\". Since November 2021 the automatic tiers are Frequent Access, Infrequent Access and Archive Instant Access, with optional Archive Access and Deep Archive Access tiers on top. The answer is right; the tier description is out of date, and the same",
+  "area": "storage"
+ }
+}
