@@ -1,0 +1,72 @@
+{
+  "gh-268": {
+    "verdict": "fix",
+    "truth": "The stated problem is read performance, and RDS Proxy does not improve read throughput at all - it pools and reuses database connections, which helps with connection storms and failover times. A cache in front of the database (or a read replica) is what relieves read load; for a scoreboard that is read far more often than it changes, caching is the natural fit.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Put Amazon ElastiCache between the application and the Amazon RDS for MySQL database so repeated score reads are served from the cache instead of the database.",
+    "why": "The bottleneck is read volume against the MySQL database, so the fix has to take reads off it. ElastiCache serves the hot, frequently requested score data from memory, which cuts both the delays and the load on RDS without re-platforming the application. RDS Proxy only manages and reuses database connections - useful when an application opens too many connections or needs faster failover, but it adds no read capacity. Migrating to Lambda or to DynamoDB would be a far larger change than the question allows.",
+    "reason": "The reviewer is right. The stated answer treats a connection-management tool as a read-scaling tool, and the explanation never connects RDS Proxy to the read problem because it cannot."
+  },
+  "gh-31": {
+    "verdict": "fix",
+    "truth": "AWS Config rules are the right answer for continuously checking that resources carry required tags, but AWS Config does not apply tags. It records resource configurations, evaluates them against rules such as the managed required-tags rule, and reports what is non-compliant.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "A. Use AWS Config rules to define and detect resources that are not properly tagged.",
+    "why": "AWS Config continuously records the configuration of supported resources, including EC2 instances, RDS DB instances and Redshift clusters, and evaluates them against rules. The managed required-tags rule flags any resource missing the tag keys you specify, so the check is set up once and then runs on its own - which is what 'minimize the effort of configuring and operating this check' asks for. Config reports non-compliance; it does not add tags itself. If you also want a tag applied automatically, you attach a remediation action, for example an SSM Automation document, to the rule.",
+    "reason": "The reviewer is right. The answer is correct but the explanation states something AWS Config cannot do, which would teach the wrong model of the service."
+  },
+  "gh-338": {
+    "verdict": "fix",
+    "truth": "An Aurora global database replicates at the storage layer, so the secondary cluster can be created with no DB instances at all - a 'headless' secondary. Replication keeps running and you pay only for replicated storage and cross-Region replication traffic in the second Region, which is cheaper than keeping a DB instance running there.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Set up an Aurora global database for the DB cluster and, once setup is complete, remove the DB instance from the secondary Region, leaving a headless secondary cluster.",
+    "why": "Aurora global database replication happens in the shared storage layer, not through a database instance, so data keeps arriving in the secondary Region even when that cluster has no instance running. For a plan that only has to hold a replica of the data, this is the cheapest shape: you pay for replicated storage and cross-Region replication traffic but no idle compute. When you need to recover, you add an instance to the secondary cluster and promote it. Keeping a DB instance running in the secondary Region also works, but it costs more, so it loses on the MOST cost-effectively test.",
+    "reason": "The reviewer is right. The stated answer picks the variant that keeps an instance running in the second Region, which is the more expensive of the two Aurora global database options, and the question is explicitly scored on cost. The item also shipped with no explanation at all."
+  },
+  "gh-420": {
+    "verdict": "fix",
+    "truth": "The stated answer is correct, but the explanation describes the wrong deployment type. A Multi-AZ DB cluster has one writer and two standby instances in two other Availability Zones, and both standbys accept read traffic through the cluster reader endpoint. That readability is the whole reason the answer mentions a reader endpoint; the single standby in a Multi-AZ instance deployment cannot be read.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "D. Use an Amazon RDS Multi-AZ DB cluster deployment. Point the read workload to the reader endpoint.",
+    "why": "An RDS Multi-AZ DB cluster runs one writer instance and two standby instances spread across three Availability Zones. The standbys are readable, so pointing the read workload at the cluster reader endpoint takes those queries off the writer with nothing extra to provision. Replication to the standbys is faster than in a plain Multi-AZ instance deployment, and failover typically completes in under 35 seconds, which satisfies the under-40-second requirement. A Multi-AZ instance deployment would meet the availability goal but its single standby cannot serve reads, so you would have to add and pay for separate read replicas.",
+    "reason": "The reviewer is right about the explanation. The answer stands, but the explanation as written contradicts it by describing a non-readable standby."
+  },
+  "gh-472": {
+    "verdict": "fix",
+    "truth": "DAX is the right answer: it is a managed in-memory cache built specifically for DynamoDB, and the application keeps using DynamoDB API calls - only the client and endpoint change. The explanation is correct up to the point where an unrelated paragraph about EC2, load balancers and static content was pasted in.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "A. Configure Amazon DynamoDB Accelerator (DAX) for the new messages table. Update the code to use the DAX endpoint.",
+    "why": "DAX is an in-memory cache that sits in front of a DynamoDB table and answers cached reads in microseconds instead of the single-digit milliseconds DynamoDB itself returns. Because DAX speaks the DynamoDB API, the only change is to point the client at the DAX cluster endpoint, which keeps the application work small. A general-purpose cache such as ElastiCache would also cut latency, but you would have to write and maintain the cache-loading and invalidation logic yourself.",
+    "reason": "The reviewer is right. The reasoning was sound but the explanation carried a stray paragraph from a different question, which would confuse anyone reading it."
+  },
+  "gh-515": {
+    "verdict": "drop",
+    "truth": "Of the three options the item claims as correct, the third is wrong. 'Scaling globally to support petabytes of data and tens of millions of requests per minute' describes DynamoDB. Redshift is a data warehouse for analytic queries over large datasets, not a globally distributed, very-high-request-rate key-value store. Encryption support and running analytics in defined windows are both fair descriptions of Redshift.",
+    "exam_relevant": false,
+    "importance": "low",
+    "reason": "This cannot be repaired. It needs three correct options, one of the three given is factually wrong, and the source carries no list of choices, so there is no way to establish which remaining option was meant to be the third correct one. The answer and explanation fields have also run together, so the item does not state its own answer cleanly. It is a weak item on its own merits as well - a recall check on a list of service features rather than a design decision an architect would make."
+  },
+  "gh-536": {
+    "verdict": "fix",
+    "truth": "A Multi-AZ DB cluster gives high availability and two readable standbys in a single deployment - three instances in total. The stated answer buys high availability with a Multi-AZ instance deployment (writer plus a standby that cannot be read) and then adds two read replicas on top, which is four instances for the same outcome. The question is scored on cost, so the cluster wins.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Change the setup from Single-AZ to a Multi-AZ DB cluster deployment and give the data scientists the cluster's reader endpoint.",
+    "why": "An RDS for PostgreSQL Multi-AZ DB cluster runs a writer plus two standby instances in two other Availability Zones, and both standbys serve reads through the reader endpoint. That covers high availability and read-only access for the data scientists with three instances and no extra components. Replication to the standbys is fast enough that the data they query is near real-time, and their heavy queries never touch the writer. Making the database a Multi-AZ instance deployment and then adding two read replicas reaches the same result with a fourth instance to pay for, so it is the more expensive answer.",
+    "reason": "The reviewer is right. Both options would work, but the question asks for the most cost-effective one and the stated answer provisions one more instance than it needs to."
+  },
+  "gh-670": {
+    "verdict": "fix",
+    "truth": "The explanation has the cost comparison backwards, and that makes the stated answer wrong too. Provisioned capacity is billed per capacity unit per hour for all 168 hours of a week whether or not anything is running; on-demand is billed per request with nothing charged while the table is idle. At 4 hours of use a week - about 2.4 percent of the time - on-demand costs a small fraction of provisioned. Reserved capacity is worse still, since it locks in a year or more of hourly charges.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "A. Choose on-demand capacity mode for the table.",
+    "why": "The table is used for 4 hours a week and sits idle the rest of the time. On-demand mode charges per read and write request and nothing for idle time, so the bill tracks the actual 4 hours of testing. Provisioned mode charges for the capacity units every hour of the month, so roughly 97 percent of what you paid would be for an idle table; on-demand only loses to provisioned once a table is busy something like 15 to 20 percent of the time, far above this workload. Reserved capacity deepens the problem by committing to those hourly charges for a year or more. Knowing the per-second request rate is a distractor - predictable traffic favours provisioned capacity only when the table is busy most of the time.",
+    "reason": "The reviewer is right that the explanation is backwards, and the same error invalidates the stated answer, so both the answer and the explanation are replaced."
+  }
+}

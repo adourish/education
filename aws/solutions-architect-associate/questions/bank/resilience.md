@@ -4,28 +4,21 @@
 
 ---
 
-### 1. gh-230 `availability`
+### 1. q-230 `availability`
 
-A company is concerned that two NAT instances in use will no longer be able to support the traffic needed for the company’s application. A solutions architect wants to implement a solution that is highly available, fault tolerant, and automatically scalable.
-What should the solutions architect recommend?
+A company is concerned that two NAT instances in use will no longer be able to support the traffic needed for the company’s application. A solutions architect wants to implement a solution that is highly available, fault tolerant, and automatically scalable. What should the solutions architect recommend?
 
 <details><summary>Answer</summary>
 
 **C. Remove the two NAT instances and replace them with two NAT gateways in different Availability Zones.**
 
-NAT Gateway: NAT Gateways are managed, highly available, and scalable components provided by AWS. They are designed to handle the network address translation for instances in private subnets. By deploying NAT gateways in different Availability Zones, you ensure high availability.
-
-Benefits of NAT Gateway:
-Managed Service: NAT Gateway is a fully managed service, reducing operational overhead.
-High Availability: Deploying NAT gateways in different Availability Zones ensures fault tolerance and high availability.
-Automatically Scalable: NAT Gateways automatically scale based on the traffic volume, eliminating the need for manual adjustments.
+NAT Gateway: NAT Gateways are managed, highly available, and scalable components provided by AWS. They are designed to handle the network address translation for instances in private subnets. By deploying NAT gateways in different Availability Zones, you ensure high availability.  Benefits of NAT Gateway: Managed Service: NAT Gateway is a fully managed service, reducing operational overhead. High Availability: Deploying NAT gateways in different Availability Zones ensures fault tolerance and high availability. Automatically Scalable: NAT Gateways automatically scale based on the traffic volume, eliminating the need for manual adjustments.
 
 </details>
 
-### 2. gh-274
+### 2. q-274
 
-A company runs an application on Amazon EC2 instances. The company needs to implement a disaster recovery (DR) solution for the application. The DR solution needs to have a recovery time objective (RTO) of less than 4 hours. The DR solution also needs to use the fewest possible AWS resources during normal operations.
-Which solution will meet these requirements in the MOST operationally efficient way?
+A company runs an application on Amazon EC2 instances. The company needs to implement a disaster recovery (DR) solution for the application. The DR solution needs to have a recovery time objective (RTO) of less than 4 hours. The DR solution also needs to use the fewest possible AWS resources during normal operations. Which solution will meet these requirements in the MOST operationally efficient way?
 
 <details><summary>Answer</summary>
 
@@ -35,27 +28,21 @@ By creating Amazon Machine Images (AMIs) to back up the EC2 instances and copyin
 
 </details>
 
-### 3. gh-326 `availability`
+### 3. q-326 `availability`
 
-An image hosting company uploads its large assets to Amazon S3 Standard buckets. The company uses multipart upload in parallel by using S3 APIs and overwrites if the same object is uploaded again. For the first 30 days after upload, the objects will be accessed frequently. The objects will be used less frequently after 30 days, but the access patterns for each object will be inconsistent. The company must optimize its S3 storage costs while maintaining high availability and resiliency of stored assets.
-Which combination of actions should a solutions architect recommend to meet these requirements? (Choose two.)
+An image hosting company uploads its large assets to Amazon S3 Standard buckets. The company uses multipart upload in parallel by using S3 APIs and overwrites if the same object is uploaded again. For the first 30 days after upload, the objects will be accessed frequently. The objects will be used less frequently after 30 days, but the access patterns for each object will be inconsistent. The company must optimize its S3 storage costs while maintaining high availability and resiliency of stored assets. Which combination of actions should a solutions architect recommend to meet these requirements? (Choose two.)
 
 <details><summary>Answer</summary>
 
 **A. Move assets to S3 Intelligent-Tiering after 30 days.**
 
-B. Configure an S3 Lifecycle policy to clean up incomplete multipart uploads.
-
-Move assets to S3 Intelligent-Tiering after 30 days: This option is suitable for objects with unknown or changing access patterns. S3 Intelligent-Tiering automatically moves objects between two access tiers (frequent and infrequent access) based on changing access patterns. It helps optimize costs by automatically selecting the most cost-effective tier for each object.
-
-Configure an S3 Lifecycle policy to clean up incomplete multipart uploads: This is a good practice to clean up any incomplete multipart uploads, which can consume additional storage space without contributing to the actual objects. Cleaning up incomplete uploads helps manage storage costs efficiently.
+B. Configure an S3 Lifecycle policy to clean up incomplete multipart uploads.  Move assets to S3 Intelligent-Tiering after 30 days: This option is suitable for objects with unknown or changing access patterns. S3 Intelligent-Tiering automatically moves objects between two access tiers (frequent and infrequent access) based on changing access patterns. It helps optimize costs by automatically selecting the most cost-effective tier for each object.  Configure an S3 Lifecycle policy to clean up incomplete multipart uploads: This is a good practice to clean up any incomplete multipart uploads, which can consume additional storage space without contributing to the actual objects. Cleaning up incomplete uploads helps manage storage costs efficiently.
 
 </details>
 
-### 4. gh-356 `availability`
+### 4. q-356 `availability`
 
-A company stores its data objects in Amazon S3 Standard storage. A solutions architect has found that 75% of the data is rarely accessed after 30 days. The company needs all the data to remain immediately accessible with the same high availability and resiliency, but the company wants to minimize storage costs.
-Which storage solution will meet these requirements?
+A company stores its data objects in Amazon S3 Standard storage. A solutions architect has found that 75% of the data is rarely accessed after 30 days. The company needs all the data to remain immediately accessible with the same high availability and resiliency, but the company wants to minimize storage costs. Which storage solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
@@ -65,10 +52,9 @@ S3 Standard-Infrequent Access (S3 Standard-IA): This storage class is designed f
 
 </details>
 
-### 5. gh-447
+### 5. q-447
 
-A company has a stateless web application that runs on AWS Lambda functions that are invoked by Amazon API Gateway. The company wants to deploy the application across multiple AWS Regions to provide Regional failover capabilities.
-What should a solutions architect do to route traffic to multiple Regions?
+A company has a stateless web application that runs on AWS Lambda functions that are invoked by Amazon API Gateway. The company wants to deploy the application across multiple AWS Regions to provide Regional failover capabilities. What should a solutions architect do to route traffic to multiple Regions?
 
 <details><summary>Answer</summary>
 
@@ -78,23 +64,21 @@ By creating Amazon Route 53 health checks for each Region and configuring an act
 
 </details>
 
-### 6. gh-585
+### 6. q-585
 
-A solutions architect is designing a disaster recovery (DR) strategy to provide Amazon EC2 capacity in a failover AWS Region. Business requirements state that the DR strategy must meet capacity in the failover Region.
-Which solution will meet these requirements?
+A solutions architect is designing a disaster recovery (DR) strategy to provide Amazon EC2 capacity in a failover AWS Region. Business requirements state that the DR strategy must meet capacity in the failover Region. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
 **D. Purchase a Capacity Reservation in the failover Region.**
 
-A Capacity Reservation allows you to reserve a specific amount of EC2 instance capacity in a given region without purchasing specific instances. This reserved capacity is dedicated to your account and can be utilized for launching instances when needed. Capacity Reservations offer flexibility, allowing you to launch different instance types and sizes within the reserved capacity.
+An On-Demand Capacity Reservation holds EC2 capacity for your account in one Availability Zone for a stated instance type, platform and tenancy, and that capacity stays held whether or not you have instances running in it, so it is there when you declare a disaster and fail over. Because it is pinned that tightly, you must create the reservation for the exact instance types and the exact AZ your DR plan will launch into, and you pay the On-Demand rate for the reserved capacity for as long as it exists. The key distinction the question is testing: Savings Plans and regional Reserved Instances are billing discounts and reserve no capacity at all, so they cannot guarantee a failover launch will succeed. If you want the discount as well, a Capacity Reservation can be combined with a Savings Plan or a Reserved Instance, which then applies to the reserved capacity's charges.
 
 </details>
 
-### 7. gh-647 `availability`
+### 7. q-647 `availability`
 
-A gaming company is building an application with Voice over IP capabilities. The application will serve traffic to users across the world. The application needs to be highly available with an automated failover across AWS Regions. The company wants to minimize the latency of users without relying on IP address caching on user devices.
-What should a solutions architect do to meet these requirements?
+A gaming company is building an application with Voice over IP capabilities. The application will serve traffic to users across the world. The application needs to be highly available with an automated failover across AWS Regions. The company wants to minimize the latency of users without relying on IP address caching on user devices. What should a solutions architect do to meet these requirements?
 
 <details><summary>Answer</summary>
 

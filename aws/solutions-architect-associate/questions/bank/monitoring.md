@@ -16,53 +16,45 @@ https://aws.amazon.com/premiumsupport/trustedadvisor/
 
 </details>
 
-### 2. gh-27 `security`
+### 2. q-27 `security`
 
-A company is launching a new application and will display application metrics on an Amazon CloudWatch dashboard. The company's product manager needs to access this dashboard periodically. The product manager does not have an AWS account. A solutions architect must provide access to the product manager by following the principle of least privilege.
-Which solution will meet these requirements?
+A company is launching a new application and will display application metrics on an Amazon CloudWatch dashboard. The company's product manager needs to access this dashboard periodically. The product manager does not have an AWS account. A solutions architect must provide access to the product manager by following the principle of least privilege. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**A. Share the dashboard from the CloudWatch console. Enter the product manager's email address, and complete the sharing steps. Provide a shareable link for the dashboard to the product manage.**
+**A. Share the dashboard from the CloudWatch console. Enter the product manager's email address, and complete the sharing steps. Provide a shareable link for the dashboard to the product manager.**
 
 Share a single dashboard and designate specific email addresses of the people who can view the dashboard. Each of these users creates their own password that they must enter to view the dashboard.
 
 </details>
 
-### 3. gh-34
+### 3. q-34
 
-A company hosts its multi-tier applications on AWS. For compliance, governance, auditing, and security, the company must track configuration changes on its AWS resources and record a history of API calls made to these resources.
-What should a solutions architect do to meet these requirements?
+A company hosts its multi-tier applications on AWS. For compliance, governance, auditing, and security, the company must track configuration changes on its AWS resources and record a history of API calls made to these resources. What should a solutions architect do to meet these requirements?
 
 <details><summary>Answer</summary>
 
 **B. Use AWS Config to track configuration changes and AWS CloudTrail to record API calls.**
 
-AWS Config for Configuration Changes: AWS Config is a service that tracks changes to resource configurations over time. It provides a history of configuration changes to your AWS resources and helps with compliance and auditing by allowing you to assess how resource configurations have changed over time.
-
-AWS CloudTrail for API Calls: AWS CloudTrail is designed specifically for recording API calls made to AWS resources. It captures detailed information about who made each API call, the actions taken, and the resources affected. This is essential for auditing and security purposes.
+AWS Config for Configuration Changes: AWS Config is a service that tracks changes to resource configurations over time. It provides a history of configuration changes to your AWS resources and helps with compliance and auditing by allowing you to assess how resource configurations have changed over time.  AWS CloudTrail for API Calls: AWS CloudTrail is designed specifically for recording API calls made to AWS resources. It captures detailed information about who made each API call, the actions taken, and the resources affected. This is essential for auditing and security purposes.
 
 </details>
 
-### 4. gh-50
+### 4. q-50
 
-A company has a production workload that runs on 1,000 Amazon EC2 Linux instances. The workload is powered by third-party software. The company needs to patch the third-party software on all EC2 instances as quickly as possible to remediate a critical security vulnerability.
-What should a solutions architect do to meet these requirements?
+A company has a production workload that runs on 1,000 Amazon EC2 Linux instances. The workload is powered by third-party software. The company needs to patch the third-party software on all EC2 instances as quickly as possible to remediate a critical security vulnerability. What should a solutions architect do to meet these requirements?
 
 <details><summary>Answer</summary>
 
 **D. Use AWS Systems Manager Run Command to run a custom command that applies the patch to all EC2 instances.**
 
-AWS Systems Manager Run Command allows the company to run commands or scripts on multiple EC2 instances. By using Run Command, the company can quickly and easily apply the patch to all 1,000 EC2 instances to remediate the security vulnerability.
-
-Creating an AWS Lambda function to apply the patch to all EC2 instances would not be a suitable solution, as Lambda functions are not designed to run on EC2 instances. Configuring AWS Systems Manager Patch Manager to apply the patch to all EC2 instances would not be a suitable solution, as Patch Manager is not designed to apply third-party software patches. Scheduling an AWS Systems Manager maintenance window to apply the patch to all EC2 instances would not be a suitable solution, as maintenance windows are not designed to apply patches to third-party software.
+Run Command executes a document or script against a target set chosen by instance IDs, tags or a resource group, with rate control and error thresholds, and it runs on demand the moment you invoke it, which is what 'as quickly as possible' requires for a critical vulnerability. Patch Manager is the wrong tool here not because it cannot handle third-party software, which it can, but because it is built for recurring, baseline-driven compliance patching and normally runs inside a scheduled maintenance window, so it is slower to stand up for a single urgent fix. A maintenance window has the same problem: it is a scheduling construct, so it delays the remediation rather than speeding it up. Writing a Lambda function would also work eventually, since Lambda would end up calling Run Command anyway, but building it is extra effort for no gain.
 
 </details>
 
-### 5. gh-319
+### 5. q-319
 
-A company has hundreds of Amazon EC2 Linux-based instances in the AWS Cloud. Systems administrators have used shared SSH keys to manage the instances. After a recent audit, the company’s security team is mandating the removal of all shared keys. A solutions architect must design a solution that provides secure access to the EC2 instances.
-Which solution will meet this requirement with the LEAST amount of administrative overhead?
+A company has hundreds of Amazon EC2 Linux-based instances in the AWS Cloud. Systems administrators have used shared SSH keys to manage the instances. After a recent audit, the company’s security team is mandating the removal of all shared keys. A solutions architect must design a solution that provides secure access to the EC2 instances. Which solution will meet this requirement with the LEAST amount of administrative overhead?
 
 <details><summary>Answer</summary>
 
@@ -72,10 +64,9 @@ AWS Systems Manager Session Manager: AWS Systems Manager provides a service call
 
 </details>
 
-### 6. gh-329
+### 6. q-329
 
-A security audit reveals that Amazon EC2 instances are not being patched regularly. A solutions architect needs to provide a solution that will run regular security scans across a large fleet of EC2 instances. The solution should also patch the EC2 instances on a regular schedule and provide a report of each instance’s patch status.
-Which solution will meet these requirements?
+A security audit reveals that Amazon EC2 instances are not being patched regularly. A solutions architect needs to provide a solution that will run regular security scans across a large fleet of EC2 instances. The solution should also patch the EC2 instances on a regular schedule and provide a report of each instance’s patch status. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
@@ -83,10 +74,9 @@ Which solution will meet these requirements?
 
 </details>
 
-### 7. gh-519
+### 7. q-519
 
-A consulting company provides professional services to customers worldwide. The company provides solutions and tools for customers to expedite gathering and analyzing data on AWS. The company needs to centrally manage and deploy a common set of solutions and tools for customers to use for self-service purposes.
-Which solution will meet these requirements?
+A consulting company provides professional services to customers worldwide. The company provides solutions and tools for customers to expedite gathering and analyzing data on AWS. The company needs to centrally manage and deploy a common set of solutions and tools for customers to use for self-service purposes. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 

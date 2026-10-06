@@ -236,6 +236,17 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .row .ans { font-size: 0.95rem; line-height: 1.5; font-weight: 700; color: var(--cyan); }
 .row.mono .ans { font-family: var(--mono); font-size: 0.9rem; }
 
+/* the line you just came back from, so the eye finds it without searching */
+.row.justleft {
+  outline: 3px solid var(--cyan);
+  outline-offset: -3px;
+  animation: settle 2.2s ease-out forwards;
+}
+@keyframes settle { 0%, 55% { outline-color: var(--cyan); } 100% { outline-color: transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .row.justleft { animation: none; outline-color: var(--cyan); }
+}
+
 /* a line is a button: tap it to drill just that topic */
 .row { cursor: pointer; border-left: 3px solid transparent; }
 .row:hover { background: var(--surface-2); }
@@ -783,6 +794,7 @@ footer .v { font-family: var(--mono); }
         // still being missed more often than not.
         var hot = st === "bad" && sc0.w >= 3;
         var row = el("div", "row" + (st ? " " + st : "") + (hot ? " hot" : ""));
+        row.dataset.row = r.id;
         row.tabIndex = 0;
         row.setAttribute("role", "button");
         row.setAttribute("aria-label", "Practise: " + r.cue);
@@ -934,12 +946,15 @@ footer .v { font-family: var(--mono); }
       return;
     }
     drilling = row;
+    cameFromRow = row.id;
     queue = shuffle(list);
     qi = 0;
+    // Practice starts at the top because it is a fresh question; the poster's
+    // own position is kept and restored when you go back.
+    scrollPos["view-practice"] = 0;
     document.getElementById("tab-practice").click();
     renderDrillBanner();
     renderQuestion();
-    window.scrollTo(0, 0);
   }
 
   function buildQueue() {
@@ -1368,16 +1383,46 @@ footer .v { font-family: var(--mono); }
   });
 
   // ---------- tabs ----------
+  // Each tab keeps its own scroll position, so flipping between the board and a
+  // question does not throw away where you were reading.
+  var scrollPos = { "view-poster": 0, "view-practice": 0, "view-progress": 0 };
+  var currentView = "view-poster";
+  var cameFromRow = null;
+
+  function showRow(id) {
+    var node = document.querySelector('[data-row="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if (!node) return false;
+    node.classList.add("justleft");
+    node.scrollIntoView({ block: "center", behavior: "auto" });
+    window.setTimeout(function () { node.classList.remove("justleft"); }, 2400);
+    return true;
+  }
+
   var tabs = [["tab-poster", "view-poster"], ["tab-practice", "view-practice"], ["tab-progress", "view-progress"]];
   tabs.forEach(function (t) {
     document.getElementById(t[0]).addEventListener("click", function () {
+      scrollPos[currentView] = window.scrollY;
       tabs.forEach(function (o) {
         var sel = o[0] === t[0];
         document.getElementById(o[0]).setAttribute("aria-selected", String(sel));
         document.getElementById(o[1]).hidden = !sel;
       });
+      currentView = t[1];
+
       if (t[0] === "tab-progress") renderProgress();
       if (t[0] === "tab-poster") renderBoard();
+
+      // Restore after the view has been laid out, or the page has no height to
+      // scroll into yet. A timeout rather than requestAnimationFrame, which a
+      // browser throttles in a background tab and never fires.
+      window.setTimeout(function () {
+        if (t[0] === "tab-poster" && cameFromRow) {
+          var found = showRow(cameFromRow);
+          cameFromRow = null;
+          if (found) return;
+        }
+        window.scrollTo(0, scrollPos[currentView] || 0);
+      });
     });
   });
 

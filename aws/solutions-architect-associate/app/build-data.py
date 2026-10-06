@@ -96,11 +96,37 @@ def main() -> None:
                              "rows": rows, "traps": traps, "notes": notes})
 
     # ---- questions ----------------------------------------------------------
+    # The same question appears as gh-N in the option-less dump and q-N in the
+    # optioned source, so a flag or verdict against one has to find the other.
+    def alias(qid: str) -> list[str]:
+        out = [qid]
+        for a, b in (("gh-", "q-"), ("q-", "gh-")):
+            if qid.startswith(a):
+                out.append(b + qid[len(a):])
+        return out
+
+    def flag_for(qid: str):
+        for a in alias(qid):
+            if a in flags:
+                return flags[a]
+        return None
+
     # Review findings: questions the fact-checkers judged wrong, stale, or
     # carrying an explanation that cannot be trusted.
     flags = {}
     if FLAGS.exists():
         flags = json.loads(FLAGS.read_text(encoding="utf-8"))
+
+    # A question that has since been adjudicated is no longer suspect: a fix
+    # replaced its answer, and a keep means the reviewer was wrong. Either way
+    # the warning comes off. Only questions still awaiting a verdict keep one.
+    corr_path = HERE.parent / "questions" / "corrections.json"
+    if corr_path.exists():
+        corrections = json.loads(corr_path.read_text(encoding="utf-8"))
+        for qid, c in corrections.items():
+            if c["verdict"] in ("fix", "keep"):
+                for a in alias(qid):
+                    flags.pop(a, None)
 
     bank = json.loads(BANK.read_text(encoding="utf-8"))
     questions = []
@@ -116,7 +142,7 @@ def main() -> None:
             "area": r["area"],
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
-            "flag": flags.get(r["id"]),
+            "flag": flag_for(r["id"]),
         })
 
     data = {

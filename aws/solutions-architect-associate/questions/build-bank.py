@@ -26,6 +26,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 SOURCES = HERE / "sources"
 BANK = HERE / "bank"
+CORRECTIONS = HERE / "corrections.json"
 
 # --------------------------------------------------------------------------
 # Topic areas. Each is a list of (weight, regex). Highest total score wins.
@@ -304,6 +305,65 @@ def parse_whizlabs(raw: str, source: str) -> list[dict]:
     return records
 
 
+def parse_optioned(raw: str, source: str) -> list[dict]:
+    """
+    The canonical format enrich-options.py writes: a full stem, every option,
+    and the verified answer letter.
+
+        ### 12
+        <stem>
+        A. <option>
+        ...
+        ANSWER: C
+        WHY: <explanation>
+        ---
+    """
+    raw = raw.replace("\r\n", "\n")
+    records = []
+    for chunk in re.split(r"(?m)^-{3,}\s*$", raw):
+        chunk = chunk.strip()
+        m = re.match(r"###\s+(\d+)\s*\n(.*)", chunk, re.S)
+        if not m:
+            continue
+        number, body = int(m.group(1)), m.group(2)
+
+        am = re.search(r"(?m)^ANSWER:\s*([A-E])\s*$", body)
+        if not am:
+            continue
+        letter = am.group(1)
+        why = ""
+        wm = re.search(r"(?m)^WHY:\s*(.*)$", body)
+        if wm:
+            why = wm.group(1).strip()
+
+        head = body[: am.start()]
+        opts = list(re.finditer(r"(?m)^([A-E])\.\s+(.+?)\s*$", head))
+        if not opts:
+            continue
+        question = head[: opts[0].start()].strip()
+        options = {o.group(1): o.group(2).strip() for o in opts}
+        if letter not in options or len(question) < 40:
+            continue
+
+        answer = f"{letter}. {options[letter]}"
+        full = f"{question}\n{answer}"
+        area, scores = classify(full)
+        records.append({
+            "id": f"q-{number}",
+            "source": source,
+            "number": number,
+            "question": question,
+            "answer": answer,
+            "options": [f"{k}. {v}" for k, v in sorted(options.items())],
+            "explanation": why[:1600],
+            "area": area,
+            "domain": domain(full),
+            "scores": scores,
+            "qualifiers": qualifiers(question),
+        })
+    return records
+
+
 def parse_qa_markdown(raw: str, source: str) -> list[dict]:
     """
     Generic fallback for simple interview-style sources:
@@ -337,10 +397,25 @@ def parse_qa_markdown(raw: str, source: str) -> list[dict]:
 
 
 PARSERS = {
+    "optioned": parse_optioned,
     "github-dump": parse_github_dump,
     "whizlabs": parse_whizlabs,
     "qa": parse_qa_markdown,
 }
+
+
+def id_aliases(qid: str) -> list[str]:
+    """The same question can appear under either prefix.
+
+    The option-less dump numbered questions gh-N; the optioned source numbers
+    the same questions q-N, because both come from the same numbered set. A
+    correction recorded against one must find the other.
+    """
+    out = [qid]
+    for a, b in (("gh-", "q-"), ("q-", "gh-")):
+        if qid.startswith(a):
+            out.append(b + qid[len(a):])
+    return out
 
 
 def pick_parser(path: Path):
@@ -369,7 +444,37 @@ def main() -> None:
         print("No records parsed — is sources/ empty?")
         return
 
-    # De-duplicate on the first 150 characters of the question.
+    # Apply the adjudicators' verdicts. These live outside the bank because the
+    # bank is regenerated from sources/ and would otherwise lose them.
+    corrections = {}
+    if CORRECTIONS.exists():
+        corrections = json.loads(CORRECTIONS.read_text(encoding="utf-8"))
+
+    dropped, fixed = 0, 0
+    kept = []
+    for r in records:
+        c = next((corrections[a] for a in id_aliases(r["id"]) if a in corrections), None)
+        if not c:
+            kept.append(r)
+            continue
+        if c["verdict"] == "drop":
+            dropped += 1
+            continue
+        if c["verdict"] == "fix":
+            r["answer"] = c["answer"]
+            r["explanation"] = c["why"]
+            r["corrected"] = True
+            fixed += 1
+        kept.append(r)
+    records = kept
+    if corrections:
+        print(f"corrections applied: {fixed} answers rewritten, {dropped} questions dropped")
+
+    # De-duplicate on the first 150 characters of the question. Records that
+    # carry their options go first, so when the same question arrives from both
+    # the optioned source and the option-less dump, the usable one wins.
+    records.sort(key=lambda r: 0 if r.get("options") else 1)
+
     seen, unique = set(), []
     for r in records:
         key = re.sub(r"\W+", "", r["question"].lower())[:150]
