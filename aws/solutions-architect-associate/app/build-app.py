@@ -35,7 +35,12 @@ DATA = HERE / "app-data.json"
 OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 
-APP_VERSION = "1.2.2"
+APP_VERSION = "1.3.0"
+
+# SHA-256 of the board's password. The hash rather than the word, so the
+# password is not sitting in the published file in plain text. This is a
+# curtain, not a lock: the page and its questions are all client-side.
+PASSWORD = "Purple123"
 
 # The wrapper the Artifact publisher would otherwise supply. Mirrors it closely:
 # same charset, same viewport with viewport-fit=cover, same safe-area padding on
@@ -82,6 +87,9 @@ def main() -> None:
     html = html.replace("__DATA__", data)
     html = html.replace("__APP_VERSION__", APP_VERSION)
     html = html.replace("__BUILD_DATE__", build_date)
+
+    import hashlib
+    html = html.replace("__PASS_SHA__", hashlib.sha256(PASSWORD.encode()).hexdigest())
 
     if "__DATA__" in html or "__APP_VERSION__" in html:
         raise SystemExit("A placeholder was left unreplaced.")

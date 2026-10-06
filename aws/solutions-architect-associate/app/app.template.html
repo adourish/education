@@ -284,6 +284,39 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
 .flag.sev-wrong { border-left-width: 7px; }
 
+/* a question a person has checked, rather than one scraped and never read */
+.star {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: 700 0.74rem var(--ui);
+  color: var(--amber); background: var(--amber-soft);
+  border: 1px solid var(--amber); border-radius: 99px; padding: 2px 9px;
+}
+
+/* the password gate */
+.gate {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--ground);
+  display: flex; padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  overflow-y: auto;
+}
+.gate-card {
+  margin: auto; width: 100%; max-width: 420px;
+  background: var(--surface); border: 1px solid var(--rule);
+  border-top: 4px solid var(--cyan);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 26px;
+}
+.gate h2 { margin: 0 0 6px; font-size: 1.2rem; color: var(--cyan); }
+.gate p { margin: 0 0 16px; font-size: 0.94rem; color: var(--ink-2); }
+.gate input {
+  width: 100%; font: 400 1.05rem var(--ui); color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;
+}
+.gate input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.gate .wrong { color: var(--magenta); font-size: 0.9rem; margin: 0 0 12px; }
+
 /* what the terms in a question mean. Sits above the options, in the same place
    every time, so the eye knows where to go. */
 .hintbtn { margin-bottom: 14px; }
@@ -593,6 +626,17 @@ footer .v { font-family: var(--mono); }
   <span>Progress stored in this browser only.</span>
 </footer>
 
+<div class="gate" id="gate" hidden>
+  <form class="gate-card" id="gateForm">
+    <h2>SAA-C03 Recall Board</h2>
+    <p>This board is password protected. Enter the password to carry on.</p>
+    <input type="password" id="gatePass" autocomplete="current-password"
+           placeholder="Password" aria-label="Password">
+    <p class="wrong" id="gateWrong" hidden>That is not the password.</p>
+    <button class="btn primary" type="submit" style="width:100%">Open the board</button>
+  </form>
+</div>
+
 <div class="modal-back" id="storageModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="smTitle" aria-describedby="smBody">
     <button class="x" id="smClose" aria-label="Close and carry on">&times;</button>
@@ -626,6 +670,8 @@ footer .v { font-family: var(--mono); }
   var APP_VERSION = "__APP_VERSION__";
   var BUILD_DATE  = "__BUILD_DATE__";
   var STORE_KEY   = "saa-c03-recall-board/v1";
+  var PASS_SHA    = "__PASS_SHA__";
+  var PASS_KEY    = STORE_KEY + "/unlocked";
 
   // ---------- storage (always guarded: can throw or return empty) ----------
   // Probe before trusting it. A private window, blocked site data or a full
@@ -1110,6 +1156,11 @@ footer .v { font-family: var(--mono); }
     meta.appendChild(ref);
     meta.appendChild(el("span", "pill", DATA.areaTitles[q.area] || q.area));
     if (q.dom) meta.appendChild(el("span", "pill", q.dom));
+    if (q.star) {
+      var st = el("span", "star", "★ reviewed");
+      st.title = "A person has checked this question and its answer";
+      meta.appendChild(st);
+    }
     card.appendChild(meta);
 
     if (q.flag) {
@@ -1249,6 +1300,17 @@ footer .v { font-family: var(--mono); }
       if (drilling) renderDrillBanner();
     });
     card.appendChild(nextBtn);
+
+    // Skipping leaves the question unscored: not right, not wrong, and it comes
+    // round again next time rather than counting against a topic you know.
+    var skipBtn = el("button", "btn", "Skip this one");
+    skipBtn.style.marginTop = "14px";
+    skipBtn.style.marginLeft = "8px";
+    skipBtn.addEventListener("click", function () {
+      qi++; renderQuestion(); renderBoard();
+      if (drilling) renderDrillBanner();
+    });
+    card.appendChild(skipBtn);
 
     qhost.appendChild(card);
     updateScore();
@@ -1533,6 +1595,50 @@ footer .v { font-family: var(--mono); }
     DATA.questions.length + " questions · " +
     DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0) +
     " recall rows · built against " + DATA.guide.replace(/^Exam guide/, "AWS exam guide");
+
+  // ---------- password gate ----------
+  // This keeps the board off a passing stranger's screen. It is not security:
+  // the whole page is in the file, so anyone who views the source can read it.
+  var gate = document.getElementById("gate");
+
+  function sha256Hex(text) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+      .then(function (buf) {
+        return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+          return b.toString(16).padStart(2, "0");
+        }).join("");
+      });
+  }
+
+  var already = false;
+  try { already = localStorage.getItem(PASS_KEY) === PASS_SHA; } catch (e) { already = false; }
+
+  if (already) {
+    gate.hidden = true;
+  } else {
+    gate.hidden = false;
+    window.setTimeout(function () { document.getElementById("gatePass").focus(); }, 60);
+  }
+
+  document.getElementById("gateForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = document.getElementById("gatePass");
+    var wrong = document.getElementById("gateWrong");
+    sha256Hex(input.value).then(function (hex) {
+      if (hex === PASS_SHA) {
+        gate.hidden = true;
+        try { localStorage.setItem(PASS_KEY, PASS_SHA); } catch (err) { /* fine */ }
+        return;
+      }
+      wrong.hidden = false;
+      input.value = "";
+      input.focus();
+    }).catch(function () {
+      // No SubtleCrypto outside a secure context. Say so rather than lock out.
+      wrong.textContent = "This browser cannot check the password here. Open the site over https.";
+      wrong.hidden = false;
+    });
+  });
 
   renderBoard();
   updateScore();

@@ -174,7 +174,19 @@ Can a 'user' be associated with multiple AWS accounts?
 
 </details>
 
-### 18. dt-153
+### 18. q-144
+
+A company wants to provide users with access to AWS resources. The company has 1,500 users and manages their access to on-premises resources through Active Directory user groups on the corporate network. However, the company does not want users to have to maintain another identity to access the resources. A solutions architect must manage user access to the AWS resources while preserving access to the on-premises resources. What should the solutions architect do to meet these requirements?
+
+<details><summary>Answer</summary>
+
+**D. Configure Security Assertion Markup Language (SAML) 2.0-based federation. Create roles with the appropriate policies attached. Map the roles to the Active Directory groups.**
+
+The most appropriate solution is to configure SAML 2.0-based federation. This allows the company to use its existing on-premises Active Directory as an Identity Provider (IdP) to grant users access to AWS, which acts as the Service Provider (SP). Users authenticate with their corporate credentials, and the IdP sends a SAML assertion to AWS. AWS then provides temporary security credentials, allowing the user to assume an IAM role. By mapping Active Directory groups to specific IAM roles, the company can centrally manage permissions using their existing group structures, fulfilling the requirement to avoid creating and managing separate identities for each user in AWS. Why Incorrect Options are Wrong: A. Creating an IAM user for each of the 1,500 users directly contradicts the requirement that users should not have to maintain another identity. It also creates significant administrative ov
+
+</details>
+
+### 19. dt-153
 
 True or False: Common points of failures like generators and cooling equipment are shared across Availability Zones.
 
@@ -184,7 +196,7 @@ True or False: Common points of failures like generators and cooling equipment a
 
 </details>
 
-### 19. dt-156
+### 20. dt-156
 
 Is there a limit to how many groups a user can be in?
 
@@ -194,7 +206,7 @@ Is there a limit to how many groups a user can be in?
 
 </details>
 
-### 20. dt-157
+### 21. dt-157
 
 Which is the default region in AWS?
 
@@ -204,7 +216,7 @@ Which is the default region in AWS?
 
 </details>
 
-### 21. dt-161
+### 22. dt-161
 
 Is there a limit to the number of groups you can have?
 
@@ -214,7 +226,7 @@ Is there a limit to the number of groups you can have?
 
 </details>
 
-### 22. dt-162
+### 23. dt-162
 
 True or False: Automated backups are enabled by default for a new DB Instance
 
@@ -224,7 +236,7 @@ True or False: Automated backups are enabled by default for a new DB Instance
 
 </details>
 
-### 23. dt-167
+### 24. dt-167
 
 True or False: Provisioned IOPS Costs - you are charged for the IOPS and storage whether or not you use them in a given month.
 
@@ -234,7 +246,7 @@ True or False: Provisioned IOPS Costs - you are charged for the IOPS and storage
 
 </details>
 
-### 24. dt-176
+### 25. dt-176
 
 What is the maximum key length of a tag?
 
@@ -244,7 +256,7 @@ What is the maximum key length of a tag?
 
 </details>
 
-### 25. dt-179
+### 26. dt-179
 
 Are penetration tests allowed as long as they are limited to the customer's instances?
 
@@ -254,7 +266,7 @@ Are penetration tests allowed as long as they are limited to the customer's inst
 
 </details>
 
-### 26. dt-191
+### 27. dt-191
 
 What are the four levels of AWS Premium Support?
 
@@ -264,7 +276,7 @@ What are the four levels of AWS Premium Support?
 
 </details>
 
-### 27. dt-192
+### 28. dt-192
 
 What is the default maximum number of Access Keys per user?
 
@@ -274,7 +286,7 @@ What is the default maximum number of Access Keys per user?
 
 </details>
 
-### 28. dt-193
+### 29. dt-193
 
 In the most recent company meeting, your CEO focused on the fact that everyone in the organization needs to make sure that all of the infrastructure that is built is truly scalable. Which of the following statements is incorrect in reference to scalable architecture?
 
@@ -284,7 +296,7 @@ In the most recent company meeting, your CEO focused on the fact that everyone i
 
 </details>
 
-### 29. dt-212
+### 30. dt-212
 
 Location of Instances are [...].
 
@@ -294,7 +306,7 @@ Location of Instances are [...].
 
 </details>
 
-### 30. q-233
+### 31. q-233
 
 A solutions architect has created a new AWS account and must secure AWS account root user access. Which combination of actions will accomplish this? (Choose two.)
 
@@ -306,7 +318,7 @@ B. Enable multi-factor authentication to the root user.  Using a strong, complex
 
 </details>
 
-### 31. dt-237
+### 32. dt-237
 
 Which of the below statements would be an incorrect response to your customers enquiry?
 
@@ -316,7 +328,7 @@ Which of the below statements would be an incorrect response to your customers e
 
 </details>
 
-### 32. dt-242
+### 33. dt-242
 
 Your supervisor has asked you to build a simple file synchronization service for your department. He doesn't want to spend too much money and he wants to be notified of any changes to files by email. What do you think would be the best Amazon service to use for the email solution?
 
@@ -326,7 +338,7 @@ Your supervisor has asked you to build a simple file synchronization service for
 
 </details>
 
-### 33. dt-247
+### 34. dt-247
 
 What is the command line instruction for running the remote desktop client in Windows?
 
@@ -336,7 +348,7 @@ What is the command line instruction for running the remote desktop client in Wi
 
 </details>
 
-### 34. dt-249
+### 35. dt-249
 
 What is the charge for the data transfer incurred in replicating data between your primary and standby?
 
@@ -346,7 +358,7 @@ What is the charge for the data transfer incurred in replicating data between yo
 
 </details>
 
-### 35. dt-251
+### 36. dt-251
 
 Resources that are created in AWS are identified by a unique identifier called an
 
@@ -356,7 +368,7 @@ Resources that are created in AWS are identified by a unique identifier called a
 
 </details>
 
-### 36. dt-263
+### 37. dt-263
 
 Can I test my DB Instance against a new version before upgrading?
 
@@ -366,7 +378,7 @@ Can I test my DB Instance against a new version before upgrading?
 
 </details>
 
-### 37. dt-270
+### 38. dt-270
 
 The base URI for all requests for instance metadata is [...].
 
@@ -376,7 +388,7 @@ The base URI for all requests for instance metadata is [...].
 
 </details>
 
-### 38. dt-272
+### 39. dt-272
 
 A user is planning to launch a scalable web application. Which of the below mentioned options will not affect the latency of the application?
 
@@ -386,7 +398,7 @@ A user is planning to launch a scalable web application. Which of the below ment
 
 </details>
 
-### 39. dt-279
+### 40. dt-279
 
 A, [...] is an individual, system, or application that interacts with AWS programmatically.
 
@@ -396,7 +408,7 @@ A, [...] is an individual, system, or application that interacts with AWS progra
 
 </details>
 
-### 40. dt-303
+### 41. dt-303
 
 Which of the following will cause an immediate DB instance reboot to occur?
 
@@ -406,7 +418,7 @@ Which of the following will cause an immediate DB instance reboot to occur?
 
 </details>
 
-### 41. dt-332
+### 42. dt-332
 
 What does Amazon SWF stand for?
 
@@ -416,7 +428,7 @@ What does Amazon SWF stand for?
 
 </details>
 
-### 42. dt-338
+### 43. dt-338
 
 A [...] is a storage device that moves data in sequences of bytes or bits (blocks).
 
@@ -426,7 +438,7 @@ A [...] is a storage device that moves data in sequences of bytes or bits (block
 
 </details>
 
-### 43. dt-356
+### 44. dt-356
 
 Can the string value of 'Key' be prefixed with laws?
 
@@ -436,7 +448,7 @@ Can the string value of 'Key' be prefixed with laws?
 
 </details>
 
-### 44. dt-370
+### 45. dt-370
 
 You must increase storage size in increments of at least [...].
 
@@ -446,7 +458,7 @@ You must increase storage size in increments of at least [...].
 
 </details>
 
-### 45. dt-371
+### 46. dt-371
 
 You need to set up a security certificate for a client's e-commerce website as it will use the HTTPS protocol. Which of the below AWS services do you need to access to manage your SSL server certificate?
 
@@ -456,7 +468,7 @@ You need to set up a security certificate for a client's e-commerce website as i
 
 </details>
 
-### 46. dt-383
+### 47. dt-383
 
 What are the two permission types used by AWS?
 
@@ -466,7 +478,7 @@ What are the two permission types used by AWS?
 
 </details>
 
-### 47. dt-392
+### 48. dt-392
 
 What is the maximum response time for a Business level Premium Support case?
 
@@ -476,7 +488,7 @@ What is the maximum response time for a Business level Premium Support case?
 
 </details>
 
-### 48. dt-395
+### 49. dt-395
 
 True or False: If you add a tag that has the same key as an existing tag on a DB Instance, the new value overwrites the old value.
 
@@ -486,7 +498,7 @@ True or False: If you add a tag that has the same key as an existing tag on a DB
 
 </details>
 
-### 49. dt-418
+### 50. dt-418
 
 Will I be alerted when automatic fail over occurs?
 
@@ -496,7 +508,7 @@ Will I be alerted when automatic fail over occurs?
 
 </details>
 
-### 50. dt-435
+### 51. dt-435
 
 Is decreasing the storage size of a DB Instance permitted?
 
@@ -506,7 +518,7 @@ Is decreasing the storage size of a DB Instance permitted?
 
 </details>
 
-### 51. dt-444
+### 52. dt-444
 
 True or False: REST or Query requests are HTTP or HTTPS requests that use an HTTP verb (such as GET or POST) and a parameter named Action or Operation that specifies the API you are calling.
 
@@ -516,7 +528,7 @@ True or False: REST or Query requests are HTTP or HTTPS requests that use an HTT
 
 </details>
 
-### 52. q-454
+### 53. q-454
 
 A company has resources across multiple AWS Regions and accounts. A newly hired solutions architect discovers a previous employee did not provide details about the resources inventory. The solutions architect needs to build and map the relationship details of the various workloads across all accounts. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -528,7 +540,7 @@ Workload Discovery on AWS is a prebuilt solution you deploy from the AWS Solutio
 
 </details>
 
-### 53. dt-492
+### 54. dt-492
 
 What does Amazon Cloud Formation provide?
 
@@ -538,7 +550,7 @@ What does Amazon Cloud Formation provide?
 
 </details>
 
-### 54. q-493
+### 55. q-493
 
 A company wants to use artificial intelligence (AI) to determine the quality of its customer service calls. The company currently manages calls in four different languages, including English. The company will offer new languages in the future. The company does not have the resources to regularly maintain machine learning (ML) models. The company needs to create written sentiment analysis reports from the customer service call recordings. The customer service call recording text must be translated into English. Which combination of steps will meet these requirements? (Choose three.)
 
@@ -550,7 +562,7 @@ E. Use Amazon Translate to translate text in any language to English. F. Use Ama
 
 </details>
 
-### 55. dt-495
+### 56. dt-495
 
 What does Amazon SES stand for?
 
@@ -560,7 +572,7 @@ What does Amazon SES stand for?
 
 </details>
 
-### 56. dt-497
+### 57. dt-497
 
 Disabling automated backups [...] disable the point-in-time recovery.
 
@@ -570,7 +582,7 @@ Disabling automated backups [...] disable the point-in-time recovery.
 
 </details>
 
-### 57. dt-506
+### 58. dt-506
 
 Once again your customers are concerned about the security of their sensitive data and with their latest enquiry ask about what happens to old storage devices on AWS. What would be the best answer to this question?
 
@@ -580,7 +592,7 @@ Once again your customers are concerned about the security of their sensitive da
 
 </details>
 
-### 58. dt-522
+### 59. dt-522
 
 While signing in REST/ Query requests, for additional security, you should transmit your requests using Secure Sockets Layer (SSL) by using [...].
 
@@ -590,7 +602,7 @@ While signing in REST/ Query requests, for additional security, you should trans
 
 </details>
 
-### 59. dt-537
+### 60. dt-537
 
 Can resource record sets in a hosted zone have a different domain suffix (for example, <www.blog>. acme.com and <www.acme.ca>)?
 
@@ -600,25 +612,13 @@ Can resource record sets in a hosted zone have a different domain suffix (for ex
 
 </details>
 
-### 60. dt-541
+### 61. dt-541
 
 Will I be charged if the DB instance is idle?
 
 <details><summary>Answer</summary>
 
 **A. Yes.**
-
-</details>
-
-### 61. q-624
-
-A company wants to provide users with access to AWS resources. The company has 1,500 users and manages their access to on-premises resources through Active Directory user groups on the corporate network. However, the company does not want users to have to maintain another identity to access the resources. A solutions architect must manage user access to the AWS resources while preserving access to the on- premises resources. What should the solutions architect do to meet these requirements?
-
-<details><summary>Answer</summary>
-
-**D. Configure Security Assertion Markup Language (SAML) 2 0-based federation. Create roles with the appropriate policies attached Map the roles to the Active Directory groups.**
-
-using SAML 2.0-based federation, which allows you to integrate AWS with your existing Active Directory infrastructure. This approach enables single sign-on (SSO) for users, meaning they can use their existing corporate credentials to access both on-premises and AWS resources without maintaining separate identities.
 
 </details>
 

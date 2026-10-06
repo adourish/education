@@ -12,3 +12,7 @@ Thumbs.db
 
 # Office lock files
 ~$*
+
+# Watermarked paid question sets. Kept locally for study, never committed and
+# never published: every page carries the buyer's transaction id and IP.
+aws/solutions-architect-associate/questions/sources/certempire.*
