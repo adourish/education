@@ -348,6 +348,14 @@ select {
 }
 .qmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.78rem; color: var(--ink-3); }
 .qmeta .count { font-family: var(--mono); font-weight: 600; color: var(--ink-2); }
+.qmeta .qid {
+  font-family: var(--mono); font-weight: 600; font-size: 0.78rem;
+  color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 2px 8px;
+  letter-spacing: .02em;
+}
+/* where the answer sat in the original source, kept for traceability */
+.reveal .src { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); margin-top: 8px; }
 .qtext { font-size: 1.05rem; line-height: 1.75; max-width: 62ch; white-space: pre-wrap; margin: 0 0 16px; }
 
 .opts { display: grid; gap: 7px; margin-bottom: 14px; }
@@ -1069,7 +1077,11 @@ footer .v { font-family: var(--mono); }
     var card = el("div", "card");
 
     var meta = el("div", "qmeta");
-    meta.appendChild(el("span", "count", q.id));
+    // A stable reference, so a question can be looked up in the bank or quoted
+    // back when something about it looks wrong.
+    var ref = el("span", "qid", q.id);
+    ref.title = "Question reference — quote this if the question looks wrong";
+    meta.appendChild(ref);
     meta.appendChild(el("span", "pill", DATA.areaTitles[q.area] || q.area));
     if (q.dom) meta.appendChild(el("span", "pill", q.dom));
     card.appendChild(meta);
@@ -1089,7 +1101,8 @@ footer .v { font-family: var(--mono); }
     var reveal = el("div", "reveal");
     reveal.hidden = true;
     reveal.appendChild(el("h4", null, "Answer"));
-    reveal.appendChild(el("div", "ansbox", q.a));
+    var ansbox = el("div", "ansbox", q.a);
+    reveal.appendChild(ansbox);
     if (q.why) reveal.appendChild(el("div", "why", q.why));
 
     // Letters of the correct answer, e.g. "B. foo; D. bar" -> ["B","D"].
@@ -1099,16 +1112,44 @@ footer .v { font-family: var(--mono); }
     // Offer real multiple choice only when the source gave us the distractors
     // AND exactly one option is right: a single click cannot express "pick two".
     if (q.opts && q.opts.length && answerLetters.length === 1) {
+      // Strip the source letter, shuffle, then letter them afresh from A in the
+      // order shown. Without the re-lettering the options appear out of
+      // sequence (C, A, D, B), which looks broken and tells you where the
+      // right answer sat in the original. Correctness is tracked on the option
+      // itself, never on the letter the reader sees.
+      var LETTERS = "ABCDEFGH";
+      var pool = q.opts.map(function (t) {
+        var m = t.match(/^\s*([A-E])[.)]\s*([\s\S]*)$/);
+        return { src: m ? m[1] : "", text: (m ? m[2] : t).trim() };
+      });
+      shuffle(pool);
+      pool.forEach(function (o, i) { o.shown = LETTERS[i]; });
+
+      var right = null;
+      for (var pi = 0; pi < pool.length; pi++) {
+        if (pool[pi].src === answerLetters[0]) { right = pool[pi]; break; }
+      }
+      // Show the answer under the letter the reader actually saw.
+      if (right) {
+        ansbox.textContent = right.shown + ". " + right.text;
+        reveal.appendChild(el("div", "src",
+          q.id + "  ·  shown as " + right.shown + ", option " + right.src + " in the source"));
+      }
+
       var opts = el("div", "opts");
-      shuffle(q.opts.slice()).forEach(function (text) {
-        var b = el("button", "opt", text);
+      pool.forEach(function (o) {
+        var b = el("button", "opt", o.shown + ". " + o.text);
         b.addEventListener("click", function () {
           if (answered) return;
           answered = true;
-          var letter = (text.match(/^\s*([A-E])\./) || [])[1];
-          var ok = letter === answerLetters[0];
+          var ok = right ? o === right : false;
           b.classList.add(ok ? "pick-ok" : "pick-bad");
           Array.prototype.forEach.call(opts.children, function (c) { c.disabled = true; });
+          if (!ok && right) {
+            for (var k = 0; k < opts.children.length; k++) {
+              if (pool[k] === right) opts.children[k].classList.add("pick-ok");
+            }
+          }
           reveal.hidden = false;
           record(q, ok);
           nextBtn.hidden = false;
