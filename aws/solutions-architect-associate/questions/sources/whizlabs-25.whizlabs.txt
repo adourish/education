@@ -1,0 +1,743 @@
+AWS Solutions Architect
+Certification
+Exam Questions
+Here we’ve a list of 25 free AWS Solutions Architect Exam
+Questions and Answers for you to prepare well for the AWS
+Solution Architect exam. This practice exam questions are very
+similar to the practice questions in the real exam format.
+Our expert team has curated a list of questions with correct answers and
+detailed explanations for the AWS Solutions Architect Certification Exam, so
+that you could identify and understand which option is correct and why.
+Try these AWS Solutions Architect Associate exam questions now and check
+your preparation level. Let’s see how many of these AWS Solutions Architect
+questions you can solve at Associate-level! Let’s get started!
+1) You are an AWS Solutions Architect. Your company has a successful web
+application deployed in an AWS Auto Scaling group. The application attracts
+more and more global customers. However, the application’s performance is
+impacted. Your manager asks you how to improve the performance and
+availability of the application. Which of the following AWS services would you
+recommend?
+A. AWS DataSync
+B. Amazon DynamoDB Accelerator
+C. AWS Lake Formation
+D. AWS Global Accelerator
+Answer: D
+AWS Global accelerator provides static IP addresses that are anycast in the AWS
+edge network. Incoming traffic is distributed across endpoints in AWS regions. The
+performance and availability of the application are improved.
+Option​
+​
+A ​
+is​
+​
+incorrect:​
+Because DataSync is a tool to automate the data
+transfer and does not help to improve the performance.
+Option​
+​
+B ​
+is​
+​
+incorrect:​
+DynamoDB is not mentioned in this question.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+Because AWS Lake Formation is used to
+manage a large amount of data in AWS which would not help in this situation.
+Option​
+​
+D ​
+is​
+CORRECT:​
+Check the AWS Global Accelerator use
+cases. The Global Accelerator service can improve both application performance and
+availability.
+2) Your team is developing a high-performance computing (HPC) application. The
+application resolves complex, compute-intensive problems and needs a
+high-performance and low-latency Lustre file system. You need to configure this
+file system in AWS at a low cost. Which method is the most suitable?
+A. Create a Lustre file system through Amazon FSx.
+B. Launch a high-performance Lustre file system in Amazon EBS.
+C. Create a high-speed volume cluster in an EC2 placement group.
+D. Launch the Lustre file system from AWS Marketplace.
+Answer: A
+The Lustre file system is an open-source, parallel file system that can be used for HPC
+applications. Refer to http://lustre.org/ for its introduction. In Amazon FSx, users can
+quickly launch a Lustre file system at a low cost.
+Option​
+​
+A ​
+is​
+CORRECT:​
+Amazon FSx supports Lustre file systems and
+users pay for only the resources they use.
+Option​
+​
+B ​
+is​
+​
+incorrect:​
+Although users may be able to configure a
+Lustre file system through EBS, it needs lots of extra configurations, Option A is
+more straightforward.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+Because the EC2 placement group does not
+support a Lustre file system.
+Option​
+​
+D ​
+is​
+​
+incorrect:​
+Because products in AWS Marketplace are not
+cost-effective. For Amazon FSx, there are no minimum fees or set-up charges. Check
+its pricing in Amazon FSx for Lustre Pricing.
+Read Now: Amazon Braket
+3) You host a static website in an S3 bucket and there are global clients from
+multiple regions. You want to use an AWS service to store cache for frequently
+accessed content so that the latency is reduced and the data transfer rate is
+increased. Which of the following options would you choose?
+A. Use AWS SDKs to horizontally scale parallel requests to the Amazon S3 service
+endpoints.
+B. Create multiple Amazon S3 buckets and put Amazon EC2 and S3 in the same
+AWS Region.
+C. Enable Cross-Region Replication to several AWS Regions to serve customers from
+different locations.
+D. Configure CloudFront to deliver the content in the S3 bucket.
+​
+Answer​
+:​
+D
+CloudFront is able to store the frequently accessed content as a cache and the
+performance is optimized. Other options may help on the performance however they
+do not store cache for the S3 objects.
+Option​
+​
+A ​
+is​
+​
+incorrect:​
+This option may increase the throughput
+however it does not store cache.
+Option​
+​
+B ​
+is​
+​
+incorrect:​
+Because this option does not use cache.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+This option creates multiple S3 buckets in
+different regions. It does not improve the performance using cache.
+Option​
+​
+D ​
+is​
+CORRECT:​
+Because CloudFront caches copies of the S3
+files in its edge locations and users are routed to the edge location that has the lowest
+latency.
+4) Your company has an online game application deployed in an Auto Scaling
+group. The traffic of the application is predictable. Every Friday, the traffic starts to
+increase, remains high on weekends and then drops on Monday. You need to plan
+the scaling actions for the Auto Scaling group. Which method is the most suitable
+for the scaling policy?
+A. Configure a scheduled CloudWatch event rule to launch/terminate instances at the
+specified time every week.
+B. Create a predefined target tracking scaling policy based on the average CPU metric
+and the ASG will scale automatically.
+C. Select the ASG and on the Automatic Scaling tab, add a step scaling policy to
+automatically scale-out/in at fixed time every week.
+D. Configure a scheduled action in the Auto Scaling group by specifying the
+recurrence, start/end time, capacities, etc.
+Answer​
+:​
+D
+The correct scaling policy should be scheduled scaling as it defines your own scaling
+schedule. Refer to
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/schedule_time.html for
+details.
+Option​
+​
+A ​
+is​
+​
+incorrect:​
+This option may work. However, you have to
+configure a target such as a Lambda function to perform the scaling actions.
+Option​
+​
+B ​
+is​
+​
+incorrect:​
+The target tracking scaling policy defines a
+target for the ASG. The scaling actions do not happen based on a schedule.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+The step scaling policy does not configure the
+ASG to scale at a specified time.
+Option​
+​
+D ​
+is​
+CORRECT:​
+With scheduled scaling, users define a schedule
+for the ASG to scale. This option can meet the requirements.
+5) You are creating several EC2 instances for a new application. For better
+performance of the application, both low network latency and high network
+throughput are required for the EC2 instances. All instances should be launched in
+a single availability zone. How would you configure this?
+A. Launch all EC2 instances in a placement group using a Cluster placement strategy.
+B. Auto-assign a public IP when launching the EC2 instances.
+C. Launch EC2 instances in an EC2 placement group and select the Spread placement
+strategy.
+D. When launching the EC2 instances, select an instance type that supports enhanced
+networking.
+Answer: A
+The Cluster placement strategy helps to achieve a low-latency and high throughput
+network. The reference is in
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html#pla
+cement-groups-limitations-partition.
+Option​
+​
+A ​
+is​
+CORRECT:​
+The Cluster placement strategy can improve
+network performance among EC2 instances. The strategy can be selected when
+creating a placement group:
+Option​
+​
+B ​
+is​
+​
+incorrect:​
+Because the public IP cannot improve network
+performance.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+The Spread placement strategy is recommended
+when a number of critical instances should be kept separate from each other. This
+strategy should not be used in this scenario.
+Option​
+​
+D ​
+is​
+​
+incorrect:​
+The description in the option is inaccurate. The
+correct method is creating a placement group with a suitable placement strategy.
+Also Read: AWS OpsWorks
+6) You need to deploy a machine learning application in AWS EC2. The
+performance of inter-instance communication is very critical for the application
+and you want to attach a network device to the instance so that the performance can
+be greatly improved. Which option is the most appropriate to improve the
+performance?
+A. Enable enhanced networking features in the EC2 instance.
+B. Configure Elastic Fabric Adapter (EFA) in the instance.
+C. Attach high-speed Elastic Network Interface (ENI) in the instance.
+D. Create an Elastic File System (EFS) and mount the file system in the instance.
+Answer​
+: B
+With Elastic Fabric Adapter (EFA), users can get better performance if compared
+with enhanced networking (Elastic Network Adapter) or Elastic Network Interface.
+Check the differences between EFAs and ENAs in
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html.
+Option​
+​
+A ​
+is​
+​
+incorrect:​
+Because with Elastic Fabric Adapter (EFA),
+users can achieve a better network performance than enhanced networking.
+Option​
+​
+B ​
+is​
+CORRECT:​
+Because EFA is the most suitable method for
+accelerating High-Performance Computing (HPC) and machine learning application.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+Because Elastic Network Interface (ENI) cannot
+improve the performance as required.
+Option​
+​
+D ​
+is​
+​
+incorrect:​
+The Elastic File System (EFS) cannot accelerate
+inter-instance communication.
+7) You have an S3 bucket that receives photos uploaded by customers. When an
+object is uploaded, an event notification is sent to an SQS queue with the object
+details. You also have an ECS cluster that gets messages from the queue to do the
+batch processing. The queue size may change greatly depending on the number of
+incoming messages and backend processing speed. Which metric would you use to
+scale up/down the ECS cluster capacity?
+A. The number of messages in the SQS queue.
+B. Memory usage of the ECS cluster.
+C. Number of objects in the S3 bucket.
+D. Number of containers in the ECS cluster.
+​
+Answer​
+:​
+A
+In this scenario, the SQS queue is used to store the object details which is a highly
+scalable and reliable service. ECS is ideal to perform batch processing and it should
+scale up or down based on the number of messages in the queue. Details please check
+https://github.com/aws-samples/ecs-refarch-batch-processing.
+Option​
+​
+A ​
+is​
+CORRECT:​
+Users can configure a CloudWatch alarm based
+on the number of messages in the SQS queue and notify the ECS cluster to scale up or
+down using the alarm.
+Option​
+​
+B ​
+is​
+​
+incorrect:​
+Because memory usage may not be able to
+reflect the workload.
+Option​
+​
+C ​
+is​
+​
+incorrect:​
+Because the number of objects in S3 cannot
+determine if the ECS cluster should change its capacity.
+Option​
+​
+D ​
+is​
+​
+incorrect:​
+Because the number of containers cannot be
+used as a metric to trigger an auto-scaling event.
+8) You are planning to build a fleet of EBS-optimized EC2 instances for your
+new application. Due to security compliance, your organization wants you to
+encrypt root volume which is used to boot the instances. How can this be
+achieved?
+A. Select the Encryption option for the root EBS volume while launching the EC2
+instance.
+B. Once the EC2 instances are launched, encrypt the root volume using AWS KMS
+Master Key.
+C. Root volumes cannot be encrypted. Add another EBS volume with an encryption
+option selected during launch. Once EC2 instances are launched, make encrypted
+EBS volume as root volume through the console.
+D. Launch an unencrypted EC2 instance and create a snapshot of the root volume.
+Make a copy of the snapshot with the encryption option selected and CreateImage
+using the encrypted snapshot. Use this image to launch EC2 instances.
+Answer: D
+When launching an EC2 instance, the EBS volume for root cannot be encrypted.
+You can launch the instance with unencrypted root volume and create a snapshot of
+the root volume. Once the snapshot is created, you can copy the snapshot where you
+can make the new snapshot encrypted.
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIEncryption.html#AMI
+Encryption
+9) Organization XYZ is planning to build an online chat application for their
+enterprise level collaboration for their employees across the world. They are
+looking for a single digit latency fully managed database to store and retrieve
+conversations. What would AWS Database service you recommend?
+A. AWS DynamoDB
+B. AWS RDS
+C. AWS Redshift
+D. AWS Aurora
+Answer: A
+Read more here: https://aws.amazon.com/dynamodb/#whentousedynamodb
+Read more here:
+https://aws.amazon.com/about-aws/whats-new/2015/07/amazon-dynamodb-available-
+now-cross-region-replication-triggers-and-streams/
+10) When creating an AWS CloudFront distribution, which of the following is
+not an origin?
+A. Elastic Load Balancer
+B. AWS S3 bucket
+C. AWS MediaPackage channel endpoint
+D. AWS Lambda
+Answer: D
+Explanation: AWS Lambda is not supported directly as the CloudFront origin.
+However, Lambda can be invoked through API Gateway which can be set as the
+origin for AWS CloudFront. Read more here:
+https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.
+html
+11) Which of the following statements are true with respect to VPC? (choose
+multiple)
+A. A subnet can have multiple route tables associated with it.
+B. A network ACL can be associated with multiple subnets.
+C. A route with target “local” on the route table can be edited to restrict traffic within
+VPC.
+D. Subnet’s IP CIDR block can be same as the VPC CIDR block.
+Answer: B, D
+Option A is not correct. A subnet can have only one route table associated with it.
+Option B is correct.
+Option C is not correct.
+Option D is correct.
+Aspired to learn AWS? Here we bring the AWS CHEAT SHEET that will take you
+through cloud Computing and AWS basics along with AWS products and services!
+12) Organization ABC has a customer base in the US and Australia that would
+be downloading 10s of GBs files from your application. For them to have a better
+download experience, they decided to use the AWS S3 bucket with cross-region
+replication with the US as the source and Australia as the destination. They are
+using existing unused S3 buckets and had set up cross-region replication
+successfully. However, when files uploaded to the US bucket, they are not being
+replicated to Australia bucket. What could be the reason?
+A. Versioning is not enabled on the source and destination buckets.
+B. Encryption is not enabled on the source and destination buckets.
+C. Source bucket has a policy with DENY and the role used for replication is not
+excluded from DENY.
+D. Destination bucket’s default CORS policy does not have source bucket added as
+the origin.
+Answer: C
+When you have a bucket policy which has explicit DENY, you must exclude all IAM
+resources which need to access the bucket.
+Read more here:
+https://aws.amazon.com/blogs/security/how-to-create-a-policy-that-whitelists-access-t
+o-sensitive-amazon-s3-buckets/
+For option A, Cross region replication cannot be enabled without enabling versioning.
+The question states that cross-region replication has been successfully enabled. So this
+option is not correct.
+13) Which of the following is not a category in AWS Trusted Advisor service
+checks?
+A. Cost Optimization
+B. Fault Tolerance
+C. Service Limits
+D. Network Optimization
+Answer: D
+https://aws.amazon.com/premiumsupport/trustedadvisor/
+14) Your organization is building a collaboration platform for which they chose
+AWS EC2 for web and application servers and MySQL RDS instance as the
+database. Due to the nature of the traffic to the application, they would like to
+increase the number of connections to RDS instances. How can this be achieved?
+A. Login to RDS instance and modify database config file under /etc/mysql/my.cnf
+B. Create a new parameter group, attach it to the DB instance and change the setting.
+C. Create a new option group, attach it to the DB instance and change the setting.
+D. Modify setting in the default options group attached to the DB instance.
+Answer: B
+https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithPar
+amGroups
+15) You will be launching and terminating EC2 instances on a need basis for your
+workloads. You need to run some shell scripts and perform certain checks
+connecting to the AWS S3 bucket when the instance is getting launched. Which of
+the following options will allow performing any tasks during launch? (choose
+multiple)
+A. Use Instance user data for shell scripts.
+B. Use Instance metadata for shell scripts.
+C. Use AutoScaling Group lifecycle hooks and trigger AWS Lambda function
+through CloudWatch events.
+D. Use Placement Groups and set “InstanceLaunch” state to trigger AWS Lambda
+functions.
+Answer: A, C
+Option A is correct.
+Option C is correct.
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/lifecycle-hooks.html#prepari
+ng-for-notification
+16) Your organization has an AWS setup and planning to build Single Sign-On for
+users to authenticate with on-premise Microsoft Active Directory Federation
+Services (ADFS) and let users log in to the AWS console using AWS STS
+Enterprise Identity Federation. Which of the following services do you need to call
+from AWS STS service after you authenticate with your on-premise?
+A. AssumeRoleWithSAML
+B. GetFederationToken
+C. AssumeRoleWithWebIdentity
+D. GetCallerIdentity
+Answer: A
+https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithSAML.
+html
+https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_saml.html
+17) How many VPCs can an Internet Gateway be attached to at any given time?
+A. 2
+B. 5
+C. 1
+D. By default 1. But it can be attached to any VPC peered with its belonging
+VPC.
+Answer: C
+https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/amazon-vpc-limits.html
+#vpc-limits-gateways
+At any given time, an Internet Gateway can be attached to only one VPC. It can be
+detached from the VPC and be used for another VPC.
+18) Your organization was planning to develop a web application on AWS EC2.
+Application admin was tasked to perform AWS setup required to spin EC2 instance
+inside an existing private VPC. He/she has created a subnet and wants to ensure no
+other subnets in the VPC can communicate with your subnet except for the specific
+IP address. So he/she created a new route table and associated with the new subnet.
+When he/she was trying to delete the route with the target as local, there is no
+option to delete the route. What could have caused this behavior?
+A. Policy attached to IAM user does not have access to remove routes.
+B. A route with the target as local cannot be deleted.
+C. You cannot add/delete routes when associated with the subnet. Remove associated,
+add/delete routes and associate again with the subnet.
+D. There must be at least one route on the route table. Add a new route to enable
+delete option on existing routes.
+Answer: B
+https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Route_Tables.htm
+l#RouteTa
+19) Which of the following are not backup and restore solutions provided by AWS?
+(choose multiple)
+A. AWS Elastic Block Store
+B. AWS Storage Gateway
+C. AWS Elastic Beanstalk
+D. AWS Database Migration Hub
+D. AWS CloudFormation
+Answer: C, E
+Option A is snapshot based data backup solution.
+Option B, AWS Storage Gateway provides multiple solutions for backup & recovery.
+Option D can be used as a Database backup solution.
+20) Organization ABC has a requirement to send emails to multiple users from
+their application deployed on EC2 instance in a private VPC. Email receivers will
+not be IAM users. You have decided to use AWS Simple Email Service and
+configured from email address. You are using AWS SES API to send emails from
+your EC2 instance to multiple users. However, email sending getting failed. Which
+of the following options could be the reason?
+A. You have not created VPC endpoint for SES service and configured in the route
+table.
+B. AWS SES is in sandbox mode by default which can send emails only to verified
+email addresses.
+C. IAM user of configured from email address does not have access AWS SES to
+send emails.
+D. AWS SES cannot send emails to addresses which are not configured as IAM users.
+You have to use the SMTP service provided by AWS.
+Answer: B
+Amazon SES is an email platform that provides an easy, cost-effective way for you to
+send and receive email using your own email addresses and domains.
+For example, you can send marketing emails such as special offers, transactional
+emails such as order confirmations, and other types of correspondence such as
+newsletters. When you use Amazon SES to receive mail, you can develop software
+solutions such as email autoresponders, email unsubscribe systems and applications
+that generate customer support tickets from incoming emails.
+https://docs.aws.amazon.com/ses/latest/DeveloperGuide/limits.html
+https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.ht
+ml
+21) You have configured AWS S3 event notification to send a message to AWS
+Simple Queue Service whenever an object is deleted. You are performing a
+ReceiveMessage API operation on the AWS SQS queue to receive the S3 delete
+object message onto AWS EC2 instance. For any successful message operations,
+you are deleting them from the queue. For failed operations, you are not deleting
+the messages. You have developed a retry mechanism which reruns the application
+every 5 minutes for failed ReceiveMessage operations. However, you are not
+receiving the messages again during the rerun. What could have caused this?
+A. AWS SQS deletes the message after it has been read through ReceiveMessage API
+B. You are using Long Polling which does not guarantee message delivery.
+C. Failed ReceiveMessage queue messages are automatically sent to Dead Letter
+Queues. You need to ReceiveMessage from Dead Letter Queue for failed retries.
+D. Visibility Timeout on the SQS queue is set to 10 minutes.
+Answer: D
+When a consumer receives and processes a message from a queue, the message
+remains in the queue. Amazon SQS doesn't automatically delete the message. Because
+Amazon SQS is a distributed system, there's no guarantee that the consumer actually
+receives the message (for example, due to a connectivity issue, or due to an issue in
+the consumer application). Thus, the consumer must delete the message from the
+queue after receiving and processing it.
+https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/s
+qs-visibility-timeout.html
+22) You had set up an internal HTTP(S) Elastic Load Balancer to route requests to
+two EC2 instances inside a private VPC. However, one of the target EC2 instance is
+showing Unhealthy status. Which of the following options could not be a reason for
+this?
+A. Port 80/443 is not allowed on EC2 instance’s Security Group from the load
+balancer.
+B. An EC2 instance is in different availability zones than load balancer.
+C. The ping path does not exist on the EC2 instance.
+D. The target did not return a successful response code
+Answer: B
+If a target is taking longer than expected to enter the InService state, it might be
+failing health checks. Your target is not in service until it passes one health check.
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-tro
+ubleshooting.html#target-not-inservice
+https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-heal
+th-checks.html
+23) Your organization has an existing VPC setup and has a requirement to route
+any traffic going from VPC to AWS S3 bucket through AWS internal network. So
+they have created a VPC endpoint for S3 and configured to allow traffic for S3
+buckets. The application you are developing involves sending traffic to AWS S3
+bucket from VPC for which you planned to use a similar approach. You have
+created a new route table, added route to VPC endpoint and associated route table
+with your new subnet. However, when you are trying to send a request from EC2 to
+S3 bucket using AWS CLI, the request is getting failed with 403 access denied
+errors. What could be causing the failure?
+A. AWS S3 bucket is in a different region than your VPC.
+B. EC2 security group outbound rules not allowing traffic to S3 prefix list.
+C. VPC endpoint might have a restrictive policy and does not contain the new S3
+bucket.
+D. S3 bucket CORS configuration does not have EC2 instances as the origin.
+Answer: C
+Option A is not correct. The question states “403 access denied”. If the S3 bucket is in
+a different region than VPC, the request looks for a route with NAT Gateway or
+Internet Gateway. If it exists, the request goes through the internet to S3. If it does not
+exist, the request gets failed with connection refused or connection timed out. Not
+with an error “403 access denied”.
+Option B is not correct. Same as above, when the security group does not allow traffic,
+the failure cause will be 403 access denied.
+Option C is correct.
+Option D is not correct.
+Cross-origin resource sharing (CORS) defines a way for client web applications that
+are loaded in one domain to interact with resources in a different domain. With CORS
+support, you can build rich client-side web applications with Amazon S3 and
+selectively allow cross-origin access to your Amazon S3 resources.
+In this case, the request is not coming from a web client.
+24) You have launched an RDS instance with MySQL database with default
+configuration for your file sharing application to store all the transactional
+information. Due to security compliance, your organization wants to encrypt all the
+databases and storage on the cloud. They approached you to perform this activity
+on your MySQL RDS database. How can you achieve this?
+A. Copy snapshot from the latest snapshot of your RDS instance, select encryption
+during copy and restore a new DB instance from the newly encrypted snapshot.
+B. Stop the RDS instance, modify and select the encryption option. Start the RDS
+instance, it may take a while to start an RDS instance as existing data is getting
+encrypted.
+C. Create a case with AWS support to enable encryption for your RDS instance.
+D. AWS RDS is a managed service and the data at rest in all RDS instances are
+encrypted by default.
+Answer: A
+https://aws.amazon.com/blogs/aws/amazon-rds-update-share-encrypted-snapshots-enc
+rypt-existing-instances/
+25) Which of the following is an AWS component which consumes resources from
+your VPC?
+A. Internet Gateway
+B. Gateway VPC Endpoints
+C. Elastic IP Addresses
+D. NAT Gateway
+Answer: D
+Option A is not correct.
+An internet gateway is an AWS component which sits outside of your VPC does not
+consume any resources from your VPC.
+Option B is not correct.
+Endpoints are virtual devices. They are horizontally scaled, redundant, and highly
+available VPC components that allow communication between instances in your VPC
+and services without imposing availability risks or bandwidth constraints on your
+network traffic.
+Option C is not correct.
+An Elastic IP address is a static, public IPv4 address designed for dynamic cloud
+computing. You can associate an Elastic IP address with any instance or network
+interface for any VPC in your account. With an Elastic IP address, you can mask the
+failure of an instance by rapidly remapping the address to another instance in your
+VPC.
+They do not belong to a single VPC.
+Option D is correct.
+To create a NAT gateway, you must specify the public subnet in which the NAT
+gateway should reside. For more information about public and private subnets, see
+Subnet Routing. You must also specify an Elastic IP address to associate with the
+NAT gateway when you create it. After you've created a NAT gateway, you must
+update the route table associated with one or more of your private subnets to point
+Internet-bound traffic to the NAT gateway. This enables instances in your private
+subnets to communicate with the internet.
+26) You have successfully set up a VPC peering connection in your account
+between two VPCs – VPC A and VPC B, each in a different region. When you are
+trying to make a request from VPC A to VPC B, the request fails. Which of the
+following could be a reason?
+A. Cross-region peering is not supported in AWS
+B. CIDR blocks of both VPCs might be overlapping.
+C. Routes not configured in route tables for peering connections.
+D. VPC A security group default outbound rules not allowing traffic to VPC B IP
+range.
+Answer: C
+Option A is not correct. Cross-region VPC peering is supported in AWS.
+Option B is not correct.
+When the VPC IP CIDR blocks are overlapping, you cannot create a peering
+connection. Question states the peering connection was successful.
+Option C is correct.
+To send private IPv4 traffic from your instance to an instance in a peer VPC, you
+must add a route to the route table that's associated with your subnet in which your
+instance resides. The route points to the CIDR block (or portion of the CIDR block) of
+the peer VPC in the VPC peering connection.
+https://docs.aws.amazon.com/AmazonVPC/latest/PeeringGuide/vpc-peering-routing.h
+tml
+Option D is not correct.
+A security group’s default outbound rule allows all traffic to go out from the resources
+attached to the security group.
+https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_SecurityGroups.ht
+ml#Defaul
+27) Which of the following statements are true in terms of allowing/denying traffic
+from/to VPC assuming the default rules are not in effect? (choose multiple)
+A. In a Network ACL, for a successful HTTPS connection, add an inbound rule with
+HTTPS type, IP range in source and ALLOW traffic.
+B. In a Network ACL, for a successful HTTPS connection, you must add an inbound
+rule and outbound rule with HTTPS type, IP range in source and destination
+respectively and ALLOW traffic.
+C. In a Security Group, for a successful HTTPS connection, add an inbound rule with
+HTTPS type and IP range in the source.
+D. In a Security Group, for a successful HTTPS connection, you must add an inbound
+rule and outbound rule with HTTPS type, IP range in source and destination
+respectively.
+Answer: B, C
+Security groups are stateful — if you send a request from your instance, the response
+traffic for that request is allowed to flow in regardless of inbound security group rules.
+Responses to allowed inbound traffic are allowed to flow out, regardless of outbound
+rules.
+Network ACLs are stateless; responses to allowed inbound traffic are subject to the
+rules for outbound traffic (and vice versa).
+
+Option A is not correct. NACL must have an outbound rule defined for a
+successful connection due to its stateless nature.
+
+Option B is correct.
+
+Option C is correct.
+
+Configuring an inbound rule in a security group is enough for a successful
+connection due to its stateful nature.
+
+Option D is not correct.
+Configuring an outbound rule for incoming connection is not required in security
+groups.
+
+https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html#A
+CLs
+
+https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_SecurityGrou
+ps.html#VPCSe
+Frequently Asked Questions (FAQs)
+How many questions are on AWS exam?
+The number of questions in the AWS Architect exam is around 60-70. This number
+could be varry.
+What is passing score for AWS?
+The passing score of the exam is around 70-75%. AWS doesn't officially announce
+the passing score, but these are based on the exam taker's experience.
+Is AWS Solutions Architect Associate exam hard?
+Not very tough. When you compare to Cloud Practitioner exam, it's harder. However,
+compare to the SysOps exam, it's easier.
+How many questions are on the AWS Solutions Architect Associate exam?
+The number of questions in the AWS Architect exam is around 60-70. This number
+could be varry.
+Can I pass AWS Solution Architect Associate?
+Yes. Anyone can pass the AWS Solutions Architect Associate exam with the proper
+preparation and practice using sample questions from Whizlabs. Whizlabs offering
+765 practice questions that are very detailed in the explanations would help you to
+pass the certification exam in the first attempt. You can also try the free tests.
+How do I prepare for AWS Solution Architect exam?
+Here is the very detailed steps on how to prepare for the AWS Solutions Architect
+Certification Exam. This would definitely help you.
+Below is the snapshot of what's covered in the Whizlabs courses. This will definitely
+help you.

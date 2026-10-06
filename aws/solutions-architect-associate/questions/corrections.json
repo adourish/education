@@ -1,0 +1,467 @@
+{
+ "gh-245": {
+  "verdict": "fix",
+  "truth": "The stem says the application uses the ALB to direct traffic to at least two EC2 instances in a single target group, so cutting the development target group to a single instance breaks the stated architecture. Lowering the maximum size of the development Auto Scaling group is the cost saving that leaves the design intact, because only production has the high-traffic periods that justify scaling out.",
+  "reason": "The reviewer is right. The stated answer contradicts a requirement given in the stem, so the answer string and the explanation both need replacing.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Reduce the maximum number of EC2 instances in the development environment's Auto Scaling group.",
+  "why": "Development and production each have their own Auto Scaling group, and only production sees bursts of traffic. Capping the maximum size of the development group stops it from ever scaling out to a production-sized fleet, so development runs the minimum it needs and nothing more. Taking a target out of the development target group saves nothing, because the instance keeps running and billing - the Auto Scaling group still owns it and will simply register it again - and it also contradicts the requirement that the load balancer serve at least two instances. Shrinking instance sizes in both environments would change production as well, and the load balancing algorithm has no bearing on cost."
+ },
+ "gh-320": {
+  "verdict": "fix",
+  "truth": "The architecture in the stated answer is still correct - stream into Kinesis Data Streams, then run continuous queries over the stream - but the service names are out of date. Kinesis Data Analytics for Apache Flink was renamed Amazon Managed Service for Apache Flink in August 2023, and the separate SQL-application flavour that the old explanation describes has been retired, so it can no longer be the mechanism an answer points at.",
+  "reason": "The reviewer is right that the names are stale. The decision being tested is unchanged and still worth asking, so the question is repaired rather than removed.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Publish the data to Amazon Kinesis Data Streams, and query the stream in near real time with Amazon Managed Service for Apache Flink (the service previously called Kinesis Data Analytics).",
+  "why": "Kinesis Data Streams accepts the 1 MB/s feed and holds every record durably across three Availability Zones for a retention period you choose, so a reboot of the producing EC2 instance no longer loses in-flight data, and throughput grows by adding shards. Amazon Managed Service for Apache Flink reads directly from the stream and runs continuous queries, which gives the data science team results seconds behind the source; SQL is still available through Flink SQL and Studio notebooks. Writing the feed to Amazon S3 with Firehose and querying it with Athena would work but adds minutes of buffering delay, which is not near real time."
+ },
+ "gh-422": {
+  "verdict": "fix",
+  "truth": "The stated answer is correct: a queue in front of ECS services that scale on queue depth is the right fit for an asynchronous API with long idle gaps and sudden batches of thousands of requests. The explanation is about a different design - it describes an Application Load Balancer in the request path and claims App Mesh does the scaling, which it does not; App Mesh is a service mesh for service-to-service traffic and has no scaling role.",
+  "reason": "The reviewer is right: the explanation describes a different architecture from the one the answer gives. It was in fact assembled from the wording of the distractor option (ALB plus ECS plus App Mesh), so it argues for the wrong choice. The answer itself stands and only the explanation is replaced.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Direct the requests from the API into an Amazon Simple Queue Service (Amazon SQS) queue. Deploy the models as Amazon Elastic Container Service (Amazon ECS) services that read from the queue. Enable AWS Auto Scaling on Amazon ECS for both the cluster and copies of the service based on the queue size.",
+  "why": "The API is asynchronous, so requests can sit in an SQS queue and be picked up when capacity exists; the queue absorbs a sudden batch of thousands of requests without dropping any and without the caller waiting. Scaling the ECS service on the number of messages waiting in the queue adds containers only when work arrives and scales back down through the days or weeks a model is unused, and scaling the cluster capacity alongside it means you are not paying for idle hosts. Long-running containers also keep the 1 GB of model data in memory between requests, whereas a design that fronts short-lived functions with a load balancer would re-download that 1 GB on every cold start and would make an asynchronous API behave synchronously."
+ },
+ "gh-51": {
+  "verdict": "fix",
+  "truth": "The correct pair for this question is the EventBridge scheduled rule that invokes a Lambda function to pull the statistics from the REST API, and Amazon SES to send the formatted report to several addresses. The bank entry records only one of the two choices and then spills the text and answers of three unrelated questions into the explanation field, which is a data defect rather than a problem with the question.",
+  "reason": "The reviewer is right that the answer block is corrupted. The question is a sound, commonly tested serverless scheduling scenario, so the answer and explanation are rewritten cleanly and the three foreign questions removed.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Both of the following: (1) Create an Amazon EventBridge scheduled event that invokes an AWS Lambda function to query the application's API for the data; and (2) use Amazon Simple Email Service (Amazon SES) to send the report by email.",
+  "why": "The report has to go out at the same time every morning, which is exactly what an EventBridge schedule does, and the thing it triggers needs to call a REST API and build HTML, which is ordinary Lambda work with no servers to run. Amazon SES then delivers the HTML message to the list of recipients in one send, and it is the AWS service meant for sending application email to real mailboxes. An SNS topic can notify subscribers but is not suited to delivering a formatted HTML report, and a Glue job is for extract-transform-load work over data stores, not for calling an API and emailing a page."
+ },
+ "gh-523": {
+  "verdict": "fix",
+  "truth": "AWS AppSync pipeline resolvers are the right answer. A pipeline resolver chains several functions in one GraphQL request, each hitting its own data source, so a single client call can read from several DynamoDB tables server-side with nothing to operate. CloudFront with Lambda@Edge is a content delivery and edge request-manipulation tool and does not give an application the ability to read several DynamoDB tables.",
+  "reason": "The reviewer is right. The stated answer names a service that does not solve the stated problem, so both the answer and the explanation are replaced.",
+  "exam_relevant": true,
+  "importance": "low",
+  "answer": "Use AWS AppSync pipeline resolvers.",
+  "why": "AppSync is a managed GraphQL front end for serverless applications, and a pipeline resolver runs an ordered series of functions inside one request, each attached to its own data source. That lets a single request gather data from several DynamoDB tables in the managed service layer, so the application's existing code path is untouched and its baseline performance is unaffected, and there is no new infrastructure to run. Lambda@Edge would mean writing and deploying edge functions that still have to call DynamoDB back in the table's region, which is more work and slower, and an edge-optimized API Gateway endpoint only changes where the connection is terminated."
+ },
+ "gh-531": {
+  "verdict": "fix",
+  "truth": "The stated answer, a Lambda function URL, is correct. The explanation misnames the mechanism: a function URL is a feature of Lambda itself that gives the function a dedicated HTTPS endpoint, with no API Gateway anywhere in the path. The rest of the explanation is accurate but justifies the right answer with the wrong plumbing.",
+  "reason": "The reviewer is right that the opening sentence describes the wrong mechanism. The answer is sound, so only the explanation is replaced.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Create a function URL for the Lambda function, and give that URL to the third party as the webhook target.",
+  "why": "A Lambda function URL is a built-in feature of the function: turning it on produces a permanent HTTPS address of the form https://<id>.lambda-url.<region>.on.aws that invokes the function directly, with no other service to create, configure or pay for. Access can be left open for a public webhook or restricted to signed IAM callers, which covers what a third-party feed needs. API Gateway in front of the function would also work and is the right choice when you need request throttling, API keys, custom authorizers, a custom domain or AWS WAF, but for simply handing a callback address to one partner it is extra setup for no benefit."
+ },
+ "gh-563": {
+  "verdict": "fix",
+  "truth": "Amazon EKS Connector exists to register Kubernetes clusters that are not EKS - on premises, self-managed on EC2, or running on another cloud - so they appear next to your EKS clusters in the EKS console. EKS clusters in your own account already show up there and do not need connecting, so the explanation's account of what the feature is for is wrong even though the answer is right.",
+  "reason": "The reviewer is right about the explanation. One further defect to note: the question stem in the bank is truncated - it begins mid-sentence at 'clusters and workloads from a central location' - and its opening needs restoring from the source, saying that the company runs Kubernetes clusters both on Amazon EKS and outside it (on premises and on other clouds) and wants to manage them all from one place.",
+  "exam_relevant": true,
+  "importance": "low",
+  "answer": "Use Amazon EKS Connector to register and connect the Kubernetes clusters that run outside Amazon EKS, so every cluster can be seen and managed from the EKS console.",
+  "why": "EKS Connector installs a small agent into a Kubernetes cluster that AWS does not run - on premises, self-managed on EC2, or on another cloud provider - and registers that cluster with Amazon EKS, so it appears in the EKS console alongside the native EKS clusters with its nodes and workloads visible. That gives one place to see every cluster without standing up and maintaining a separate management tool, which is the least operational overhead of the options. EKS Anywhere is for running an AWS-supported Kubernetes distribution in your own data centre, and EKS Distro is only the open-source build of Kubernetes that EKS is based on; neither gives a single central view of clusters you already have."
+ },
+ "gh-576": {
+  "verdict": "fix",
+  "truth": "An edge-optimized endpoint is the correct answer, and it works through a CloudFront distribution that API Gateway creates and manages on your behalf. AWS Global Accelerator plays no part in it; the explanation invents that.",
+  "reason": "The reviewer is right that Global Accelerator is not involved. The answer stands; the explanation is replaced with the actual mechanism.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "An edge-optimized API endpoint.",
+  "why": "With an edge-optimized endpoint, API Gateway puts a CloudFront distribution that it manages in front of your API, so a request from a geographically distant user enters the AWS network at the nearest edge location and travels the rest of the way over the AWS backbone instead of the public internet. That cuts the latency of connection setup and transit for scattered users, which is what the requirement asks for. A regional endpoint sends clients straight to the API in its own region and is the better choice when callers are in that same region or when you want to run your own CloudFront distribution; a private endpoint is reachable only from inside a VPC."
+ },
+ "gh-584": {
+  "verdict": "keep",
+  "truth": "The reviewer's preferred answer is not one of the choices. The question's four options are a spread placement group, grouping the instances in separate accounts, dedicated tenancy and shared tenancy - there is no partition placement group option. Of those four, only the spread placement group controls placement so that instances do not share underlying hardware, so the stated answer is correct and the explanation describes spread placement groups accurately.",
+  "reason": "The reviewer argued for a partition placement group on the strength of the phrase 'groups of nodes', which is fair reading of the wording in the abstract, but that option does not exist in this question. Separate accounts have no effect on which rack an instance lands on, dedicated tenancy only keeps other customers off the host and leaves your own instances free to share one, and shared tenancy is the opposite of what is asked. Spread is the only remaining answer and the explanation states correctly that it places instances on distinct hardware.",
+  "exam_relevant": true,
+  "importance": "high"
+ },
+ "gh-671": {
+  "verdict": "fix",
+  "truth": "AWS Cost Anomaly Detection is the correct answer, but the reason given for it is false. CloudWatch has had machine-learning anomaly detection on metrics since 2019 and can raise alarms on those bands. The real reason to choose Cost Anomaly Detection is that it is built for cost and usage data and can attribute unusual spend to a service, account, cost category or tag, which CloudWatch cannot do.",
+  "reason": "The reviewer is right that the explanation rests on a false claim about CloudWatch. The answer is correct, so the explanation is replaced with the real justification.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Create an AWS Cost Anomaly Detection monitor.",
+  "why": "Cost Anomaly Detection applies machine learning to your AWS cost and usage data and raises an alert when spend departs from the learned pattern, naming the service, linked account, cost category or tag the unexpected charges came from. Alerts go to email or to an Amazon SNS topic, either one at a time or as a daily or weekly summary, so the responsible stakeholders hear about it without anyone running a manual review. CloudWatch can also detect anomalies in a metric, but the only billing data it holds is the coarse EstimatedCharges metric in us-east-1, so it cannot break spend down by service or account; AWS Budgets is useful alongside this but fires on thresholds you set yourself rather than on unusual patterns."
+ },
+ "gh-677": {
+  "verdict": "fix",
+  "truth": "A managed node group made up entirely of Spot Instances is the most cost-effective answer. The cluster is a development cluster used infrequently whose stated purpose is testing the application's resiliency, so Spot interruptions are acceptable and arguably useful, and a managed node group still satisfies the requirement that EKS manage all the nodes. Holding On-Demand capacity alongside Spot costs more and serves no requirement in the question.",
+  "reason": "The reviewer is right. The qualifier is MOST cost-effectively and nothing in the question requires uninterrupted capacity, so the answer and explanation are replaced.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Create an EKS managed node group that contains only Spot Instances.",
+  "why": "Spot Instances are the cheapest way to get EC2 capacity, at a steep discount to On-Demand, and the trade-off - the instance can be reclaimed at short notice - does not matter for a development cluster used occasionally to test how the application copes with failure. EKS managed node groups support Spot capacity directly and handle provisioning, draining on interruption and version upgrades, so the requirement that the cluster manage all the nodes is met. Mixing in On-Demand Instances raises the bill without meeting any stated requirement, and a self-managed Auto Scaling group with bootstrap scripts hands node management back to you."
+ },
+ "wl-10": {
+  "verdict": "drop",
+  "truth": "All four listed items can be a CloudFront origin today. CloudFront has supported Lambda function URLs as an origin since they launched in 2022, the console lists them as an origin type, and origin access control for function URL origins arrived in April 2024 so the endpoint can be locked to the distribution. The stated answer and its explanation describe behaviour that no longer holds.",
+  "reason": "With Lambda function URLs now a supported origin type, none of the four options is 'not an origin', so no single answer is defensible and the question is unanswerable as written. There is nothing to repair: it is a recall list about which services appear in an origin dropdown rather than an architectural decision SAA-C03 tests, and the one fact it rested on is now false.",
+  "exam_relevant": false,
+  "importance": "low"
+ },
+ "gh-268": {
+  "verdict": "fix",
+  "truth": "The stated problem is read performance, and RDS Proxy does not improve read throughput at all - it pools and reuses database connections, which helps with connection storms and failover times. A cache in front of the database (or a read replica) is what relieves read load; for a scoreboard that is read far more often than it changes, caching is the natural fit.",
+  "reason": "The reviewer is right. The stated answer treats a connection-management tool as a read-scaling tool, and the explanation never connects RDS Proxy to the read problem because it cannot.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Put Amazon ElastiCache between the application and the Amazon RDS for MySQL database so repeated score reads are served from the cache instead of the database.",
+  "why": "The bottleneck is read volume against the MySQL database, so the fix has to take reads off it. ElastiCache serves the hot, frequently requested score data from memory, which cuts both the delays and the load on RDS without re-platforming the application. RDS Proxy only manages and reuses database connections - useful when an application opens too many connections or needs faster failover, but it adds no read capacity. Migrating to Lambda or to DynamoDB would be a far larger change than the question allows."
+ },
+ "gh-31": {
+  "verdict": "fix",
+  "truth": "AWS Config rules are the right answer for continuously checking that resources carry required tags, but AWS Config does not apply tags. It records resource configurations, evaluates them against rules such as the managed required-tags rule, and reports what is non-compliant.",
+  "reason": "The reviewer is right. The answer is correct but the explanation states something AWS Config cannot do, which would teach the wrong model of the service.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "A. Use AWS Config rules to define and detect resources that are not properly tagged.",
+  "why": "AWS Config continuously records the configuration of supported resources, including EC2 instances, RDS DB instances and Redshift clusters, and evaluates them against rules. The managed required-tags rule flags any resource missing the tag keys you specify, so the check is set up once and then runs on its own - which is what 'minimize the effort of configuring and operating this check' asks for. Config reports non-compliance; it does not add tags itself. If you also want a tag applied automatically, you attach a remediation action, for example an SSM Automation document, to the rule."
+ },
+ "gh-338": {
+  "verdict": "fix",
+  "truth": "An Aurora global database replicates at the storage layer, so the secondary cluster can be created with no DB instances at all - a 'headless' secondary. Replication keeps running and you pay only for replicated storage and cross-Region replication traffic in the second Region, which is cheaper than keeping a DB instance running there.",
+  "reason": "The reviewer is right. The stated answer picks the variant that keeps an instance running in the second Region, which is the more expensive of the two Aurora global database options, and the question is explicitly scored on cost. The item also shipped with no explanation at all.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Set up an Aurora global database for the DB cluster and, once setup is complete, remove the DB instance from the secondary Region, leaving a headless secondary cluster.",
+  "why": "Aurora global database replication happens in the shared storage layer, not through a database instance, so data keeps arriving in the secondary Region even when that cluster has no instance running. For a plan that only has to hold a replica of the data, this is the cheapest shape: you pay for replicated storage and cross-Region replication traffic but no idle compute. When you need to recover, you add an instance to the secondary cluster and promote it. Keeping a DB instance running in the secondary Region also works, but it costs more, so it loses on the MOST cost-effectively test."
+ },
+ "gh-420": {
+  "verdict": "fix",
+  "truth": "The stated answer is correct, but the explanation describes the wrong deployment type. A Multi-AZ DB cluster has one writer and two standby instances in two other Availability Zones, and both standbys accept read traffic through the cluster reader endpoint. That readability is the whole reason the answer mentions a reader endpoint; the single standby in a Multi-AZ instance deployment cannot be read.",
+  "reason": "The reviewer is right about the explanation. The answer stands, but the explanation as written contradicts it by describing a non-readable standby.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "D. Use an Amazon RDS Multi-AZ DB cluster deployment. Point the read workload to the reader endpoint.",
+  "why": "An RDS Multi-AZ DB cluster runs one writer instance and two standby instances spread across three Availability Zones. The standbys are readable, so pointing the read workload at the cluster reader endpoint takes those queries off the writer with nothing extra to provision. Replication to the standbys is faster than in a plain Multi-AZ instance deployment, and failover typically completes in under 35 seconds, which satisfies the under-40-second requirement. A Multi-AZ instance deployment would meet the availability goal but its single standby cannot serve reads, so you would have to add and pay for separate read replicas."
+ },
+ "gh-472": {
+  "verdict": "fix",
+  "truth": "DAX is the right answer: it is a managed in-memory cache built specifically for DynamoDB, and the application keeps using DynamoDB API calls - only the client and endpoint change. The explanation is correct up to the point where an unrelated paragraph about EC2, load balancers and static content was pasted in.",
+  "reason": "The reviewer is right. The reasoning was sound but the explanation carried a stray paragraph from a different question, which would confuse anyone reading it.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "A. Configure Amazon DynamoDB Accelerator (DAX) for the new messages table. Update the code to use the DAX endpoint.",
+  "why": "DAX is an in-memory cache that sits in front of a DynamoDB table and answers cached reads in microseconds instead of the single-digit milliseconds DynamoDB itself returns. Because DAX speaks the DynamoDB API, the only change is to point the client at the DAX cluster endpoint, which keeps the application work small. A general-purpose cache such as ElastiCache would also cut latency, but you would have to write and maintain the cache-loading and invalidation logic yourself."
+ },
+ "gh-515": {
+  "verdict": "drop",
+  "truth": "Of the three options the item claims as correct, the third is wrong. 'Scaling globally to support petabytes of data and tens of millions of requests per minute' describes DynamoDB. Redshift is a data warehouse for analytic queries over large datasets, not a globally distributed, very-high-request-rate key-value store. Encryption support and running analytics in defined windows are both fair descriptions of Redshift.",
+  "reason": "This cannot be repaired. It needs three correct options, one of the three given is factually wrong, and the source carries no list of choices, so there is no way to establish which remaining option was meant to be the third correct one. The answer and explanation fields have also run together, so the item does not state its own answer cleanly. It is a weak item on its own merits as well - a recall check on a list of service features rather than a design decision an architect would make.",
+  "exam_relevant": false,
+  "importance": "low"
+ },
+ "gh-536": {
+  "verdict": "fix",
+  "truth": "A Multi-AZ DB cluster gives high availability and two readable standbys in a single deployment - three instances in total. The stated answer buys high availability with a Multi-AZ instance deployment (writer plus a standby that cannot be read) and then adds two read replicas on top, which is four instances for the same outcome. The question is scored on cost, so the cluster wins.",
+  "reason": "The reviewer is right. Both options would work, but the question asks for the most cost-effective one and the stated answer provisions one more instance than it needs to.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Change the setup from Single-AZ to a Multi-AZ DB cluster deployment and give the data scientists the cluster's reader endpoint.",
+  "why": "An RDS for PostgreSQL Multi-AZ DB cluster runs a writer plus two standby instances in two other Availability Zones, and both standbys serve reads through the reader endpoint. That covers high availability and read-only access for the data scientists with three instances and no extra components. Replication to the standbys is fast enough that the data they query is near real-time, and their heavy queries never touch the writer. Making the database a Multi-AZ instance deployment and then adding two read replicas reaches the same result with a fourth instance to pay for, so it is the more expensive answer."
+ },
+ "gh-670": {
+  "verdict": "fix",
+  "truth": "The explanation has the cost comparison backwards, and that makes the stated answer wrong too. Provisioned capacity is billed per capacity unit per hour for all 168 hours of a week whether or not anything is running; on-demand is billed per request with nothing charged while the table is idle. At 4 hours of use a week - about 2.4 percent of the time - on-demand costs a small fraction of provisioned. Reserved capacity is worse still, since it locks in a year or more of hourly charges.",
+  "reason": "The reviewer is right that the explanation is backwards, and the same error invalidates the stated answer, so both the answer and the explanation are replaced.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "A. Choose on-demand capacity mode for the table.",
+  "why": "The table is used for 4 hours a week and sits idle the rest of the time. On-demand mode charges per read and write request and nothing for idle time, so the bill tracks the actual 4 hours of testing. Provisioned mode charges for the capacity units every hour of the month, so roughly 97 percent of what you paid would be for an idle table; on-demand only loses to provisioned once a table is busy something like 15 to 20 percent of the time, far above this workload. Reserved capacity deepens the problem by committing to those hourly charges for a year or more. Knowing the per-second request rate is a distractor - predictable traffic favours provisioned capacity only when the table is busy most of the time."
+ },
+ "gh-208": {
+  "verdict": "fix",
+  "truth": "The reviewer is right. A gateway endpoint for S3 is a route-table target: it is not created in a subnet or an Availability Zone and it cannot have a security group attached, so option B describes something AWS does not let you build. An interface endpoint for S3 (PrivateLink) does live in a subnet and does take security groups, so option A is the only buildable choice, and the explanation already printed under the answer argues for exactly that.",
+  "reason": "The answer key named option B, which cannot be built, while the explanation underneath described option A. Answer corrected to A and the explanation rewritten so the two agree.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "A. Create an interface VPC endpoint for Amazon S3 in the subnet where the EC2 instance is located. Attach a resource policy to the S3 bucket to only allow the EC2 instance's IAM role for access.",
+  "why": "An interface VPC endpoint for Amazon S3 is backed by AWS PrivateLink: it places an elastic network interface with a private IP in the chosen subnet, so the instance reaches S3 over the AWS network and neither the API calls nor the object data touch the public internet. The bucket policy is what limits who may upload, so restricting it to the EC2 instance's IAM role satisfies the \"only the EC2 instance\" requirement. The gateway-endpoint option is not just second best, it is not buildable as written, because a gateway endpoint is a route-table target rather than something you place in an Availability Zone, and it accepts no security group. The two remaining options try to discover a private IP for the S3 service endpoint and route to it by hand, which is not how S3 is reached."
+ },
+ "gh-240": {
+  "verdict": "fix",
+  "truth": "Option D is the right answer, but for the reason the reviewer gives, not the one stated. The saving comes from payload size and the Direct Connect rate card: with the tool next to the warehouse only the rendered ~500 KB page leaves AWS instead of the 50 MB result set, and Direct Connect data transfer out is billed at a lower per-GB rate than internet egress. The stated claim that same-Region traffic simply avoids egress charges is wrong, since cross-AZ traffic inside a Region is still billed.",
+  "reason": "Answer unchanged. The explanation named the wrong mechanism and asserted that same-Region transfer is free, so it has been replaced with the payload-size and Direct Connect rate reasoning.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "D. Host the visualization tool in the same AWS Region as the data warehouse and access it over a Direct Connect connection at a location in the same Region.",
+  "why": "Egress is billed on the bytes that actually leave AWS, so the cheapest design is the one that shrinks the payload crossing the boundary. Putting the visualization tool in the same Region as the warehouse keeps the 50 MB result sets inside the Region and sends only the roughly 500 KB rendered webpage to the corporate office, about a hundredfold reduction in billable bytes. Routing that remaining traffic over Direct Connect rather than the internet lowers the cost further, because Direct Connect data transfer out is priced below internet data transfer out, and using a Direct Connect location in the same Region as the warehouse avoids the higher remote-location rate. Any option that leaves the tool on premises pays egress on the full 50 MB of every query, which the question makes worse by telling you result sets are not cached."
+ },
+ "gh-265": {
+  "verdict": "fix",
+  "truth": "The reviewer is right about the explanation. Option C is still the best answer, but an internet-facing ALB must sit in at least two public subnets with a route to an internet gateway and is reachable from the internet by definition, so the claim that a public ALB in private subnets is hidden from the internet is false. The security gain in option C comes from the EC2 instances being in private subnets behind the load balancer, not from the ALB's own placement.",
+  "reason": "Answer unchanged. The explanation misdescribed ALB subnet placement and said the instances host the database tier, so it has been replaced.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "C. Configure a public Application Load Balancer (ALB) with multiple redundant Amazon EC2 instances in private subnets. Configure Amazon CloudFront to deliver HTTPS content using the public ALB as the origin.",
+  "why": "CloudFront terminates HTTPS at edge locations close to users, which is what the \"as close to the edge as possible, least delivery time\" requirement asks for, and it needs an origin it can reach, so the ALB has to be internet-facing. Putting the EC2 instances in private subnets behind that ALB is where the security comes from: the instances have no public IPs and no inbound path from the internet, and only the load balancer's security group can reach them. Spreading the ALB and the instances across multiple Availability Zones gives the high availability the question asks for. The options that place the instances in public subnets expose them directly, and the options that use the EC2 instances as the CloudFront origin lose the load balancer, so a single instance becomes the entry point."
+ },
+ "gh-29": {
+  "verdict": "fix",
+  "truth": "Option A is correct and the explanation is not an explanation at all, just the author wondering whether the option mentions Global Accelerator. It does. A Network Load Balancer is the only AWS load balancer that handles UDP, and Global Accelerator provides the anycast static IPs, latency-based routing to the nearest healthy Region, and automatic cross-Region failover on endpoint health checks that the question asks for.",
+  "reason": "Answer unchanged. The stated explanation was unfinished author commentary that questioned its own answer, so it has been replaced with the real reasoning.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "A. Deploy a Network Load Balancer (NLB) and an associated target group. Associate the target group with the Auto Scaling group. Use the NLB as an AWS Global Accelerator endpoint in each Region.",
+  "why": "The service uses UDP, which rules out the Application Load Balancer and CloudFront, because both handle only HTTP and HTTPS. A Network Load Balancer supports UDP listeners and can front the Auto Scaling group in each Region. AWS Global Accelerator then gives two static anycast IP addresses that enter the AWS network at the edge location nearest the user and forward to the Region with the lowest latency, and it health checks each endpoint and shifts traffic to another Region within seconds when one fails, which is the automated failover the question requires. Route 53 could also route by latency, but DNS failover depends on record TTLs expiring on the client, so it is slower and less reliable than Global Accelerator for a real-time voice workload."
+ },
+ "gh-366": {
+  "verdict": "fix",
+  "truth": "Option A is correct and the compliance requirement is not broken by it. A Network Load Balancer can use IP addresses as targets, including on-premises addresses reached over Direct Connect or a VPN, so the application keeps running in the company's own data centers while Global Accelerator provides anycast entry points in front of it. The stated explanation rejects the very option it selects, which is a distractor rationale pasted under the right answer.",
+  "reason": "Answer unchanged. The explanation was a rejection rationale copied under the correct option, so it has been replaced.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "A. Configure three Network Load Balancers (NLBs) in the three AWS Regions to address the on-premises endpoints. Create an accelerator by using AWS Global Accelerator, and register the NLBs as its endpoints. Provide access to the application by using a CNAME that points to the accelerator DNS.",
+  "why": "A Network Load Balancer supports UDP listeners and accepts IP addresses as targets, so each Regional NLB can point at the redundant on-premises servers across Direct Connect or a VPN. The application therefore stays hosted on premises, which is what the compliance rule requires, while AWS Global Accelerator puts anycast static IPs at the edge so user traffic enters the AWS backbone close to the user and is carried to the nearest healthy on-premises site. Global Accelerator also health checks each endpoint and reroutes in seconds, which improves availability over the Route 53 latency records the company uses today, because those depend on client DNS caches expiring. The Application Load Balancer and Classic Load Balancer options cannot carry UDP, and the CloudFront option cannot either."
+ },
+ "gh-582": {
+  "verdict": "fix",
+  "truth": "Option A is correct given the options on offer. Latency-based routing records are tied to an AWS Region, so the latency option as written, associated only with us-west-1, cannot steer any traffic to eu-central-1 or describe the on-premises site; a simple policy returns one answer set regardless of the requester, and a weighted split ignores location entirely. Geolocation is the only policy among the four that can send each user to the nearer of the two sites.",
+  "reason": "Answer unchanged. The explanation ended by casting doubt on its own answer instead of saying why geolocation beats the three alternatives given, so it has been replaced.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "A. Set up a geolocation routing policy. Send the traffic that is near us-west-1 to the on-premises data center. Send the traffic that is near eu-central-1 to eu-central-1.",
+  "why": "The website runs in two places, an on-premises data center near us-west-1 and the eu-central-1 Region, so the shortest load time comes from sending each visitor to whichever is nearer. A geolocation routing policy resolves the name differently depending on where the query comes from, so North American users get the on-premises site and European users get eu-central-1. Latency-based routing would normally be the better tool for a pure latency goal, but Route 53 latency records measure latency to an AWS Region you associate with each record, and the latency option here associates only us-west-1, which cannot direct anyone to eu-central-1 and cannot represent an on-premises endpoint properly. A simple policy gives every requester the same answer and a weighted policy splits traffic by percentage, so neither takes location into account."
+ },
+ "gh-676": {
+  "verdict": "fix",
+  "truth": "The delivery path in option B is still the correct answer, and the reviewer is right that the service name is stale. Amazon Kinesis Data Firehose was renamed Amazon Data Firehose in February 2024, so the answer text and explanation should use the current name. The reasoning also needs stating properly: VPC Flow Logs capture network interface traffic metadata while CloudTrail records API calls, which is why the CloudTrail options fail.",
+  "reason": "The route is right but the answer line used the retired Kinesis Data Firehose name and the explanation was too thin to stand on its own, so both have been updated.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "B. Turn on VPC Flow Logs and publish them to Amazon CloudWatch Logs. Create a CloudWatch Logs subscription filter that sends the log events to Amazon Data Firehose (formerly Amazon Kinesis Data Firehose). Configure the Firehose delivery stream to deliver the records to Amazon OpenSearch Service.",
+  "why": "VPC Flow Logs are the feature that records information about IP traffic going to and from the elastic network interfaces in a VPC, which covers the Network Load Balancers, EC2 instances and databases in question. Publishing the flow logs to CloudWatch Logs and attaching a subscription filter streams each log event onward as it arrives, which gives the near real time behaviour the question asks for. Amazon Data Firehose, the service formerly called Amazon Kinesis Data Firehose, has a built-in delivery target for Amazon OpenSearch Service, so it loads the records for analysis without any code to maintain. The CloudTrail options are wrong because CloudTrail records AWS API activity, not packet-level network traffic."
+ },
+ "wl-23": {
+  "verdict": "fix",
+  "truth": "Option C is the correct answer. A gateway endpoint policy that lists only specific buckets causes requests to any other bucket to be rejected by S3 authorization with HTTP 403 AccessDenied, which matches the symptom exactly. The reviewer is right that the stated elimination of option B is backwards: a security group that drops traffic produces a connection timeout, never a 403, and that is precisely why option B can be ruled out.",
+  "reason": "Answer unchanged. The explanation claimed a blocked security group yields a 403, which is the opposite of the truth and argued for the option it was dismissing, so it has been replaced.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "C. VPC endpoint might have a restrictive policy and does not contain the new S3 bucket.",
+  "why": "The failure is an HTTP 403 AccessDenied, which means the request reached Amazon S3 and was refused on authorization rather than being lost on the network. A VPC endpoint policy narrows what the endpoint is allowed to do, so an existing policy that names only the original buckets will reject calls to the newly added bucket with exactly that error, and the fix is to add the new bucket to the endpoint policy. The other options all produce different symptoms: a security group that does not permit outbound traffic to the S3 prefix list silently drops the packets, so the CLI hangs and then reports a connection timeout rather than a 403, and a bucket in another Region is not served by the gateway endpoint at all, so without a NAT gateway or internet gateway route the request also times out. CORS applies only to browser requests from a web page in another origin and has no bearing on an AWS CLI call."
+ },
+ "gh-232": {
+  "verdict": "fix",
+  "truth": "Attaching an instance profile with AmazonSSMManagedInstanceCore only lets Systems Manager manage the instance; on its own it sends no notification and does not detect an inbound RDP or SSH session. Publishing VPC flow logs to CloudWatch Logs, matching port 22 and port 3389 traffic with a metric filter, and alarming on that metric is the only listed approach that actually notifies the operations team.",
+  "reason": "The stated answer field says B but the explanation body argues for C, so the recorded answer contradicts its own reasoning. The reviewer is right that an SSM instance profile alone notifies nobody.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "C. Publish VPC flow logs to Amazon CloudWatch Logs. Create the required metric filters. Create a CloudWatch metric alarm with a notification action for when the alarm is in the ALARM state.",
+  "why": "VPC flow logs record every accepted and rejected connection on the network interfaces in each VPC, including the destination port, so SSH (port 22) and RDP (port 3389) connections show up in the log records. Sending those logs to CloudWatch Logs lets you attach a metric filter that increments a custom metric whenever a record matches one of those ports, and a CloudWatch alarm on that metric can publish to an SNS topic to notify the operations team. The instance-profile option is wrong because AmazonSSMManagedInstanceCore just grants the instance permission to talk to Systems Manager; it produces no alert. Note the honest limit of this design: flow logs show that a connection on those ports was accepted, not that a user successfully authenticated, which is all the question asks for."
+ },
+ "gh-28": {
+  "verdict": "keep",
+  "truth": "IAM Identity Center (the service formerly called AWS Single Sign-On) can use AWS Managed Microsoft AD as its identity source, and when that managed directory is joined to a self-managed Active Directory by a forest trust, AWS requires the trust to be two-way so Identity Center can both authenticate users and read user and group objects. The answer is correct as stated.",
+  "reason": "The reviewer flagged this as stale only because the answer option carries the old 'AWS Single Sign-On' name. The explanation already states plainly that AWS SSO is now called IAM Identity Center, the two-way trust requirement is still current AWS behaviour, and nothing a candidate would be asked here has changed. Renaming inside a verbatim answer option is cosmetic, not a correctness problem.",
+  "exam_relevant": true,
+  "importance": "high"
+ },
+ "gh-418": {
+  "verdict": "fix",
+  "truth": "Adding the development account as a principal in the production role's trust policy is the right answer, but a trust policy only names who is allowed to assume the role. It never names resources or actions. The limit to a single S3 bucket comes from the permissions policy already attached to the role.",
+  "reason": "The answer is right but the explanation attributes resource scoping to the trust policy, which is a conceptual error candidates then repeat. Replaced with the correct split between trust policy and permissions policy.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "B. Add the development account as a principal in the trust policy of the role in the production account.",
+  "why": "A role has two separate policies: the trust policy, which lists the principals allowed to call sts:AssumeRole on it, and the permissions policy, which lists what the role may do once assumed. Naming the development account as a principal in the trust policy lets the existing development IAM users assume the production role and receive short-lived credentials, with no second set of users or long-term access keys in the production account. Least privilege holds because the role's permissions policy already grants access to just the one production S3 bucket and nothing else, so that is the ceiling on what an assuming user can do. The development users also need sts:AssumeRole for that role ARN allowed on their own side, since both accounts must agree before a cross-account assume succeeds."
+ },
+ "gh-492": {
+  "verdict": "fix",
+  "truth": "Using an Organizations SCP attached to the development OUs to restrict EC2 instance types is the correct, lowest-effort answer. The explanation is wrong about what an SCP is: SCPs do not set or grant permissions, they only cap the permissions that principals in the member accounts can be granted.",
+  "reason": "The answer is right, but describing SCPs as setting 'fine-grained permissions on AWS accounts' is the exact misconception the exam tests against. Replaced with the deny-ceiling framing plus the management-account exemption.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "B. Use AWS Organizations to organize the accounts into organizational units (OUs). Define and attach a service control policy (SCP) to control the usage of EC2 instance types.",
+  "why": "An SCP is a guardrail, not a grant: it sets the maximum permissions available to principals in the accounts it applies to, and a user still needs an IAM identity-based policy that allows the action before anything works. Writing one SCP that denies ec2:RunInstances unless the ec2:InstanceType condition matches an approved list, then attaching it to the OUs holding the development accounts, stops oversized launches everywhere in those accounts at once, including by account administrators. That is far less work than maintaining IAM policies account by account or building a detection-and-remediation pipeline. Two limits to remember: an SCP never restricts the organization's management account, so keep workloads out of it, and SCPs have no effect unless all features are enabled in the organization."
+ },
+ "gh-644": {
+  "verdict": "fix",
+  "truth": "A wildcard certificate for *.example.com does not cover the apex example.com, so the certificate must list both, and ownership still has to be validated. ACM supports both DNS validation and email validation for wildcard names; DNS validation is recommended because ACM can then renew the certificate automatically, but it is not the only option.",
+  "reason": "Two problems: the recorded answer listed only A even though this is a choose-two question whose second answer (E) was buried in the explanation, and the explanation claimed DNS validation is 'necessary' for wildcards, which is false. Both corrected.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "A. Use the AWS Certificate Manager (ACM) console to request a public certificate for the apex top domain example.com and a wildcard certificate for *.example.com. AND E. Validate domain ownership for the domain by adding the required DNS records to the DNS provider.",
+  "why": "*.example.com matches one label to the left of example.com, so it covers country1.example.com and country2.example.com but not the bare apex example.com, which is why both names are needed. ACM issues public certificates free of charge and they attach directly to the Application Load Balancer's HTTPS listener, which terminates TLS and gives encryption in transit. Before ACM issues anything it has to confirm you control the domain, and you do that by adding the CNAME records ACM supplies to the DNS zone. DNS validation is the right choice here, not because wildcards require it, but because ACM re-checks those records and renews the certificate on its own, whereas email validation needs a human to click a link every renewal."
+ },
+ "gh-668": {
+  "verdict": "fix",
+  "truth": "A tag policy in AWS Organizations is the right fit for standardising an approved list of application-name values across every account from one place. But the explanation's reason is false: IAM policies and SCPs absolutely can inspect tag values, using the aws:RequestTag/${TagKey} and aws:TagKeys condition keys.",
+  "reason": "The answer stands, but 'IAM policies cannot validate tag values' is factually wrong and would mislead a candidate on how aws:RequestTag works. Replaced with the real reason the tag policy wins, which is central maintenance rather than IAM incapability.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "D. Create a tag policy in AWS Organizations that defines the list of allowed application names.",
+  "why": "A tag policy is defined once in the Organizations management account and attached to the root, an OU or an account; it declares the approved values for a tag key, and with enforcement turned on for the supported resource types it blocks tagging operations that would set a value outside that list. That gives one central list to maintain as teams and accounts come and go, which is why it beats the alternatives here. The rejection of the IAM option needs care: an IAM policy or an SCP can check tag values, for example denying a create action unless aws:RequestTag/application equals an approved name, so it is not that IAM cannot do this. It is that you would have to write and keep in sync a condition for every service and action the teams use, which is far more work than one tag policy."
+ },
+ "gh-201": {
+  "verdict": "drop",
+  "truth": "Amazon Pinpoint has been broken up: SMS, voice and push messaging moved to AWS End User Messaging, and AWS set end of support for Amazon Pinpoint at 30 October 2026, so Pinpoint journeys are not an architecture anyone can be asked to choose today.",
+  "reason": "The answer depends on a product that is being retired this month and whose messaging capability now lives under a different name, so the option text can no longer be asked as written. Pinpoint is also not on the SAA-C03 in-scope service list, and the thing actually being tested is which messaging product sends two-way SMS, which is product trivia rather than an architecture decision in any of the four scored domains. Rewriting it would mean replacing every option, which makes it a new question, not a fix.",
+  "exam_relevant": false,
+  "importance": "low"
+ },
+ "gh-267": {
+  "verdict": "fix",
+  "truth": "The architecture is correct: Firehose is the least-operational-overhead path because it encrypts in flight, converts records to Apache Parquet using a Glue Data Catalog schema, and lands them in S3 with no servers to run, while the streaming analytics piece handles the near-real-time analysis. The names are out of date and the question shipped with no explanation at all.",
+  "reason": "The answer is right but had no explanation whatsoever, and both service names in it have since been changed. Supplied a correct explanation and the current names.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "D. Create an Amazon Data Firehose delivery stream (formerly Amazon Kinesis Data Firehose) to store the data in Amazon S3. Create an Amazon Managed Service for Apache Flink application (formerly Amazon Kinesis Data Analytics) to analyze the data.",
+  "why": "Firehose is fully managed with no shards to size or scale, it can encrypt data with a KMS key, and its record format conversion feature rewrites incoming JSON into Apache Parquet using a schema from the AWS Glue Data Catalog before writing to S3, which covers the encryption, the format and the centralised location in one managed hop. Firehose buffers for roughly 60 seconds before delivering, which is why this counts as near-real-time rather than real-time, and that satisfies the requirement as worded. Managed Service for Apache Flink reads the stream and runs the analysis without any cluster to operate. Two names changed after this question was written: Kinesis Data Firehose is now Amazon Data Firehose, and Kinesis Data Analytics is now Amazon Managed Service for Apache Flink."
+ },
+ "gh-292": {
+  "verdict": "fix",
+  "truth": "Both listed paths work: Kinesis Data Streams into a streaming-analytics application to transform, then Firehose to S3 and Athena for SQL; or Amazon MSK into an AWS Glue streaming job that transforms and writes to S3, again queried with Athena. The only defect is the stale 'Amazon Kinesis Data Analytics' name and the fact that the recorded answer field listed only one of the two required choices.",
+  "reason": "The answer is technically right, but this is a choose-two question whose second correct option was left sitting in the explanation body instead of the answer field, and the transformation service has been renamed. Both corrected.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "A. Use Amazon Kinesis Data Streams to stream the data. Use Amazon Managed Service for Apache Flink (formerly Amazon Kinesis Data Analytics) to transform the data. Use Amazon Data Firehose to write the data to Amazon S3. Use Amazon Athena to query the transformed data from Amazon S3. AND B. Use Amazon Managed Streaming for Apache Kafka (Amazon MSK) to stream the data. Use AWS Glue to transform the data and to write the data to Amazon S3. Use Amazon Athena to query the transformed data from Amazon S3.",
+  "why": "Both answers follow the same shape the requirement calls for: ingest a stream, transform in flight, land the result in S3, then query it with SQL. In A, Kinesis Data Streams takes the ingest, Managed Service for Apache Flink applies the transformation, Firehose handles delivery to S3, and Athena provides the SQL layer over the objects in the bucket. In B, MSK takes the ingest and an AWS Glue streaming ETL job reads from the Kafka topic, transforms and writes to S3, with Athena again supplying SQL. Athena is what satisfies 'use SQL to query the transformed data' in both cases, because it queries S3 directly with no database to provision. Kinesis Data Analytics was renamed Amazon Managed Service for Apache Flink in August 2023."
+ },
+ "gh-454": {
+  "verdict": "fix",
+  "truth": "Workload Discovery on AWS is the correct answer, but it is a standalone AWS Solutions Library implementation you deploy into your own account from a CloudFormation template. It is not a feature of, or included in, the AWS Well-Architected Tool.",
+  "reason": "The answer is right but the explanation fabricates a relationship between Workload Discovery and the Well-Architected Tool, which would teach a candidate a wrong service boundary. Rewritten to describe both products accurately.",
+  "exam_relevant": true,
+  "importance": "low",
+  "answer": "C. Use Workload Discovery on AWS to generate architecture diagrams of the workloads.",
+  "why": "Workload Discovery on AWS is a prebuilt solution you deploy from the AWS Solutions Library using a CloudFormation template; once running it inventories resources across the accounts and Regions you point it at and draws the relationships between them as architecture diagrams you can browse and export. That is exactly the gap here, which is an unknown estate with no documentation, and it needs no custom code, so it is the most operationally efficient choice. The AWS Well-Architected Tool is a different thing entirely: it records your answers to a review questionnaire and reports risks against the Well-Architected pillars, and it neither discovers resources nor draws diagrams. AWS Config is the complementary piece worth knowing, since it records resource configuration and relationships, but it does not produce the diagrams the question asks for."
+ },
+ "gh-50": {
+  "verdict": "fix",
+  "truth": "Systems Manager Run Command is the correct answer because it pushes an ad hoc command to all 1,000 instances immediately. The explanation's reasons for rejecting the others are wrong: Patch Manager does patch third-party applications, and maintenance windows are a normal way to run patching tasks.",
+  "reason": "The answer is right but the explanation states two things that are false, that Patch Manager cannot patch third-party software and that maintenance windows are not designed for patching, so a candidate would carry both errors forward. Replaced with the real distinction, which is on-demand versus scheduled.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "D. Use AWS Systems Manager Run Command to run a custom command that applies the patch to all EC2 instances.",
+  "why": "Run Command executes a document or script against a target set chosen by instance IDs, tags or a resource group, with rate control and error thresholds, and it runs on demand the moment you invoke it, which is what 'as quickly as possible' requires for a critical vulnerability. Patch Manager is the wrong tool here not because it cannot handle third-party software, which it can, but because it is built for recurring, baseline-driven compliance patching and normally runs inside a scheduled maintenance window, so it is slower to stand up for a single urgent fix. A maintenance window has the same problem: it is a scheduling construct, so it delays the remediation rather than speeding it up. Writing a Lambda function would also work eventually, since Lambda would end up calling Run Command anyway, but building it is extra effort for no gain."
+ },
+ "gh-585": {
+  "verdict": "fix",
+  "truth": "An On-Demand Capacity Reservation is the only option that actually reserves EC2 capacity in the failover Region. The explanation gets it backwards on flexibility: a Capacity Reservation is pinned to a specific instance type, platform, tenancy and a single Availability Zone, and you cannot launch different types or sizes against it.",
+  "reason": "The answer is right but the explanation claims Capacity Reservations let you launch different instance types and sizes, which is false and removes the one constraint candidates need to understand. Rewritten with the correct scope and the capacity-versus-discount contrast.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "D. Purchase a Capacity Reservation in the failover Region.",
+  "why": "An On-Demand Capacity Reservation holds EC2 capacity for your account in one Availability Zone for a stated instance type, platform and tenancy, and that capacity stays held whether or not you have instances running in it, so it is there when you declare a disaster and fail over. Because it is pinned that tightly, you must create the reservation for the exact instance types and the exact AZ your DR plan will launch into, and you pay the On-Demand rate for the reserved capacity for as long as it exists. The key distinction the question is testing: Savings Plans and regional Reserved Instances are billing discounts and reserve no capacity at all, so they cannot guarantee a failover launch will succeed. If you want the discount as well, a Capacity Reservation can be combined with a Savings Plan or a Reserved Instance, which then applies to the reserved capacity's charges."
+ },
+ "gh-7": {
+  "verdict": "fix",
+  "truth": "SNS fan-out to one SQS queue per consumer is the correct answer. The throughput figures in the explanation are wrong for the queue type involved: standard SQS queues support a nearly unlimited number of transactions per second and need no quota increase for 100,000 messages per second. The 3,000 per second number belongs to FIFO queues.",
+  "reason": "The answer is right but the explanation applies FIFO throughput limits to standard queues and invents a support-ticket process, which would lead a candidate to reject this architecture at 100,000 messages per second. Replaced with the correct standard-versus-FIFO throughput facts.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "D. Publish the messages to an Amazon Simple Notification Service (Amazon SNS) topic with multiple Amazon Simple Queue Service (Amazon SQS) queue subscriptions. Configure the consumer applications to process the messages from the queues.",
+  "why": "The fan-out pattern has the producer publish each message once to an SNS topic, which then delivers a copy into every subscribed SQS queue, so each of the dozens of consumers reads from its own queue and can scale, slow down or fail without affecting the others. The queues absorb the sudden spikes, which is what decouples the producer from consumer speed. Standard SQS queues give at-least-once delivery, best-effort ordering, and a nearly unlimited number of transactions per second, so a burst of 100,000 messages per second needs no quota request; it is FIFO queues that are capped, at 300 API calls per second per action or 3,000 messages per second when batching, with high throughput mode raising that further. Optionally give each subscription a filter policy so a consumer's queue only receives the message types it cares about."
+ },
+ "gh-205": {
+  "verdict": "fix",
+  "truth": "Serving a static site from a private S3 bucket that only CloudFront can read is still the right architecture, but the mechanism named is legacy: Origin Access Control replaced Origin Access Identity in August 2022 and is what AWS now documents and recommends for S3 origins. OAI still functions for existing distributions but does not support SSE-KMS encrypted objects, dynamic requests, or all Regions.",
+  "reason": "The answer option is still the correct one, but the explanation teaches a legacy mechanism that AWS no longer recommends and that an architect building this today should not choose.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Create a private Amazon S3 bucket. Use an S3 bucket policy that allows access only from the CloudFront distribution (Origin Access Control). Upload website content by using the AWS CLI.",
+  "why": "Static content in S3 behind CloudFront is the cheapest and most resilient option here: there are no servers to run or patch, and S3 stores objects across at least three Availability Zones in the Region. The bucket stays private with no public access, and a bucket policy grants read access only to the CloudFront distribution through Origin Access Control, so viewers can reach the content only via CloudFront. Origin Access Control is the current mechanism for this; Origin Access Identity did the same job and still works on older distributions, but AWS documents it as legacy and it cannot read SSE-KMS encrypted objects. Infrequent content updates are handled with the AWS CLI instead of SFTP."
+ },
+ "gh-22": {
+  "verdict": "fix",
+  "truth": "S3 Intelligent-Tiering is the correct answer for unpredictable access with multi-AZ resilience, but the explanation's claim of two access tiers has been out of date since November 2021. The automatic tiers are Frequent Access, Infrequent Access (after 30 consecutive days without access) and Archive Instant Access (after 90 days), with optional opt-in Archive Access and Deep Archive Access tiers on top.",
+  "reason": "The answer is right, but the tier description is four years stale and would leave a learner with a wrong model of how the class behaves.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "S3 Intelligent-Tiering",
+  "why": "The access pattern is unpredictable, so no fixed storage class or hand-tuned lifecycle rule can be set correctly in advance, and Intelligent-Tiering is the class built for that case: it moves each object between tiers based on that object's own access pattern and charges no retrieval fees, so a wrong guess never produces a retrieval charge. The automatic tiers are Frequent Access, Infrequent Access after 30 consecutive days without access, and Archive Instant Access after 90 days, and an object moves straight back to Frequent Access the next time it is read. Like S3 Standard, it stores data across at least three Availability Zones, so it survives the loss of one AZ, which rules out S3 One Zone-IA. The only extra cost is a small per-object monitoring and automation charge, and objects smaller than 128 KB are not monitored or charged for it."
+ },
+ "gh-302": {
+  "verdict": "drop",
+  "truth": "CloudFront for delivery and caching is still correct, but the second required pick names Amazon Elastic Transcoder, which AWS closed to new customers in 2024 and ended support for on 13 November 2025 - the console and existing resources are gone. The current service for this work is AWS Elemental MediaConvert.",
+  "reason": "This is a choose-two question and one of the two required answers is a service that no longer exists, so it can neither be asked nor answered as written. It is not salvageable by rewriting the explanation, because the option text itself names the retired service, and the only honest replacement - AWS Elemental MediaConvert - is not what SAA-C03 tests, so editing the option would invent a question AWS does not ask.",
+  "exam_relevant": false,
+  "importance": "low"
+ },
+ "gh-44": {
+  "verdict": "fix",
+  "truth": "Versioning plus MFA Delete is the correct pair, but the explanation misstates MFA Delete. In a versioned bucket an ordinary DELETE just writes a delete marker and needs no MFA; MFA is required only to permanently delete a specific object version, or to change the bucket's versioning state. MFA Delete can also only be turned on by the bucket owner's root user, and only through the CLI or API.",
+  "reason": "The answer pair is right, but the explanation describes protection MFA Delete does not provide, which would lead a reader to expect ordinary deletes to be blocked when they are not.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Enable versioning on the S3 bucket, and enable MFA Delete on the S3 bucket.",
+  "why": "Versioning is the primary protection: with it on, an overwrite keeps the previous version and a delete writes a delete marker rather than destroying data, so any accidental change can be undone by restoring the earlier version or removing the delete marker. MFA Delete then guards the two actions that would undo that protection - permanently deleting a specific object version, and suspending or changing the bucket's versioning state - by requiring a code from an MFA device on the request. It does not prompt for MFA on an everyday object delete, because in a versioned bucket that delete is not destructive. MFA Delete is configured by the bucket owner's root user through the AWS CLI or API, not from the console."
+ },
+ "gh-46": {
+  "verdict": "fix",
+  "truth": "The S3 transfer point with Amazon Macie scanning and SNS alerting is the correct answer. The stored explanation is unrelated boilerplate about requesting Service Quotas increases and justifies nothing, so it has to be replaced.",
+  "reason": "The answer is correct, but the stored explanation is copy-paste from an unrelated quota question and gives no justification at all.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Use an Amazon S3 bucket as a secure transfer point. Use Amazon Macie to scan the objects in the bucket. If objects contain PII, use Amazon Simple Notification Service (Amazon SNS) to trigger a notification to the administrators to remove the objects that contain PII.",
+  "why": "Amazon Macie is the managed service that discovers personally identifiable information in S3 objects, so no detection code has to be written or maintained - that is what makes this the least development effort. S3 is also the right landing point for the uploads: it handles 200 GB files comfortably (the object limit is 5 TB, with 5 GB being only the single-PUT limit), and AWS Transfer Family can front the bucket so the stores keep their existing SFTP workflow. Macie publishes its results as findings, so routing them to an SNS topic alerts the administrators, and the same event can drive an automated remediation step. Every alternative here requires building and operating custom scanning logic."
+ },
+ "gh-49": {
+  "verdict": "fix",
+  "truth": "The storage design in the stated answer is correct - Intelligent-Tiering for the unpredictable first year, a lifecycle move to S3 Glacier Flexible Retrieval after a year where delay is acceptable, and Athena for querying recent files. The named retrieval tool is stale: AWS closed S3 Select and S3 Glacier Select to new customers on 25 July 2024 and points new users to Athena instead. That mention is not what separates the options, so the question still works.",
+  "reason": "The answer option is still the best of the set, but the explanation says nothing about why and the retrieval mechanism it carries is no longer available to new customers.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Store individual files in Amazon S3 Intelligent-Tiering. Use S3 Lifecycle policies to move the files to S3 Glacier Flexible Retrieval after 1 year. Query and retrieve the files that are in Amazon S3 by using Amazon Athena.",
+  "why": "Access within the first year is random and therefore unpredictable, which is exactly the case S3 Intelligent-Tiering is built for: it tiers each object on its own access pattern and charges no retrieval fee, so cost falls without risking a charge on a file that turns out to be needed. After a year the requirement changes - a delay is acceptable - so a lifecycle rule moves the files to S3 Glacier Flexible Retrieval, the cheapest class that still allows retrieval in minutes to hours (Expedited 1-5 minutes, Standard 3-5 hours, Bulk 5-12 hours). Files from the last year stay directly queryable, and Athena is the service for querying them in place. Note that S3 Select and S3 Glacier Select, which older versions of this answer name, have been closed to new customers since July 2024; archived objects are now restored first and then queried with Athena."
+ },
+ "gh-501": {
+  "verdict": "fix",
+  "truth": "The architecture is correct - a managed streaming delivery service writing into the S3 data lake, with a managed stream-processing service doing the real-time analysis - but both services have been renamed. Kinesis Data Analytics became Amazon Managed Service for Apache Flink in August 2023, and Kinesis Data Firehose became Amazon Data Firehose in February 2024.",
+  "reason": "The answer is architecturally right but uses two retired service names; a candidate studying for the current exam needs the names AWS uses now.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Use Amazon Data Firehose (formerly Amazon Kinesis Data Firehose) to ingest the data. Use Amazon Managed Service for Apache Flink (formerly Amazon Kinesis Data Analytics) to analyze the data in real time.",
+  "why": "Amazon Data Firehose is a fully managed delivery stream that buffers incoming records and writes them to Amazon S3 with no servers, shards or scaling to manage, which is what makes it the most operationally efficient way to land payment data in the data lake. Amazon Managed Service for Apache Flink reads the same stream and runs continuous queries over it, giving real-time analysis alongside delivery to S3. The alternatives - scheduled batch jobs, or custom consumers running on EC2 or in Lambda - add code and operational work for the same result."
+ },
+ "gh-517": {
+  "verdict": "fix",
+  "truth": "Session Manager has a built-in S3 logging preference: in Session Manager preferences you enable S3 logging and choose a destination bucket, and full session output is delivered there automatically. The stated answer is correct, and the stored explanation both argues against it and is wrong - it confuses Run Command output logging with Session Manager session logging.",
+  "reason": "The answer is correct, but the stored explanation contradicts it and misdescribes the feature, so it would push a reader towards a different option.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "Enable S3 logging in the Systems Manager console. Choose an S3 bucket to send the session data to.",
+  "why": "Session logging is a configuration setting, not something that has to be built: in the Systems Manager console you edit Session Manager preferences, tick Enable under S3 logging and name the destination bucket, optionally with a key prefix and a requirement that the bucket be encrypted. From then on session output is delivered to that bucket for every session, which is why this is the most operationally efficient option. It needs no agent scripting, no log shipper and no scheduled copy job - the instance profile simply needs permission to write to the bucket. The alternatives, such as sending to CloudWatch Logs and then exporting, or scripting a copy from the instance, add moving parts for the same archive."
+ },
+ "gh-534": {
+  "verdict": "fix",
+  "truth": "The stated answer is self-cancelling: it transitions objects to S3 Glacier Flexible Retrieval at day 90 and also expires them at day 90. Expiration takes precedence over a same-day transition, so the Glacier step achieves nothing, and Glacier Flexible Retrieval carries a 90-day minimum storage charge that would make it more expensive if it did apply. The correct lifecycle transitions to an infrequent-access class at day 30 and expires objects at day 90, with no Glacier step.",
+  "reason": "The reviewer is right. Transitioning on the same day as deletion cannot be the most cost-effective option, and the question itself is a good test of lifecycle cost reasoning, so it is worth keeping with the answer corrected.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Transition objects to an S3 infrequent-access storage class 30 days after creation, and write an expiration action that directs Amazon S3 to delete objects after 90 days - with no Glacier transition. Where S3 One Zone-Infrequent Access is offered, it is the cheapest valid choice, because high availability is only required for the first 30 days and the remaining 60 days are backup only; if One Zone-IA is not among the options, S3 Standard-Infrequent Access is the correct pick.",
+  "why": "The logs need frequent, highly available access for 30 days, so they stay in S3 Standard for that period. From day 30 to day 90 they are held only for backup, so an infrequent-access class costs less per GB, and One Zone-IA is cheaper still once the high-availability requirement has lapsed. Because everything is deleted at day 90, an expiration action at 90 days is all that is needed, and a Glacier transition on the same day is wasted: expiration wins over a same-day transition, and Glacier Flexible Retrieval would in any case bill a 90-day minimum for objects that no longer exist. Adding the Glacier step therefore raises cost and complexity without meeting any stated requirement."
+ },
+ "gh-651": {
+  "verdict": "fix",
+  "truth": "The stated answer and its reasoning are correct: S3 Standard-IA at 180 days, S3 Glacier Instant Retrieval at 360 days for millisecond access to archived images, and S3 Glacier Deep Archive at 5 years, whose Standard retrieval completes within 12 hours. The defect is editorial - a stray block answering an unrelated gp3 EBS question is appended to the explanation, including a second, conflicting 'Answer: C'.",
+  "reason": "The reasoning is sound but the stored explanation ends with copy-paste contamination from an EBS question that states a different answer letter, which has to be removed.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Transition the objects to S3 Standard-Infrequent Access (S3 Standard-IA) after 180 days, S3 Glacier Instant Retrieval after 360 days, and S3 Glacier Deep Archive after 5 years.",
+  "why": "Each step matches one stated requirement. For the second 180 days the images are accessed infrequently but must not be lost, so S3 Standard-IA is right and S3 One Zone-IA is not, because One Zone-IA keeps the data in a single Availability Zone. After 360 days the images must still be available instantly, which is exactly what S3 Glacier Instant Retrieval provides - archive pricing with millisecond retrieval - whereas Glacier Flexible Retrieval would take minutes to hours and fails that requirement. After 5 years only auditors need the images and 12 hours is acceptable, so S3 Glacier Deep Archive, the cheapest class, is correct: its Standard retrieval completes within 12 hours, while Bulk can take up to 48. All of these classes store data redundantly across at least three Availability Zones, so nothing is at risk as the images move between them."
+ },
+ "gh-667": {
+  "verdict": "fix",
+  "truth": "The stated answer is wrong. A gateway endpoint for S3 works through a prefix-list route in the VPC route table, so it applies only to traffic originating inside the VPC and cannot be reached from an on-premises network over Direct Connect or VPN - AWS documents this limitation explicitly. S3 has supported interface endpoints (AWS PrivateLink) since February 2021, and those present private IP addresses in VPC subnets that on-premises hosts can reach over Direct Connect.",
+  "reason": "The stated answer and explanation invert the real limitation. The gateway-versus-interface endpoint decision, with the hybrid on-premises twist, is commonly tested, so the question is worth keeping with the answer corrected.",
+  "exam_relevant": true,
+  "importance": "high",
+  "answer": "Create interface VPC endpoints (AWS PrivateLink) for Amazon S3.",
+  "why": "The deciding requirement is private access from on premises as well as from inside the Region. An interface endpoint places elastic network interfaces with private IP addresses in the VPC's subnets, and because those are ordinary private addresses, on-premises hosts can reach them across the existing Direct Connect connection without any traffic touching the internet. A gateway endpoint cannot do this: it is a route-table entry that only affects traffic starting inside the VPC, so requests arriving over Direct Connect or VPN cannot use it. Interface endpoints bill per endpoint-hour and per GB where gateway endpoints are free, which is why gateway endpoints stay the default when only in-VPC access is needed - but that is not the case here. On-premises clients also need DNS that resolves S3 names to the endpoint, typically through Route 53 Resolver inbound endpoints or the endpoint-specific DNS names."
+ },
+ "wl-8": {
+  "verdict": "fix",
+  "truth": "The stated answer rests on a restriction AWS removed in February 2019. A root EBS volume can be encrypted at launch, either by setting Encrypted with a KMS key on the root device in the launch request or launch template, or by turning on EBS encryption by default for the account in that Region. The snapshot-and-copy workaround is no longer necessary.",
+  "reason": "The reviewer is right: the explanation asserts a limitation that no longer exists, and option A is now straightforwardly correct. Encrypting EBS at rest, including the root volume, stays firmly in scope for Design Secure Architectures.",
+  "exam_relevant": true,
+  "importance": "medium",
+  "answer": "A. Select the Encryption option for the root EBS volume while launching the EC2 instance.",
+  "why": "Root volume encryption is set at launch time: the root device in the block device mapping accepts an Encrypted setting together with a KMS key, and the console presents this as an encryption option on the volume. Turning on 'EBS encryption by default' for the account in a Region does the same thing fleet-wide, so every new volume and snapshot is encrypted without per-launch settings - the better fit for an organisation-wide compliance rule. Option B is impossible, because an existing unencrypted EBS volume cannot be encrypted in place; the only route is snapshot, copy with encryption, then restore. Option C is simply false, and option D describes the pre-2019 workaround, which still works but is needless extra effort today."
+ }
+}

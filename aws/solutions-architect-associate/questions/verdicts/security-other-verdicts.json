@@ -1,0 +1,115 @@
+{
+  "gh-232": {
+    "verdict": "fix",
+    "truth": "Attaching an instance profile with AmazonSSMManagedInstanceCore only lets Systems Manager manage the instance; on its own it sends no notification and does not detect an inbound RDP or SSH session. Publishing VPC flow logs to CloudWatch Logs, matching port 22 and port 3389 traffic with a metric filter, and alarming on that metric is the only listed approach that actually notifies the operations team.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "C. Publish VPC flow logs to Amazon CloudWatch Logs. Create the required metric filters. Create a CloudWatch metric alarm with a notification action for when the alarm is in the ALARM state.",
+    "why": "VPC flow logs record every accepted and rejected connection on the network interfaces in each VPC, including the destination port, so SSH (port 22) and RDP (port 3389) connections show up in the log records. Sending those logs to CloudWatch Logs lets you attach a metric filter that increments a custom metric whenever a record matches one of those ports, and a CloudWatch alarm on that metric can publish to an SNS topic to notify the operations team. The instance-profile option is wrong because AmazonSSMManagedInstanceCore just grants the instance permission to talk to Systems Manager; it produces no alert. Note the honest limit of this design: flow logs show that a connection on those ports was accepted, not that a user successfully authenticated, which is all the question asks for.",
+    "reason": "The stated answer field says B but the explanation body argues for C, so the recorded answer contradicts its own reasoning. The reviewer is right that an SSM instance profile alone notifies nobody."
+  },
+  "gh-28": {
+    "verdict": "keep",
+    "truth": "IAM Identity Center (the service formerly called AWS Single Sign-On) can use AWS Managed Microsoft AD as its identity source, and when that managed directory is joined to a self-managed Active Directory by a forest trust, AWS requires the trust to be two-way so Identity Center can both authenticate users and read user and group objects. The answer is correct as stated.",
+    "exam_relevant": true,
+    "importance": "high",
+    "reason": "The reviewer flagged this as stale only because the answer option carries the old 'AWS Single Sign-On' name. The explanation already states plainly that AWS SSO is now called IAM Identity Center, the two-way trust requirement is still current AWS behaviour, and nothing a candidate would be asked here has changed. Renaming inside a verbatim answer option is cosmetic, not a correctness problem."
+  },
+  "gh-418": {
+    "verdict": "fix",
+    "truth": "Adding the development account as a principal in the production role's trust policy is the right answer, but a trust policy only names who is allowed to assume the role. It never names resources or actions. The limit to a single S3 bucket comes from the permissions policy already attached to the role.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "B. Add the development account as a principal in the trust policy of the role in the production account.",
+    "why": "A role has two separate policies: the trust policy, which lists the principals allowed to call sts:AssumeRole on it, and the permissions policy, which lists what the role may do once assumed. Naming the development account as a principal in the trust policy lets the existing development IAM users assume the production role and receive short-lived credentials, with no second set of users or long-term access keys in the production account. Least privilege holds because the role's permissions policy already grants access to just the one production S3 bucket and nothing else, so that is the ceiling on what an assuming user can do. The development users also need sts:AssumeRole for that role ARN allowed on their own side, since both accounts must agree before a cross-account assume succeeds.",
+    "reason": "The answer is right but the explanation attributes resource scoping to the trust policy, which is a conceptual error candidates then repeat. Replaced with the correct split between trust policy and permissions policy."
+  },
+  "gh-492": {
+    "verdict": "fix",
+    "truth": "Using an Organizations SCP attached to the development OUs to restrict EC2 instance types is the correct, lowest-effort answer. The explanation is wrong about what an SCP is: SCPs do not set or grant permissions, they only cap the permissions that principals in the member accounts can be granted.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "B. Use AWS Organizations to organize the accounts into organizational units (OUs). Define and attach a service control policy (SCP) to control the usage of EC2 instance types.",
+    "why": "An SCP is a guardrail, not a grant: it sets the maximum permissions available to principals in the accounts it applies to, and a user still needs an IAM identity-based policy that allows the action before anything works. Writing one SCP that denies ec2:RunInstances unless the ec2:InstanceType condition matches an approved list, then attaching it to the OUs holding the development accounts, stops oversized launches everywhere in those accounts at once, including by account administrators. That is far less work than maintaining IAM policies account by account or building a detection-and-remediation pipeline. Two limits to remember: an SCP never restricts the organization's management account, so keep workloads out of it, and SCPs have no effect unless all features are enabled in the organization.",
+    "reason": "The answer is right, but describing SCPs as setting 'fine-grained permissions on AWS accounts' is the exact misconception the exam tests against. Replaced with the deny-ceiling framing plus the management-account exemption."
+  },
+  "gh-644": {
+    "verdict": "fix",
+    "truth": "A wildcard certificate for *.example.com does not cover the apex example.com, so the certificate must list both, and ownership still has to be validated. ACM supports both DNS validation and email validation for wildcard names; DNS validation is recommended because ACM can then renew the certificate automatically, but it is not the only option.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "A. Use the AWS Certificate Manager (ACM) console to request a public certificate for the apex top domain example.com and a wildcard certificate for *.example.com. AND E. Validate domain ownership for the domain by adding the required DNS records to the DNS provider.",
+    "why": "*.example.com matches one label to the left of example.com, so it covers country1.example.com and country2.example.com but not the bare apex example.com, which is why both names are needed. ACM issues public certificates free of charge and they attach directly to the Application Load Balancer's HTTPS listener, which terminates TLS and gives encryption in transit. Before ACM issues anything it has to confirm you control the domain, and you do that by adding the CNAME records ACM supplies to the DNS zone. DNS validation is the right choice here, not because wildcards require it, but because ACM re-checks those records and renews the certificate on its own, whereas email validation needs a human to click a link every renewal.",
+    "reason": "Two problems: the recorded answer listed only A even though this is a choose-two question whose second answer (E) was buried in the explanation, and the explanation claimed DNS validation is 'necessary' for wildcards, which is false. Both corrected."
+  },
+  "gh-668": {
+    "verdict": "fix",
+    "truth": "A tag policy in AWS Organizations is the right fit for standardising an approved list of application-name values across every account from one place. But the explanation's reason is false: IAM policies and SCPs absolutely can inspect tag values, using the aws:RequestTag/${TagKey} and aws:TagKeys condition keys.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "D. Create a tag policy in AWS Organizations that defines the list of allowed application names.",
+    "why": "A tag policy is defined once in the Organizations management account and attached to the root, an OU or an account; it declares the approved values for a tag key, and with enforcement turned on for the supported resource types it blocks tagging operations that would set a value outside that list. That gives one central list to maintain as teams and accounts come and go, which is why it beats the alternatives here. The rejection of the IAM option needs care: an IAM policy or an SCP can check tag values, for example denying a create action unless aws:RequestTag/application equals an approved name, so it is not that IAM cannot do this. It is that you would have to write and keep in sync a condition for every service and action the teams use, which is far more work than one tag policy.",
+    "reason": "The answer stands, but 'IAM policies cannot validate tag values' is factually wrong and would mislead a candidate on how aws:RequestTag works. Replaced with the real reason the tag policy wins, which is central maintenance rather than IAM incapability."
+  },
+  "gh-201": {
+    "verdict": "drop",
+    "truth": "Amazon Pinpoint has been broken up: SMS, voice and push messaging moved to AWS End User Messaging, and AWS set end of support for Amazon Pinpoint at 30 October 2026, so Pinpoint journeys are not an architecture anyone can be asked to choose today.",
+    "exam_relevant": false,
+    "importance": "low",
+    "reason": "The answer depends on a product that is being retired this month and whose messaging capability now lives under a different name, so the option text can no longer be asked as written. Pinpoint is also not on the SAA-C03 in-scope service list, and the thing actually being tested is which messaging product sends two-way SMS, which is product trivia rather than an architecture decision in any of the four scored domains. Rewriting it would mean replacing every option, which makes it a new question, not a fix."
+  },
+  "gh-267": {
+    "verdict": "fix",
+    "truth": "The architecture is correct: Firehose is the least-operational-overhead path because it encrypts in flight, converts records to Apache Parquet using a Glue Data Catalog schema, and lands them in S3 with no servers to run, while the streaming analytics piece handles the near-real-time analysis. The names are out of date and the question shipped with no explanation at all.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "D. Create an Amazon Data Firehose delivery stream (formerly Amazon Kinesis Data Firehose) to store the data in Amazon S3. Create an Amazon Managed Service for Apache Flink application (formerly Amazon Kinesis Data Analytics) to analyze the data.",
+    "why": "Firehose is fully managed with no shards to size or scale, it can encrypt data with a KMS key, and its record format conversion feature rewrites incoming JSON into Apache Parquet using a schema from the AWS Glue Data Catalog before writing to S3, which covers the encryption, the format and the centralised location in one managed hop. Firehose buffers for roughly 60 seconds before delivering, which is why this counts as near-real-time rather than real-time, and that satisfies the requirement as worded. Managed Service for Apache Flink reads the stream and runs the analysis without any cluster to operate. Two names changed after this question was written: Kinesis Data Firehose is now Amazon Data Firehose, and Kinesis Data Analytics is now Amazon Managed Service for Apache Flink.",
+    "reason": "The answer is right but had no explanation whatsoever, and both service names in it have since been changed. Supplied a correct explanation and the current names."
+  },
+  "gh-292": {
+    "verdict": "fix",
+    "truth": "Both listed paths work: Kinesis Data Streams into a streaming-analytics application to transform, then Firehose to S3 and Athena for SQL; or Amazon MSK into an AWS Glue streaming job that transforms and writes to S3, again queried with Athena. The only defect is the stale 'Amazon Kinesis Data Analytics' name and the fact that the recorded answer field listed only one of the two required choices.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "A. Use Amazon Kinesis Data Streams to stream the data. Use Amazon Managed Service for Apache Flink (formerly Amazon Kinesis Data Analytics) to transform the data. Use Amazon Data Firehose to write the data to Amazon S3. Use Amazon Athena to query the transformed data from Amazon S3. AND B. Use Amazon Managed Streaming for Apache Kafka (Amazon MSK) to stream the data. Use AWS Glue to transform the data and to write the data to Amazon S3. Use Amazon Athena to query the transformed data from Amazon S3.",
+    "why": "Both answers follow the same shape the requirement calls for: ingest a stream, transform in flight, land the result in S3, then query it with SQL. In A, Kinesis Data Streams takes the ingest, Managed Service for Apache Flink applies the transformation, Firehose handles delivery to S3, and Athena provides the SQL layer over the objects in the bucket. In B, MSK takes the ingest and an AWS Glue streaming ETL job reads from the Kafka topic, transforms and writes to S3, with Athena again supplying SQL. Athena is what satisfies 'use SQL to query the transformed data' in both cases, because it queries S3 directly with no database to provision. Kinesis Data Analytics was renamed Amazon Managed Service for Apache Flink in August 2023.",
+    "reason": "The answer is technically right, but this is a choose-two question whose second correct option was left sitting in the explanation body instead of the answer field, and the transformation service has been renamed. Both corrected."
+  },
+  "gh-454": {
+    "verdict": "fix",
+    "truth": "Workload Discovery on AWS is the correct answer, but it is a standalone AWS Solutions Library implementation you deploy into your own account from a CloudFormation template. It is not a feature of, or included in, the AWS Well-Architected Tool.",
+    "exam_relevant": true,
+    "importance": "low",
+    "answer": "C. Use Workload Discovery on AWS to generate architecture diagrams of the workloads.",
+    "why": "Workload Discovery on AWS is a prebuilt solution you deploy from the AWS Solutions Library using a CloudFormation template; once running it inventories resources across the accounts and Regions you point it at and draws the relationships between them as architecture diagrams you can browse and export. That is exactly the gap here, which is an unknown estate with no documentation, and it needs no custom code, so it is the most operationally efficient choice. The AWS Well-Architected Tool is a different thing entirely: it records your answers to a review questionnaire and reports risks against the Well-Architected pillars, and it neither discovers resources nor draws diagrams. AWS Config is the complementary piece worth knowing, since it records resource configuration and relationships, but it does not produce the diagrams the question asks for.",
+    "reason": "The answer is right but the explanation fabricates a relationship between Workload Discovery and the Well-Architected Tool, which would teach a candidate a wrong service boundary. Rewritten to describe both products accurately."
+  },
+  "gh-50": {
+    "verdict": "fix",
+    "truth": "Systems Manager Run Command is the correct answer because it pushes an ad hoc command to all 1,000 instances immediately. The explanation's reasons for rejecting the others are wrong: Patch Manager does patch third-party applications, and maintenance windows are a normal way to run patching tasks.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "D. Use AWS Systems Manager Run Command to run a custom command that applies the patch to all EC2 instances.",
+    "why": "Run Command executes a document or script against a target set chosen by instance IDs, tags or a resource group, with rate control and error thresholds, and it runs on demand the moment you invoke it, which is what 'as quickly as possible' requires for a critical vulnerability. Patch Manager is the wrong tool here not because it cannot handle third-party software, which it can, but because it is built for recurring, baseline-driven compliance patching and normally runs inside a scheduled maintenance window, so it is slower to stand up for a single urgent fix. A maintenance window has the same problem: it is a scheduling construct, so it delays the remediation rather than speeding it up. Writing a Lambda function would also work eventually, since Lambda would end up calling Run Command anyway, but building it is extra effort for no gain.",
+    "reason": "The answer is right but the explanation states two things that are false, that Patch Manager cannot patch third-party software and that maintenance windows are not designed for patching, so a candidate would carry both errors forward. Replaced with the real distinction, which is on-demand versus scheduled."
+  },
+  "gh-585": {
+    "verdict": "fix",
+    "truth": "An On-Demand Capacity Reservation is the only option that actually reserves EC2 capacity in the failover Region. The explanation gets it backwards on flexibility: a Capacity Reservation is pinned to a specific instance type, platform, tenancy and a single Availability Zone, and you cannot launch different types or sizes against it.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "D. Purchase a Capacity Reservation in the failover Region.",
+    "why": "An On-Demand Capacity Reservation holds EC2 capacity for your account in one Availability Zone for a stated instance type, platform and tenancy, and that capacity stays held whether or not you have instances running in it, so it is there when you declare a disaster and fail over. Because it is pinned that tightly, you must create the reservation for the exact instance types and the exact AZ your DR plan will launch into, and you pay the On-Demand rate for the reserved capacity for as long as it exists. The key distinction the question is testing: Savings Plans and regional Reserved Instances are billing discounts and reserve no capacity at all, so they cannot guarantee a failover launch will succeed. If you want the discount as well, a Capacity Reservation can be combined with a Savings Plan or a Reserved Instance, which then applies to the reserved capacity's charges.",
+    "reason": "The answer is right but the explanation claims Capacity Reservations let you launch different instance types and sizes, which is false and removes the one constraint candidates need to understand. Rewritten with the correct scope and the capacity-versus-discount contrast."
+  },
+  "gh-7": {
+    "verdict": "fix",
+    "truth": "SNS fan-out to one SQS queue per consumer is the correct answer. The throughput figures in the explanation are wrong for the queue type involved: standard SQS queues support a nearly unlimited number of transactions per second and need no quota increase for 100,000 messages per second. The 3,000 per second number belongs to FIFO queues.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "D. Publish the messages to an Amazon Simple Notification Service (Amazon SNS) topic with multiple Amazon Simple Queue Service (Amazon SQS) queue subscriptions. Configure the consumer applications to process the messages from the queues.",
+    "why": "The fan-out pattern has the producer publish each message once to an SNS topic, which then delivers a copy into every subscribed SQS queue, so each of the dozens of consumers reads from its own queue and can scale, slow down or fail without affecting the others. The queues absorb the sudden spikes, which is what decouples the producer from consumer speed. Standard SQS queues give at-least-once delivery, best-effort ordering, and a nearly unlimited number of transactions per second, so a burst of 100,000 messages per second needs no quota request; it is FIFO queues that are capped, at 300 API calls per second per action or 3,000 messages per second when batching, with high throughput mode raising that further. Optionally give each subscription a filter policy so a consumer's queue only receives the message types it cares about.",
+    "reason": "The answer is right but the explanation applies FIFO throughput limits to standard queues and invents a support-ticket process, which would lead a candidate to reject this architecture at 100,000 messages per second. Replaced with the correct standard-versus-FIFO throughput facts."
+  }
+}

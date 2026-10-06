@@ -1,0 +1,106 @@
+{
+  "gh-245": {
+    "verdict": "fix",
+    "truth": "The stem says the application uses the ALB to direct traffic to at least two EC2 instances in a single target group, so cutting the development target group to a single instance breaks the stated architecture. Lowering the maximum size of the development Auto Scaling group is the cost saving that leaves the design intact, because only production has the high-traffic periods that justify scaling out.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Reduce the maximum number of EC2 instances in the development environment's Auto Scaling group.",
+    "why": "Development and production each have their own Auto Scaling group, and only production sees bursts of traffic. Capping the maximum size of the development group stops it from ever scaling out to a production-sized fleet, so development runs the minimum it needs and nothing more. Taking a target out of the development target group saves nothing, because the instance keeps running and billing - the Auto Scaling group still owns it and will simply register it again - and it also contradicts the requirement that the load balancer serve at least two instances. Shrinking instance sizes in both environments would change production as well, and the load balancing algorithm has no bearing on cost.",
+    "reason": "The reviewer is right. The stated answer contradicts a requirement given in the stem, so the answer string and the explanation both need replacing."
+  },
+  "gh-320": {
+    "verdict": "fix",
+    "truth": "The architecture in the stated answer is still correct - stream into Kinesis Data Streams, then run continuous queries over the stream - but the service names are out of date. Kinesis Data Analytics for Apache Flink was renamed Amazon Managed Service for Apache Flink in August 2023, and the separate SQL-application flavour that the old explanation describes has been retired, so it can no longer be the mechanism an answer points at.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Publish the data to Amazon Kinesis Data Streams, and query the stream in near real time with Amazon Managed Service for Apache Flink (the service previously called Kinesis Data Analytics).",
+    "why": "Kinesis Data Streams accepts the 1 MB/s feed and holds every record durably across three Availability Zones for a retention period you choose, so a reboot of the producing EC2 instance no longer loses in-flight data, and throughput grows by adding shards. Amazon Managed Service for Apache Flink reads directly from the stream and runs continuous queries, which gives the data science team results seconds behind the source; SQL is still available through Flink SQL and Studio notebooks. Writing the feed to Amazon S3 with Firehose and querying it with Athena would work but adds minutes of buffering delay, which is not near real time.",
+    "reason": "The reviewer is right that the names are stale. The decision being tested is unchanged and still worth asking, so the question is repaired rather than removed."
+  },
+  "gh-422": {
+    "verdict": "fix",
+    "truth": "The stated answer is correct: a queue in front of ECS services that scale on queue depth is the right fit for an asynchronous API with long idle gaps and sudden batches of thousands of requests. The explanation is about a different design - it describes an Application Load Balancer in the request path and claims App Mesh does the scaling, which it does not; App Mesh is a service mesh for service-to-service traffic and has no scaling role.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Direct the requests from the API into an Amazon Simple Queue Service (Amazon SQS) queue. Deploy the models as Amazon Elastic Container Service (Amazon ECS) services that read from the queue. Enable AWS Auto Scaling on Amazon ECS for both the cluster and copies of the service based on the queue size.",
+    "why": "The API is asynchronous, so requests can sit in an SQS queue and be picked up when capacity exists; the queue absorbs a sudden batch of thousands of requests without dropping any and without the caller waiting. Scaling the ECS service on the number of messages waiting in the queue adds containers only when work arrives and scales back down through the days or weeks a model is unused, and scaling the cluster capacity alongside it means you are not paying for idle hosts. Long-running containers also keep the 1 GB of model data in memory between requests, whereas a design that fronts short-lived functions with a load balancer would re-download that 1 GB on every cold start and would make an asynchronous API behave synchronously.",
+    "reason": "The reviewer is right: the explanation describes a different architecture from the one the answer gives. It was in fact assembled from the wording of the distractor option (ALB plus ECS plus App Mesh), so it argues for the wrong choice. The answer itself stands and only the explanation is replaced."
+  },
+  "gh-51": {
+    "verdict": "fix",
+    "truth": "The correct pair for this question is the EventBridge scheduled rule that invokes a Lambda function to pull the statistics from the REST API, and Amazon SES to send the formatted report to several addresses. The bank entry records only one of the two choices and then spills the text and answers of three unrelated questions into the explanation field, which is a data defect rather than a problem with the question.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Both of the following: (1) Create an Amazon EventBridge scheduled event that invokes an AWS Lambda function to query the application's API for the data; and (2) use Amazon Simple Email Service (Amazon SES) to send the report by email.",
+    "why": "The report has to go out at the same time every morning, which is exactly what an EventBridge schedule does, and the thing it triggers needs to call a REST API and build HTML, which is ordinary Lambda work with no servers to run. Amazon SES then delivers the HTML message to the list of recipients in one send, and it is the AWS service meant for sending application email to real mailboxes. An SNS topic can notify subscribers but is not suited to delivering a formatted HTML report, and a Glue job is for extract-transform-load work over data stores, not for calling an API and emailing a page.",
+    "reason": "The reviewer is right that the answer block is corrupted. The question is a sound, commonly tested serverless scheduling scenario, so the answer and explanation are rewritten cleanly and the three foreign questions removed."
+  },
+  "gh-523": {
+    "verdict": "fix",
+    "truth": "AWS AppSync pipeline resolvers are the right answer. A pipeline resolver chains several functions in one GraphQL request, each hitting its own data source, so a single client call can read from several DynamoDB tables server-side with nothing to operate. CloudFront with Lambda@Edge is a content delivery and edge request-manipulation tool and does not give an application the ability to read several DynamoDB tables.",
+    "exam_relevant": true,
+    "importance": "low",
+    "answer": "Use AWS AppSync pipeline resolvers.",
+    "why": "AppSync is a managed GraphQL front end for serverless applications, and a pipeline resolver runs an ordered series of functions inside one request, each attached to its own data source. That lets a single request gather data from several DynamoDB tables in the managed service layer, so the application's existing code path is untouched and its baseline performance is unaffected, and there is no new infrastructure to run. Lambda@Edge would mean writing and deploying edge functions that still have to call DynamoDB back in the table's region, which is more work and slower, and an edge-optimized API Gateway endpoint only changes where the connection is terminated.",
+    "reason": "The reviewer is right. The stated answer names a service that does not solve the stated problem, so both the answer and the explanation are replaced."
+  },
+  "gh-531": {
+    "verdict": "fix",
+    "truth": "The stated answer, a Lambda function URL, is correct. The explanation misnames the mechanism: a function URL is a feature of Lambda itself that gives the function a dedicated HTTPS endpoint, with no API Gateway anywhere in the path. The rest of the explanation is accurate but justifies the right answer with the wrong plumbing.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Create a function URL for the Lambda function, and give that URL to the third party as the webhook target.",
+    "why": "A Lambda function URL is a built-in feature of the function: turning it on produces a permanent HTTPS address of the form https://<id>.lambda-url.<region>.on.aws that invokes the function directly, with no other service to create, configure or pay for. Access can be left open for a public webhook or restricted to signed IAM callers, which covers what a third-party feed needs. API Gateway in front of the function would also work and is the right choice when you need request throttling, API keys, custom authorizers, a custom domain or AWS WAF, but for simply handing a callback address to one partner it is extra setup for no benefit.",
+    "reason": "The reviewer is right that the opening sentence describes the wrong mechanism. The answer is sound, so only the explanation is replaced."
+  },
+  "gh-563": {
+    "verdict": "fix",
+    "truth": "Amazon EKS Connector exists to register Kubernetes clusters that are not EKS - on premises, self-managed on EC2, or running on another cloud - so they appear next to your EKS clusters in the EKS console. EKS clusters in your own account already show up there and do not need connecting, so the explanation's account of what the feature is for is wrong even though the answer is right.",
+    "exam_relevant": true,
+    "importance": "low",
+    "answer": "Use Amazon EKS Connector to register and connect the Kubernetes clusters that run outside Amazon EKS, so every cluster can be seen and managed from the EKS console.",
+    "why": "EKS Connector installs a small agent into a Kubernetes cluster that AWS does not run - on premises, self-managed on EC2, or on another cloud provider - and registers that cluster with Amazon EKS, so it appears in the EKS console alongside the native EKS clusters with its nodes and workloads visible. That gives one place to see every cluster without standing up and maintaining a separate management tool, which is the least operational overhead of the options. EKS Anywhere is for running an AWS-supported Kubernetes distribution in your own data centre, and EKS Distro is only the open-source build of Kubernetes that EKS is based on; neither gives a single central view of clusters you already have.",
+    "reason": "The reviewer is right about the explanation. One further defect to note: the question stem in the bank is truncated - it begins mid-sentence at 'clusters and workloads from a central location' - and its opening needs restoring from the source, saying that the company runs Kubernetes clusters both on Amazon EKS and outside it (on premises and on other clouds) and wants to manage them all from one place."
+  },
+  "gh-576": {
+    "verdict": "fix",
+    "truth": "An edge-optimized endpoint is the correct answer, and it works through a CloudFront distribution that API Gateway creates and manages on your behalf. AWS Global Accelerator plays no part in it; the explanation invents that.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "An edge-optimized API endpoint.",
+    "why": "With an edge-optimized endpoint, API Gateway puts a CloudFront distribution that it manages in front of your API, so a request from a geographically distant user enters the AWS network at the nearest edge location and travels the rest of the way over the AWS backbone instead of the public internet. That cuts the latency of connection setup and transit for scattered users, which is what the requirement asks for. A regional endpoint sends clients straight to the API in its own region and is the better choice when callers are in that same region or when you want to run your own CloudFront distribution; a private endpoint is reachable only from inside a VPC.",
+    "reason": "The reviewer is right that Global Accelerator is not involved. The answer stands; the explanation is replaced with the actual mechanism."
+  },
+  "gh-584": {
+    "verdict": "keep",
+    "truth": "The reviewer's preferred answer is not one of the choices. The question's four options are a spread placement group, grouping the instances in separate accounts, dedicated tenancy and shared tenancy - there is no partition placement group option. Of those four, only the spread placement group controls placement so that instances do not share underlying hardware, so the stated answer is correct and the explanation describes spread placement groups accurately.",
+    "exam_relevant": true,
+    "importance": "high",
+    "reason": "The reviewer argued for a partition placement group on the strength of the phrase 'groups of nodes', which is fair reading of the wording in the abstract, but that option does not exist in this question. Separate accounts have no effect on which rack an instance lands on, dedicated tenancy only keeps other customers off the host and leaves your own instances free to share one, and shared tenancy is the opposite of what is asked. Spread is the only remaining answer and the explanation states correctly that it places instances on distinct hardware."
+  },
+  "gh-671": {
+    "verdict": "fix",
+    "truth": "AWS Cost Anomaly Detection is the correct answer, but the reason given for it is false. CloudWatch has had machine-learning anomaly detection on metrics since 2019 and can raise alarms on those bands. The real reason to choose Cost Anomaly Detection is that it is built for cost and usage data and can attribute unusual spend to a service, account, cost category or tag, which CloudWatch cannot do.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Create an AWS Cost Anomaly Detection monitor.",
+    "why": "Cost Anomaly Detection applies machine learning to your AWS cost and usage data and raises an alert when spend departs from the learned pattern, naming the service, linked account, cost category or tag the unexpected charges came from. Alerts go to email or to an Amazon SNS topic, either one at a time or as a daily or weekly summary, so the responsible stakeholders hear about it without anyone running a manual review. CloudWatch can also detect anomalies in a metric, but the only billing data it holds is the coarse EstimatedCharges metric in us-east-1, so it cannot break spend down by service or account; AWS Budgets is useful alongside this but fires on thresholds you set yourself rather than on unusual patterns.",
+    "reason": "The reviewer is right that the explanation rests on a false claim about CloudWatch. The answer is correct, so the explanation is replaced with the real justification."
+  },
+  "gh-677": {
+    "verdict": "fix",
+    "truth": "A managed node group made up entirely of Spot Instances is the most cost-effective answer. The cluster is a development cluster used infrequently whose stated purpose is testing the application's resiliency, so Spot interruptions are acceptable and arguably useful, and a managed node group still satisfies the requirement that EKS manage all the nodes. Holding On-Demand capacity alongside Spot costs more and serves no requirement in the question.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Create an EKS managed node group that contains only Spot Instances.",
+    "why": "Spot Instances are the cheapest way to get EC2 capacity, at a steep discount to On-Demand, and the trade-off - the instance can be reclaimed at short notice - does not matter for a development cluster used occasionally to test how the application copes with failure. EKS managed node groups support Spot capacity directly and handle provisioning, draining on interruption and version upgrades, so the requirement that the cluster manage all the nodes is met. Mixing in On-Demand Instances raises the bill without meeting any stated requirement, and a self-managed Auto Scaling group with bootstrap scripts hands node management back to you.",
+    "reason": "The reviewer is right. The qualifier is MOST cost-effectively and nothing in the question requires uninterrupted capacity, so the answer and explanation are replaced."
+  },
+  "wl-10": {
+    "verdict": "drop",
+    "truth": "All four listed items can be a CloudFront origin today. CloudFront has supported Lambda function URLs as an origin since they launched in 2022, the console lists them as an origin type, and origin access control for function URL origins arrived in April 2024 so the endpoint can be locked to the distribution. The stated answer and its explanation describe behaviour that no longer holds.",
+    "exam_relevant": false,
+    "importance": "low",
+    "reason": "With Lambda function URLs now a supported origin type, none of the four options is 'not an origin', so no single answer is defensible and the question is unanswerable as written. There is nothing to repair: it is a recall list about which services appear in an origin dropdown rather than an architectural decision SAA-C03 tests, and the one fact it rested on is now false."
+  }
+}

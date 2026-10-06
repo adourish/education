@@ -1,0 +1,13 @@
+{
+  "name": "SAA-C03 Recall Board",
+  "short_name": "SAA-C03",
+  "description": "Recall poster, practice questions and progress for the AWS Solutions Architect Associate exam.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef3f4",
+  "theme_color": "#00707e",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

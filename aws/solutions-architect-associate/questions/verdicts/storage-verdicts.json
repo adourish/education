@@ -1,0 +1,108 @@
+{
+  "gh-205": {
+    "verdict": "fix",
+    "truth": "Serving a static site from a private S3 bucket that only CloudFront can read is still the right architecture, but the mechanism named is legacy: Origin Access Control replaced Origin Access Identity in August 2022 and is what AWS now documents and recommends for S3 origins. OAI still functions for existing distributions but does not support SSE-KMS encrypted objects, dynamic requests, or all Regions.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Create a private Amazon S3 bucket. Use an S3 bucket policy that allows access only from the CloudFront distribution (Origin Access Control). Upload website content by using the AWS CLI.",
+    "why": "Static content in S3 behind CloudFront is the cheapest and most resilient option here: there are no servers to run or patch, and S3 stores objects across at least three Availability Zones in the Region. The bucket stays private with no public access, and a bucket policy grants read access only to the CloudFront distribution through Origin Access Control, so viewers can reach the content only via CloudFront. Origin Access Control is the current mechanism for this; Origin Access Identity did the same job and still works on older distributions, but AWS documents it as legacy and it cannot read SSE-KMS encrypted objects. Infrequent content updates are handled with the AWS CLI instead of SFTP.",
+    "reason": "The answer option is still the correct one, but the explanation teaches a legacy mechanism that AWS no longer recommends and that an architect building this today should not choose."
+  },
+  "gh-22": {
+    "verdict": "fix",
+    "truth": "S3 Intelligent-Tiering is the correct answer for unpredictable access with multi-AZ resilience, but the explanation's claim of two access tiers has been out of date since November 2021. The automatic tiers are Frequent Access, Infrequent Access (after 30 consecutive days without access) and Archive Instant Access (after 90 days), with optional opt-in Archive Access and Deep Archive Access tiers on top.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "S3 Intelligent-Tiering",
+    "why": "The access pattern is unpredictable, so no fixed storage class or hand-tuned lifecycle rule can be set correctly in advance, and Intelligent-Tiering is the class built for that case: it moves each object between tiers based on that object's own access pattern and charges no retrieval fees, so a wrong guess never produces a retrieval charge. The automatic tiers are Frequent Access, Infrequent Access after 30 consecutive days without access, and Archive Instant Access after 90 days, and an object moves straight back to Frequent Access the next time it is read. Like S3 Standard, it stores data across at least three Availability Zones, so it survives the loss of one AZ, which rules out S3 One Zone-IA. The only extra cost is a small per-object monitoring and automation charge, and objects smaller than 128 KB are not monitored or charged for it.",
+    "reason": "The answer is right, but the tier description is four years stale and would leave a learner with a wrong model of how the class behaves."
+  },
+  "gh-302": {
+    "verdict": "drop",
+    "truth": "CloudFront for delivery and caching is still correct, but the second required pick names Amazon Elastic Transcoder, which AWS closed to new customers in 2024 and ended support for on 13 November 2025 - the console and existing resources are gone. The current service for this work is AWS Elemental MediaConvert.",
+    "exam_relevant": false,
+    "importance": "low",
+    "reason": "This is a choose-two question and one of the two required answers is a service that no longer exists, so it can neither be asked nor answered as written. It is not salvageable by rewriting the explanation, because the option text itself names the retired service, and the only honest replacement - AWS Elemental MediaConvert - is not what SAA-C03 tests, so editing the option would invent a question AWS does not ask."
+  },
+  "gh-44": {
+    "verdict": "fix",
+    "truth": "Versioning plus MFA Delete is the correct pair, but the explanation misstates MFA Delete. In a versioned bucket an ordinary DELETE just writes a delete marker and needs no MFA; MFA is required only to permanently delete a specific object version, or to change the bucket's versioning state. MFA Delete can also only be turned on by the bucket owner's root user, and only through the CLI or API.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Enable versioning on the S3 bucket, and enable MFA Delete on the S3 bucket.",
+    "why": "Versioning is the primary protection: with it on, an overwrite keeps the previous version and a delete writes a delete marker rather than destroying data, so any accidental change can be undone by restoring the earlier version or removing the delete marker. MFA Delete then guards the two actions that would undo that protection - permanently deleting a specific object version, and suspending or changing the bucket's versioning state - by requiring a code from an MFA device on the request. It does not prompt for MFA on an everyday object delete, because in a versioned bucket that delete is not destructive. MFA Delete is configured by the bucket owner's root user through the AWS CLI or API, not from the console.",
+    "reason": "The answer pair is right, but the explanation describes protection MFA Delete does not provide, which would lead a reader to expect ordinary deletes to be blocked when they are not."
+  },
+  "gh-46": {
+    "verdict": "fix",
+    "truth": "The S3 transfer point with Amazon Macie scanning and SNS alerting is the correct answer. The stored explanation is unrelated boilerplate about requesting Service Quotas increases and justifies nothing, so it has to be replaced.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Use an Amazon S3 bucket as a secure transfer point. Use Amazon Macie to scan the objects in the bucket. If objects contain PII, use Amazon Simple Notification Service (Amazon SNS) to trigger a notification to the administrators to remove the objects that contain PII.",
+    "why": "Amazon Macie is the managed service that discovers personally identifiable information in S3 objects, so no detection code has to be written or maintained - that is what makes this the least development effort. S3 is also the right landing point for the uploads: it handles 200 GB files comfortably (the object limit is 5 TB, with 5 GB being only the single-PUT limit), and AWS Transfer Family can front the bucket so the stores keep their existing SFTP workflow. Macie publishes its results as findings, so routing them to an SNS topic alerts the administrators, and the same event can drive an automated remediation step. Every alternative here requires building and operating custom scanning logic.",
+    "reason": "The answer is correct, but the stored explanation is copy-paste from an unrelated quota question and gives no justification at all."
+  },
+  "gh-49": {
+    "verdict": "fix",
+    "truth": "The storage design in the stated answer is correct - Intelligent-Tiering for the unpredictable first year, a lifecycle move to S3 Glacier Flexible Retrieval after a year where delay is acceptable, and Athena for querying recent files. The named retrieval tool is stale: AWS closed S3 Select and S3 Glacier Select to new customers on 25 July 2024 and points new users to Athena instead. That mention is not what separates the options, so the question still works.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Store individual files in Amazon S3 Intelligent-Tiering. Use S3 Lifecycle policies to move the files to S3 Glacier Flexible Retrieval after 1 year. Query and retrieve the files that are in Amazon S3 by using Amazon Athena.",
+    "why": "Access within the first year is random and therefore unpredictable, which is exactly the case S3 Intelligent-Tiering is built for: it tiers each object on its own access pattern and charges no retrieval fee, so cost falls without risking a charge on a file that turns out to be needed. After a year the requirement changes - a delay is acceptable - so a lifecycle rule moves the files to S3 Glacier Flexible Retrieval, the cheapest class that still allows retrieval in minutes to hours (Expedited 1-5 minutes, Standard 3-5 hours, Bulk 5-12 hours). Files from the last year stay directly queryable, and Athena is the service for querying them in place. Note that S3 Select and S3 Glacier Select, which older versions of this answer name, have been closed to new customers since July 2024; archived objects are now restored first and then queried with Athena.",
+    "reason": "The answer option is still the best of the set, but the explanation says nothing about why and the retrieval mechanism it carries is no longer available to new customers."
+  },
+  "gh-501": {
+    "verdict": "fix",
+    "truth": "The architecture is correct - a managed streaming delivery service writing into the S3 data lake, with a managed stream-processing service doing the real-time analysis - but both services have been renamed. Kinesis Data Analytics became Amazon Managed Service for Apache Flink in August 2023, and Kinesis Data Firehose became Amazon Data Firehose in February 2024.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Use Amazon Data Firehose (formerly Amazon Kinesis Data Firehose) to ingest the data. Use Amazon Managed Service for Apache Flink (formerly Amazon Kinesis Data Analytics) to analyze the data in real time.",
+    "why": "Amazon Data Firehose is a fully managed delivery stream that buffers incoming records and writes them to Amazon S3 with no servers, shards or scaling to manage, which is what makes it the most operationally efficient way to land payment data in the data lake. Amazon Managed Service for Apache Flink reads the same stream and runs continuous queries over it, giving real-time analysis alongside delivery to S3. The alternatives - scheduled batch jobs, or custom consumers running on EC2 or in Lambda - add code and operational work for the same result.",
+    "reason": "The answer is architecturally right but uses two retired service names; a candidate studying for the current exam needs the names AWS uses now."
+  },
+  "gh-517": {
+    "verdict": "fix",
+    "truth": "Session Manager has a built-in S3 logging preference: in Session Manager preferences you enable S3 logging and choose a destination bucket, and full session output is delivered there automatically. The stated answer is correct, and the stored explanation both argues against it and is wrong - it confuses Run Command output logging with Session Manager session logging.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "Enable S3 logging in the Systems Manager console. Choose an S3 bucket to send the session data to.",
+    "why": "Session logging is a configuration setting, not something that has to be built: in the Systems Manager console you edit Session Manager preferences, tick Enable under S3 logging and name the destination bucket, optionally with a key prefix and a requirement that the bucket be encrypted. From then on session output is delivered to that bucket for every session, which is why this is the most operationally efficient option. It needs no agent scripting, no log shipper and no scheduled copy job - the instance profile simply needs permission to write to the bucket. The alternatives, such as sending to CloudWatch Logs and then exporting, or scripting a copy from the instance, add moving parts for the same archive.",
+    "reason": "The answer is correct, but the stored explanation contradicts it and misdescribes the feature, so it would push a reader towards a different option."
+  },
+  "gh-534": {
+    "verdict": "fix",
+    "truth": "The stated answer is self-cancelling: it transitions objects to S3 Glacier Flexible Retrieval at day 90 and also expires them at day 90. Expiration takes precedence over a same-day transition, so the Glacier step achieves nothing, and Glacier Flexible Retrieval carries a 90-day minimum storage charge that would make it more expensive if it did apply. The correct lifecycle transitions to an infrequent-access class at day 30 and expires objects at day 90, with no Glacier step.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Transition objects to an S3 infrequent-access storage class 30 days after creation, and write an expiration action that directs Amazon S3 to delete objects after 90 days - with no Glacier transition. Where S3 One Zone-Infrequent Access is offered, it is the cheapest valid choice, because high availability is only required for the first 30 days and the remaining 60 days are backup only; if One Zone-IA is not among the options, S3 Standard-Infrequent Access is the correct pick.",
+    "why": "The logs need frequent, highly available access for 30 days, so they stay in S3 Standard for that period. From day 30 to day 90 they are held only for backup, so an infrequent-access class costs less per GB, and One Zone-IA is cheaper still once the high-availability requirement has lapsed. Because everything is deleted at day 90, an expiration action at 90 days is all that is needed, and a Glacier transition on the same day is wasted: expiration wins over a same-day transition, and Glacier Flexible Retrieval would in any case bill a 90-day minimum for objects that no longer exist. Adding the Glacier step therefore raises cost and complexity without meeting any stated requirement.",
+    "reason": "The reviewer is right. Transitioning on the same day as deletion cannot be the most cost-effective option, and the question itself is a good test of lifecycle cost reasoning, so it is worth keeping with the answer corrected."
+  },
+  "gh-651": {
+    "verdict": "fix",
+    "truth": "The stated answer and its reasoning are correct: S3 Standard-IA at 180 days, S3 Glacier Instant Retrieval at 360 days for millisecond access to archived images, and S3 Glacier Deep Archive at 5 years, whose Standard retrieval completes within 12 hours. The defect is editorial - a stray block answering an unrelated gp3 EBS question is appended to the explanation, including a second, conflicting 'Answer: C'.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Transition the objects to S3 Standard-Infrequent Access (S3 Standard-IA) after 180 days, S3 Glacier Instant Retrieval after 360 days, and S3 Glacier Deep Archive after 5 years.",
+    "why": "Each step matches one stated requirement. For the second 180 days the images are accessed infrequently but must not be lost, so S3 Standard-IA is right and S3 One Zone-IA is not, because One Zone-IA keeps the data in a single Availability Zone. After 360 days the images must still be available instantly, which is exactly what S3 Glacier Instant Retrieval provides - archive pricing with millisecond retrieval - whereas Glacier Flexible Retrieval would take minutes to hours and fails that requirement. After 5 years only auditors need the images and 12 hours is acceptable, so S3 Glacier Deep Archive, the cheapest class, is correct: its Standard retrieval completes within 12 hours, while Bulk can take up to 48. All of these classes store data redundantly across at least three Availability Zones, so nothing is at risk as the images move between them.",
+    "reason": "The reasoning is sound but the stored explanation ends with copy-paste contamination from an EBS question that states a different answer letter, which has to be removed."
+  },
+  "gh-667": {
+    "verdict": "fix",
+    "truth": "The stated answer is wrong. A gateway endpoint for S3 works through a prefix-list route in the VPC route table, so it applies only to traffic originating inside the VPC and cannot be reached from an on-premises network over Direct Connect or VPN - AWS documents this limitation explicitly. S3 has supported interface endpoints (AWS PrivateLink) since February 2021, and those present private IP addresses in VPC subnets that on-premises hosts can reach over Direct Connect.",
+    "exam_relevant": true,
+    "importance": "high",
+    "answer": "Create interface VPC endpoints (AWS PrivateLink) for Amazon S3.",
+    "why": "The deciding requirement is private access from on premises as well as from inside the Region. An interface endpoint places elastic network interfaces with private IP addresses in the VPC's subnets, and because those are ordinary private addresses, on-premises hosts can reach them across the existing Direct Connect connection without any traffic touching the internet. A gateway endpoint cannot do this: it is a route-table entry that only affects traffic starting inside the VPC, so requests arriving over Direct Connect or VPN cannot use it. Interface endpoints bill per endpoint-hour and per GB where gateway endpoints are free, which is why gateway endpoints stay the default when only in-VPC access is needed - but that is not the case here. On-premises clients also need DNS that resolves S3 names to the endpoint, typically through Route 53 Resolver inbound endpoints or the endpoint-specific DNS names.",
+    "reason": "The stated answer and explanation invert the real limitation. The gateway-versus-interface endpoint decision, with the hybrid on-premises twist, is commonly tested, so the question is worth keeping with the answer corrected."
+  },
+  "wl-8": {
+    "verdict": "fix",
+    "truth": "The stated answer rests on a restriction AWS removed in February 2019. A root EBS volume can be encrypted at launch, either by setting Encrypted with a KMS key on the root device in the launch request or launch template, or by turning on EBS encryption by default for the account in that Region. The snapshot-and-copy workaround is no longer necessary.",
+    "exam_relevant": true,
+    "importance": "medium",
+    "answer": "A. Select the Encryption option for the root EBS volume while launching the EC2 instance.",
+    "why": "Root volume encryption is set at launch time: the root device in the block device mapping accepts an Encrypted setting together with a KMS key, and the console presents this as an encryption option on the volume. Turning on 'EBS encryption by default' for the account in a Region does the same thing fleet-wide, so every new volume and snapshot is encrypted without per-launch settings - the better fit for an organisation-wide compliance rule. Option B is impossible, because an existing unencrypted EBS volume cannot be encrypted in place; the only route is snapshot, copy with encryption, then restore. Option C is simply false, and option D describes the pre-2019 workaround, which still works but is needless extra effort today.",
+    "reason": "The reviewer is right: the explanation asserts a limitation that no longer exists, and option A is now straightforwardly correct. Encrypting EBS at rest, including the root volume, stays firmly in scope for Design Secure Architectures."
+  }
+}
