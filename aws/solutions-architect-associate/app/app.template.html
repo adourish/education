@@ -284,6 +284,22 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
 .flag.sev-wrong { border-left-width: 7px; }
 
+/* which set a question came from */
+.srcpill {
+  font: 600 0.72rem var(--mono);
+  color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--rule); border-radius: 99px; padding: 2px 8px;
+  letter-spacing: .03em;
+}
+
+/* which set a question came from */
+.srcpill {
+  font: 600 0.72rem var(--mono);
+  color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--rule); border-radius: 99px; padding: 2px 8px;
+  letter-spacing: .03em;
+}
+
 /* a question a person has checked, rather than one scraped and never read */
 .star {
   display: inline-flex; align-items: center; gap: 4px;
@@ -584,8 +600,10 @@ footer .v { font-family: var(--mono); }
   <section class="view" id="view-practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
     <div class="practice-wrap">
       <div class="picker">
-        <label for="areaSel" style="font-size:13px;color:var(--ink-2)">Category</label>
+        <label for="areaSel" style="font-size:0.88rem;color:var(--ink-2)">Category</label>
         <select id="areaSel"></select>
+        <label for="srcSel" style="font-size:0.88rem;color:var(--ink-2)">From</label>
+        <select id="srcSel"></select>
         <button class="btn primary" id="startBtn">Start</button>
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
       </div>
@@ -960,6 +978,44 @@ footer .v { font-family: var(--mono); }
 
   // ---------- practice ----------
   var areaSel = document.getElementById("areaSel");
+  var srcSel = document.getElementById("srcSel");
+
+  // Which set to draw from. Remembered, because it is a standing preference
+  // rather than something to re-pick every session.
+  var SRC_KEY = STORE_KEY + "/source";
+  (function fillSources() {
+    var counts = {};
+    DATA.questions.forEach(function (q) { counts[q.src] = (counts[q.src] || 0) + 1; });
+    var opts = [["__all", "Every set (" + DATA.questions.length + ")"],
+                ["__star", "Reviewed only (" +
+                  DATA.questions.filter(function (q) { return q.star; }).length + ")"]];
+    Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })
+      .forEach(function (code) {
+        opts.push([code, ((DATA.sources || {})[code] || code) + " (" + counts[code] + ")"]);
+      });
+    opts.forEach(function (o) {
+      var n = el("option", null, o[1]); n.value = o[0]; srcSel.appendChild(n);
+    });
+    try {
+      var saved = localStorage.getItem(SRC_KEY);
+      if (saved && Array.prototype.some.call(srcSel.options,
+          function (o) { return o.value === saved; })) srcSel.value = saved;
+    } catch (e) { /* no storage: the default stands */ }
+  })();
+
+  srcSel.addEventListener("change", function () {
+    try { localStorage.setItem(SRC_KEY, srcSel.value); } catch (e) { /* fine */ }
+    buildQueue(); renderQuestion();
+  });
+
+  // The provider filter applies everywhere questions are drawn, including a
+  // drill started from a poster line.
+  function inChosenSource(q) {
+    var pick = srcSel.value;
+    if (pick === "__all") return true;
+    if (pick === "__star") return !!q.star;
+    return q.src === pick;
+  }
   var qhost = document.getElementById("qhost");
   var queue = [], qi = 0, answered = false;
 
@@ -990,10 +1046,21 @@ footer .v { font-family: var(--mono); }
   var drilling = null;
   var drillBanner = document.getElementById("drillBanner");
 
+  var srcFellBack = false;
+
   function questionsForRow(row) {
-    return DATA.questions.filter(function (q) {
+    function touches(q) {
       return q.c.some(function (k) { return row.c.indexOf(k) >= 0; });
-    });
+    }
+    srcFellBack = false;
+    var hit = DATA.questions.filter(function (q) { return inChosenSource(q) && touches(q); });
+    // An empty drill helps nobody, so widen to every set and say that is what
+    // happened rather than showing nothing.
+    if (!hit.length && srcSel.value !== "__all") {
+      hit = DATA.questions.filter(touches);
+      srcFellBack = hit.length > 0;
+    }
+    return hit;
   }
 
   function renderDrillBanner() {
@@ -1006,7 +1073,8 @@ footer .v { font-family: var(--mono); }
     var sc = rowScore(drilling);
     box.appendChild(el("span", "count",
       queue.length + (queue.length === 1 ? " question" : " questions") +
-      " · so far ✓" + sc.r + " ✕" + sc.w));
+      " · so far ✓" + sc.r + " ✕" + sc.w +
+      (srcFellBack ? " · drawn from every set, because the one you picked has none on this line" : "")));
     var back = el("button", "btn", "Drill everything instead");
     back.addEventListener("click", function () {
       drilling = null; buildQueue(); renderDrillBanner(); renderQuestion();
@@ -1040,16 +1108,19 @@ footer .v { font-family: var(--mono); }
   function buildQueue() {
     drilling = null;
     var pick = areaSel.value;
+    // The provider filter narrows the pool first, then the category picks from
+    // what is left, so the two selectors combine rather than fight.
+    var pool = DATA.questions.filter(inChosenSource);
     var list;
     if (pick === "__all") {
-      list = DATA.questions.slice();
+      list = pool.slice();
     } else if (pick === "__weak") {
-      list = DATA.questions.filter(function (q) {
+      list = pool.filter(function (q) {
         return q.c.some(function (k) { return conceptState(k) === "bad"; });
       });
-      if (!list.length) list = DATA.questions.slice();
+      if (!list.length) list = pool.slice();
     } else {
-      list = DATA.questions.filter(function (q) { return q.area === pick; });
+      list = pool.filter(function (q) { return q.area === pick; });
     }
     queue = shuffle(list);
     qi = 0;
@@ -1156,6 +1227,13 @@ footer .v { font-family: var(--mono); }
     meta.appendChild(ref);
     meta.appendChild(el("span", "pill", DATA.areaTitles[q.area] || q.area));
     if (q.dom) meta.appendChild(el("span", "pill", q.dom));
+    if (q.src) {
+      // Which set this came from, so a question that looks odd can be judged
+      // against the set it belongs to.
+      var sp = el("span", "srcpill", q.src);
+      sp.title = (DATA.sources || {})[q.src] || "Source";
+      meta.appendChild(sp);
+    }
     if (q.star) {
       var st = el("span", "star", "★ reviewed");
       st.title = "A person has checked this question and its answer";
