@@ -302,6 +302,33 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
 .flag.sev-wrong { border-left-width: 7px; }
 
+/* the standing count of what you have got wrong, always in the header */
+.misschip {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 700 0.82rem var(--ui);
+  color: var(--magenta); background: var(--magenta-soft);
+  border: 1px solid var(--magenta); border-radius: 99px;
+  padding: 5px 12px;
+}
+.misschip:hover { filter: brightness(.97); }
+.misschip:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.misschip b { font-family: var(--mono); }
+.misschip[hidden] { display: none !important; }
+
+/* the list of questions you actually got wrong */
+.missrow {
+  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start;
+  width: 100%; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--rule);
+  border-left: 3px solid var(--magenta); border-radius: 8px;
+  padding: 10px 13px; margin-bottom: 7px;
+  font: 400 0.92rem/1.5 var(--ui); color: var(--ink);
+}
+.missrow:hover { border-color: var(--magenta); }
+.missrow:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.missrow .meta { font: 600 0.74rem var(--mono); color: var(--ink-3); white-space: nowrap; }
+
 /* separate publishers carrying the same question */
 .agree {
   display: inline-flex; align-items: center; gap: 4px;
@@ -607,6 +634,7 @@ footer .v { font-family: var(--mono); }
       <h1>SAA-C03 Recall Board</h1>
       <span class="exam" id="examTag"></span>
     </div>
+    <button class="misschip" id="missChip" hidden></button>
     <div class="tsize" role="group" aria-label="Text size">
       <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
       <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
@@ -652,6 +680,7 @@ footer .v { font-family: var(--mono); }
         <label for="srcSel" style="font-size:0.88rem;color:var(--ink-2)">From</label>
         <select id="srcSel"></select>
         <button class="btn primary" id="startBtn">Start</button>
+        <button class="btn bad" id="missBtn">Drill my misses</button>
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
       </div>
       <div id="drillBanner" hidden></div>
@@ -666,6 +695,10 @@ footer .v { font-family: var(--mono); }
 
     <h2 class="sub">By category</h2>
     <div class="barlist" id="areaBars"></div>
+
+    <h2 class="sub">Questions you got wrong</h2>
+    <p class="lede">Tap one to drill it again. It leaves this list once you get it right.</p>
+    <div id="missList"></div>
 
     <h2 class="sub">Weakest concepts</h2>
     <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
@@ -732,7 +765,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.5.0";
+  var APP_VERSION = "1.6.0";
   var BUILD_DATE  = "2026-10-06";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -1162,6 +1195,44 @@ footer .v { font-family: var(--mono); }
     renderQuestion();
   }
 
+  // Every question answered wrong and not since put right. This is the list
+  // worth going back to, so it gets a one-tap route from the header, the
+  // practice picker and the progress page rather than being three taps deep.
+  function missedQuestions() {
+    return DATA.questions.filter(function (q) { return S.questions[q.id] === 0; });
+  }
+
+  function drillMisses() {
+    var list = missedQuestions();
+    if (!list.length) {
+      window.alert("Nothing to go back to: you have not got anything wrong yet.");
+      return;
+    }
+    drilling = null;
+    queue = shuffle(list);
+    qi = 0;
+    document.getElementById("tab-practice").click();
+    renderDrillBanner();
+    renderQuestion();
+    updateScore();
+  }
+
+  function refreshMissChip() {
+    var chip = document.getElementById("missChip");
+    var n = missedQuestions().length;
+    chip.hidden = n === 0;
+    if (n) {
+      chip.textContent = "";
+      chip.appendChild(el("span", null, "✕"));
+      chip.appendChild(el("b", null, String(n)));
+      chip.appendChild(el("span", null, "to revisit"));
+      chip.title = "Drill the " + n + " question" + (n === 1 ? "" : "s") + " you got wrong";
+    }
+  }
+
+  document.getElementById("missChip").addEventListener("click", drillMisses);
+  document.getElementById("missBtn").addEventListener("click", drillMisses);
+
   function buildQueue() {
     drilling = null;
     var pick = areaSel.value;
@@ -1217,6 +1288,7 @@ footer .v { font-family: var(--mono); }
 
     saveState();
     maybeRepromptStorage();
+    refreshMissChip();
     updateScore();
   }
 
@@ -1283,7 +1355,7 @@ footer .v { font-family: var(--mono); }
     ref.title = "Question reference — quote this if the question looks wrong";
     meta.appendChild(ref);
     meta.appendChild(el("span", "pill", DATA.areaTitles[q.area] || q.area));
-    if (q.dom) meta.appendChild(el("span", "pill", q.dom));
+    if (q.dom && q.dom !== "unassigned") meta.appendChild(el("span", "pill", q.dom));
     if (q.src) {
       // Which set this came from, so a question that looks odd can be judged
       // against the set it belongs to.
@@ -1515,6 +1587,34 @@ footer .v { font-family: var(--mono); }
       row.appendChild(el("div", "num", d.r + "/" + tot));
       bars.appendChild(row);
     });
+
+    // The questions themselves, not just the concepts behind them.
+    var ml = document.getElementById("missList");
+    ml.textContent = "";
+    var missed = missedQuestions();
+    if (!missed.length) {
+      ml.appendChild(el("p", "lede", "Nothing wrong yet."));
+    } else {
+      missed.slice(0, 40).forEach(function (q) {
+        var b = el("button", "missrow");
+        var txt = q.q.replace(/\s+/g, " ").trim();
+        b.appendChild(el("span", null, txt.length > 150 ? txt.slice(0, 150) + "…" : txt));
+        b.appendChild(el("span", "meta", q.id));
+        b.addEventListener("click", function () {
+          drilling = null;
+          queue = [q];
+          qi = 0;
+          document.getElementById("tab-practice").click();
+          renderDrillBanner();
+          renderQuestion();
+        });
+        ml.appendChild(b);
+      });
+      if (missed.length > 40) {
+        ml.appendChild(el("p", "lede",
+          "Showing 40 of " + missed.length + ". Drill my misses works through them all."));
+      }
+    }
 
     var weak = document.getElementById("weakList");
     weak.textContent = "";
@@ -1783,6 +1883,7 @@ footer .v { font-family: var(--mono); }
   });
 
   renderBoard();
+  refreshMissChip();
   updateScore();
 
   if (!storageOK) {
