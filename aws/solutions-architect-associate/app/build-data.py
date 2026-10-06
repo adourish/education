@@ -37,7 +37,10 @@ sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
-VERSION = "1.1.0"
+VERSION = "1.2.0"
+
+# Provenance is recorded in the bank but deliberately not shown in the app for
+# now. What does show is the star: a question a person has checked.
 
 
 def load_concepts() -> dict[str, str]:
@@ -156,6 +159,8 @@ def main() -> None:
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
             "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:9],
+            # A star means a person has checked this question, not a scraper.
+            "star": bool(r.get("reviewed")),
             "flag": flag_for(r["id"]),
         })
 
@@ -184,12 +189,13 @@ def main() -> None:
     print(f"version {VERSION} built {data['built']}")
     print(f"  {len(sections)} poster sections, {rows} rows")
     print(f"  {len(questions)} questions ({sum(1 for q in questions if q['opts'])} with options)")
+    print(f"  {sum(1 for q in questions if q['star'])} starred as human-reviewed")
     print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
     withterms = sum(1 for q in questions if q["t"])
     avg = sum(len(q["t"]) for q in questions) / max(len(questions), 1)
     print(f"  {withterms} questions have glossary terms, {avg:.1f} on average")
     print(f"  {len(concepts)} concepts")
-    print(f"  app-data.json {kb} KB")
+    print(f"  {OUT.name} {kb} KB")
 
 
 if __name__ == "__main__":
