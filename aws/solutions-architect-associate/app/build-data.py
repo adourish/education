@@ -39,8 +39,18 @@ from glossary import GLOSSARY  # noqa: E402
 # Bumped when the question set itself changes, separately from the app.
 VERSION = "1.2.0"
 
-# Provenance is recorded in the bank but deliberately not shown in the app for
-# now. What does show is the star: a question a person has checked.
+# Where each question came from. The short code travels with every question so
+# the app can filter by provider; the name and note are for the picker and the
+# card, because the sets are not of equal quality and it is worth knowing which
+# one you are drilling.
+SOURCES = {
+    "certempire":              ("CE", "Cert Empire"),
+    "ditectrev-saa-c03":       ("DT", "Ditectrev"),
+    "saa-c03-optioned":        ("ET", "ExamTopics-format set"),
+    "iamrushabhshahh-saa-c03": ("GH", "GitHub dump"),
+    "whizlabs-25":             ("WL", "Whizlabs sampler"),
+}
+UNKNOWN_SOURCE = ("??", "Unrecorded")
 
 
 def load_concepts() -> dict[str, str]:
@@ -159,6 +169,7 @@ def main() -> None:
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
             "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:9],
+            "src": SOURCES.get(r.get("source"), UNKNOWN_SOURCE)[0],
             # A star means a person has checked this question, not a scraper.
             "star": bool(r.get("reviewed")),
             "flag": flag_for(r["id"]),
@@ -173,6 +184,7 @@ def main() -> None:
         "questions": questions,
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
         "glossary": {name: what for name, (_, what) in GLOSSARY.items()},
+        "sources": dict(SOURCES.values()),
         "areaTitles": {
             "compute": "Compute", "storage": "Storage", "database": "Databases",
             "networking": "Networking", "security": "Security & identity",
