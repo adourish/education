@@ -4,7 +4,7 @@
 
 ---
 
-### 1. q-221 `cost`
+### 1. et-221 `cost`
 
 A company runs an application on a group of Amazon Linux EC2 instances. For compliance reasons, the company must retain all application log files for 7 years. The log files will be analyzed by a reporting tool that must be able to access all the files concurrently. Which storage solution meets these requirements MOST cost-effectively?
 
@@ -16,7 +16,7 @@ S3 is a highly durable and scalable object storage service. It is designed for h
 
 </details>
 
-### 2. q-238 `cost`
+### 2. et-238 `cost`
 
 A company wants to experiment with individual AWS accounts for its engineer team. The company wants to be notified as soon as the Amazon EC2 instance usage for a given month exceeds a specific threshold for each account. What should a solutions architect do to meet this requirement MOST cost-effectively?
 
@@ -28,7 +28,7 @@ AWS Budgets is a cost management service that allows you to set custom cost and 
 
 </details>
 
-### 3. q-262 `cost`
+### 3. et-262 `cost`
 
 A company plans to use Amazon ElastiCache for its multi-tier web application. A solutions architect creates a Cache VPC for the ElastiCache cluster and an App VPC for the application’s Amazon EC2 instances. Both VPCs are in the us-east-1 Region. The solutions architect must implement a solution to provide the application’s EC2 instances with access to the ElastiCache cluster. Which solution will meet these requirements MOST cost-effectively?
 
@@ -50,7 +50,7 @@ When using consolidated billing there are two account types. What are they?
 
 </details>
 
-### 5. q-347 `cost`
+### 5. et-347 `cost`
 
 A company has an application that is running on Amazon EC2 instances. A solutions architect has standardized the company on a particular instance family and various instance sizes based on the current needs of the company. The company wants to maximize cost savings for the application over the next 3 years. The company needs to be able to change the instance family and sizes in the next 6 months based on application popularity and usage. Which solution will meet these requirements MOST cost-effectively?
 
@@ -62,7 +62,7 @@ Compute Savings Plans provide significant cost savings over On-Demand pricing in
 
 </details>
 
-### 6. q-348 `cost`
+### 6. et-348 `cost`
 
 A company collects data from a large number of participants who use wearable devices. The company stores the data in an Amazon DynamoDB table and uses applications to analyze the data. The data workload is constant and predictable. The company wants to stay at or below its forecasted budget for DynamoDB. Which solution will meet these requirements MOST cost-effectively?
 
@@ -74,7 +74,7 @@ In provisioned mode, you provision a specific amount of read and write capacity,
 
 </details>
 
-### 7. q-383 `cost`
+### 7. et-383 `cost`
 
 A company is planning to migrate a commercial off-the-shelf application from its on-premises data center to AWS. The software has a software licensing model using sockets and cores with predictable capacity and uptime requirements. The company wants to use its existing licenses, which were purchased earlier this year. Which Amazon EC2 pricing option is the MOST cost-effective?
 
@@ -96,7 +96,7 @@ Which of the following approaches provides the lowest cost for Amazon Elastic Bl
 
 </details>
 
-### 9. q-398 `cost`
+### 9. et-398 `cost`
 
 A company needs to transfer 600 TB of data from its on-premises network-attached storage (NAS) system to the AWS Cloud. The data transfer must be complete within 2 weeks. The data is sensitive and must be encrypted in transit. The company’s internet connection can support an upload speed of 100 Mbps. Which solution meets these requirements MOST cost-effectively?
 
@@ -128,7 +128,7 @@ If I scale the storage capacity provisioned to my DB Instance by mid of a billin
 
 </details>
 
-### 12. q-455
+### 12. et-455
 
 A company uses AWS Organizations. The company wants to operate some of its AWS accounts with different budgets. The company wants to receive alerts and automatically prevent provisioning of additional resources on AWS accounts when the allocated budget threshold is met during a specific period. Which combination of solutions will meet these requirements? (Choose three.)
 
@@ -140,7 +140,7 @@ D. Create an IAM role for AWS Budgets to run budget actions with the required pe
 
 </details>
 
-### 13. q-456 `cost`
+### 13. et-456 `cost`
 
 A company runs applications on Amazon EC2 instances in one AWS Region. The company wants to back up the EC2 instances to a second Region. The company also wants to provision EC2 resources in the second Region and manage the EC2 instances centrally from one AWS account. Which solution will meet these requirements MOST cost-effectively?
 
@@ -152,7 +152,7 @@ AWS Backup is a centralized backup service that allows you to create backup plan
 
 </details>
 
-### 14. q-467
+### 14. et-467
 
 A company uses AWS Organizations. A member account has purchased a Compute Savings Plan. Because of changes in the workloads inside the member account, the account no longer receives the full benefit of the Compute Savings Plan commitment. The company uses less than 50% of its purchased compute power.
 
@@ -162,7 +162,7 @@ A company uses AWS Organizations. A member account has purchased a Compute Savin
 
 </details>
 
-### 15. q-525 `least-ops`
+### 15. et-525 `least-ops`
 
 A company wants to add its existing AWS usage cost to its operation cost dashboard. A solutions architect needs to recommend a solution that will give the company access to its usage cost programmatically. The company must be able to access cost data for the current year and forecast costs for the next 12 months. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -174,7 +174,7 @@ AWS Cost Explorer is a tool provided by Amazon Web Services (AWS) that allows us
 
 </details>
 
-### 16. q-537 `cost`
+### 16. ce-537 `cost`
 
 A manufacturing company develops an application to give a small team of executives the ability to track sales performance globally. The application provides a real-time simulator in a popular programming language. The company uses AWS Lambda functions to support the simulator. The simulator is an algorithm that predicts sales performance based on specific variables. Although the solution works well initially, the company notices that the time required to complete simulations is increasing exponentially. A solutions architect needs to improve the response time of the simulator. Which solution will meet this requirement in the MOST cost-effective way?
 
@@ -186,7 +186,7 @@ The problem describes increasing simulation completion times for an AWS Lambda-b
 
 </details>
 
-### 17. q-541 `cost`
+### 17. et-541 `cost`
 
 A company wants to build a web application on AWS. Client access requests to the website are not predictable and can be idle for a long time. Only customers who have paid a subscription fee can have the ability to sign in and use the web application. Which combination of steps will meet these requirements MOST cost-effectively? (Choose three.)
 
@@ -198,7 +198,7 @@ C. Create an Amazon Cognito user pool to authenticate users.  E. Use AWS Amplify
 
 </details>
 
-### 18. q-551 `cost`
+### 18. et-551 `cost`
 
 A company has a financial application that produces reports. The reports average 50 KB in size and are stored in Amazon S3. The reports are frequently accessed during the first week after production and must be stored for several years. The reports must be retrievable within 6 hours. Which solution meets these requirements MOST cost-effectively?
 
@@ -210,7 +210,7 @@ After the initial period, using an S3 Lifecycle rule to transition the reports t
 
 </details>
 
-### 19. q-573 `cost`
+### 19. et-573 `cost`
 
 A company wants to use an event-driven programming model with AWS Lambda. The company wants to reduce startup latency for Lambda functions that run on Java 11. The company does not have strict latency requirements for the applications. The company wants to reduce cold starts and outlier latencies when a function scales up. Which solution will meet these requirements MOST cost-effectively?
 
@@ -222,7 +222,7 @@ Lambda Cold Start: When a Lambda function is invoked, it may take a bit of time 
 
 </details>
 
-### 20. q-598 `cost`
+### 20. et-598 `cost`
 
 A research company uses on-premises devices to generate data for analysis. The company wants to use the AWS Cloud to analyze the data. The devices generate .csv files and support writing the data to an SMB file share. Company analysts must be able to use SQL commands to query the data. The analysts will run queries periodically throughout the day. Which combination of steps will meet these requirements MOST cost-effectively? (Choose three.)
 
@@ -234,7 +234,7 @@ C. Set up an AWS Glue crawler to create a table based on the data that is in Ama
 
 </details>
 
-### 21. q-615 `cost`
+### 21. ce-615 `cost`
 
 A company is developing a latency-sensitive application. Part of the application includes several AWS Lambda functions that need to initialize as quickly as possible. The Lambda functions are written in Java and contain initialization code outside the handlers to load libraries, initialize classes, and generate unique IDs. Which solution will meet the startup performance requirement MOST cost-effectively?
 
@@ -246,7 +246,7 @@ The question seeks the most cost-effective solution to reduce startup latency fo
 
 </details>
 
-### 22. q-641
+### 22. et-641
 
 A company wants to monitor its AWS costs for financial review. The cloud operations team is designing an architecture in the AWS Organizations management account to query AWS Cost and Usage Reports for all member accounts. The team must run this query once a month and provide a detailed analysis of the bill. Which solution is the MOST scalable and cost-effective way to meet these requirements?
 
@@ -258,7 +258,7 @@ Amazon Athena is a serverless query service that allows you to analyze data dire
 
 </details>
 
-### 23. q-656 `cost` `availability`
+### 23. et-656 `cost` `availability`
 
 A company runs a website that stores images of historical events. Website users need the ability to search and view images based on the year that the event in the image occurred. On average, users request each image only once or twice a year. The company wants a highly available solution to store and deliver the images to users. Which solution will meet these requirements MOST cost-effectively?
 
@@ -280,7 +280,7 @@ A company runs an application on Amazon EC2 instances in a private subnet. The a
 
 </details>
 
-### 25. q-671
+### 25. et-671
 
 A company runs its applications on Amazon EC2 instances. The company performs periodic financial assessments of its AWS costs. The company recently identified unusual spending. The company needs a solution to prevent unusual spending. The solution must monitor costs and notify responsible stakeholders in the event of unusual spending. Which solution will meet these requirements?
 
@@ -312,7 +312,7 @@ A company has a well-architected application that streams audio data by using UD
 
 </details>
 
-### 28. q-777 `cost`
+### 28. ce-777 `cost`
 
 A company needs a secure connection between its on-premises environment and AWS. This connection does not need high bandwidth and will handle a small amount of traffic. The connection should be set up quickly. What is the MOST cost-effective method to establish this type of connection?
 
@@ -324,7 +324,7 @@ An AWS Site-to-Site VPN establishes a secure, IPsec-encrypted tunnel between an 
 
 </details>
 
-### 29. q-787 `cost`
+### 29. ce-787 `cost`
 
 A company is migrating its databases to Amazon RDS for PostgreSQL. The company is migrating its applications to Amazon EC2 instances. The company wants to optimize costs for long-running workloads. Which solution will meet this requirement MOST cost-effectively?
 
@@ -336,7 +336,7 @@ For long-running and predictable workloads, commitment-based pricing models prov
 
 </details>
 
-### 30. q-789 `cost`
+### 30. ce-789 `cost`
 
 A company runs several websites on AWS for its different brands Each website generates tens of gigabytes of web traffic logs each day. A solutions architect needs to design a scalable solution to give the company's developers the ability to analyze traffic patterns across all the company's websites. This analysis by the developers will occur on demand once a week over the course of several months. The solution must support queries with standard SQL. Which solution will meet these requirements MOST cost-effectively?
 
@@ -348,7 +348,7 @@ The most cost-effective solution is to use Amazon S3 for storage and Amazon Athe
 
 </details>
 
-### 31. q-793 `cost`
+### 31. ce-793 `cost`
 
 A company has a large data workload that runs for 6 hours each day. The company cannot lose any data while the process is running. A solutions architect is designing an Amazon EMR cluster configuration to support this critical data workload. Which solution will meet these requirements MOST cost-effectively?
 
@@ -360,7 +360,7 @@ The workload runs for a predictable 6-hour duration daily, making a transient cl
 
 </details>
 
-### 32. q-806 `cost`
+### 32. ce-806 `cost`
 
 A solutions architect needs to optimize a large data analytics job that runs on an Amazon EMR cluster. The job takes 13 hours to finish. The cluster has multiple core nodes and worker nodes deployed on large, compute-optimized instances. After reviewing EMR logs, the solutions architect discovers that several nodes are idle for more than 5 hours while the job is running. The solutions architect needs to optimize cluster performance. Which solution will meet this requirement MOST cost-effectively?
 
@@ -372,7 +372,7 @@ The key issue identified is that several EMR nodes are idle for a significant po
 
 </details>
 
-### 33. q-863 `cost`
+### 33. ce-863 `cost`
 
 A company wants a flexible compute solution that includes Amazon EC2 instances and AWS Fargate. The company does not want to commit to multi-year contracts. Which purchasing option will meet these requirements MOST cost-effectively?
 
@@ -384,7 +384,7 @@ The requirement is for a flexible compute solution covering both Amazon EC2 and 
 
 </details>
 
-### 34. q-868
+### 34. ce-868
 
 A company wants to run its experimental workloads in the AWS Cloud. The company has a budget for cloud spending. The company's CFO is concerned about cloud spending accountabil-ity for each department. The CFO wants to receive notification when the spending threshold reaches 60% of the budget. Which solution will meet these requirements?
 
@@ -396,7 +396,7 @@ This solution correctly addresses all aspects of the scenario. AWS Cost Allocati
 
 </details>
 
-### 35. q-874 `cost`
+### 35. ce-874 `cost`
 
 A data science team needs storage for nightly log processing. The size and number of logs is unknown, and the logs persist for only 24 hours. What is the MOST cost-effective solution?
 
@@ -408,7 +408,7 @@ The most cost-effective solution is Amazon S3 Standard. The logs are processed n
 
 </details>
 
-### 36. q-878 `cost`
+### 36. ce-878 `cost`
 
 A data science team requires storage for nightly log processing. The size and number of logs is unknown and the logs will persist for 24 hours only. What is the MOST cost-effective solution?
 
@@ -420,7 +420,7 @@ The logs are generated nightly and persist for only 24 hours, indicating a frequ
 
 </details>
 
-### 37. q-880
+### 37. ce-880
 
 As part of budget planning, management wants a report of AWS billed items listed by user. The data will be used to create department budgets. A solutions architect needs to determine the most efficient way to obtain this report information. Which solution meets these requirements?
 
@@ -432,7 +432,7 @@ AWS Cost Explorer is the most efficient tool for this requirement. It provides a
 
 </details>
 
-### 38. q-883 `cost`
+### 38. ce-883 `cost`
 
 A company runs a container application by using Amazon Elastic Kubernetes Service (Amazon EKS). The application includes microservices that manage customers and place orders. The company needs to route incoming requests to the appropriate microservices. Which solution will meet this requirement MOST cost-effectively?
 
@@ -444,7 +444,7 @@ The most cost-effective and appropriate solution is to use an Application Load B
 
 </details>
 
-### 39. q-891 `cost`
+### 39. ce-891 `cost`
 
 A company needs a solution to process customer orders from a global ecommerce platform. The solution must automatically start processing new orders immediately and must maintain a history of all order processing attempts. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -456,7 +456,7 @@ This solution describes a serverless, event-driven architecture, which is highly
 
 </details>
 
-### 40. q-894 `cost`
+### 40. ce-894 `cost`
 
 A company deploys a stateful application on Amazon EC2 On-Demand Instances in multiple Availability Zones behind an Application Load Balancer (ALB). The application workload is predictable, and the company has not received any CPU usage alerts. The company expects to run the application for at least 1 year. The company expects CPU usage to increase by 50% during an upcoming 2-week holiday period. The company wants to optimize costs for the application for both the holiday period and normal operations. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -468,7 +468,7 @@ This solution provides the best cost optimization. A 12-month EC2 Instance Savin
 
 </details>
 
-### 41. q-898 `cost`
+### 41. ce-898 `cost`
 
 A healthcare company needs a storage solution for electronic health records EHRs. The company must store the EHRs for at least 10 years to comply with regulations. The company rarely accesses the records. The records must be secure, immutable, and retrievable within a few hours when needed. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -480,7 +480,7 @@ This solution is the most cost-effective and meets all compliance requirements. 
 
 </details>
 
-### 42. q-931 `cost`
+### 42. ce-931 `cost`
 
 A company needs to run a critical Python data processing job each night. The job runs for approximately 1 hour and must not be interrupted. Which solution will meet these requirements MOST cost-effectively?
 
@@ -492,7 +492,7 @@ The job runs for 1 hour and must not be interrupted. AWS Lambda has a maximum ex
 
 </details>
 
-### 43. q-932 `cost`
+### 43. ce-932 `cost`
 
 A company runs compute workloads across multiple private subnets across multiple VPCs. Sometimes the company opens shell access to Amazon EC2 instances in the private subnets to troubleshoot issues. The current design uses NAT gateways. The company wants to reduce costs. However, the company does not support the following: • Using public IP addresses • Installing agents on instances • Permitting inbound internet access Which solution will meet these requirements MOST cost-effectively?
 
@@ -504,7 +504,7 @@ EC2 Instance Connect (EIC) Endpoint allows secure SSH connections to instances i
 
 </details>
 
-### 44. q-944 `cost`
+### 44. ce-944 `cost`
 
 A company runs its infrastructure on AWS and has a registered base of 700,000 users for its document management application. The company intends to create a product that converts large PDF files to JPG image files. The PDF files average 5 MB in size. The company needs to store the original files and the converted files. A solutions architect must design a scalable solution to accommodate demand that will grow rapidly over time. Which solution meets these requirements MOST cost-effectively?
 

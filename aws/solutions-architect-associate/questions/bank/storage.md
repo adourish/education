@@ -1,6 +1,6 @@
 # Storage — S3, EBS, EFS, FSx, archive, transfer
 
-414 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
+412 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
 
 ---
 
@@ -14,7 +14,7 @@ Which set of Amazon S3 features helps to prevent and recover from accidental dat
 
 </details>
 
-### 2. q-2 `least-ops`
+### 2. et-2 `least-ops`
 
 A company needs the ability to analyze the log files of its proprietary application. The logs are stored in JSON format in an Amazon S3 bucket. Queries will be simple and will run on-demand. A solutions architect needs to perform the analysis with minimal changes to the existing architecture. What should the solutions architect do to meet these requirements with the LEAST amount of operational overhead?
 
@@ -67,7 +67,7 @@ Read Now: Amazon Braket
 
 </details>
 
-### 4. q-3 `least-ops`
+### 4. et-3 `least-ops`
 
 A company uses AWS Organizations to manage multiple AWS accounts for different departments. The management account has an Amazon S3 bucket that contains project reports. The company wants to limit access to this S3 bucket to only users of accounts within the organization in AWS Organizations. Which solution meets these requirements with the LEAST amount of operational overhead?
 
@@ -127,7 +127,7 @@ Your website is serving on-demand training videos to your workforce. Videos are 
 
 </details>
 
-### 7. q-5
+### 7. et-5
 
 A company is hosting a web application on AWS using a single Amazon EC2 instance that stores user-uploaded documents in an Amazon EBS volume. For better scalability and availability, the company duplicated the architecture and created a second EC2 instance and EBS volume in another Availability Zone, placing both behind an Application Load Balancer. After completing this change, users reported that, each time they refreshed the website, they could see one subset of their documents or the other, but never all of the documents at the same time. What should a solutions architect propose to ensure users see all of their documents at once?
 
@@ -149,7 +149,7 @@ Which of the following are valid statements about Amazon S3? (Choose 2 answers)
 
 </details>
 
-### 9. q-6
+### 9. et-6
 
 A company uses NFS to store large video files in on-premises network attached storage. Each video file ranges in size from 1 MB to 500 GB. The total storage is 70 TB and is no longer growing. The company decides to migrate the video files to Amazon S3. The company must migrate the video files as soon as possible while using the least possible network bandwidth. Which solution will meet these requirements?
 
@@ -173,7 +173,7 @@ Root volume encryption is set at launch time: the root device in the block devic
 
 </details>
 
-### 11. q-10
+### 11. ce-10
 
 A company plans to rehost an application to Amazon EC2 instances that use Amazon Elastic Block Store (Amazon EBS) as the attached storage A solutions architect must design a solution to ensure that all newly created Amazon EBS volumes are encrypted by default. The solution must also prevent the creation of unencrypted EBS volumes Which solution will meet these requirements?
 
@@ -214,7 +214,7 @@ Content and Media Server is the latest requirement that you need to meet for a c
 
 </details>
 
-### 14. q-15
+### 14. ce-15
 
 A global company runs its workloads on AWS The company's application uses Amazon S3 buckets across AWS Regions for sensitive data storage and analysis. The company stores millions of objects in multiple S3 buckets daily. The company wants to identify all S3 buckets that are not versioning- enabled. Which solution will meet these requirements?
 
@@ -241,7 +241,7 @@ ng-for-notification
 
 </details>
 
-### 16. q-16
+### 16. ce-16
 
 A media company uses an Amazon CloudFront distribution to deliver content over the internet The company wants only premium customers to have access to the media streams and file content. The company stores all content in an Amazon S3 bucket. The company also delivers content on demand to customers for a specific purpose, such as movie rentals or music downloads. Which solution will meet these requirements?
 
@@ -253,7 +253,7 @@ The requirement is to restrict access to media content served via CloudFront to 
 
 </details>
 
-### 17. q-17
+### 17. et-17
 
 A company is implementing a new business application. The application runs on two Amazon EC2 instances and uses an Amazon S3 bucket for document storage. A solutions architect needs to ensure that the EC2 instances can access the S3 bucket. What should the solutions architect do to meet this requirement?
 
@@ -285,15 +285,15 @@ Which one of the following can't be used as an origin server with Amazon CloudFr
 
 </details>
 
-### 20. q-22 `least-ops` `security`
+### 20. ce-22 `least-ops` `security`
 
 A company hosts its application on several Amazon EC2 instances inside a VPC. The company creates a dedicated Amazon S3 bucket for each customer to store their relevant information in Amazon S3. The company wants to ensure that the application running on EC2 instances can securely access only the S3 buckets that belong to the company's AWS account. Which solution will meet these requirements with the LEAST operational overhead?
 
 <details><summary>Answer</summary>
 
-**S3 Intelligent-Tiering**
+**A. Create a gateway endpoint for Amazon S3 that is attached to the VPC Update the IAM instance profile policy to provide access to only the specific buckets that the application needs.**
 
-The access pattern is unpredictable, so no fixed storage class or hand-tuned lifecycle rule can be set correctly in advance, and Intelligent-Tiering is the class built for that case: it moves each object between tiers based on that object's own access pattern and charges no retrieval fees, so a wrong guess never produces a retrieval charge. The automatic tiers are Frequent Access, Infrequent Access after 30 consecutive days without access, and Archive Instant Access after 90 days, and an object moves straight back to Frequent Access the next time it is read. Like S3 Standard, it stores data across at least three Availability Zones, so it survives the loss of one AZ, which rules out S3 One Zone-IA. The only extra cost is a small per-object monitoring and automation charge, and objects smaller than 128 KB are not monitored or charged for it.
+This solution correctly addresses both secure connectivity and granular access control with minimal operational overhead. A gateway VPC endpoint for Amazon S3 allows EC2 instances to access S3 using private IP addresses, keeping traffic within the AWS network and avoiding the public internet. This is more secure and cost-effective than using a NAT gateway. An IAM instance profile attached to the EC2 instances is the standard method for granting permissions. The associated IAM policy can be configured to grant access only to specific S3 buckets, enforcing the principle of least privilege. By using wildcards in the bucket ARN (e.g., arn:aws:s3:::company-customer-), the policy can automatically apply to new customer buckets without modification, thus ensuring low operational overhead. Why Incorrect Options are Wrong: B: A NAT gateway routes traffic over the public internet to reach S3, whic
 
 </details>
 
@@ -307,7 +307,7 @@ Just when you thought you knew every possible storage option on AWS you hear som
 
 </details>
 
-### 22. q-26 `least-ops`
+### 22. ce-26 `least-ops`
 
 A company uses Amazon EC2 instances and stores data on Amazon Elastic Block Store (Amazon EBS) volumes. The company must ensure that all data is encrypted at rest by using AWS Key Management Service (AWS KMS). The company must be able to control rotation of the encryption keys. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -329,7 +329,7 @@ In Amazon EC2, if your EBS volume stays in the detaching state, you can force th
 
 </details>
 
-### 24. q-40 `availability`
+### 24. et-40 `availability`
 
 A company has thousands of edge devices that collectively generate 1 TB of status alerts each day. Each alert is approximately 2 KB in size. A solutions architect needs to implement a solution to ingest and store the alerts for future analysis. The company wants a highly available solution. However, the company needs to minimize costs and does not want to manage additional infrastructure. Additionally, the company wants to keep 14 days of data available for immediate analysis and archive any data older than 14 days. What is the MOST operationally efficient solution that meets these requirements?
 
@@ -341,7 +341,7 @@ Amazon Kinesis Data Firehose is a fully managed service that can capture, transf
 
 </details>
 
-### 25. q-41
+### 25. ce-41
 
 A company wants to standardize its Amazon Elastic Block Store (Amazon EBS) volume encryption strategy. The company also wants to minimize the cost and configuration effort required to operate the volume encryption check. Which solution will meet these requirements?
 
@@ -373,7 +373,7 @@ Which features can be used to restrict access to data in S3? (Choose 2 answers)
 
 </details>
 
-### 28. q-43
+### 28. et-43
 
 A company has an on-premises application that generates a large amount of time-sensitive data that is backed up to Amazon S3. The application has grown and there are user complaints about internet bandwidth limitations. A solutions architect needs to design a long-term solution that allows for both timely backups to Amazon S3 and with minimal impact on internet connectivity for internal users. Which solution meets these requirements?
 
@@ -385,7 +385,7 @@ AWS Direct Connect is a network service that allows you to establish a dedicated
 
 </details>
 
-### 29. q-44
+### 29. et-44
 
 A company has an Amazon S3 bucket that contains critical data. The company must protect the data from accidental deletion. Which combination of steps should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -397,7 +397,7 @@ Versioning is the primary protection: with it on, an overwrite keeps the previou
 
 </details>
 
-### 30. q-46
+### 30. et-46
 
 A company has an application that provides marketing services to stores. The services are based on previous purchases by store customers. The stores upload transaction data to the company through SFTP, and the data is processed and analyzed to generate new marketing offers. Some of the files can exceed 200 GB in size. Recently, the company discovered that some of the stores have uploaded files that contain personally identifiable information (PII) that should not have been included. The company wants administrators to be alerted if PII is shared again. The company also wants to automate remediation. What should a solutions architect do to meet these requirements with the LEAST development effort?
 
@@ -409,7 +409,7 @@ Amazon Macie is the managed service that discovers personally identifiable infor
 
 </details>
 
-### 31. q-49 `cost`
+### 31. et-49 `cost`
 
 A company stores call transcript files on a monthly basis. Users access the files randomly within 1 year of the call, but users access the files infrequently after 1 year. The company wants to optimize its solution by giving users the ability to query and retrieve files that are less than 1-year- old as quickly as possible. A delay in retrieving older files is acceptable. Which solution will meet these requirements MOST cost-effectively?
 
@@ -441,7 +441,7 @@ You have been asked to build AWS infrastructure for disaster recovery for your l
 
 </details>
 
-### 34. q-61 `least-ops`
+### 34. ce-61 `least-ops`
 
 A company is using an AWS Lambda function in a VPC. The Lambda function needs to access dependencies that exceed the size of the Lambda layer quot a. The data that the Lambda function retrieves must be encrypted in transit. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -463,7 +463,7 @@ When an EC2 instance that is backed by an S3-based AMI is terminated, what happe
 
 </details>
 
-### 36. q-66
+### 36. ce-66
 
 A company creates operations data and stores the data in an Amazon S3 bucket for the company's annual audit, an external consultant needs to access an annual report that is stored in the S3 bucket. The external consultant needs to access the report for 7 days. The company must implement a solution to allow the external consultant access to only the report. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -475,7 +475,7 @@ A presigned URL provides a secure and time-limited method to grant access to a s
 
 </details>
 
-### 37. q-67
+### 37. ce-67
 
 How can a law firm make files publicly readable while preventing modifications or deletions until a specific future date?
 
@@ -487,7 +487,7 @@ This solution correctly addresses all requirements. S3 Object Lock provides Writ
 
 </details>
 
-### 38. q-70
+### 38. ce-70
 
 A company wants to migrate hundreds of gigabytes of unstructured data from an on-premises location to an Amazon S3 bucket. The company has a 100-Mbps internet connection on premises. The company needs to encrypt the data in transit to the S3 bucket. The company will store new data directly in Amazon S3.
 
@@ -519,7 +519,7 @@ You need to measure the performance of your EBS volumes as they seem to be under
 
 </details>
 
-### 41. q-80 `security`
+### 41. ce-80 `security`
 
 A law firm needs to make hundreds of files readable for the general public. The law firm must prevent members of the public from modifying or deleting the files before a specified future date. Which solution will meet these requirements MOST securely?
 
@@ -541,7 +541,7 @@ You need to configure an Amazon S3 bucket to serve static assets for your public
 
 </details>
 
-### 43. q-81 `least-ops`
+### 43. ce-81 `least-ops`
 
 A media company hosts a web application on AWS. The application gives users the ability to upload and view videos. The application stores the videos in an Amazon S3 bucket. The company wants to ensure that only authenticated users can upload videos. Authenticated users must have the ability to upload videos only within a specified time frame after authentication. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -563,7 +563,7 @@ Amazon EBS provides the ability to create backups of any Amazon EC2 volume into 
 
 </details>
 
-### 45. q-86
+### 45. ce-86
 
 A healthcare provider is planning to store patient data on AWS as PDF files. To comply with regulations, the company must encrypt the data and store the files in multiple locations. The data must be available for immediate access from any environment.
 
@@ -595,7 +595,7 @@ While creating the snapshots using the API, which Action should I be using?
 
 </details>
 
-### 48. q-96
+### 48. ce-96
 
 A solutions architect is building an Amazon S3 data lake for a company. The company uses Amazon Kinesis Data Firehose to ingest customer personally identifiable information (PII) and transactional data in near real-time to an S3 bucket. The company needs to mask all PII data before storing thedata in the data lake. Which solution will meet these requirements?
 
@@ -647,7 +647,7 @@ A friend wants you to set up a small BitTorrent storage area for him on Amazon S
 
 </details>
 
-### 53. q-110 `least-ops`
+### 53. ce-110 `least-ops`
 
 A financial service company has a two-tier consumer banking application. The frontend serves static web content. The backend consists of APIs. The company needs to migrate the frontendcomponent to AWS. The backend of the application will remain on premises. The company must protect the application from common web vulnerabilities and attacks. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -669,7 +669,7 @@ A user is storing a large number of objects on AWS S3. The user wants to impleme
 
 </details>
 
-### 55. q-114
+### 55. ce-114
 
 A financial services company has a two-tier consumer banking application. The frontend serves static web content. The backend consists of APIs. The company needs to migrate the frontendcomponent to AWS. The backend of the application will remain on-premises. The company must protect the application from common web vulnerabilities and attacks.
 
@@ -691,7 +691,7 @@ True or False: When you view the block device mapping for your instance, you can
 
 </details>
 
-### 57. q-126
+### 57. ce-126
 
 A financial services company must retain log data for 1 year. The company stores log files in an Amazon S3 bucket and wants to prevent any user from deleting or overwriting the log files during this period. The data must remain available for read-only requests.
 
@@ -703,7 +703,7 @@ The core requirement is to implement a Write-Once, Read-Many (WORM) model to pre
 
 </details>
 
-### 58. q-130
+### 58. ce-130
 
 A company operates an online photo-sharing service and stores data in AWS Account A in a centralized Amazon S3 bucket. The company wants to grant a second AWS account named Account B access to the centralized S3 bucket. The company owns Account B. Options:
 
@@ -715,7 +715,7 @@ The most direct and standard method for granting one AWS account access to an Am
 
 </details>
 
-### 59. q-133
+### 59. ce-133
 
 A company recently migrated a large amount of research data to an Amazon S3 bucket. The company needs an automated solution to identify sensitive data in the bucket. A security team also needs to monitor access patterns for the data 24 hours a day, 7 days a week to identify suspicious activities or evidence of tampering with security controls. Options:
 
@@ -747,7 +747,7 @@ You have been given a scope to set up an AWS Media Sharing Framework for a new s
 
 </details>
 
-### 62. q-142
+### 62. ce-142
 
 A company uses AWS to host a public website. The load on the webservers recently increased. The company wants to learn more about the traffic flow and traffic sources. The company also wants to increase the overall security of the website. Which solution will meet these requirements?
 
@@ -769,7 +769,7 @@ A customer wants to track access to their Amazon Simple Storage Service (S3) buc
 
 </details>
 
-### 64. q-146 `least-ops`
+### 64. ce-146 `least-ops`
 
 An ecommerce company stores terabytes of customer data in the AWS Cloud. The data contains personally identifiable information (PII). The company wants to use the data in three applications. Only one of the applications needs to process the PII. The PII must be removed before the other two applications process the data. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -791,7 +791,7 @@ A company is storing data on Amazon Simple Storage Service (S3). The company's s
 
 </details>
 
-### 66. q-149
+### 66. ce-149
 
 A company needs to implement a new data retention policy for regulatory compliance. As part of this policy, sensitive documents that are stored in an Amazon S3 bucket must be protected from deletion or modification for a fixed period of time. Which solution will meet these requirements?
 
@@ -833,7 +833,7 @@ To view information about an Amazon EBS volume, open the Amazon EC2 console at <
 
 </details>
 
-### 70. q-168
+### 70. ce-168
 
 A company wants to migrate applications from its on-premises servers to AWS. As a first step, the company is modifying and migrating a non-critical application to a single Amazon EC2 instance. The application will store information in an Amazon S3 bucket. The company needs to follow security best practices when deploying the application on AWS. Which approach should the company take to allow the application to interact with Amazon S3?
 
@@ -885,7 +885,7 @@ A photo-sharing service stores pictures in Amazon Simple Storage Service (S3) an
 
 </details>
 
-### 75. q-180
+### 75. ce-180
 
 A company uses an Amazon CloudFront distribution to serve thousands of media files to users. The CloudFront distribution uses a private Amazon S3 bucket as an origin. A solutions architect must prevent users in specific countries from accessing the company's files. Which solution will meet these requirements in the MOST operationally-efficient way?
 
@@ -927,7 +927,7 @@ Do you need to shutdown your EC2 instance when you create a snapshot of EBS volu
 
 </details>
 
-### 79. q-188 `availability`
+### 79. et-188 `availability`
 
 A company uses Amazon S3 as its data lake. The company has a new partner that must use SFTP to upload data files. A solutions architect needs to implement a highly available SFTP solution that minimizes operational overhead. Which solution will meet these requirements?
 
@@ -939,7 +939,7 @@ AWS Transfer Family is a fully managed service that allows you to set up a secur
 
 </details>
 
-### 80. q-189 `least-ops`
+### 80. et-189 `least-ops`
 
 A company needs to store contract documents. A contract lasts for 5 years. During the 5-year period, the company must ensure that the documents cannot be overwritten or deleted. The company needs to encrypt the documents at rest and rotate the encryption keys automatically every year. Which combination of steps should a solutions architect take to meet these requirements with the LEAST operational overhead? (Choose two.)
 
@@ -961,7 +961,7 @@ What does Amazon S3 stand for?
 
 </details>
 
-### 82. q-195 `least-ops`
+### 82. ce-195 `least-ops`
 
 A company has multiple AWS accounts with applications deployed in the us-west-2 Region. Application logs are stored within Amazon S3 buckets in each account. The company wants to build a centralized log analysis solution that uses a single S3 bucket. Logs must not leave us-west-2, and the company wants to incur minimal operational overhead.
 
@@ -973,7 +973,7 @@ The most efficient and operationally simple solution is to use Amazon S3 Same-Re
 
 </details>
 
-### 83. q-196
+### 83. ce-196
 
 A solutions architect must design a solution that uses Amazon CloudFront with an Amazon S3 origin to serve a static website. The solution must use AWS WAF to inspect all website traffic.
 
@@ -985,7 +985,7 @@ This solution correctly implements a secure, multi-layered architecture. First, 
 
 </details>
 
-### 84. q-199
+### 84. ce-199
 
 A company runs its legacy web application on AWS. The web application server runs on an Amazon EC2 instance in the public subnet of a VPC. The web application server collects images from customers and stores the image files in a locally attached Amazon Elastic Block Store (Amazon EBS) volume. The image files are uploaded every night to an Amazon S3 bucket for backup. A solutions architect discovers that the image files are being uploaded to Amazon S3 through the public endpoint. The solutions architect needs to ensure that traffic to Amazon S3 does not use the public endpoint.
 
@@ -1017,7 +1017,7 @@ Making your snapshot public shares all snapshot data with everyone. Can the snap
 
 </details>
 
-### 87. q-202 `least-ops`
+### 87. et-202 `least-ops`
 
 A company is planning to move its data to an Amazon S3 bucket. The data must be encrypted when it is stored in the S3 bucket. Additionally, the encryption key must be automatically rotated every year. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1039,7 +1039,7 @@ You have launched an EC2 instance with four (4) 500 GB EBS Provisioned IOPS volu
 
 </details>
 
-### 89. q-205 `cost`
+### 89. et-205 `cost`
 
 A company hosts a marketing website in an on-premises data center. The website consists of static documents and runs on a single server. An administrator updates the website content infrequently and uses an SFTP client to upload new documents. The company decides to host its website on AWS and to use Amazon CloudFront. The company’s solutions architect creates a CloudFront distribution. The solutions architect must design the most cost-effective and resilient architecture for website hosting to serve as the CloudFront origin. Which solution will meet these requirements?
 
@@ -1071,7 +1071,7 @@ Which of the following is not a true statement relating to the performance of yo
 
 </details>
 
-### 92. q-211
+### 92. ce-211
 
 A healthcare company is designing a system to store and manage logs in the AWS Cloud. The system ingests and stores logs in JSON format that contain sensitive patient information. The company must identify any sensitive data and must be able to search the log data by using SQL queries. Which solution will meet these requirements?
 
@@ -1083,7 +1083,7 @@ This solution correctly aligns AWS services with the stated requirements. Amazon
 
 </details>
 
-### 93. q-212 `cost`
+### 93. et-212 `cost`
 
 A company needs to export its database once a day to Amazon S3 for other teams to access. The exported object size varies between 2 GB and 5 GB. The S3 access pattern for the data is variable and changes rapidly. The data must be immediately available and must remain accessible for up to 3 months. The company needs the most cost-effective solution that will not increase retrieval time. Which S3 storage class should the company use to meet these requirements?
 
@@ -1095,7 +1095,7 @@ S3 Intelligent-Tiering is designed to optimize costs by automatically moving obj
 
 </details>
 
-### 94. q-215 `least-ops`
+### 94. ce-215 `least-ops`
 
 A financial company is migrating banking applications to AWS accounts managed through AWS Organizations. The applications store sensitive customer data on Amazon EBS volumes, and the company takes regular snapshots for backups. The company must implement controls across all accounts to prevent sharing EBS snapshots publicly, with the least operational overhead. Which solution will meet these requirements?
 
@@ -1107,7 +1107,7 @@ The most direct and efficient solution is to use the "Block public access for EB
 
 </details>
 
-### 95. q-215 `cost`
+### 95. et-215 `cost`
 
 A company has 700 TB of backup data stored in network attached storage (NAS) in its data center. This backup data need to be accessible for infrequent regulatory requests and must be retained 7 years. The company has decided to migrate this backup data from its data center to AWS. The migration must be complete within 1 month. The company has 500 Mbps of dedicated bandwidth on its public internet connection available for data transfer. What should a solutions architect do to migrate and store the data at the LOWEST cost?
 
@@ -1119,7 +1119,7 @@ AWS Snowball: AWS Snowball is a physical data transfer service that allows you t
 
 </details>
 
-### 96. q-216
+### 96. et-216
 
 A company has a serverless website with millions of objects in an Amazon S3 bucket. The company uses the S3 bucket as the origin for an Amazon CloudFront distribution. The company did not set encryption on the S3 bucket before the objects were loaded. A solutions architect needs to enable encryption for all existing objects and for all objects that are added to the S3 bucket in the future. Which solution will meet these requirements with the LEAST amount of effort?
 
@@ -1131,7 +1131,7 @@ This option utilizes the S3 Inventory feature to generate a list of unencrypted 
 
 </details>
 
-### 97. q-217
+### 97. ce-217
 
 A company stores data in a centralized S3 bucket in Account A. It needs to grant Account B access to this bucket. Both accounts belong to the company. Which solution meets this requirement?
 
@@ -1143,7 +1143,7 @@ The most direct and standard method for granting another AWS account access to a
 
 </details>
 
-### 98. q-219
+### 98. ce-219
 
 A solutions architect needs to ensure that only resources in VPC vpc-11aabb22 can access an S3 bucket in account 123456789012 with Block Public Access enabled. Which solution meets this requirement?
 
@@ -1165,7 +1165,7 @@ You have a lot of data stored in the AWS Storage Gateway and your manager has co
 
 </details>
 
-### 100. q-222
+### 100. ce-222
 
 A company stores a file in an S3 bucket containing IP allow/deny lists. The file must be accessible via an HTTP endpoint. Firewalls outside AWS must read the file. The company wants to restrict access to only the firewall IP addresses. The S3 Block Public Access feature is enabled on the account. Which solution meets these requirements?
 
@@ -1187,7 +1187,7 @@ How can you secure data at rest on an EBS volume?
 
 </details>
 
-### 102. q-226
+### 102. et-226
 
 A company collects data from thousands of remote devices by using a RESTful web services application that runs on an Amazon EC2 instance. The EC2 instance receives the raw data, transforms the raw data, and stores all the data in an Amazon S3 bucket. The number of remote devices will increase into the millions soon. The company needs a highly scalable solution that minimizes operational overhead. Which combination of steps should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -1199,7 +1199,7 @@ E. Use Amazon API Gateway to send the raw data to an Amazon Kinesis data stream.
 
 </details>
 
-### 103. q-227 `cost`
+### 103. et-227 `cost`
 
 A company needs to retain its AWS CloudTrail logs for 3 years. The company is enforcing CloudTrail across a set of AWS accounts by using AWS Organizations from the parent account. The CloudTrail target S3 bucket is configured with S3 Versioning enabled. An S3 Lifecycle policy is in place to delete current objects after 3 years. After the fourth year of use of the S3 bucket, the S3 bucket metrics show that the number of objects has continued to rise. However, the number of new CloudTrail logs that are delivered to the S3 bucket has remained consistent. Which solution will delete objects that are older than 3 years in the MOST cost-effective manner?
 
@@ -1211,7 +1211,7 @@ S3 Lifecycle Policy: Enabling S3 versioning allows you to use a lifecycle policy
 
 </details>
 
-### 104. q-228 `least-ops`
+### 104. ce-228 `least-ops`
 
 A financial company is migrating its banking applications to a set of AWS accounts managed by AWS Organizations. The applications will store sensitive customer data on Amazon Elastic Block Store (Amazon EBS) volumes. The company will take regular snapshots for backup purposes. The company wants to implement controls across all AWS accounts to prevent sharing EBS snapshots publicly. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1223,7 +1223,7 @@ The most effective and efficient solution is to use the "Block Public Access for
 
 </details>
 
-### 105. q-231 `least-ops`
+### 105. ce-231 `least-ops`
 
 A company is building a data analysis platform on AWS by using AWS Lake Formation. The platform will ingest data from different sources such as Amazon S3 and Amazon RDS. The company needs a secure solution to prevent access to portions of the data that contain sensitive information. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1275,7 +1275,7 @@ An AWS customer runs a public blogging website. The site users upload two millio
 
 </details>
 
-### 110. q-243
+### 110. et-243
 
 A medical research lab produces data that is related to a new study. The lab wants to make the data available with minimum latency to clinics across the country for their on-premises, file-based applications. The data files are stored in an Amazon S3 bucket that has read-only permissions for each clinic. What should a solutions architect recommend to meet these requirements?
 
@@ -1287,7 +1287,7 @@ This option provides a way to present an S3 bucket as a file system to on-premis
 
 </details>
 
-### 111. q-249
+### 111. et-249
 
 A company is implementing a shared storage solution for a media application that is hosted in the AWS Cloud. The company needs the ability to use SMB clients to access data. The solution must be fully managed. Which AWS solution meets these requirements?
 
@@ -1313,7 +1313,7 @@ Amazon FSx for Windows File Server is a fully managed file storage service that 
 
 </details>
 
-### 113. q-250
+### 113. et-250
 
 A company’s security team requests that network traffic be captured in VPC Flow Logs. The logs will be frequently accessed for 90 days and then accessed intermittently. What should a solutions architect do to meet these requirements when configuring the logs?
 
@@ -1325,7 +1325,7 @@ Amazon S3 is a scalable and cost-effective object storage service. Enabling an S
 
 </details>
 
-### 114. q-252
+### 114. et-252
 
 A solutions architect needs to design a system to store client case files. The files are core company assets and are important. The number of files will grow over time. The files must be simultaneously accessible from multiple application servers that run on Amazon EC2 instances. The solution must have built-in redundancy. Which solution meets these requirements?
 
@@ -1335,7 +1335,7 @@ A solutions architect needs to design a system to store client case files. The f
 
 </details>
 
-### 115. q-256
+### 115. et-256
 
 A solutions architect is implementing a document review application using an Amazon S3 bucket for storage. The solution must prevent accidental deletion of the documents and ensure that all versions of the documents are available. Users must be able to download, modify, and upload documents. Which combination of actions should be taken to meet these requirements? (Choose two.)
 
@@ -1347,7 +1347,7 @@ D. Enable MFA Delete on the bucket. B. allows multiple versions of objects in th
 
 </details>
 
-### 116. q-257
+### 116. ce-257
 
 A company must protect sensitive documents in Amazon S3 from deletion or modification for a fixed retention period to meet regulatory requirements. Which solution will meet these requirements?
 
@@ -1359,7 +1359,7 @@ To meet strict regulatory requirements for data retention, a Write-Once, Read-Ma
 
 </details>
 
-### 117. q-259
+### 117. et-259
 
 A company is implementing new data retention policies for all databases that run on Amazon RDS DB instances. The company must retain daily backups for a minimum period of 2 years. The backups must be consistent and restorable. Which solution should a solutions architect recommend to meet these requirements?
 
@@ -1369,7 +1369,7 @@ A company is implementing new data retention policies for all databases that run
 
 </details>
 
-### 118. q-260
+### 118. et-260
 
 A company’s compliance team needs to move its file shares to AWS. The shares run on a Windows Server SMB file share. A self-managed on- premises Active Directory controls access to the files and folders. The company wants to use Amazon FSx for Windows File Server as part of the solution. The company must ensure that the on-premises Active Directory groups restrict access to the FSx for Windows File Server SMB compliance shares, folders, and files after the move to AWS. The company has created an FSx for Windows File Server file system. Which solution will meet these requirements?
 
@@ -1381,7 +1381,7 @@ Join the File System to Active Directory:  By joining the FSx for Windows File S
 
 </details>
 
-### 119. q-270
+### 119. et-270
 
 A company is using a centralized AWS account to store log data in various Amazon S3 buckets. A solutions architect needs to ensure that the data is encrypted at rest before the data is uploaded to the S3 buckets. The data also must be encrypted in transit. Which solution meets these requirements?
 
@@ -1401,7 +1401,7 @@ Your firm has uploaded a large amount of aerial image data to S3. In the past, i
 
 </details>
 
-### 121. q-278
+### 121. et-278
 
 A company wants to create an application to store employee data in a hierarchical structured relationship. The company needs a minimum-latency response to high-traffic queries for the employee data and must protect any sensitive data. The company also needs to receive monthly email messages if any financial information is present in the employee data. Which combination of steps should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -1423,7 +1423,7 @@ When controlling access to Amazon EC2 resources, each Amazon EBS Snapshot has a 
 
 </details>
 
-### 123. q-286
+### 123. et-286
 
 A company has a static website that is hosted on Amazon CloudFront in front of Amazon S3. The static website uses a database backend. The company notices that the website does not reflect updates that have been made in the website’s Git repository. The company checks the continuous integration and continuous delivery (CI/CD) pipeline between the Git repository and Amazon S3. The company verifies that the webhooks are configured properly and that the CI/CD pipeline is sending messages that indicate successful deployments. A solutions architect needs to implement a solution that displays the updates on the website. Which solution will meet these requirements?
 
@@ -1435,7 +1435,7 @@ When the website does not reflect updates that have been made in the Git reposit
 
 </details>
 
-### 124. q-288
+### 124. et-288
 
 A company is migrating a Linux-based web server group to AWS. The web servers must access files in a shared file store for some content. The company must not make any changes to the application. What should a solutions architect do to meet these requirements?
 
@@ -1447,7 +1447,7 @@ To meet the requirement of providing a shared file store for Linux-based web ser
 
 </details>
 
-### 125. q-289 `least-ops`
+### 125. ce-289 `least-ops`
 
 A company temporarily stages transactional datasets in an Amazon S3 bucket before the company moves the datasets to their final destinations. Some datasets include personally identifiable information PII. The company must remove PII data during staging before the company moves the datasets to their destinations. A solutions architect needs to configure Amazon Macie to continuously monitor the datasets. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1469,7 +1469,7 @@ You are working with a customer who has 10 TB of archival data that they want to
 
 </details>
 
-### 127. q-299
+### 127. et-299
 
 A research laboratory needs to process approximately 8 TB of data. The laboratory requires sub-millisecond latencies and a minimum throughput of 6 GBps for the storage subsystem. Hundreds of Amazon EC2 instances that run Amazon Linux will distribute and process the data. Which solution will meet the performance requirements?
 
@@ -1481,7 +1481,19 @@ Amazon FSx for Lustre is a high-performance file system designed for use with co
 
 </details>
 
-### 128. dt-304
+### 128. ce-302
+
+A company needs to allow AWS Account B and Account C to send AWS CloudTrail logs to a centralized Amazon S3 bucket in Account A. The company does not have full control over the source CloudTrail logs from Accounts B and C. The company needs to ensure that only CloudTrail logs can be written to the S3 bucket in Account A. Which solution will meet these requirements?
+
+<details><summary>Answer</summary>
+
+**D. In Account A, create an S3 bucket policy that allows the CloudTrail service principal to write to the S3 bucket. Use the aws:SourceAccount condition in the bucket policy to allow access to only Accounts B and C.**
+
+This is the standard and most secure method for centralizing CloudTrail logs. The S3 bucket policy in the central account (Account A) should grant the CloudTrail service principal (cloudtrail.amazonaws.com) permission to write objects (s3:PutObject). To ensure that only CloudTrail logs from the specified source accounts (B and C) can be written, the policy must include a Condition block. The aws:SourceAccount global condition key restricts access to principals acting on behalf of the specified accounts, preventing unauthorized accounts or services from writing to the bucket. Why Incorrect Options are Wrong: A. S3 gateway endpoints control traffic from a VPC to S3. They do not control which AWS service or source account can write to a bucket. B. Using only aws:SourceAccount is insufficient. It would allow any principal from the source accounts to write to the bucket, not just the CloudTra
+
+</details>
+
+### 129. dt-304
 
 EBS Snapshots occur [...].
 
@@ -1491,7 +1503,7 @@ EBS Snapshots occur [...].
 
 </details>
 
-### 129. q-304 `least-ops`
+### 130. et-304 `least-ops`
 
 A company recently created a disaster recovery site in a different AWS Region. The company needs to transfer large amounts of data back and forth between NFS file systems in the two Regions on a periodic basis. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1503,7 +1515,7 @@ If we want to transfer large amount of data we can used AWS Datasync.
 
 </details>
 
-### 130. q-305
+### 131. et-305
 
 A company is designing a shared storage solution for a gaming application that is hosted in the AWS Cloud. The company needs the ability to use SMB clients to access data. The solution must be fully managed. Which AWS solution meets these requirements?
 
@@ -1515,7 +1527,7 @@ Amazon FSx for Windows File Server is a fully managed file storage service that 
 
 </details>
 
-### 131. q-307
+### 132. ce-307
 
 A company hosts a website on Amazon EC2 instances. The website processes classified data. The company stores the processed data in an Amazon S3 bucket. Because of security concerns, the company must ensure that traffic between the EC2 instances and the S3 bucket does not use public IP addresses. Which solution will meet these requirements?
 
@@ -1527,7 +1539,7 @@ The core requirement is to ensure that traffic between EC2 instances in a VPC an
 
 </details>
 
-### 132. q-307
+### 133. et-307
 
 A company that primarily runs its application servers on premises has decided to migrate to AWS. The company wants to minimize its need to scale its Internet Small Computer Systems Interface (iSCSI) storage on premises. The company wants only its recently accessed data to remain stored locally. Which AWS solution should the company use to meet these requirements?
 
@@ -1539,7 +1551,7 @@ AWS Storage Gateway provides a hybrid cloud storage service that enables on-prem
 
 </details>
 
-### 133. q-308
+### 134. ce-308
 
 A company is building a compute-intensive application that will run on a fleet of Amazon EC2 instances. The application uses attached Amazon EBS volumes for storing data. The EBS volumes will be created at time of initial deployment. The application will process sensitive information. All of the data must be encrypted. The solution should not impact the application's performance. Which solution will meet these requirements?
 
@@ -1551,7 +1563,7 @@ The most effective solution is to use Amazon EBS encryption. This feature provid
 
 </details>
 
-### 134. dt-310
+### 135. dt-310
 
 A newspaper organization has a on-premises application which allows the public to search its back catalogue and retrieve individual newspaper pages via a website written in Java They have scanned the old newspapers into JPEGs (approx 17TB) and used Optical Character Recognition (OCR) to populate a commercial search product. The hosting platform and software are now end of life and the organization wants to migrate Its archive to AWS and produce a cost efficient architecture and still be designed for availability and durability. Which is the most appropriate?
 
@@ -1561,7 +1573,7 @@ A newspaper organization has a on-premises application which allows the public t
 
 </details>
 
-### 135. q-310 `performance`
+### 136. et-310 `performance`
 
 A company sells datasets to customers who do research in artificial intelligence and machine learning (AI/ML). The datasets are large, formatted files that are stored in an Amazon S3 bucket in the us-east-1 Region. The company hosts a web application that the customers use to purchase access to a given dataset. The web application is deployed on multiple Amazon EC2 instances behind an Application Load Balancer. After a purchase is made, customers receive an S3 signed URL that allows access to the files. The customers are distributed across North America and Europe. The company wants to reduce the cost that is associated with data transfers and wants to maintain or improve performance. What should a solutions architect do to meet these requirements?
 
@@ -1573,7 +1585,7 @@ Amazon CloudFront: CloudFront is a content delivery network (CDN) service that d
 
 </details>
 
-### 136. dt-311
+### 137. dt-311
 
 A Provisioned IOPS volume must be at least [...] GB in size.
 
@@ -1583,7 +1595,7 @@ A Provisioned IOPS volume must be at least [...] GB in size.
 
 </details>
 
-### 137. dt-312
+### 138. dt-312
 
 In Amazon EC2, while sharing an Amazon EBS snapshot, can the snapshots with AWS Marketplace product codes be public?
 
@@ -1593,7 +1605,7 @@ In Amazon EC2, while sharing an Amazon EBS snapshot, can the snapshots with AWS 
 
 </details>
 
-### 138. q-312
+### 139. et-312
 
 A company has an application that runs on several Amazon EC2 instances. Each EC2 instance has multiple Amazon Elastic Block Store (Amazon EBS) data volumes attached to it. The application’s EC2 instance configuration and data need to be backed up nightly. The application also needs to be recoverable in a different AWS Region. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -1605,7 +1617,7 @@ AWS Backup: AWS Backup is a fully managed backup service that centralizes and au
 
 </details>
 
-### 139. q-321
+### 140. et-321
 
 What should a solutions architect do to ensure that all objects uploaded to an Amazon S3 bucket are encrypted?
 
@@ -1617,7 +1629,7 @@ x-amz-server-side-encryption header: This header specifies the server-side encry
 
 </details>
 
-### 140. dt-322
+### 141. dt-322
 
 Which Amazon storage do you think is the best for my database-style applications that frequently encounter many random reads and writes across the dataset?
 
@@ -1627,7 +1639,7 @@ Which Amazon storage do you think is the best for my database-style applications
 
 </details>
 
-### 141. q-324
+### 142. et-324
 
 A company wants to implement a disaster recovery plan for its primary on-premises file storage volume. The file storage volume is mounted from an Internet Small Computer Systems Interface (iSCSI) device on a local storage server. The file storage volume holds hundreds of terabytes (TB) of data. The company wants to ensure that end users retain immediate access to all file types from the on-premises systems without experiencing latency. Which solution will meet these requirements with the LEAST amount of change to the company's existing infrastructure?
 
@@ -1639,7 +1651,7 @@ Explanation: A cached volume only keeps the most frequently accessed data locall
 
 </details>
 
-### 142. dt-327
+### 143. dt-327
 
 True or False: Manually created DB Snapshots are deleted after the DB Instance is deleted.
 
@@ -1649,7 +1661,7 @@ True or False: Manually created DB Snapshots are deleted after the DB Instance i
 
 </details>
 
-### 143. dt-328
+### 144. dt-328
 
 Amazon S3 doesn't automatically give a user who creates [...] permission to perform other actions on that bucket or object.
 
@@ -1659,7 +1671,7 @@ Amazon S3 doesn't automatically give a user who creates [...] permission to perf
 
 </details>
 
-### 144. dt-329
+### 145. dt-329
 
 A company wants to review the security requirements of Glacier. Which of the below mentioned statements is true with respect to the AWS Glacier data security?
 
@@ -1669,7 +1681,7 @@ A company wants to review the security requirements of Glacier. Which of the bel
 
 </details>
 
-### 145. dt-330
+### 146. dt-330
 
 What does Amazon EBS stand for?
 
@@ -1679,7 +1691,7 @@ What does Amazon EBS stand for?
 
 </details>
 
-### 146. q-331
+### 147. et-331
 
 A company must migrate 20 TB of data from a data center to the AWS Cloud within 30 days. The company’s network bandwidth is limited to 15 Mbps and cannot exceed 70% utilization. What should a solutions architect do to meet these requirements?
 
@@ -1691,7 +1703,7 @@ AWS Snowball is a physical data transport solution that helps customers transfer
 
 </details>
 
-### 147. q-332 `security`
+### 148. et-332 `security`
 
 A company needs to provide its employees with secure access to confidential and sensitive files. The company wants to ensure that the files can be accessed only by authorized users. The files must be downloaded securely to the employees’ devices. The files are stored in an on-premises Windows file server. However, due to an increase in remote usage, the file server is running out of capacity. . Which solution will meet these requirements?
 
@@ -1703,7 +1715,7 @@ Amazon FSx for Windows File Server: It is a fully managed file storage service b
 
 </details>
 
-### 148. q-334 `least-ops`
+### 149. et-334 `least-ops`
 
 A company wants to give a customer the ability to use on-premises Microsoft Active Directory to download files that are stored in Amazon S3. The customer’s application uses an SFTP client to download the files. Which solution will meet these requirements with the LEAST operational overhead and no changes to the customer’s application?
 
@@ -1715,7 +1727,7 @@ AWS Transfer Family with SFTP for Amazon S3: AWS Transfer Family is a fully mana
 
 </details>
 
-### 149. dt-342
+### 150. dt-342
 
 One of the criteria for a new deployment is that the customer wants to use AWS Storage Gateway. However you are not sure whether you should use gateway-cached volumes or gateway-stored volumes or even what the differences are. Which statement below best describes those differences?
 
@@ -1725,7 +1737,7 @@ One of the criteria for a new deployment is that the customer wants to use AWS S
 
 </details>
 
-### 150. q-345 `least-ops`
+### 151. ce-345 `least-ops`
 
 A company has a web application that stores user transactions in an Amazon DynamoDB table. To comply with regulations, the company must retain a copy of user transaction data for 7 years. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1737,7 +1749,7 @@ AWS Backup is a fully managed service designed to centralize and automate data p
 
 </details>
 
-### 151. q-346
+### 152. et-346
 
 A company has an aging network-attached storage (NAS) array in its data center. The NAS array presents SMB shares and NFS shares to client workstations. The company does not want to purchase a new NAS array. The company also does not want to incur the cost of renewing the NAS array’s support contract. Some of the data is accessed frequently, but much of the data is inactive. A solutions architect needs to implement a solution that migrates the data to Amazon S3, uses S3 Lifecycle policies, and maintains the same look and feel for the client workstations. The solutions architect has identified AWS Storage Gateway as part of the solution. Which type of storage gateway should the solutions architect provision to meet these requirements?
 
@@ -1749,7 +1761,7 @@ Amazon S3 File Gateway provides on-premises applications with access to virtuall
 
 </details>
 
-### 152. dt-349
+### 153. dt-349
 
 If an Amazon EBS volume is the root device of an instance, can I detach it without stopping the instance?
 
@@ -1759,7 +1771,7 @@ If an Amazon EBS volume is the root device of an instance, can I detach it witho
 
 </details>
 
-### 153. dt-351
+### 154. dt-351
 
 Before I delete an EBS volume, what can I do if I want to recreate the volume later?
 
@@ -1769,7 +1781,7 @@ Before I delete an EBS volume, what can I do if I want to recreate the volume la
 
 </details>
 
-### 154. q-352 `availability`
+### 155. ce-352 `availability`
 
 A company is testing an application that runs on an Amazon EC2 Linux instance. A single 500 GB Amazon Elastic Block Store (Amazon EBS) General Purpose SSD (gp2) volume is attached to the EC2 instance. The company will deploy the application on multiple EC2 instances in an Auto Scaling group. All instances require access to the data that is stored in the EBS volume. The company needs a highly available and resilient solution that does not introduce significant changes to the application's code. Which solution will meet these requirements?
 
@@ -1781,7 +1793,7 @@ The core requirement is to provide a highly available, shared file storage solut
 
 </details>
 
-### 155. dt-352
+### 156. dt-352
 
 An accountant asks you to design a small VPC network for him and, due to the nature of his business, just needs something where the workload on the network will be low, and dynamic data will be accessed infrequently. Being an accountant, low cost is also a major factor. Which EBS volume type would best suit his requirements?
 
@@ -1791,7 +1803,7 @@ An accountant asks you to design a small VPC network for him and, due to the nat
 
 </details>
 
-### 156. dt-354
+### 157. dt-354
 
 A customer implemented AWS Storage Gateway with a gateway-cached volume at their main office. An event takes the link between the main and branch office offline. Which methods will enable the branch office to access their data? (Choose 3 answers)
 
@@ -1801,7 +1813,7 @@ A customer implemented AWS Storage Gateway with a gateway-cached volume at their
 
 </details>
 
-### 157. q-358
+### 158. ce-358
 
 A company has an application that processes information from documents that users upload. When a user uploads a new document to an Amazon S3 bucket, an AWS Lambda function is invoked. The Lambda function processes information from the documents. The company discovers that the application did not process many recently uploaded documents. The company wants to ensure that the application processes each document with retries if there is an error during the first attempt to process the document. Which solution will meet these requirements?
 
@@ -1813,7 +1825,7 @@ This solution introduces an Amazon SQS queue between Amazon S3 and the AWS Lambd
 
 </details>
 
-### 158. q-359
+### 159. ce-359
 
 A developer needs to export the contents of several Amazon DynamoDB tables into Amazon S3 buckets to comply with company data regulations. The developer uses the AWS CLI to runcommands to export from each table to the proper S3 bucket. The developer sets up AWS credentials correctly and grants resources appropriate permissions. However, the exports of some tables fail. What should the developer do to resolve this issue?
 
@@ -1825,7 +1837,7 @@ The native DynamoDB export to Amazon S3 feature is built upon the Point-in-Time 
 
 </details>
 
-### 159. q-364
+### 160. ce-364
 
 An insurance company runs an application on premises to process contracts. The application processes jobs that are comprised of many tasks. The individual tasks run for up to 5 minutes. Some jobs can take up to 24 hours in total to finish. If a task fails, the task must be reprocessed. The company wants to migrate the application to AWS. The company will use Amazon S3 as part of the solution. The company wants to configure jobs to start automatically when a contract is uploaded to an S3 bucket. Which solution will meet these requirements?
 
@@ -1837,7 +1849,7 @@ The scenario requires orchestrating a long-running workflow (up to 24 hours) com
 
 </details>
 
-### 160. dt-364
+### 161. dt-364
 
 Amazon S3 allows you to set per-file permissions to grant read and/or write access. However you have decided that you want an entire bucket with 100 files already in it to be accessible to the public. You don't want to go through 100 files individually and set permissions. What would be the best way to do this?
 
@@ -1847,7 +1859,7 @@ Amazon S3 allows you to set per-file permissions to grant read and/or write acce
 
 </details>
 
-### 161. dt-366
+### 162. dt-366
 
 Which of the following are use cases for Amazon DynamoDB? (Choose 3 answers)
 
@@ -1857,7 +1869,7 @@ Which of the following are use cases for Amazon DynamoDB? (Choose 3 answers)
 
 </details>
 
-### 162. dt-367
+### 163. dt-367
 
 You have been asked to set up a database in AWS that will require frequent and granular updates. You know that you will require a reasonable amount of storage space but are not sure of the best option. What is the recommended storage option when you run a database on an instance with the above criteria?
 
@@ -1867,7 +1879,7 @@ You have been asked to set up a database in AWS that will require frequent and g
 
 </details>
 
-### 163. dt-369
+### 164. dt-369
 
 An organization has developed a mobile application which allows end users to capture a photo on their mobile device, and store it inside an application. The application internally uploads the data to AWS S3. The organization wants each user to be able to directly upload data to S3 using their Google ID. How will the mobile app allow this?
 
@@ -1877,7 +1889,7 @@ An organization has developed a mobile application which allows end users to cap
 
 </details>
 
-### 164. q-370 `cost`
+### 165. ce-370 `cost`
 
 A company runs a website that allows users to connect with lawyers. Users and lawyers upload documents to the website frequently. The company hosts the website on a single Amazon EC2 instance. The website stores documents directly on the instance. The company scales the website by adding two more EC2 instances behind an Application Load Balancer ALB. Afterwards, users report 404 Resource Not Found errors when the users try to access their documents. The company must restore access to the documents. Which solution will meet this requirement MOST cost-effectively?
 
@@ -1889,7 +1901,7 @@ The root cause of the 404 errors is that each EC2 instance has its own local sto
 
 </details>
 
-### 165. q-371 `least-ops`
+### 166. et-371 `least-ops`
 
 A company needs to create an Amazon Elastic Kubernetes Service (Amazon EKS) cluster to host a digital media streaming application. The EKS cluster will use a managed node group that is backed by Amazon Elastic Block Store (Amazon EBS) volumes for storage. The company must encrypt all data at rest by using a customer managed key that is stored in AWS Key Management Service (AWS KMS). Which combination of actions will meet this requirement with the LEAST operational overhead? (Choose two.)
 
@@ -1901,7 +1913,7 @@ D. Create the EKS cluster. Create an IAM role that has a policy that grants perm
 
 </details>
 
-### 166. dt-373
+### 167. dt-373
 
 True or False: When you perform a restore operation to a point in time or from a DB Snapshot, a new DB Instance is created with a new endpoint.
 
@@ -1911,7 +1923,7 @@ True or False: When you perform a restore operation to a point in time or from a
 
 </details>
 
-### 167. q-373 `cost`
+### 168. et-373 `cost`
 
 A company has an application that collects data from IoT sensors on automobiles. The data is streamed and stored in Amazon S3 through Amazon Kinesis Data Firehose. The data produces trillions of S3 objects each year. Each morning, the company uses the data from the previous 30 days to retrain a suite of machine learning (ML) models. Four times each year, the company uses the data from the previous 12 months to perform analysis and train other ML models. The data must be available with minimal delay for up to 1 year. After 1 year, the data must be retained for archival purposes. Which storage solution meets these requirements MOST cost-effectively?
 
@@ -1923,7 +1935,7 @@ S3 Standard Storage Class:  Use S3 Standard for the first 30 days because it's t
 
 </details>
 
-### 168. dt-374
+### 169. dt-374
 
 What is the Reduced Redundancy option in Amazon S3?
 
@@ -1933,7 +1945,7 @@ What is the Reduced Redundancy option in Amazon S3?
 
 </details>
 
-### 169. q-381
+### 170. ce-381
 
 A company runs a content management system on an Amazon Elastic Container Service (Amazon ECS) cluster. The system allows visitors to provide feedback about the company's products by uploading documents and photos of the products to an Amazon S3 bucket. The company has a workflow on AWS that processes uploaded documents to perform sentiment analysis of photos and text. The processing workflow calls multiple AWS services. The company needs a solution to automate the processing workflow. The solution must handle any failed uploads. Which solution will meet these requirements with the LEAST effort?
 
@@ -1945,7 +1957,7 @@ This solution represents the most efficient and robust design pattern for the st
 
 </details>
 
-### 170. q-384
+### 171. ce-384
 
 A company runs an application on several Amazon EC2 instances. Multiple Amazon Elastic Block Store (Amazon EBS) volumes are attached to each EC2 instance. The company needs to back up the configurations and the data of the EC2 instances every night. The application must be recoverable in a secondary AWS Region. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -1957,7 +1969,7 @@ AWS Backup is a fully managed, policy-based service that simplifies data protect
 
 </details>
 
-### 171. q-384 `cost` `availability`
+### 172. et-384 `cost` `availability`
 
 A company runs an application on Amazon EC2 Linux instances across multiple Availability Zones. The application needs a storage layer that is highly available and Portable Operating System Interface (POSIX)-compliant. The storage layer must provide maximum data durability and must be shareable across the EC2 instances. The data in the storage layer will be accessed frequently for the first 30 days and will be accessed infrequently after that time. Which solution will meet these requirements MOST cost-effectively?
 
@@ -1969,7 +1981,7 @@ Amazon EFS provides scalable and highly available file storage in the cloud. The
 
 </details>
 
-### 172. q-385
+### 173. ce-385
 
 A company runs its critical storage application in the AWS Cloud. The application uses Amazon S3 in two AWS Regions. The company wants the application to send remote user data to the nearest S3 bucket with no public network congestion. The company also wants the application to fail over with the least amount of management of Amazon S3. Which solution will meet these requirements?
 
@@ -1981,7 +1993,7 @@ Amazon S3 Multi-Region Access Points provide a single global endpoint that appli
 
 </details>
 
-### 173. dt-385
+### 174. dt-385
 
 An organization has a statutory requirement to protect the data at rest for the S3 objects. Which of the below mentioned options need not be enabled by the organization to achieve data security?
 
@@ -1991,7 +2003,7 @@ An organization has a statutory requirement to protect the data at rest for the 
 
 </details>
 
-### 174. q-388
+### 175. ce-388
 
 An ecommerce company hosts an analytics application on AWS. The company deployed the application to one AWS Region. The application generates 300 MB of data each month. The application stores the data in JSON format. The data must be accessible in milliseconds when needed. The company must retain the data for 30 days. The company requires a disaster recovery solution to back up the data.
 
@@ -2003,7 +2015,7 @@ Amazon S3 is the most suitable service for this scenario. It is designed for dur
 
 </details>
 
-### 175. dt-389
+### 176. dt-389
 
 What does the AWS Storage Gateway provide?
 
@@ -2013,7 +2025,7 @@ What does the AWS Storage Gateway provide?
 
 </details>
 
-### 176. q-393
+### 177. et-393
 
 A payment processing company records all voice communication with its customers and stores the audio files in an Amazon S3 bucket. The company needs to capture the text from the audio files. The company must remove from the text any personally identifiable information (PII) that belongs to customers. What should a solutions architect do to meet these requirements?
 
@@ -2025,7 +2037,7 @@ Amazon Transcribe is a fully managed service provided by Amazon Web Services (AW
 
 </details>
 
-### 177. dt-394
+### 178. dt-394
 
 Which of the following features are provided by Amazon EC2?
 
@@ -2035,7 +2047,7 @@ Which of the following features are provided by Amazon EC2?
 
 </details>
 
-### 178. q-395
+### 179. ce-395
 
 A company hosts an application on AWS that uses an Amazon S3 bucket and an Amazon Aurora database. The company wants to implement a multi-Region disaster recovery (DR) strategy that minimizes potential data loss. Which solution will meet these requirements?
 
@@ -2047,7 +2059,7 @@ This solution provides the most effective multi-Region disaster recovery (DR) st
 
 </details>
 
-### 179. dt-402
+### 180. dt-402
 
 Can I delete a snapshot of the root device of an EBS volume used by a registered AMI?
 
@@ -2057,7 +2069,7 @@ Can I delete a snapshot of the root device of an EBS volume used by a registered
 
 </details>
 
-### 180. q-403 `availability`
+### 181. ce-403 `availability`
 
 A shipping company wants to run a Kubernetes container-based web application in disconnected mode while the company's ships are in transit at se a. The application must provide local users with high availability.
 
@@ -2069,7 +2081,7 @@ The core requirements are to run a Kubernetes application with high availability
 
 </details>
 
-### 181. q-404
+### 182. ce-404
 
 A company runs an application that uses Docker containers in an on-premises data center. The application runs on a container host that stores persistent data files in a local volume. Container instances use the stored persistent data. The company wants to migrate the application to fully managed AWS services. Which solution will meet these requirements?
 
@@ -2081,7 +2093,7 @@ The solution requires a fully managed service for running containers and a metho
 
 </details>
 
-### 182. q-404
+### 183. et-404
 
 A company has deployed a serverless application that invokes an AWS Lambda function when new documents are uploaded to an Amazon S3 bucket. The application uses the Lambda function to process the documents. After a recent marketing campaign, the company noticed that the application did not process many of the documents. What should a solutions architect do to improve the architecture of this application?
 
@@ -2093,7 +2105,7 @@ Introducing Amazon SQS as a queue allows for better decoupling between the S3 ev
 
 </details>
 
-### 183. q-407
+### 184. et-407
 
 A company is implementing a shared storage solution for a gaming application that is hosted in the AWS Cloud. The company needs the ability to use Lustre clients to access data. The solution must be fully managed. Which solution meets these requirements?
 
@@ -2105,7 +2117,7 @@ Amazon FSx for Lustre: Amazon FSx for Lustre is a fully managed service that pro
 
 </details>
 
-### 184. q-410
+### 185. et-410
 
 A company is deploying a new application on Amazon EC2 instances. The application writes data to Amazon Elastic Block Store (Amazon EBS) volumes. The company needs to ensure that all data that is written to the EBS volumes is encrypted at rest. Which solution will meet this requirement?
 
@@ -2117,7 +2129,7 @@ By creating the EBS volumes as encrypted volumes, you ensure that all data writt
 
 </details>
 
-### 185. dt-413
+### 186. dt-413
 
 You are building an automated transcription service in which Amazon EC2 worker instances process an uploaded audio file and generate a text file. You must store both of these files in the same durable storage until the text file is retrieved. You do not know what the storage capacity requirements are. Which storage option is both cost-efficient and scalable?
 
@@ -2127,7 +2139,7 @@ You are building an automated transcription service in which Amazon EC2 worker i
 
 </details>
 
-### 186. q-415
+### 187. et-415
 
 A company is storing petabytes of data in Amazon S3 Standard. The data is stored in multiple S3 buckets and is accessed with varying frequency. The company does not know access patterns for all the data. The company needs to implement a solution for each S3 bucket to optimize the cost of S3 usage. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -2139,7 +2151,7 @@ S3 Intelligent-Tiering: This storage class is designed to automatically and dyna
 
 </details>
 
-### 187. q-416 `security`
+### 188. ce-416 `security`
 
 A company has an on-premises volume backup solution that is end of life. The company wants to use AWS as part of a new backup solution while maintaining local access to all data. The data must be automatically and securely transferred to AWS. Which solution meets these requirements?
 
@@ -2151,7 +2163,7 @@ The solution that meets all requirements is the AWS Storage Gateway configured a
 
 </details>
 
-### 188. q-421 `availability`
+### 189. et-421 `availability`
 
 A company runs a highly available SFTP service. The SFTP service uses two Amazon EC2 Linux instances that run with elastic IP addresses to accept traffic from trusted IP sources on the internet. The SFTP service is backed by shared storage that is attached to the instances. User accounts are created and managed as Linux users in the SFTP servers. The company wants a serverless option that provides high IOPS performance and highly configurable security. The company also wants to maintain control over user permissions. Which solution will meet these requirements?
 
@@ -2161,19 +2173,19 @@ A company runs a highly available SFTP service. The SFTP service uses two Amazon
 
 </details>
 
-### 189. q-422 `security`
+### 190. ce-422 `security`
 
 A company has an on-premises volume backup solution that has reached its end of life. The company wants to use AWS as part of a new backup solution and wants to maintain local access to all the data while it is backed up on AWS. The company wants to ensure that the data backed up on AWS is automatically and securely transferred. Which solution meets these requirements?
 
 <details><summary>Answer</summary>
 
-**Direct the requests from the API into an Amazon Simple Queue Service (Amazon SQS) queue. Deploy the models as Amazon Elastic Container Service (Amazon ECS) services that read from the queue. Enable AWS Auto Scaling on Amazon ECS for both the cluster and copies of the service based on the queue size.**
+**D. Use AWS Storage Gateway and configure a stored volume gateway. Run the Storage Gateway software appliance on premises and map the gateway storage volumes to on-premises storage. Mount the gateway storage volumes to provide local access to the data.**
 
-The API is asynchronous, so requests can sit in an SQS queue and be picked up when capacity exists; the queue absorbs a sudden batch of thousands of requests without dropping any and without the caller waiting. Scaling the ECS service on the number of messages waiting in the queue adds containers only when work arrives and scales back down through the days or weeks a model is unused, and scaling the cluster capacity alongside it means you are not paying for idle hosts. Long-running containers also keep the 1 GB of model data in memory between requests, whereas a design that fronts short-lived functions with a load balancer would re-download that 1 GB on every cold start and would make an asynchronous API behave synchronously.
+The Stored Volume Gateway configuration of AWS Storage Gateway is the correct solution. It stores the primary data locally on-premises, ensuring low-latency access to the entire dataset. This gateway then asynchronously backs up point-in-time snapshots of the on-premises data to Amazon S3 (as Amazon EBS snapshots). This architecture directly meets the company's requirements to maintain local access to all data while having it automatically and securely backed up to AWS. Why Incorrect Options are Wrong: A. AWS Snowball is a data migration service for transferring large amounts of data, not a continuous backup solution that provides ongoing local access. B. AWS Snowball Edge is also for data migration or edge computing; it is not designed as a permanent gateway for a continuous backup strategy. C. A Cached Volume Gateway stores the primary dataset in Amazon S3 and caches only a frequently
 
 </details>
 
-### 190. dt-423
+### 191. dt-423
 
 Which Amazon Storage behaves like raw, unformatted, external block devices that you can attach to your instances?
 
@@ -2183,7 +2195,7 @@ Which Amazon Storage behaves like raw, unformatted, external block devices that 
 
 </details>
 
-### 191. q-425 `cost`
+### 192. et-425 `cost`
 
 A company uses high block storage capacity to runs its workloads on premises. The company's daily peak input and output transactions per second are not more than 15,000 IOPS. The company wants to migrate the workloads to Amazon EC2 and to provision disk performance independent of storage capacity. Which Amazon Elastic Block Store (Amazon EBS) volume type will meet these requirements MOST cost-effectively?
 
@@ -2195,7 +2207,7 @@ General Purpose SSD (gp3) volumes are designed to provide a balance of price and
 
 </details>
 
-### 192. q-426 `security`
+### 193. et-426 `security`
 
 A company needs to store data from its healthcare application. The application’s data frequently changes. A new regulation requires audit access at all levels of the stored data. The company hosts the application on an on-premises infrastructure that is running out of storage capacity. A solutions architect must securely migrate the existing data to AWS while satisfying the new regulation. Which solution will meet these requirements?
 
@@ -2207,7 +2219,7 @@ Explanation: CloudTrail management events don't capture object-level (data) acce
 
 </details>
 
-### 193. q-430 `cost`
+### 194. et-430 `cost`
 
 A manufacturing company has machine sensors that upload .csv files to an Amazon S3 bucket. These .csv files must be converted into images and must be made available as soon as possible for the automatic generation of graphical reports. The images become irrelevant after 1 month, but the .csv files must be kept to train machine learning (ML) models twice a year. The ML trainings and audits are planned weeks in advance. Which combination of steps will meet these requirements MOST cost-effectively? (Choose two.)
 
@@ -2219,7 +2231,7 @@ C. Create S3 Lifecycle rules for .csv files and image files in the S3 bucket. Tr
 
 </details>
 
-### 194. dt-432
+### 195. dt-432
 
 How can an EBS volume that is currently attached to an EC2 instance be migrated from one Availability Zone to another?
 
@@ -2229,7 +2241,7 @@ How can an EBS volume that is currently attached to an EC2 instance be migrated 
 
 </details>
 
-### 195. dt-436
+### 196. dt-436
 
 Can you encrypt EBS volumes?
 
@@ -2239,7 +2251,7 @@ Can you encrypt EBS volumes?
 
 </details>
 
-### 196. q-441
+### 197. ce-441
 
 A media company is migrating a Microsoft Windows-based application to the AWS Cloud. The company uses the application to analyze media files. The company requires a resilient shared storage solution that the company can access by using the SMB protocol. Which storage solution will meet these requirements?
 
@@ -2251,7 +2263,7 @@ The requirements are for a resilient, shared storage solution for a Windows-base
 
 </details>
 
-### 197. q-442
+### 198. ce-442
 
 A company runs an application on premises. The application stores files that the application servers process in a shared storage system. The company uses Linux file system permissions to control access to the files. The company plans to migrate the application servers to Amazon EC2 instances across multiple Availability Zones. The company does not want to change the application code. Which solution will meet these requirements?
 
@@ -2263,7 +2275,7 @@ Amazon EFS (Elastic File System) is the correct solution because it provides a m
 
 </details>
 
-### 198. q-443
+### 199. et-443
 
 A company wants to host a scalable web application on AWS. The application will be accessed by users from different geographic regions of the world. Application users will be able to download and upload unique data up to gigabytes in size. The development team wants a cost-effective solution to minimize upload and download latency and maximize performance. What should a solutions architect do to accomplish this?
 
@@ -2273,7 +2285,7 @@ A company wants to host a scalable web application on AWS. The application will 
 
 </details>
 
-### 199. q-445
+### 200. et-445
 
 A company is storing 700 terabytes of data on a large network-attached storage (NAS) system in its corporate data center. The company has a hybrid environment with a 10 Gbps AWS Direct Connect connection. After an audit from a regulator, the company has 90 days to move the data to the cloud. The company needs to move the data efficiently and without disruption. The company still needs to be able to access and update the data during the transfer window. Which solution will meet these requirements?
 
@@ -2285,7 +2297,7 @@ using AWS DataSync, which is designed for efficiently transferring large amounts
 
 </details>
 
-### 200. q-446 `least-ops`
+### 201. et-446 `least-ops`
 
 A company stores data in PDF format in an Amazon S3 bucket. The company must follow a legal requirement to retain all new and existing data in Amazon S3 for 7 years. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2295,7 +2307,7 @@ A company stores data in PDF format in an Amazon S3 bucket. The company must fol
 
 </details>
 
-### 201. q-447 `availability`
+### 202. ce-447 `availability`
 
 A company wants to use a cloud storage service to store text and media files that are associated with active global marketing campaigns. The storage solution must be highly available. The company must protect the solution with a backup system that reduces the possibility of data loss as much as possible. Which solution will meet these requirements?
 
@@ -2307,7 +2319,7 @@ This solution provides a highly available, durable, and globally performant arch
 
 </details>
 
-### 202. dt-449
+### 203. dt-449
 
 Which of the following are true regarding AWS CloudTrail? (Choose 3 answers)
 
@@ -2317,7 +2329,7 @@ Which of the following are true regarding AWS CloudTrail? (Choose 3 answers)
 
 </details>
 
-### 203. q-453
+### 204. et-453
 
 A company wants to implement a backup strategy for Amazon EC2 data and multiple Amazon S3 buckets. Because of regulatory requirements, the company must retain backup files for a specific time period. The company must not alter the files for the duration of the retention period. Which solution will meet these requirements?
 
@@ -2329,7 +2341,7 @@ AWS Backup provides a centralized solution for managing backups across various A
 
 </details>
 
-### 204. dt-461
+### 205. dt-461
 
 What does the 'Server Side Encryption' option on Amazon S3 provide?
 
@@ -2339,7 +2351,7 @@ What does the 'Server Side Encryption' option on Amazon S3 provide?
 
 </details>
 
-### 205. q-462
+### 206. ce-462
 
 A company hosts a single-page application in an Amazon S3 bucket. The company has replicated the application to a second S3 bucket in a separate AWS Region. The company has users in Asia and Europe. A solutions architect must design a solution that redirects each user's requests to the Region that is closest to the user. Which solution will meet this requirement?
 
@@ -2351,7 +2363,7 @@ The requirement is to route users to the S3 bucket in the geographically closest
 
 </details>
 
-### 206. dt-463
+### 207. dt-463
 
 You are checking the workload on some of your General Purpose (SSD) and Provisioned IOPS (SSD) volumes and it seems that the I/O latency is higher than you require. You should probably check the [...] to make sure that your application is not trying to drive more IOPS than you have provisioned.
 
@@ -2361,7 +2373,7 @@ You are checking the workload on some of your General Purpose (SSD) and Provisio
 
 </details>
 
-### 207. q-463 `cost`
+### 208. et-463 `cost`
 
 An IoT company is releasing a mattress that has sensors to collect data about a user’s sleep. The sensors will send data to an Amazon S3 bucket. The sensors collect approximately 2 MB of data every night for each mattress. The company must process and summarize the data for each mattress. The results need to be available as soon as possible. Data processing will require 1 GB of memory and will finish within 30 seconds. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2373,7 +2385,7 @@ AWS Lambda is a serverless compute service that allows you to run code without p
 
 </details>
 
-### 208. q-465
+### 209. et-465
 
 A company is developing an application to support customer demands. The company wants to deploy the application on multiple Amazon EC2 Nitro-based instances within the same Availability Zone. The company also wants to give the application the ability to write to multiple block storage volumes in multiple EC2 Nitro-based instances simultaneously to achieve higher application availability. Which solution will meet these requirements?
 
@@ -2385,7 +2397,7 @@ Provisioned IOPS SSD (io2) volumes do indeed support Multi-Attach, allowing you 
 
 </details>
 
-### 209. q-469
+### 210. et-469
 
 A company stores raw collected data in an Amazon S3 bucket. The data is used for several types of analytics on behalf of the company's customers. The type of analytics requested determines the access pattern on the S3 objects. The company cannot predict or control the access pattern. The company wants to reduce its S3 costs. Which solution will meet these requirements?
 
@@ -2397,7 +2409,7 @@ S3 Intelligent-Tiering is designed to optimize costs by automatically moving obj
 
 </details>
 
-### 210. dt-470
+### 211. dt-470
 
 What happens to the I/O operations while you take a database snapshot?
 
@@ -2407,7 +2419,7 @@ What happens to the I/O operations while you take a database snapshot?
 
 </details>
 
-### 211. dt-471
+### 212. dt-471
 
 When an EC2 EBS-backed (EBS root) instance is stopped, what happens to the data on any ephemeral store volumes?
 
@@ -2417,7 +2429,7 @@ When an EC2 EBS-backed (EBS root) instance is stopped, what happens to the data 
 
 </details>
 
-### 212. dt-472
+### 213. dt-472
 
 [...] is a durable, block-level storage volume that you can attach to a single, running Amazon EC2 instance.
 
@@ -2427,7 +2439,7 @@ When an EC2 EBS-backed (EBS root) instance is stopped, what happens to the data 
 
 </details>
 
-### 213. q-475
+### 214. et-475
 
 A company is designing a containerized application that will use Amazon Elastic Container Service (Amazon ECS). The application needs to access a shared file system that is highly durable and can recover data to another AWS Region with a recovery point objective (RPO) of 8 hours. The file system needs to provide a mount target m each Availability Zone within a Region. A solutions architect wants to use AWS Backup to manage the replication to another Region. Which solution will meet these requirements?
 
@@ -2437,7 +2449,7 @@ A company is designing a containerized application that will use Amazon Elastic 
 
 </details>
 
-### 214. dt-477
+### 215. dt-477
 
 Which of the following would you use to list your AWS Import/Export jobs?
 
@@ -2447,7 +2459,7 @@ Which of the following would you use to list your AWS Import/Export jobs?
 
 </details>
 
-### 215. dt-478
+### 216. dt-478
 
 Company B is launching a new game app for mobile devices. Users will log into the game using their existing social media account to streamline data capture. Company B would like to directly save player data and scoring information from the mobile app to a DynamoDB table named Score Data. When a user saves their game, the progress data will be stored to the Game State S3 bucket. What is the best approach for storing data to DynamoDB and S3?
 
@@ -2457,7 +2469,7 @@ Company B is launching a new game app for mobile devices. Users will log into th
 
 </details>
 
-### 216. q-478 `security`
+### 217. et-478 `security`
 
 A law firm needs to share information with the public. The information includes hundreds of files that must be publicly readable. Modifications or deletions of the files by anyone before a designated future date are prohibited. Which solution will meet these requirements in the MOST secure way?
 
@@ -2469,7 +2481,7 @@ S3 Versioning helps maintain multiple versions of an object over time. With S3 O
 
 </details>
 
-### 217. dt-479
+### 218. dt-479
 
 If your DB instance runs out of storage space or file system resources, its status will change to [...] and your DB Instance will no longer be available.
 
@@ -2479,7 +2491,7 @@ If your DB instance runs out of storage space or file system resources, its stat
 
 </details>
 
-### 218. q-482 `least-ops`
+### 219. et-482 `least-ops`
 
 A company wants to migrate 100 GB of historical data from an on-premises location to an Amazon S3 bucket. The company has a 100 megabits per second (Mbps) internet connection on premises. The company needs to encrypt the data in transit to the S3 bucket. The company will store new data directly in Amazon S3. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2491,7 +2503,7 @@ AWS DataSync is a service designed for efficiently transferring large amounts of
 
 </details>
 
-### 219. dt-485
+### 220. dt-485
 
 You have been storing massive amounts of data on Amazon Glacier for the past 2 years and now start to wonder if there are any limitations on this. What is the correct answer to your question?
 
@@ -2501,7 +2513,7 @@ You have been storing massive amounts of data on Amazon Glacier for the past 2 y
 
 </details>
 
-### 220. q-485 `cost`
+### 221. et-485 `cost`
 
 A company is looking for a solution that can store video archives in AWS from old news footage. The company needs to minimize costs and will rarely need to restore these files. When the files are needed, they must be available in a maximum of five minutes. What is the MOST cost-effective solution?
 
@@ -2511,7 +2523,7 @@ A company is looking for a solution that can store video archives in AWS from ol
 
 </details>
 
-### 221. dt-486
+### 222. dt-486
 
 How are the EBS snapshots saved on Amazon S3?
 
@@ -2521,7 +2533,7 @@ How are the EBS snapshots saved on Amazon S3?
 
 </details>
 
-### 222. q-487
+### 223. ce-487
 
 A company has several on-premises Internet Small Computer Systems Interface (iSCSI) network storage servers The company wants to reduce the number of these servers by moving to the AWS Cloud. A solutions architect must provide low-latency access to frequently used data and reduce the dependency on on-premises servers with a minimal number of infrastructure changes. Which solution will meet these requirements?
 
@@ -2533,7 +2545,7 @@ The optimal solution is an AWS Storage Gateway configured as a Volume Gateway wi
 
 </details>
 
-### 223. q-490
+### 224. et-490
 
 A gaming company uses Amazon DynamoDB to store user information such as geographic location, player data, and leaderboards. The company needs to configure continuous backups to an Amazon S3 bucket with a minimal amount of coding. The backups must not affect availability of the application and must not affect the read capacity units (RCUs) that are defined for the table. Which solution meets these requirements?
 
@@ -2543,7 +2555,7 @@ A gaming company uses Amazon DynamoDB to store user information such as geograph
 
 </details>
 
-### 224. q-491 `availability`
+### 225. ce-491 `availability`
 
 A weather forecasting company needs to process hundreds of gigabytes of data with sub-millisecond latency. The company has a high performance computing (HPC) environment in its data center and wants to expand its forecasting capabilities. A solutions architect must identify a highly available cloud storage solution that can handle large amounts of sustained throughput Files that are stored in the solution should be accessible to thousands of compute instances that will simultaneously access and process the entire dataset. What should the solutions architect do to meet these requirements?
 
@@ -2555,7 +2567,7 @@ The scenario describes a High-Performance Computing (HPC) workload that requires
 
 </details>
 
-### 225. dt-493
+### 226. dt-493
 
 You are signed in as root user on your account but there is an Amazon S3 bucket under your account that you cannot access. What is a possible reason for this?
 
@@ -2565,7 +2577,7 @@ You are signed in as root user on your account but there is an Amazon S3 bucket 
 
 </details>
 
-### 226. dt-494
+### 227. dt-494
 
 When creation of an EBS snapshot is initiated, but not completed, the EBS volume?
 
@@ -2575,7 +2587,7 @@ When creation of an EBS snapshot is initiated, but not completed, the EBS volume
 
 </details>
 
-### 227. q-495
+### 228. et-495
 
 A company is conducting an internal audit. The company wants to ensure that the data in an Amazon S3 bucket that is associated with the company’s AWS Lake Formation data lake does not contain sensitive customer or employee data. The company wants to discover personally identifiable information (PII) or financial information, including passport numbers and credit card numbers. Which solution will meet these requirements?
 
@@ -2587,7 +2599,7 @@ Amazon Macie is a security service that uses machine learning to automatically d
 
 </details>
 
-### 228. q-496
+### 229. ce-496
 
 A company currently stores 5 TB of data in on-premises block storage systems. The company's current storage solution provides limited space for additional dat a. The company runs applications on premises that must be able to retrieve frequently accessed data with low latency. The company requires a cloud-based storage solution. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -2599,7 +2611,7 @@ The most operationally efficient solution is the AWS Storage Gateway's Volume Ga
 
 </details>
 
-### 229. dt-496
+### 230. dt-496
 
 You receive a bill from AWS but are confused because you see you are incurring different costs for the exact same storage size in different regions on Amazon S3. You ask AWS why this is so. What response would you expect to receive from AWS?
 
@@ -2609,7 +2621,7 @@ You receive a bill from AWS but are confused because you see you are incurring d
 
 </details>
 
-### 230. q-496
+### 231. et-496
 
 A company uses on-premises servers to host its applications. The company is running out of storage capacity. The applications use both block storage and NFS storage. The company needs a high-performing solution that supports local caching without re-architecting its existing applications. Which combination of actions should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -2621,7 +2633,7 @@ D. Deploy an AWS Storage Gateway volume gateway to replace the block storage.
 
 </details>
 
-### 231. q-497 `cost`
+### 232. et-497 `cost`
 
 A company has a service that reads and writes large amounts of data from an Amazon S3 bucket in the same AWS Region. The service is deployed on Amazon EC2 instances within the private subnet of a VPC. The service communicates with Amazon S3 over a NAT gateway in the public subnet. However, the company wants a solution that will reduce the data output costs. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2631,7 +2643,7 @@ A company has a service that reads and writes large amounts of data from an Amaz
 
 </details>
 
-### 232. q-498 `least-ops`
+### 233. et-498 `least-ops`
 
 A company uses Amazon S3 to store high-resolution pictures in an S3 bucket. To minimize application changes, the company stores the pictures as the latest version of an S3 object. The company needs to retain only the two most recent versions of the pictures. The company wants to reduce costs. The company has identified the S3 bucket as a large expense. Which solution will reduce the S3 costs with the LEAST operational overhead?
 
@@ -2643,7 +2655,7 @@ This approach allows you to automate the deletion of object versions based on li
 
 </details>
 
-### 233. q-500
+### 234. et-500
 
 A company has multiple Windows file servers on premises. The company wants to migrate and consolidate its files into an Amazon FSx for Windows File Server file system. File permissions must be preserved to ensure that access rights do not change. Which solutions will meet these requirements? (Choose two.)
 
@@ -2655,7 +2667,7 @@ D. Order an AWS Snowcone device. Connect the device to the on-premises network. 
 
 </details>
 
-### 234. q-501
+### 235. et-501
 
 A company wants to ingest customer payment data into the company's data lake in Amazon S3. The company receives payment data every minute on average. The company wants to analyze the payment data in real time. Then the company wants to ingest the data into the data lake. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -2667,7 +2679,7 @@ Amazon Data Firehose is a fully managed delivery stream that buffers incoming re
 
 </details>
 
-### 235. q-504
+### 236. ce-504
 
 A company is running a media store across multiple Amazon EC2 instances distributed across multiple Availability Zones in a single VPC. The company wants a high-performing solution to share data between all the EC2 instances, and prefers to keep the data within the VPC only. What should a solutions architect recommend?
 
@@ -2679,7 +2691,7 @@ Amazon Elastic File System (EFS) is the ideal solution for this scenario. It pro
 
 </details>
 
-### 236. q-506
+### 237. et-506
 
 A social media company is building a feature for its website. The feature will give users the ability to upload photos. The company expects significant increases in demand during large events and must ensure that the website can handle the upload traffic from users. Which solution meets these requirements with the MOST scalability?
 
@@ -2691,7 +2703,7 @@ Amazon S3 Presigned URLs: This approach allows the client (user's browser) to di
 
 </details>
 
-### 237. q-509 `least-ops`
+### 238. ce-509 `least-ops`
 
 A digital image processing company wants to migrate its on-premises monolithic application to the AWS Cloud. The company processes thousands of images and generates large files as part of the processing workflow. The company needs a solution to manage the growing number of image processing jobs. The solution must also reduce the manual tasks in the image processing workflow. The company does not want to manage the underlying infrastructure of the solution. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2703,7 +2715,7 @@ This solution provides a fully managed, serverless architecture with the least o
 
 </details>
 
-### 238. q-510
+### 239. ce-510
 
 A company needs a solution to automate email ingestion. The company needs to automatically parse email messages, look for email attachments, and save any attachments to an Amazon S3 bucket in near real time. Email volume varies significantly from day to day. Which solution will meet these requirements?
 
@@ -2715,7 +2727,7 @@ This solution leverages Amazon Simple Email Service (SES) for its core capabilit
 
 </details>
 
-### 239. q-512 `least-ops`
+### 240. et-512 `least-ops`
 
 A company uses AWS Organizations with resources tagged by account. The company also uses AWS Backup to back up its AWS infrastructure resources. The company needs to back up all AWS resources. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2727,7 +2739,7 @@ AWS Config can be used to identify untagged resources, and it can provide a comp
 
 </details>
 
-### 240. q-513
+### 241. ce-513
 
 A company is deploying a new gaming application on Amazon EC2 instances. The gaming application needs to have access to shared storage. The company requires a high-performance solution to give the application the ability to use an existing custom protocol to access shared storage. The solution must ensure low latency and must be operationally efficient. Which solution will meet these requirements?
 
@@ -2739,7 +2751,7 @@ The question requires a high-performance, low-latency, and operationally efficie
 
 </details>
 
-### 241. q-513 `availability`
+### 242. et-513 `availability`
 
 A social media company wants to allow its users to upload images in an application that is hosted in the AWS Cloud. The company needs a solution that automatically resizes the images so that the images can be displayed on multiple device types. The application experiences unpredictable traffic patterns throughout the day. The company is seeking a highly available solution that maximizes scalability. What should a solutions architect do to meet these requirements?
 
@@ -2751,7 +2763,7 @@ Hosting a static website in Amazon S3 is a cost-effective and highly available s
 
 </details>
 
-### 242. dt-514
+### 243. dt-514
 
 Which procedure for backing up a relational database on EC2 that is using a set of RAIDed EBS volumes for storage minimizes the time during which the database cannot be written to and results in a consistent backup?
 
@@ -2761,7 +2773,7 @@ Which procedure for backing up a relational database on EC2 that is using a set 
 
 </details>
 
-### 243. dt-517
+### 244. dt-517
 
 You have some very sensitive data stored on AWS S3 and want to try every possible alternative to keeping it secure in regards to access control. What are the mechanisms available for access control on AWS S3?
 
@@ -2771,7 +2783,7 @@ You have some very sensitive data stored on AWS S3 and want to try every possibl
 
 </details>
 
-### 244. q-517
+### 245. et-517
 
 A company wants to send all AWS Systems Manager Session Manager logs to an Amazon S3 bucket for archival purposes. Which solution will meet this requirement with the MOST operational efficiency?
 
@@ -2780,16 +2792,6 @@ A company wants to send all AWS Systems Manager Session Manager logs to an Amazo
 **Enable S3 logging in the Systems Manager console. Choose an S3 bucket to send the session data to.**
 
 Session logging is a configuration setting, not something that has to be built: in the Systems Manager console you edit Session Manager preferences, tick Enable under S3 logging and name the destination bucket, optionally with a key prefix and a requirement that the bucket be encrypted. From then on session output is delivered to that bucket for every session, which is why this is the most operationally efficient option. It needs no agent scripting, no log shipper and no scheduled copy job - the instance profile simply needs permission to write to the bucket. The alternatives, such as sending to CloudWatch Logs and then exporting, or scripting a copy from the instance, add moving parts for the same archive.
-
-</details>
-
-### 245. dt-518
-
-You are implementing AWS Direct Connect. You intend to use AWS public service end points such as Amazon S3, across the AWS Direct Connect link. You want other Internet traffic to use your existing link to an Internet Service Provider. What is the correct way to configure AWS Direct connect for access to services such as Amazon S3?
-
-<details><summary>Answer</summary>
-
-**C. Create a public interface on your AWS Direct Connect link. Redistribute BGP routes into your existing routing infrastructure; advertise specific routes for your network to AWS.**
 
 </details>
 
@@ -2803,7 +2805,7 @@ Out of the stripping options available for the EBS volumes, which one has the fo
 
 </details>
 
-### 247. q-528 `least-ops`
+### 247. ce-528 `least-ops`
 
 How can DynamoDB data be made available for long-term analytics with minimal operational overhead?
 
@@ -2825,19 +2827,7 @@ What does RRS stand for when talking about S3?
 
 </details>
 
-### 249. q-532
-
-A company is designing a system to process millions of clickstream events from a mobile app. Events must be ingested in real-time, transformed to enrich the data, and written to a data lake for analysis. The architecture must handle sudden spikes in event volume and support multiple concurrent transformation jobs. Which combination of services best supports this scalable streaming and transformation architecture?
-
-<details><summary>Answer</summary>
-
-**A. Use Amazon Kinesis Data Streams for ingestion, AWS Lambda for transformation, and S3 for the data lake.**
-
-Amazon Kinesis Data Streams is purpose-built for the real-time ingestion of massive, continuous data streams like clickstream events, and it easily absorbs sudden traffic spikes. AWS Lambda natively integrates with Kinesis to process and transform records concurrently as they arrive, scaling automatically with the stream's throughput without requiring infrastructure management. Finally, Amazon S3 is the foundational storage service for AWS data lakes, providing virtually unlimited scalability, high durability, and seamless integration with downstream analytics tools. This combination delivers a fully managed, highly scalable, and real-time streaming architecture. Why Incorrect Options are Wrong: Option B: Amazon EBS provides block-level storage for single EC2 instances and is not a data lake. Additionally, EC2 requires manual scaling overhead for transformations compared to serverless La
-
-</details>
-
-### 250. dt-534
+### 249. dt-534
 
 AWS Identity and Access Management is a web service that enables Amazon Web Services (AWS) customers to manage users and user permissions in AWS. In addition to supporting IAM user policies, some services support resource-based permissions. Which of the following services are supported by resource-based permissions?
 
@@ -2847,9 +2837,10 @@ AWS Identity and Access Management is a web service that enables Amazon Web Serv
 
 </details>
 
-### 251. q-534 `cost` `availability`
+### 250. gh-534 `cost` `availability`
 
-A company wants to build a logging solution for its multiple AWS accounts. The company currently stores the logs from all accounts in a centralized account. The company has created an Amazon S3 bucket in the centralized account to store the VPC flow logs and AWS CloudTrail logs. All logs must be highly available for 30 days for frequent analysis, retained for an additional 60 days for backup purposes, and deleted 90 days after creation. Which solution will meet these requirements MOST cost-effectively?
+A company wants to build a logging solution for its multiple AWS accounts. The company currently stores the logs from all accounts in a centralized account. The company has created an Amazon S3 bucket in the centralized account to store the VPC flow logs and AWS CloudTrail logs. All logs must be highly available for 30 days for frequent analysis, retained for an additional 60 days for backup purposes, and deleted 90 days after creation.
+Which solution will meet these requirements MOST cost-effectively?
 
 <details><summary>Answer</summary>
 
@@ -2859,7 +2850,7 @@ The logs need frequent, highly available access for 30 days, so they stay in S3 
 
 </details>
 
-### 252. q-540 `least-ops`
+### 251. ce-540 `least-ops`
 
 A company has a large amount of data in an Amazon DynamoDB table. A large batch of data is appended to the table once each day. The company wants a solution that will make all the existing and future data in DynamoDB available for analytics on a long-term basis. Which solution meets these requirements with the LEAST operational overhead?
 
@@ -2871,7 +2862,7 @@ The most efficient solution with the least operational overhead is to use the ma
 
 </details>
 
-### 253. dt-543
+### 252. dt-543
 
 Your fortune 500 company has undertaken a TCO analysis evaluating the use of Amazon S3 versus acquiring more hardware. The outcome was that all employees would be granted access to use Amazon S3 for storage of their personal documents. Which of the following will you need to consider so you can set up a solution that incorporates single sign-on from your corporate AD or LDAP directory and restricts access for each user to a designated user folder in a bucket? (Choose 3 answers)
 
@@ -2881,7 +2872,7 @@ Your fortune 500 company has undertaken a TCO analysis evaluating the use of Ama
 
 </details>
 
-### 254. dt-544
+### 253. dt-544
 
 Your company policies require encryption of sensitive data at rest. You are considering the possible options for protecting data while storing it at rest on an EBS data volume, attached to an EC2 instance. Which of these options would allow you to encrypt your data at rest? (Choose 3 answers)
 
@@ -2891,7 +2882,7 @@ Your company policies require encryption of sensitive data at rest. You are cons
 
 </details>
 
-### 255. q-545
+### 254. ce-545
 
 A company stores 5 PB of archived data on physical tapes. The company needs to preserve the data for another 10 years. The data center that stores the tapes has a 10 Gbps Direct Connect connection to an AWS Region. The company wants to migrate the data to AWS within the next 6 months.
 
@@ -2903,7 +2894,7 @@ The most effective solution is to use AWS Storage Gateway's Tape Gateway. This s
 
 </details>
 
-### 256. q-546
+### 255. et-546
 
 A recent analysis of a company's IT expenses highlights the need to reduce backup costs. The company's chief information officer wants to simplify the on-premises backup infrastructure and reduce costs by eliminating the use of physical backup tapes. The company must preserve the existing investment in the on-premises backup applications and workflows. What should a solutions architect recommend?
 
@@ -2915,7 +2906,7 @@ AWS Storage Gateway provides a hybrid cloud storage service that enables on-prem
 
 </details>
 
-### 257. dt-547
+### 256. dt-547
 
 You want to use AWS Import/Export to send data from your S3 bucket to several of your branch offices. What should you do if you want to send 10 storage units to AWS?
 
@@ -2925,7 +2916,7 @@ You want to use AWS Import/Export to send data from your S3 bucket to several of
 
 </details>
 
-### 258. q-547 `least-ops`
+### 257. et-547 `least-ops`
 
 A company has data collection sensors at different locations. The data collection sensors stream a high volume of data to the company. The company wants to design a platform on AWS to ingest and process high-volume streaming data. The solution must be scalable and support data collection in near real time. The company must store the data in Amazon S3 for future reporting. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2937,7 +2928,7 @@ Amazon Kinesis Data Firehose: It is a fully managed service for ingesting, trans
 
 </details>
 
-### 259. dt-549
+### 258. dt-549
 
 While performing the volume status checks, if the status is insufficient-data, what does it mean?
 
@@ -2947,7 +2938,7 @@ While performing the volume status checks, if the status is insufficient-data, w
 
 </details>
 
-### 260. dt-556
+### 259. dt-556
 
 A customer wants to leverage Amazon Simple Storage Service (S3) and Amazon Glacier as part of their backup and archive infrastructure. The customer plans to use third-party software to support this integration. Which approach will limit the access of the third party software to only the Amazon S3 bucket named 'company-backup'?
 
@@ -2957,7 +2948,7 @@ A customer wants to leverage Amazon Simple Storage Service (S3) and Amazon Glaci
 
 </details>
 
-### 261. dt-557
+### 260. dt-557
 
 A user needs to run a batch process which runs for 10 minutes. This will only be run once, or at maximum twice, in the next month, so the processes will be temporary only. The process needs 15 X-Large instances. The process downloads the code from S3 on each instance when it is launched, and then generates a temporary log file. Once the instance is terminated, all the data will be lost. Which of the below mentioned pricing models should the user choose in this case?
 
@@ -2967,7 +2958,7 @@ A user needs to run a batch process which runs for 10 minutes. This will only be
 
 </details>
 
-### 262. dt-560
+### 261. dt-560
 
 You are migrating an internal server on your DC to an EC2 instance with EBS volume. Your server disk usage is around 500GB so you just copied all your data to a 2TB disk to be used with AWS Import/Export. Where will the data be imported once it arrives at Amazon?
 
@@ -2977,7 +2968,7 @@ You are migrating an internal server on your DC to an EC2 instance with EBS volu
 
 </details>
 
-### 263. q-562
+### 262. ce-562
 
 A solutions architect is designing the storage architecture for a new web application used for storing and viewing engineering drawings. All application components will be deployed on the AWS infrastructure. The application design must support caching to minimize the amount of time that users wait for the engineering drawings to load. The application must be able to store petabytes of data. Which combination of storage and caching should the solutions architect use?
 
@@ -2989,7 +2980,7 @@ The optimal solution must address two key requirements: storing petabytes of dat
 
 </details>
 
-### 264. dt-563
+### 263. dt-563
 
 A client of yours has a huge amount of data stored on Amazon S3, but is concerned about someone stealing it while it is in transit. You know that all data is encrypted in transit on AWS, but which of the following is wrong when describing server-side encryption on AWS?
 
@@ -2999,7 +2990,7 @@ A client of yours has a huge amount of data stored on Amazon S3, but is concerne
 
 </details>
 
-### 265. q-566
+### 264. ce-566
 
 A company collects data for temperature, humidity, and atmospheric pressure in cities across multiple continents. The average volume of data that the company collects from each site daily is 500 GB. Each site has a high-speed internet connection. The company wants to aggregate the data from all these global sites as quickly as possible in a single Amazon S3 bucket. The solution must minimize operational complexity. Which solution meets these requirements?
 
@@ -3011,7 +3002,7 @@ The core requirements are to transfer large files (500 GB daily) from globally d
 
 </details>
 
-### 266. q-566
+### 265. et-566
 
 A company runs multiple Amazon EC2 Linux instances in a VPC across two Availability Zones. The instances host applications that use a hierarchical directory structure. The applications need to read and write rapidly and concurrently to shared storage. What should a solutions architect do to meet these requirements?
 
@@ -3023,7 +3014,7 @@ Amazon EFS is a fully managed, scalable file storage service designed to provide
 
 </details>
 
-### 267. dt-570
+### 266. dt-570
 
 You're running an application on-premises due to its dependency on non-x86 hardware and want to use AWS for data backup. Your backup application is only able to write to POSIX-compatible block based storage. You have 140TB of data and would like to mount it as a single folder on your file server Users must be able to access portions of this data while the backups are taking place. What backup solution would be most appropriate for this use case?
 
@@ -3033,7 +3024,7 @@ You're running an application on-premises due to its dependency on non-x86 hardw
 
 </details>
 
-### 268. q-571
+### 267. ce-571
 
 A company hosts an application on AWS that gives users the ability to download photos. The company stores all photos in an Amazon S3 bucket that is located in the us-east-1 Region. The company wants to provide the photo download application to global customers with low latency. Which solution will meet these requirements?
 
@@ -3045,7 +3036,7 @@ Amazon CloudFront is a global Content Delivery Network (CDN) service designed to
 
 </details>
 
-### 269. dt-571
+### 268. dt-571
 
 What happens to Amazon EBS root device volumes, by default, when an instance terminates?
 
@@ -3055,7 +3046,7 @@ What happens to Amazon EBS root device volumes, by default, when an instance ter
 
 </details>
 
-### 270. dt-576 `availability`
+### 269. dt-576 `availability`
 
 A company is deploying a two-tier, highly available web application to AWS. Which service provides durable storage for static content while utilizing lower Overall CPU resources for the web tier?
 
@@ -3065,7 +3056,7 @@ A company is deploying a two-tier, highly available web application to AWS. Whic
 
 </details>
 
-### 271. dt-578
+### 270. dt-578
 
 An organization has a statutory requirement to protect the data at rest for data stored in EBS volumes. Which of the below mentioned options can the organization use to achieve data protection?
 
@@ -3075,7 +3066,7 @@ An organization has a statutory requirement to protect the data at rest for data
 
 </details>
 
-### 272. dt-579
+### 271. dt-579
 
 A web design company currently runs several FTP servers that their 250 customers use to upload and download large graphic files. They wish to move this system to AWS to make it more scalable, but they wish to maintain customer privacy and keep costs to a minimum. What AWS architecture would you recommend?
 
@@ -3085,7 +3076,7 @@ A web design company currently runs several FTP servers that their 250 customers
 
 </details>
 
-### 273. dt-580
+### 272. dt-580
 
 Amazon RDS DB snapshots and automated backups are stored in:
 
@@ -3095,7 +3086,7 @@ Amazon RDS DB snapshots and automated backups are stored in:
 
 </details>
 
-### 274. q-580 `cost`
+### 273. et-580 `cost`
 
 A company uses locally attached storage to run a latency-sensitive application on premises. The company is using a lift and shift method to move the application to the AWS Cloud. The company does not want to change the application architecture. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3107,7 +3098,7 @@ Amazon EC2 Instance with GP3 Volume (Option D): Amazon EBS GP3 volumes are desig
 
 </details>
 
-### 275. q-581 `least-ops`
+### 274. ce-581 `least-ops`
 
 A company is migrating a large amount of data from on-premises storage to AWS. Windows, Mac, and Linux based Amazon EC2 instances in the same AWS Region will access the data by using SMB and NFS storage protocols. The company will access a portion of the data routinely. The company will access the remaining data infrequently. The company needs to design a solution to host the data. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3119,7 +3110,7 @@ The solution requires a fully managed file system that supports both SMB and NFS
 
 </details>
 
-### 276. dt-581
+### 275. dt-581
 
 Can Amazon S3 uploads resume on failure or do they need to restart?
 
@@ -3129,7 +3120,7 @@ Can Amazon S3 uploads resume on failure or do they need to restart?
 
 </details>
 
-### 277. q-583 `cost`
+### 276. et-583 `cost`
 
 A company has 5 PB of archived data on physical tapes. The company needs to preserve the data on the tapes for another 10 years for compliance purposes. The company wants to migrate to AWS in the next 6 months. The data center that stores the tapes has a 1 Gbps uplink internet connectivity. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3141,7 +3132,7 @@ AWS Snowball devices can be more cost-effective than transferring large amounts 
 
 </details>
 
-### 278. dt-585
+### 277. dt-585
 
 You are designing a web application that stores static assets in an Amazon Simple Storage Service (S3) bucket. You expect this bucket to immediately receive over 150 PUT requests per second. What should you do to ensure optimal performance?
 
@@ -3151,7 +3142,7 @@ You are designing a web application that stores static assets in an Amazon Simpl
 
 </details>
 
-### 279. dt-587
+### 278. dt-587
 
 A customer has a single 3-TB volume on-premises that is used to hold a large repository of images and print layout files. This repository is growing at 500 GB a year and must be presented as a single logical volume. The customer is becoming increasingly constrained with their local storage capacity and wants an off-site backup of this data, while maintaining low-latency access to their frequently accessed data. Which AWS Storage Gateway configuration meets the customer requirements?
 
@@ -3161,7 +3152,7 @@ A customer has a single 3-TB volume on-premises that is used to hold a large rep
 
 </details>
 
-### 280. dt-591
+### 279. dt-591
 
 You need to migrate a large amount of data into the cloud that you have stored on a hard disk and you decide that the best way to accomplish this is with AWS Import/Export and you mail the hard disk to AWS. Which of the following statements is incorrect in regards to AWS Import/Export?
 
@@ -3171,7 +3162,7 @@ You need to migrate a large amount of data into the cloud that you have stored o
 
 </details>
 
-### 281. q-592
+### 280. et-592
 
 A company uses AWS and sells access to copyrighted images. The company’s global customer base needs to be able to access these images quickly. The company must deny access to users from specific countries. The company wants to minimize costs as much as possible. Which solution will meet these requirements?
 
@@ -3183,7 +3174,7 @@ By using CloudFront, you can cache and serve the images from edge locations arou
 
 </details>
 
-### 282. dt-594
+### 281. dt-594
 
 A user is running a batch process which runs for 1 hour every day. Which of the below mentioned options is the right instance type and costing model in this case if the user performs the same task for the whole year?
 
@@ -3193,7 +3184,7 @@ A user is running a batch process which runs for 1 hour every day. Which of the 
 
 </details>
 
-### 283. q-596
+### 282. ce-596
 
 A company uses a single Amazon S3 bucket to store data that multiple business applications must access. The company hosts the applications on Amazon EC2 Windows instances that are in a VPC. The company configured a bucket policy for the S3 bucket to grant the applications access to the bucket. The company continually adds more business applications to the environment. As the number of business applications increases, the policy document becomes more difficult to manage. The S3 bucket policy document will soon reach its policy size quot a. The company needs a solution to scale its architecture to handle more business applications. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -3205,7 +3196,7 @@ The core issue is the single S3 bucket policy becoming unmanageable and approach
 
 </details>
 
-### 284. dt-597
+### 283. dt-597
 
 What are characteristics of Amazon S3? (Choose 2 answers)
 
@@ -3215,7 +3206,7 @@ What are characteristics of Amazon S3? (Choose 2 answers)
 
 </details>
 
-### 285. dt-601
+### 284. dt-601
 
 Is it possible to access your EBS snapshots?
 
@@ -3225,7 +3216,7 @@ Is it possible to access your EBS snapshots?
 
 </details>
 
-### 286. q-603
+### 285. ce-603
 
 A company receives data transfers from a small number of external clients that use SFTP software on an Amazon EC2 instance. The clients use an SFTP client to upload dat a. The clients use SSH keys for authentication. Every hour, an automated script transfers new uploads to an Amazon S3 bucket for processing. The company wants to move the transfer process to an AWS managed service and to reduce the time required to start data processing. The company wants to retain the existing user management and SSH key generation process. The solution must not require clients to make significant changes to their existing processes. Which solution will meet these requirements?
 
@@ -3237,7 +3228,7 @@ AWS Transfer Family is a fully managed service that enables the transfer of file
 
 </details>
 
-### 287. dt-604
+### 286. dt-604
 
 You are using an m1.small EC2 Instance with one 300GB EBS volume to host a relational database. You determined that write throughput to the database needs to be increased. Which of the following approaches can help achieve this? (Choose 2 answers)
 
@@ -3247,7 +3238,7 @@ You are using an m1.small EC2 Instance with one 300GB EBS volume to host a relat
 
 </details>
 
-### 288. dt-605
+### 287. dt-605
 
 A user is hosting a website in the US West-1 region. The website has the highest client base from the Asia-Pacific (Singapore / Japan) region. The application is accessing data from S3 before serving it to client. Which of the below mentioned regions gives a better performance for S3 objects?
 
@@ -3257,7 +3248,7 @@ A user is hosting a website in the US West-1 region. The website has the highest
 
 </details>
 
-### 289. dt-607
+### 288. dt-607
 
 Can a single EBS volume be attached to multiple EC2 instances at the same time?
 
@@ -3267,7 +3258,7 @@ Can a single EBS volume be attached to multiple EC2 instances at the same time?
 
 </details>
 
-### 290. dt-608
+### 289. dt-608
 
 You are planning and configuring some EBS volumes for an application. In order to get the most performance out of your EBS volumes, you should attach them to an instance with enough [...] to support your volumes.
 
@@ -3277,7 +3268,7 @@ You are planning and configuring some EBS volumes for an application. In order t
 
 </details>
 
-### 291. q-611
+### 290. ce-611
 
 A company runs a Windows-based ecommerce application on Amazon EC2 instances. The application has a very high transaction rate. The company requires a durable storage solution that can deliver 200,000 IOPS for each EC2 instance. Which solution will meet these requirements?
 
@@ -3289,7 +3280,7 @@ The core requirements are for a durable storage solution capable of delivering 2
 
 </details>
 
-### 292. dt-613
+### 291. dt-613
 
 What is the durability of S3 RRS?
 
@@ -3299,7 +3290,7 @@ What is the durability of S3 RRS?
 
 </details>
 
-### 293. q-614
+### 292. ce-614
 
 A company wants to run a hybrid workload for data processing. The data needs to be accessed by on- premises applications for local data processing using an NFS protocol, and must also be accessible from the AWS Cloud for further analytics and batch processing. Which solution will meet these requirements?
 
@@ -3311,7 +3302,7 @@ The requirement is for a hybrid solution that provides on-premises applications 
 
 </details>
 
-### 294. dt-614
+### 293. dt-614
 
 Your organization is in the business of architecting complex transactional databases. For a variety of reasons, this has been done on EBS. What is AWS's recommendation for customers who have architected databases using EBS for backups?
 
@@ -3321,7 +3312,7 @@ Your organization is in the business of architecting complex transactional datab
 
 </details>
 
-### 295. q-616
+### 294. et-616
 
 A company has deployed its newest product on AWS. The product runs in an Auto Scaling group behind a Network Load Balancer. The company stores the product’s objects in an Amazon S3 bucket. The company recently experienced malicious attacks against its systems. The company needs a solution that continuously monitors for malicious activity in the AWS account, workloads, and access patterns to the S3 bucket. The solution must also report suspicious activity and display the information on a dashboard. Which solution will meet these requirements?
 
@@ -3333,7 +3324,7 @@ Amazon GuardDuty:  GuardDuty is a threat detection service that continuously mon
 
 </details>
 
-### 296. q-617 `cost`
+### 295. et-617 `cost`
 
 A company wants to migrate an on-premises data center to AWS. The data center hosts a storage server that stores data in an NFS-based file system. The storage server holds 200 GB of data. The company needs to migrate the data without interruption to existing services. Multiple resources in AWS must be able to access the data by using the NFS protocol. Which combination of steps will meet these requirements MOST cost-effectively? (Choose two.)
 
@@ -3345,7 +3336,7 @@ E. Install an AWS DataSync agent in the on-premises data center. Use a DataSync 
 
 </details>
 
-### 297. q-618
+### 296. et-618
 
 A company wants to use Amazon FSx for Windows File Server for its Amazon EC2 instances that have an SMB file share mounted as a volume in the us-east-1 Region. The company has a recovery point objective (RPO) of 5 minutes for planned system maintenance or unplanned service disruptions. The company needs to replicate the file system to the us-west-2 Region. The replicated data must not be deleted by any user for 5 years. Which solution will meet these requirements?
 
@@ -3357,7 +3348,7 @@ FSx for Windows File Server: Create an FSx for Windows File Server file system i
 
 </details>
 
-### 298. q-619
+### 297. ce-619
 
 A company needs to collect streaming data from several sources and store the data in the AWS Cloud. The dataset is heavily structured, but analysts need to perform several complex SQL queries and need consistent performance. Some of the data is queried more frequently than the rest. The company wants a solution that meets its performance requirements in a cost-effective manner. Which solution meets these requirements?
 
@@ -3369,7 +3360,7 @@ This solution provides the most cost-effective and performant architecture for t
 
 </details>
 
-### 299. q-620
+### 298. et-620
 
 A company is planning to deploy a business-critical application in the AWS Cloud. The application requires durable storage with consistent, low- latency performance. Which type of storage should a solutions architect recommend to meet these requirements?
 
@@ -3381,7 +3372,7 @@ Provisioned IOPS (Input/Output Operations Per Second) SSD volumes are designed t
 
 </details>
 
-### 300. dt-621
+### 299. dt-621
 
 What happens to data on an ephemeral volume of an EBS-backed EC2 instance if it is terminated or if it fails?
 
@@ -3391,7 +3382,7 @@ What happens to data on an ephemeral volume of an EBS-backed EC2 instance if it 
 
 </details>
 
-### 301. q-621
+### 300. et-621
 
 An online photo-sharing company stores its photos in an Amazon S3 bucket that exists in the us-west-1 Region. The company needs to store a copy of all new photos in the us-east-1 Region. Which solution will meet this requirement with the LEAST operational effort?
 
@@ -3403,7 +3394,7 @@ S3 Cross-Region Replication (CRR) is designed specifically for replicating objec
 
 </details>
 
-### 302. dt-623
+### 301. dt-623
 
 You have just discovered that you can upload your objects to Amazon S3 using Multipart Upload API. You start to test it out but are unsure of the benefits that it would provide. Which of the following is not a benefit of using multipart uploads?
 
@@ -3413,7 +3404,7 @@ You have just discovered that you can upload your objects to Amazon S3 using Mul
 
 </details>
 
-### 303. dt-625
+### 302. dt-625
 
 Do the Amazon EBS volumes persist independently from the running life of an Amazon EC2 instance?
 
@@ -3423,7 +3414,7 @@ Do the Amazon EBS volumes persist independently from the running life of an Amaz
 
 </details>
 
-### 304. q-626
+### 303. ce-626
 
 A solutions architect is provisioning an Amazon Elastic File System (Amazon EFS) file system to provide shared storage across multiple Amazon EC2 instances. The instances all exist in the same VPC across multiple Availability Zones. There are two instances in each Availability Zone. The solutions architect must make the file system accessible to each instance with the lowest possible latency. Which solution will meet these requirements?
 
@@ -3435,7 +3426,7 @@ To achieve the lowest possible latency when accessing an Amazon EFS file system 
 
 </details>
 
-### 305. q-626
+### 304. et-626
 
 A company stores its data on premises. The amount of data is growing beyond the company's available capacity. The company wants to migrate its data from the on-premises location to an Amazon S3 bucket. The company needs a solution that will automatically validate the integrity of the data after the transfer. Which solution will meet these requirements?
 
@@ -3447,7 +3438,7 @@ AWS DataSync is a service designed for fast and secure online data transfer betw
 
 </details>
 
-### 306. dt-631
+### 305. dt-631
 
 By default, when an EBS volume is attached to a Windows instance, it may show up as any drive letter on the instance. You can change the settings of the [...] Service to set the drive letters of the EBS volumes per your specifications.
 
@@ -3457,7 +3448,7 @@ By default, when an EBS volume is attached to a Windows instance, it may show up
 
 </details>
 
-### 307. dt-632
+### 306. dt-632
 
 Select the correct set of steps for exposing the snapshot only to specific AWS accounts.
 
@@ -3467,7 +3458,7 @@ Select the correct set of steps for exposing the snapshot only to specific AWS a
 
 </details>
 
-### 308. q-632
+### 307. et-632
 
 A company is creating a new application that will store a large amount of data. The data will be analyzed hourly and will be modified by several Amazon EC2 Linux instances that are deployed across multiple Availability Zones. The needed amount of storage space will continue to grow for the next 6 months. Which storage solution should a solutions architect recommend to meet these requirements?
 
@@ -3479,7 +3470,7 @@ Amazon EFS is a scalable and fully managed file storage service that can be moun
 
 </details>
 
-### 309. q-634
+### 308. et-634
 
 A company collects 10 GB of telemetry data daily from various machines. The company stores the data in an Amazon S3 bucket in a source data account. The company has hired several consulting agencies to use this data for analysis. Each agency needs read access to the data for its analysts. The company must share the data from the source data account by choosing a solution that maximizes security and operational efficiency. Which solution will meet these requirements?
 
@@ -3491,7 +3482,7 @@ By configuring cross-account access, you can grant permissions to specific AWS a
 
 </details>
 
-### 310. q-635 `availability`
+### 309. ce-635 `availability`
 
 An ecommerce company is redesigning a product catalog system to handle millions of products and provide fast access to product information. The system needs to store structured product data such as product name, price, description, and category. The system also needs to store unstructured data such as high-resolution product videos and user manuals. The architecture must be highly available and must be able to handle sudden spikes in traffic during large-scale sales events.
 
@@ -3503,7 +3494,7 @@ This solution represents a well-architected pattern for a modern, scalable ecomm
 
 </details>
 
-### 311. dt-645
+### 310. dt-645
 
 A company is running an SMB file server in its data center. The file server stores large files that are accessed frequently for the first few days after the files are created. After 7 days the files are rarely accessed. The total data size is increasing and is close to the company's total storage capacity. A solutions architect must increase the company's available storage space without losing low-latency access to the most recently accessed files. The solutions architect must also provide file lifecycle management to avoid future storage issues. Which solution will meet these requirements?
 
@@ -3513,7 +3504,7 @@ A company is running an SMB file server in its data center. The file server stor
 
 </details>
 
-### 312. q-646
+### 311. et-646
 
 A solutions architect needs to host a high performance computing (HPC) workload in the AWS Cloud. The workload will run on hundreds of Amazon EC2 instances and will require parallel access to a shared file system to enable distributed processing of large datasets. Datasets will be accessed across multiple instances simultaneously. The workload requires access latency within 1 ms. After processing has completed, engineers will need access to the dataset for manual postprocessing. Which solution will meet these requirements?
 
@@ -3525,7 +3516,7 @@ FSx for Lustre is designed for high-performance computing workloads that require
 
 </details>
 
-### 313. gh-646
+### 312. gh-646
 
 solutions architect needs to host a high performance computing (HPC) workload in the AWS Cloud. The workload will run on hundreds of Amazon EC2 instances and will require parallel access to a shared file system to enable distributed processing of large datasets. Datasets will be accessed across multiple instances simultaneously. The workload requires access latency within 1 ms. After processing has completed, engineers will need access to the dataset for manual postprocessing.
 Which solution will meet these requirements?
@@ -3538,7 +3529,7 @@ FSx for Lustre is designed for high-performance computing workloads that require
 
 </details>
 
-### 314. q-651 `cost`
+### 313. et-651 `cost`
 
 A company stores a large volume of image files in an Amazon S3 bucket. The images need to be readily available for the first 180 days. The images are infrequently accessed for the next 180 days. After 360 days, the images need to be archived but must be available instantly upon request. After 5 years, only auditors can access the images. The auditors must be able to retrieve the images within 12 hours. The images cannot be lost during this process. A developer will use S3 Standard storage for the first 180 days. The developer needs to configure an S3 Lifecycle rule. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3550,7 +3541,7 @@ Each step matches one stated requirement. For the second 180 days the images are
 
 </details>
 
-### 315. q-655
+### 314. ce-655
 
 A company has a business system that generates hundreds of reports each day. The business system saves the reports to a network share in CSV format. The company needs to store this data in the AWS Cloud in near-real time for analysis.
 
@@ -3562,7 +3553,7 @@ Amazon S3 File Gateway is the ideal solution for this scenario. It provides a st
 
 </details>
 
-### 316. dt-657
+### 315. dt-657
 
 A company runs an application in the AWS Cloud that generates sensitive archival data files. The company wants to rearchitect the application's data storage. The company wants to encrypt the data files and to ensure that third parties do not have access to the data before the data is encrypted and sent to AWS. The company has already created an Amazon S3 bucket. Which solution will meet these requirements?
 
@@ -3572,7 +3563,7 @@ A company runs an application in the AWS Cloud that generates sensitive archival
 
 </details>
 
-### 317. q-659 `security`
+### 316. et-659 `security`
 
 A company is relocating its data center and wants to securely transfer 50 TB of data to AWS within 2 weeks. The existing data center has a Site-to- Site VPN connection to AWS that is 90% utilized. Which AWS service should a solutions architect use to meet these requirements?
 
@@ -3584,7 +3575,7 @@ Snowball Edge is ideal for large offline transfers (50 TB in 2 weeks) without VP
 
 </details>
 
-### 318. q-661 `least-ops`
+### 317. ce-661 `least-ops`
 
 A company needs a solution to integrate transaction data from several Amazon DynamoDB tables into an existing Amazon Redshift data warehouse. The solution must maintain the provisioned throughput of DynamoDB. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3596,7 +3587,7 @@ The most efficient solution with the least operational overhead is to use the ma
 
 </details>
 
-### 319. q-663
+### 318. ce-663
 
 An advertising company stores terabytes of data in an Amazon S3 data lake. The company wants to build its own foundation model (FM) and has deployed a training cluster on AWS. The company loads file-based data from Amazon S3 to the training cluster to train the FM. The company wants to reduce data loading time to optimize the overall deployment cycle. The company needs a storage solution that is natively integrated with Amazon S3. The solution must be scalable and provide high throughput. Which storage solution will meet these requirements?
 
@@ -3608,19 +3599,19 @@ Amazon FSx for Lustre is a high-performance file system optimized for compute-in
 
 </details>
 
-### 320. q-667
+### 319. ce-667
 
 A company has deployed resources in the us-east-1 Region. The company also uses thousands of AWS Outposts servers deployed at remote locations around the world. These Outposts servers regularly download new software versions from us-east-1 that consist of hundreds of files. The company wants to improve the latency of the software download process. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**Create interface VPC endpoints (AWS PrivateLink) for Amazon S3.**
+**D. Create an Amazon S3 bucket in us-east-1. Set up a CloudFront distribution using all edge locations with caching enabled. Configure the bucket as the origin. Download the software by using signed URLs.**
 
-The deciding requirement is private access from on premises as well as from inside the Region. An interface endpoint places elastic network interfaces with private IP addresses in the VPC's subnets, and because those are ordinary private addresses, on-premises hosts can reach them across the existing Direct Connect connection without any traffic touching the internet. A gateway endpoint cannot do this: it is a route-table entry that only affects traffic starting inside the VPC, so requests arriving over Direct Connect or VPN cannot use it. Interface endpoints bill per endpoint-hour and per GB where gateway endpoints are free, which is why gateway endpoints stay the default when only in-VPC access is needed - but that is not the case here. On-premises clients also need DNS that resolves S3 names to the endpoint, typically through Route 53 Resolver inbound endpoints or the endpoint-specific DNS names.
+This solution correctly uses Amazon CloudFront, a content delivery network (CDN), to address the core requirement of reducing download latency for globally distributed clients (the Outposts servers). By configuring a CloudFront distribution with the S3 bucket as the origin, the software files are cached at AWS edge locations worldwide. When an Outposts server requests a file, it is routed to the nearest edge location. If the file is in the cache, it is delivered immediately, providing the lowest latency. If not, CloudFront retrieves it from the origin S3 bucket and caches it for subsequent requests from that region. This architecture is the standard AWS best practice for distributing content globally with low latency. Why Incorrect Options are Wrong: A. This option does not address the latency issue. All Outposts servers would still download directly from the single S3 bucket in us-east-
 
 </details>
 
-### 321. gh-667 `security`
+### 320. gh-667 `security`
 
 A company is moving its data and applications to AWS during a multiyear migration project. The company wants to securely access data on
 Amazon S3 from the company's AWS Region and from the company's on-premises location. The data must not traverse the internet. The company
@@ -3635,7 +3626,7 @@ The deciding requirement is private access from on premises as well as from insi
 
 </details>
 
-### 322. gh-673
+### 321. gh-673
 
 A company runs an SMB le server in its data center. The le server stores large les that the company frequently accesses for up to 7 days after
 the le creation date. After 7 days, the company needs to be able to access the les with a maximum retrieval time of 24 hours.
@@ -3650,7 +3641,7 @@ DataSync (Option A) doesn’t automate tiering.
 
 </details>
 
-### 323. q-674
+### 322. ce-674
 
 A company runs an HPC workload that uses a 200-TB file system on premises. The company needs to migrate this data to Amazon FSx for Lustre. Internet capacity is 10 Mbps, and all data must be migrated within 30 days. Which solution will meet this requirement?
 
@@ -3662,7 +3653,7 @@ The primary constraint is transferring 200 TB of data over a 10 Mbps internet co
 
 </details>
 
-### 324. q-675
+### 323. et-675
 
 A company uses Amazon EC2 instances and Amazon Elastic Block Store (Amazon EBS) volumes to run an application. The company creates one snapshot of each EBS volume every day to meet compliance requirements. The company wants to implement an architecture that prevents the accidental deletion of EBS volume snapshots. The solution must not change the administrative rights of the storage administrator user. Which solution will meet these requirements with the LEAST administrative effort?
 
@@ -3674,7 +3665,7 @@ Prevents accidental deletion without IAM changes. Recycle Bin (Option C) require
 
 </details>
 
-### 325. dt-677 `performance`
+### 324. dt-677 `performance`
 
 A company is hosting a high-traffic static website on Amazon S3 with an Amazon CloudFront distribution that has a default TTL of 0 seconds. The company wants to implement caching to improve performance for the website. However, the company also wants to ensure that stale content is not served for more than a few minutes after a deployment. Which combination of caching methods should a solutions architect implement to meet these requirements? (Choose two.)
 
@@ -3684,7 +3675,7 @@ A company is hosting a high-traffic static website on Amazon S3 with an Amazon C
 
 </details>
 
-### 326. gh-680 `least-ops`
+### 325. gh-680 `least-ops`
 
 A solutions architect needs to copy les from an Amazon S3 bucket to an Amazon Elastic File System (Amazon EFS) le system and another S3
 bucket. The les must be copied continuously. New les are added to the original S3 bucket consistently. The copied les should be overwritten
@@ -3700,7 +3691,7 @@ Lambda (Option B) requires custom code; full syncs (Option C) are inefficient.
 
 </details>
 
-### 327. dt-684
+### 326. dt-684
 
 A company wants to improve its ability to clone large amounts of production data into a test environment in the same AWS Region. The data is stored in Amazon EC2 instances on Amazon Elastic Block Store (Amazon EBS) volumes. Modifications to the cloned data must not affect the production environment. The software that accesses this data requires consistently high I/O performance. A solutions architect needs to minimize the time that is required to clone the production data into the test environment. Which solution will meet these requirements?
 
@@ -3710,7 +3701,7 @@ A company wants to improve its ability to clone large amounts of production data
 
 </details>
 
-### 328. q-685
+### 327. ce-685
 
 A media company needs to migrate its Windows-based video editing environment to AWS. The company's current environment processes 4K video files that require sustained throughput of 2 GB per second across multiple concurrent users. The company's storage needs increase by 1 TB each week. The company needs a shared file system that supports SMB protocol and can scale automatically based on storage demands. Which solution will meet these requirements?
 
@@ -3722,7 +3713,7 @@ The solution requires a shared file system for a Windows-based environment that 
 
 </details>
 
-### 329. dt-685 `least-ops`
+### 328. dt-685 `least-ops`
 
 An ecommerce company wants to launch a one-deal-a-day website on AWS. Each day will feature exactly one product on sale for a period of 24 hours. The company wants to be able to handle millions of requests each hour with millisecond latency during peak hours. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3732,7 +3723,7 @@ An ecommerce company wants to launch a one-deal-a-day website on AWS. Each day w
 
 </details>
 
-### 330. dt-686
+### 329. dt-686
 
 A solutions architect is using Amazon S3 to design the storage architecture of a new digital media application. The media files must be resilient to the loss of an Availability Zone. Some files are accessed frequently while other files are rarely accessed in an unpredictable pattern. The solutions architect must minimize the costs of storing and retrieving the media files. Which storage option meets these requirements?
 
@@ -3742,7 +3733,7 @@ A solutions architect is using Amazon S3 to design the storage architecture of a
 
 </details>
 
-### 331. dt-687 `cost`
+### 330. dt-687 `cost`
 
 A company is storing backup files by using Amazon S3 Standard storage. The files are accessed frequently for 1 month. However, the files are not accessed after 1 month. The company must keep the files indefinitely. Which storage solution will meet these requirements MOST cost-effectively?
 
@@ -3752,7 +3743,7 @@ A company is storing backup files by using Amazon S3 Standard storage. The files
 
 </details>
 
-### 332. dt-690
+### 331. dt-690
 
 A company needs to review its AWS Cloud deployment to ensure that its Amazon S3 buckets do not have unauthorized configuration changes. What should a solutions architect do to accomplish this goal?
 
@@ -3762,7 +3753,7 @@ A company needs to review its AWS Cloud deployment to ensure that its Amazon S3 
 
 </details>
 
-### 333. dt-698 `least-ops`
+### 332. dt-698 `least-ops`
 
 A company is building an application in the AWS Cloud. The application will store data in Amazon S3 buckets in two AWS Regions. The company must use an AWS Key Management Service (AWS KMS) customer managed key to encrypt all data that is stored in the S3 buckets. The data in both S3 buckets must be encrypted and decrypted with the same KMS key. The data and the key must be stored in each of the two Regions. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3772,7 +3763,7 @@ A company is building an application in the AWS Cloud. The application will stor
 
 </details>
 
-### 334. dt-700 `cost`
+### 333. dt-700 `cost`
 
 A development team needs to host a website that will be accessed by other teams. The website contents consist of HTML, CSS, client-side JavaScript, and images. Which method is the MOST cost-effective for hosting the website?
 
@@ -3782,7 +3773,7 @@ A development team needs to host a website that will be accessed by other teams.
 
 </details>
 
-### 335. q-705
+### 334. ce-705
 
 A company is implementing a shared storage solution for a media application that the company hosts on AWS. The company needs the ability to use SMB clients to access stored data. Which solution will meet these requirements with the LEAST administrative overhead?
 
@@ -3794,7 +3785,7 @@ Amazon FSx for Windows File Server is a fully managed, native Windows file syste
 
 </details>
 
-### 336. dt-711
+### 335. dt-711
 
 A company's infrastructure consists of hundreds of Amazon EC2 instances that use Amazon Elastic Block Store (Amazon EBS) storage. A solutions architect must ensure that every EC2 instance can be recovered after a disaster. What should the solutions architect do to meet this requirement with the LEAST amount of effort?
 
@@ -3804,7 +3795,7 @@ A company's infrastructure consists of hundreds of Amazon EC2 instances that use
 
 </details>
 
-### 337. dt-712
+### 336. dt-712
 
 A company recently migrated to the AWS Cloud. The company wants a serverless solution for large-scale parallel on-demand processing of a semistructured dataset. The data consists of logs, media files, sales transactions, and IoT sensor data that is stored in Amazon S3. The company wants the solution to process thousands of items in the dataset in parallel. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -3814,7 +3805,7 @@ A company recently migrated to the AWS Cloud. The company wants a serverless sol
 
 </details>
 
-### 338. dt-713
+### 337. dt-713
 
 A company will migrate 10 PB of data to Amazon S3 in 6 weeks. The current data center has a 500 Mbps uplink to the internet. Other on-premises applications share the uplink. The company can use 80% of the internet bandwidth for this one-time migration task. Which solution will meet these requirements?
 
@@ -3824,7 +3815,7 @@ A company will migrate 10 PB of data to Amazon S3 in 6 weeks. The current data c
 
 </details>
 
-### 339. dt-716
+### 338. dt-716
 
 Cost Explorer is showing charges higher than expected for Amazon Elastic Block Store (Amazon EBS) volumes connected to application servers in a production account. A significant portion of the charges from Amazon EBS are from volumes that were created as Provisioned IOPS SSD (io2) volume types. Controlling costs is the highest priority for this application. Which steps should the user take to analyze and reduce the EBS costs without incurring any application downtime? (Select TWO.)
 
@@ -3834,7 +3825,7 @@ Cost Explorer is showing charges higher than expected for Amazon Elastic Block S
 
 </details>
 
-### 340. dt-718
+### 339. dt-718
 
 A company is designing a website that will be hosted on Amazon S3. How should users be prevented from linking directly to the assets in the S3 bucket?
 
@@ -3844,7 +3835,7 @@ A company is designing a website that will be hosted on Amazon S3. How should us
 
 </details>
 
-### 341. q-724 `least-ops`
+### 340. ce-724 `least-ops`
 
 A company wants to migrate an on-premises video processing application to AWS. Processing times range from 5 to 30 minutes. The application must run multiple jobs in parallel. The application processes videos that users upload to an Amazon S3 bucket. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3856,7 +3847,7 @@ The application's processing time can be up to 30 minutes, which exceeds the 15-
 
 </details>
 
-### 342. q-726
+### 341. ce-726
 
 A company is using Amazon CloudFront with its website. The company has enabled logging on the CloudFront distribution, and logs are saved in one of the company's Amazon S3 buckets. The company needs to perform advanced analyses on the logs and build visualizations. What should a solutions architect do to meet these requirements?
 
@@ -3868,7 +3859,7 @@ This solution uses the most appropriate AWS services for the task. Amazon Athena
 
 </details>
 
-### 343. q-727
+### 342. ce-727
 
 A financial services company needs to migrate an on-premises MySQL database workload to AWS. The database requires consistent low-latency performance with a baseline of 32,000 IOPS to process transactions. Which solution will meet these requirements?
 
@@ -3880,7 +3871,7 @@ The key requirements are consistent low-latency performance and a baseline of 32
 
 </details>
 
-### 344. dt-731 `cost`
+### 343. dt-731 `cost`
 
 A company wants to move its on-premises network attached storage (NAS) to AWS. The company wants to make the data available to any Linux instances within its VPC and ensure changes are automatically synchronized across all instances accessing the data store. The majority of the data is accessed very rarely, and some files are accessed by multiple users at the same time. Which solution meets these requirements and is MOST cost-effective?
 
@@ -3890,7 +3881,7 @@ A company wants to move its on-premises network attached storage (NAS) to AWS. T
 
 </details>
 
-### 345. q-732 `least-ops`
+### 344. ce-732 `least-ops`
 
 A solutions architect needs to copy files from an Amazon S3 bucket to an Amazon EFS file system and another S3 bucket. The files must be copied continuously. New files are added to the original S3 bucket consistently. The copied files should be overwritten only if the source file changes. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3902,7 +3893,7 @@ AWS DataSync is a managed service designed for transferring large amounts of dat
 
 </details>
 
-### 346. q-735
+### 345. ce-735
 
 A solutions architect manages an analytics application. The application stores large amounts of semistructured data in an Amazon S3 bucket. The solutions architect wants to use parallel data processing to process the data more quickly. The solutions architect also wants to use information that is stored in an Amazon Redshift database to enrich the data. Which solution will meet these requirements?
 
@@ -3914,7 +3905,7 @@ The solution requires large-scale parallel data processing on S3 data and enrich
 
 </details>
 
-### 347. q-738
+### 346. ce-738
 
 A company is developing a photo sharing web application on AWS. The application allows users to upload, durably store, and share photos. The application processes uploaded photos into a variety of sizes. The company needs to ensure that the application can handle thousands of uploads each hour. The company wants to decouple upload operations from processing operations. Which solution will meet these requirements with the LEAST operational effort?
 
@@ -3926,7 +3917,7 @@ This solution represents a classic serverless, event-driven architecture that is
 
 </details>
 
-### 348. dt-741 `cost`
+### 347. dt-741 `cost`
 
 A company provides an online service for posting video content and transcoding it for use by any mobile platform. The application architecture uses Amazon Elastic File System (Amazon EFS) Standard to collect and store the videos so that multiple Amazon EC2 Linux instances can access the video content for processing. As the popularity of the service has grown over time, the storage costs have become too expensive. Which storage solution is MOST cost-effective?
 
@@ -3936,7 +3927,7 @@ A company provides an online service for posting video content and transcoding i
 
 </details>
 
-### 349. dt-743
+### 348. dt-743
 
 A solutions architect is planning the deployment of a new static website. The solution must minimize costs and provide at least 99% availability. Which solution meets these requirements?
 
@@ -3946,7 +3937,7 @@ A solutions architect is planning the deployment of a new static website. The so
 
 </details>
 
-### 350. q-746 `performance`
+### 349. ce-746 `performance`
 
 A company has a video editing application that requires consistent sub-millisecond latency and high throughput to access media objects that are updated frequently. The company currently has an Amazon S3 bucket that uses the S3 Standard storage class. The company needs to improve performance while maintaining Amazon S3 API compatibility. The company needs to access the media objects within a single Availability Zone. Which storage solution will meet these requirements?
 
@@ -3958,7 +3949,7 @@ The requirements for consistent sub-millisecond latency, high throughput, and si
 
 </details>
 
-### 351. dt-746 `cost`
+### 350. dt-746 `cost`
 
 A company stores call recordings on a monthly basis. Statistically, the recorded data may be referenced randomly within a year but accessed rarely after 1 year. Files that are newer than 1 year old must be queried and retrieved as quickly as possible. A delay in retrieving older files is acceptable. A solutions architect needs to store the recorded data at a minimal cost. Which solution is MOST cost-effective?
 
@@ -3968,7 +3959,7 @@ A company stores call recordings on a monthly basis. Statistically, the recorded
 
 </details>
 
-### 352. q-748
+### 351. ce-748
 
 A research laboratory needs to process a multi-terabyte dataset multiple times each day. The laboratory requires sub-millisecond latency while processing the data. Hundreds of Amazon EC2 Linux instances will process the data from the source and store the data in a different location. Which solution will meet these requirements?
 
@@ -3980,7 +3971,7 @@ The scenario describes a high-performance computing (HPC) workload requiring sub
 
 </details>
 
-### 353. dt-748
+### 352. dt-748
 
 A company has no existing file share services. A new project requires access to file storage that is mountable as a drive for on-premises desktops. The file server must authenticate users to an Active Directory domain before they are able to access the storage. Which service will allow Active Directory users to mount storage as a drive on their desktops?
 
@@ -3990,7 +3981,7 @@ A company has no existing file share services. A new project requires access to 
 
 </details>
 
-### 354. q-751
+### 353. ce-751
 
 A company allows users to upload and store photos through its website. The website has users from all around the world. All images that users upload are stored in a centralized Amazon S3 bucket. The company wants to increase the speed in which its entire user base can upload photos through the website. What should a solutions architect recommend to meet these requirements?
 
@@ -4002,7 +3993,7 @@ The requirement is to increase upload speed for a global user base to a centrali
 
 </details>
 
-### 355. dt-751
+### 354. dt-751
 
 A company is planning to transfer multiple terabytes of data to AWS. The data is collected offline from ships. The company wants to run complex transformation before transferring the data. Which AWS service should a solutions architect recommend for this migration?
 
@@ -4012,7 +4003,7 @@ A company is planning to transfer multiple terabytes of data to AWS. The data is
 
 </details>
 
-### 356. q-752
+### 355. ce-752
 
 A company wants to build a generative AI (GenAI) model for a medical use case. The company has 50 TB of medical image data that is stored in an Amazon S3 bucket. The company plans to train the GenAI model by using Amazon SageMaker AI with multiple GPU-powered instances. The company needs a storage solution that helps ensure that the data can be loaded from storage fast enough to avoid GPU instance idle time. The storage solution needs to achieve tens of gigabits per second (Gbps) of throughput. Which solution will meet these requirements?
 
@@ -4024,7 +4015,7 @@ The scenario requires a high-performance storage solution to feed a 50 TB datase
 
 </details>
 
-### 357. dt-755 `cost`
+### 356. dt-755 `cost`
 
 A company has 700 TB of backup data stored in network attached storage (NAS) in its data center. This backup data needs to be accessible for infrequent regulatory requests and must be retained 7 years. The company has decided to migrate this backup data from its data center to AWS. The migration must be complete within 1 month. The company has 500 Mbps of dedicated bandwidth on its public internet connection available for data transfer. What should a solutions architect do to migrate and store the data at the LOWEST cost?
 
@@ -4034,7 +4025,7 @@ A company has 700 TB of backup data stored in network attached storage (NAS) in 
 
 </details>
 
-### 358. dt-757 `cost`
+### 357. dt-757 `cost`
 
 A company has an application that generates a large number of files, each approximately 5 MB in size. The files are stored in Amazon S3. Company policy requires the files to be stored for 4 years before they can be deleted. Immediate accessibility is always required as the files contain critical business data that is not easy to reproduce. The files are frequently accessed in the first 30 days of the object creation but are rarely accessed after the first 30 days. Which storage solution is MOST cost-effective?
 
@@ -4044,7 +4035,7 @@ A company has an application that generates a large number of files, each approx
 
 </details>
 
-### 359. q-760
+### 358. ce-760
 
 A company wants to host a scalable web application on AWS. Users from around the world will access the application. Application users must have the ability to download and upload objects up to 5 GB in size. The company wants a cost-effective solution to minimize upload and download latency and maximize performance. Which solution will meet these requirements?
 
@@ -4056,7 +4047,7 @@ The core requirements are to minimize latency for both uploads and downloads of 
 
 </details>
 
-### 360. q-764
+### 359. ce-764
 
 A company wants to improve its ability to clone large amounts of production data into a test environment in the same AWS Region. The data is stored on Amazon EBS volumes that are attached to Amazon EC2 instances. Modifications to the cloned data must not affect the production environment. The software that accesses this data requires consistently high I/O performance. A solutions architect needs to minimize the time required to clone the production data into the test environment. Which solution will meet these requirements?
 
@@ -4068,7 +4059,7 @@ The solution must provide an isolated, high-performance copy of production data 
 
 </details>
 
-### 361. q-770
+### 360. ce-770
 
 A company has developed a new content-sharing application that runs on Amazon ECS. The application runs on Amazon Linux Docker tasks that use the Amazon EC2 launch type. The application requires a storage solution that has the following characteristics: • Accessibility for multiple ECS tasks through bind mounts • Resiliency across Availability Zones • Burstable throughput of up to 3 Gbps • Ability to scale up over time Which storage solution meets these requirements?
 
@@ -4080,7 +4071,7 @@ Amazon EFS is the ideal solution as it meets all the specified requirements. It 
 
 </details>
 
-### 362. q-771
+### 361. ce-771
 
 A company runs multiple applications in multiple AWS accounts within the same organization in AWS Organizations. A content management system (CMS) runs on Amazon EC2 instances in a VPC. The CMS needs to access shared files from an Amazon Elastic File System (Amazon EFS) file system that is deployed in a separate AWS account. The EFS account is in a separate VPC. Which solution will meet this requirement?
 
@@ -4092,7 +4083,7 @@ The core of the problem is enabling network connectivity between two separate VP
 
 </details>
 
-### 363. dt-772
+### 362. dt-772
 
 A company hosts an application on AWS. The application gives users the ability to upload photos and store the photos in an Amazon S3 bucket. The company wants to use Amazon CloudFront and a custom domain name to upload the photo files to the S3 bucket in the eu-west-1 Region. Which solution will meet these requirements? (Choose two.)
 
@@ -4102,7 +4093,7 @@ A company hosts an application on AWS. The application gives users the ability t
 
 </details>
 
-### 364. q-775
+### 363. ce-775
 
 A company uses an Amazon S3 bucket as its data lake storage platform The S3 bucket contains a massive amount of data that is accessed randomly by multiple teams and hundreds of applications. The company wants to reduce the S3 storage costs and provide immediate availability for frequently accessed objects What is the MOST operationally efficient solution that meets these requirements?
 
@@ -4114,7 +4105,7 @@ The S3 Intelligent-Tiering storage class is specifically designed for data with 
 
 </details>
 
-### 365. q-781 `availability`
+### 364. ce-781 `availability`
 
 A company stores user data in AWS. The data is used continuously with peak usage during business hours. Access patterns vary, with some data not being used for months at a time. A solutions architect must choose a cost-effective solution that maintains the highest level of durability while maintaining high availability. Which storage solution meets these requirements?
 
@@ -4126,7 +4117,7 @@ The scenario requires a storage solution that is cost-effective for data with un
 
 </details>
 
-### 366. q-782 `cost`
+### 365. ce-782 `cost`
 
 A weather forecasting company collects temperature readings from various sensors on a continuous basis. An existing data ingestion process collects the readings and aggregates the readings into larger Apache Parquet files. Then the process encrypts the files by using client-side encryption with KMS managed keys (CSE-KMS). Finally, the process writes the files to an Amazon S3 bucket with separate prefixes for each calendar day. The company wants to run occasional SQL queries on the data to take sample moving averages for a specific calendar day. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4138,7 +4129,7 @@ Amazon Athena is a serverless, interactive query service designed for analyzing 
 
 </details>
 
-### 367. q-783
+### 366. ce-783
 
 A company runs an environment where data is stored in an Amazon S3 bucket. The objects are accessed frequently throughout the day. The company has strict data encryption requirements fordata that is stored in the S3 bucket. The company currently uses AWS Key Management Service (AWS KMS) for encryption. The company wants to optimize costs associated with encrypting S3 objects without making additional calls to AWS KMS. Which solution will meet these requirements?
 
@@ -4150,7 +4141,7 @@ The most effective way to reduce AWS Key Management Service (AWS KMS) costs for 
 
 </details>
 
-### 368. q-786 `cost`
+### 367. ce-786 `cost`
 
 A company is using AWS DataSync to migrate millions of files from an on-premises system to AWS. The files are 10 KB in size on average. The company wants to use Amazon S3 for file storage. For the first year after the migration the files will be accessed once or twice and must be immediately available. After 1 year the files must be archived for at least 7 years. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4162,7 +4153,7 @@ This solution is the most cost-effective because it addresses two key cost drive
 
 </details>
 
-### 369. q-788
+### 368. ce-788
 
 A company has stored millions of objects across multiple prefixes in an Amazon S3 bucket by using the Amazon S3 Glacier Deep Archive storage class. The company needs to delete all data older than 3 years except for a subset of data that must be retained. The company has identified the data that must be retained and wants to implement a serverless solution. Which solution will meet these requirements?
 
@@ -4174,7 +4165,7 @@ This solution is fully serverless and highly scalable, meeting all the requireme
 
 </details>
 
-### 370. q-797
+### 369. ce-797
 
 A company runs its production workload on Amazon EC2 instances with Amazon Elastic Block Store (Amazon EBS) volumes. A solutions architect needs to analyze the current EBS volume cost and to recommend optimizations. The recommendations need to include estimated monthly saving opportunities. Which solution will meet these requirements?
 
@@ -4186,7 +4177,7 @@ AWS Compute Optimizer is a service designed to analyze the configuration and uti
 
 </details>
 
-### 371. q-799
+### 370. ce-799
 
 A solutions architect is designing the architecture for a company website that is composed of static content. The company's target customers are located in the United States and Europe. Which architecture should the solutions architect recommend to MINIMIZE cost?
 
@@ -4198,7 +4189,7 @@ The most cost-effective architecture for serving static content to users in the 
 
 </details>
 
-### 372. q-805 `cost`
+### 371. ce-805 `cost`
 
 A company is designing a new application that uploads files to an Amazon S3 bucket. The uploaded files are processed to extract metadata. Processing must take less than 5 seconds. The volume and frequency of the uploads vary from a few files each hour to hundreds of concurrent uploads. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4210,7 +4201,7 @@ The most cost-effective and efficient solution is to use an event-driven, server
 
 </details>
 
-### 373. q-811
+### 372. ce-811
 
 A company uses an AWS Transfer for SFTP public server endpoint and Amazon S3 storage to host large datasets for its customers. The company provides customers SSH private keys to authenticate and download their datasets. The Transfer for SFTP server is configured with structured logging that is saved to an S3 bucket. The company wants to charge customers based on their monthly data download usage. Which solution will meet these requirements?
 
@@ -4222,7 +4213,7 @@ The scenario requires tracking data download usage per customer for billing. The
 
 </details>
 
-### 374. q-813 `least-ops`
+### 373. ce-813 `least-ops`
 
 A company uses AWS Cost Explorer to monitor its AWS costs. The company notices that Amazon Elastic Block Store (Amazon EBS) storage and snapshot costs increase every month. However, the company does not purchase additional EBS storage every month. The company wants to optimize monthly costs for its current storage usage. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -4234,7 +4225,7 @@ The primary cause of continuously increasing Amazon EBS costs, when no new volum
 
 </details>
 
-### 375. q-821
+### 374. ce-821
 
 A company's expense tracking application gives users the ability to upload images of receipts. The application analyzes the receipts to extract information and stores the raw images in Amazon S3. The application is written in Java and runs on Amazon EC2 On-Demand Instances in an Auto Scaling group behind an Application Load Balancer. The compute costs and storage costs have increased with the popularity of the application. Which solution will provide the MOST cost savings without affecting application performance?
 
@@ -4246,7 +4237,7 @@ This solution provides the most significant cost savings by addressing both comp
 
 </details>
 
-### 376. q-822 `cost`
+### 375. ce-822 `cost`
 
 A gaming company hosts a browser-based application on AWS. The users of the application consume a large number of videos and images that are stored in Amazon S3. This content is the same for all users. The application has increased in popularity, and millions of users worldwide are accessing these media files. The company wants to provide the files to the users while reducing the load on the origin. Which solution meets these requirements MOST cost-effectively?
 
@@ -4258,7 +4249,7 @@ The scenario requires distributing static media files (videos, images) from an A
 
 </details>
 
-### 377. q-827 `cost`
+### 376. ce-827 `cost`
 
 A company recently migrated its application to AWS. The application runs on Amazon EC2 Linux instances in an Auto Scaling group across multiple Availability Zones. The application stores data in an Amazon Elastic File System (Amazon EFS) file system that uses EFS Standard-Infrequent Access storage. The application indexes the company's files, and the index is stored in an Amazon RDS database. The company needs to optimize storage costs with some application and services changes. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4270,7 +4261,7 @@ The most cost-effective solution is to migrate the files from Amazon EFS to an A
 
 </details>
 
-### 378. q-828
+### 377. ce-828
 
 A company is migrating a data processing application to AWS. The application processes several short-lived batch jobs that cannot be disrupted. The process generates data after each batch job finishes running. The company accesses the data for 30 days following data generation. After 30 days, the company stores the data for 2 years. The company wants to optimize costs for the application and data storage. Which solution will meet these requirements?
 
@@ -4282,7 +4273,7 @@ The solution must address two key requirements: non-disruptible compute and cost
 
 </details>
 
-### 379. q-830
+### 378. ce-830
 
 A company runs an online order management system on AWS. The company stores order and inventory data for the previous 5 years in an Amazon Aurora MySQL database. The company deletes inventory data after 5 years. The company wants to optimize costs to archive data. Options:
 
@@ -4294,7 +4285,7 @@ The most direct and cost-effective method to archive data from Amazon Aurora MyS
 
 </details>
 
-### 380. q-832 `cost`
+### 379. ce-832 `cost`
 
 A company runs an application on several Amazon EC2 instances that store persistent data on an Amazon Elastic File System (Amazon EFS) file system. The company needs to replicate the data to another AWS Region by using an AWS managed service solution. Which solution will meet these requirements MOST cost-effectively? Options:
 
@@ -4306,7 +4297,7 @@ AWS Backup is a fully managed, centralized service designed to automate data pro
 
 </details>
 
-### 381. q-836
+### 380. ce-836
 
 A company wants to store a large amount of data as objects for analytics and long-term archiving. Resources from outside AWS need to access the dat a. The external resources need to access the data with unpredictable frequency. However, the external resource must have immediate access when necessary. The company needs a cost-optimized solution that provides high durability and data security. Which solution will meet these requirements?
 
@@ -4318,7 +4309,7 @@ The Amazon S3 Intelligent-Tiering storage class is specifically designed for dat
 
 </details>
 
-### 382. q-838
+### 381. ce-838
 
 A company wants to share data that is collected from self-driving cars with the automobile community. The data will be made available from within an Amazon S3 bucket. The company wants to minimize its cost of making this data available to other AWS accounts. What should a solutions architect do to accomplish this goal?
 
@@ -4330,7 +4321,7 @@ The most direct and effective way to minimize the data provider's cost is to shi
 
 </details>
 
-### 383. q-841
+### 382. ce-841
 
 A company runs an application on Amazon EC2 instances across multiple Availability Zones in the same AWS Region. The EC2 instances share an Amazon Elastic File System (Amazon EFS) volume that is mounted on all the instances. The EFS volume stores a variety of files such as installation media, third-party files, interface files, and other one-time files. The company accesses some EFS files frequently and needs to retrieve the files quickly. The company accesses other files rarely. The EFS volume is multiple terabytes in size. The company needs to optimize storage costs for Amazon EFS. Which solution will meet these requirements with the LEAST effort?
 
@@ -4342,7 +4333,7 @@ Amazon EFS Lifecycle Management is the most suitable solution as it is designed 
 
 </details>
 
-### 384. q-842
+### 383. ce-842
 
 A company is creating a web application that will store a large number of images in Amazon S3. The images will be accessed by users over variable periods of time. The company wants to: Retain all the images. Incur no cost for retrieval. Have minimal management overhead. Have the images available with no impact on retrieval time. Which solution meets these requirements?
 
@@ -4354,7 +4345,7 @@ The S3 Intelligent-Tiering storage class is specifically designed for data with 
 
 </details>
 
-### 385. q-843
+### 384. ce-843
 
 An adventure company has launched a new feature on its mobile app. Users can use the feature to upload their hiking and rafting photos and videos anytime. The photos and videos are stored in Amazon S3 Standard storage in an S3 bucket and are served through Amazon CloudFront. The company needs to optimize the cost of the storage. A solutions architect discovers that most of the uploaded photos and videos are accessed infrequently after 30 days. However, some of the uploaded photos and videos are accessed frequently after 30 days. The solutions architect needs to implement a solution that maintains millisecond retrieval availability of the photos and videos at the lowest possible cost. Which solution will meet these requirements?
 
@@ -4366,19 +4357,7 @@ The scenario describes data with unpredictable access patterns: most objects bec
 
 </details>
 
-### 386. q-844
-
-A company is designing a cost-optimized data lake on AWS using S3 for storage. They expect data ingestion patterns to be bursty: most data arrives within the first week of each month, and retrieval requests are unpredictable but rare. They want to minimize storage costs while ensuring data is accessible within a few hours when requested. Which S3 storage class and lifecycle policy combination should they use?
-
-<details><summary>Answer</summary>
-
-**D. Use S3 Intelligent-Tiering to automatically move objects between access tiers without a defined lifecycle policy.**
-
-S3 Intelligent-Tiering is specifically designed to optimize storage costs for data lakes with unknown, changing, or unpredictable access patterns. This perfectly aligns with the company's bursty ingestion and unpredictable retrieval requirements. It automatically monitors and moves objects between access tiers (Frequent, Infrequent, and Archive Instant Access) based on access patterns, without incurring retrieval fees or requiring manual lifecycle policies. Because all default Intelligent-Tiering tiers provide millisecond latency, it easily satisfies the requirement to access data within a few hours. Conversely, using static lifecycle policies for unpredictable data can lead to excessive retrieval fees if data is accessed after transitioning, as it does not automatically move back to a frequent access tier. Why Incorrect Options are Wrong: Option A: S3 Standard is designed for frequently
-
-</details>
-
-### 387. q-845
+### 385. ce-845
 
 A company wants to create a long-term storage solution that will allow users to upload terabytes of images and videos. The company will use the images and videos to train machine learning (ML) models. The storage solution must be scalable and cost-optimized. Which solution will meet these requirements?
 
@@ -4390,7 +4369,7 @@ This solution meets all requirements effectively. Amazon S3 provides a highly sc
 
 </details>
 
-### 388. q-847 `cost`
+### 386. ce-847 `cost`
 
 A company wants to release a new device that will collect data to track overnight sleep on an intelligent mattress. Sensors will send data that will be uploaded to an Amazon S3 bucket. Each mattress generates about 2 MB of data each night. An application must process the data and summarize the data for each user. The application must make the results available as soon as possible. Every invocation of the application will require about 1 GB of memory and will finish running within 30 seconds. Which solution will run the application MOST cost-effectively?
 
@@ -4402,7 +4381,7 @@ The scenario describes an event-driven workload where small data files (2 MB) tr
 
 </details>
 
-### 389. q-848 `cost`
+### 387. ce-848 `cost`
 
 A company is building a new web application on AWS. The application needs to consume files from a legacy on-premises application that runs a batch process and outputs approximately 1 GB of data every night to an NFS file mount. A solutions architect needs to design a storage solution that requires minimal changes to the legacy application and keeps costs low. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4414,7 +4393,7 @@ The most cost-effective solution that requires minimal changes is to use an Amaz
 
 </details>
 
-### 390. q-854 `cost`
+### 388. ce-854 `cost`
 
 A company is developing a SaaS solution for customers. The solution runs on Amazon EC2 instances that have Amazon Elastic Block Store (Amazon EBS) volumes attached. Within the SaaS application, customers can request how much storage they need. The application needs to allocate the amount of block storage each customer requests. A solutions architect must design an operationally efficient solution that meets the storage scaling requirement. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4426,7 +4405,7 @@ The most operationally efficient and cost-effective solution is to use the exist
 
 </details>
 
-### 391. q-855 `least-ops`
+### 389. ce-855 `least-ops`
 
 A company needs to archive an on-premises relational database. The company wants to retain the dat a. The company needs to be able to run SQL queries on the archived data to create annual reports. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -4438,7 +4417,7 @@ This solution provides the lowest operational overhead by leveraging serverless 
 
 </details>
 
-### 392. q-856
+### 390. ce-856
 
 A company needs a data encryption solution for a machine learning (ML) process. The solution must use an AWS managed service. The ML process currently reads a large number of objects in Amazon S3 that are encrypted by a customer managed AWS KMS key. The current process incurs significant costs because of excessive calls to AWS Key Management Service (AWS KMS) to decrypt S3 objects. The company wants to reduce the costs of API calls to decrypt S3 objects.
 
@@ -4450,7 +4429,7 @@ The core issue is the high cost from numerous AWS KMS API calls made by Amazon S
 
 </details>
 
-### 393. q-864
+### 391. ce-864
 
 A solutions architect needs to build a log storage solution for a client. The client has an application that produces user activity logs that track user API calls to the application. The application typically produces 50 GB of logs each day. The client needs a storage solution that makes the logs available for occasional querying and analytics.
 
@@ -4462,7 +4441,7 @@ This solution is the most cost-effective and scalable for the described use case
 
 </details>
 
-### 394. q-865
+### 392. ce-865
 
 A company is developing a photo-hosting application in the us-east-1 Region. The application gives users across multiple countries the ability to upload and view photos. Some photos are heavily viewed for months, while other photos are viewed for less than a week. The application allows users to upload photos that are up to 20 MB in size. The application uses photo metadata to determine which photos to display to each user. The company needs a cost-effective storage solution to support the application.
 
@@ -4474,7 +4453,7 @@ This solution represents a well-architected pattern for media hosting applicatio
 
 </details>
 
-### 395. q-871
+### 393. ce-871
 
 A company that uses AWS Organizations runs 150 applications across 30 different AWS accounts. The company used AWS Cost and Usage Report to create a new report in the management account. The report is delivered to an Amazon S3 bucket that is replicated to a bucket in the data collection account. The company's senior leadership wants to view a custom dashboard that provides NAT gateway costs each day starting at the beginning of the current month. Which solution will meet these requirements?
 
@@ -4486,7 +4465,7 @@ The most effective solution is to use Amazon Athena to query the AWS Cost and Us
 
 </details>
 
-### 396. q-873
+### 394. ce-873
 
 A media company stores customer-uploaded videos in an Amazon S3 bucket with the Standard storage class. The company wants to create an S3 Lifecycle configuration. The company will set the maximum retention time to 7 days. However, the configuration must delete any video that is more than 1 TB in size after 48 hours.
 
@@ -4498,7 +4477,7 @@ An Amazon S3 bucket can have only one lifecycle configuration, which can contain
 
 </details>
 
-### 397. q-877
+### 395. ce-877
 
 A company is storing data that will not be frequently accessed in the AWS Cloud. If the company needs to access the data, the data must be retrieved within 12 hours. The company wants a solution that is cost-effective for storage costs per gigabyte. Which Amazon S3 storage class will meet these requirements?
 
@@ -4510,7 +4489,7 @@ The requirements are for storing infrequently accessed data, ensuring retrieval 
 
 </details>
 
-### 398. q-897 `cost`
+### 396. ce-897 `cost`
 
 A company wants to use Amazon S3 to back up its on-premises file storage solution. The company's on-premises file storage solution uses NFS, and the company wants its new solution to support NFS. The company wants to archive the backup files after 5 days. If the company needs archived files for disaster recovery, the company is willing to wait a few days for the retrieval of those files. Which solution meets these requirements MOST cost-effectively?
 
@@ -4522,7 +4501,7 @@ The solution requires an on-premises NFS interface for a backup solution that ar
 
 </details>
 
-### 399. q-902 `least-ops`
+### 397. ce-902 `least-ops`
 
 A solutions architect needs to optimize storage costs. The solutions architect must identify any Amazon S3 buckets that are no longer being accessed or are rarely accessed. Which solution will accomplish this goal with the LEAST operational overhead?
 
@@ -4534,7 +4513,7 @@ The goal is to identify rarely accessed S3 buckets with the least operational ov
 
 </details>
 
-### 400. q-903 `cost`
+### 398. ce-903 `cost`
 
 A company is building a containerized application on AWS. The application uses the Linux operating system. The company needs to provide a persistent storage solution for the application. The company expects the storage solution to have varying data access patterns. The solution must have native storage tiering capabilities and must be scalable. The solution must not require the company to provision storage upfront. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4546,7 +4525,7 @@ Amazon EFS is a fully managed, scalable file storage service for Linux-based wor
 
 </details>
 
-### 401. q-904 `cost` `availability`
+### 399. ce-904 `cost` `availability`
 
 A company is building an application that runs on several Linux-based containers in Amazon ECS. The containers must have shared access to log files and configuration dat a. The application requires a POSIX-compliant file system that provides high availability and scalability. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4558,7 +4537,7 @@ The scenario requires a POSIX-compliant, highly available, and scalable shared f
 
 </details>
 
-### 402. q-906 `cost`
+### 400. ce-906 `cost`
 
 A company wants to use Amazon S3 to back up its on-premises file storage solution. The company's on-premises file storage solution supports NFS, and the company wants its new solution to support NFS. The company wants to archive the backup files after 5 days. If the company needs archived files for disaster recovery, the company is willing to wait a few days for the retrieval of those files. Which solution meets these requirements MOST cost-effectively?
 
@@ -4570,7 +4549,7 @@ The solution requires an NFS interface for the on-premises backup and cost-effec
 
 </details>
 
-### 403. q-908 `cost`
+### 401. ce-908 `cost`
 
 A company stores 5 PB of archived data on physical tapes in an on-premises data center. The company needs to retain the data for 10 years. The company does not want to change an existing backup workflow. The data center that stores the tapes has a 10 Gbps AWS Direct Connect connection to an AWS Region. The company wants to migrate the data to AWS as soon as possible. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4582,7 +4561,7 @@ The key requirement is to migrate tape-based backups without changing the existi
 
 </details>
 
-### 404. q-909 `cost`
+### 402. ce-909 `cost`
 
 A company stores medical reports and images in Amazon S3 Standard storage. The company accesses each medical report only once each year. However, the company must be able to access the medical reports in real time when necessary. The company rarely accesses the medical images, but the company must retain each image for 7 years. The company can tolerate flexible retrieval times for the medical images. The company wants to optimize storage costs for the medical reports and images. Which solution will meet this requirement MOST cost-effectively?
 
@@ -4594,7 +4573,7 @@ The solution requires optimizing storage costs based on specific access patterns
 
 </details>
 
-### 405. q-913 `cost`
+### 403. ce-913 `cost`
 
 A company runs a web application that stores user-generated images. The application currently stores 500 GB of images. The average file size of the images is 2 MB. The company expects the total amount of images to grow to 2 TB within 6 months. The application needs to serve all stored images with low latency to users from around the world. Which storage solution will meet these requirements MOST cost-effectively?
 
@@ -4606,7 +4585,7 @@ This solution is the standard, most cost-effective, and scalable architecture fo
 
 </details>
 
-### 406. q-928 `cost`
+### 404. ce-928 `cost`
 
 A company hosts a photo sharing web application on AWS. Users upload and share thousands of photos each hour. The company needs a durable storage solution that provides retrieval mechanisms for the photos. Most uploaded photos are not accessed often after 30 days, but the company does not want to delete older photos. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4618,7 +4597,7 @@ The most cost-effective and durable solution is to use Amazon S3 for storing pho
 
 </details>
 
-### 407. q-935 `cost` `availability`
+### 405. ce-935 `cost` `availability`
 
 A company is migrating a document management application to AWS. The application runs on Linux servers. The company will migrate the application to Amazon EC2 instances in an Auto Scaling group. The company stores 7 TiB of documents in a shared storage file system. An external relational database tracks the documents. Documents are stored once and can be retrieved multiple times for reference at any time. The company cannot modify the application during the migration. The storage solution must be highly available and must support scaling over time. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4630,7 +4609,7 @@ The scenario requires a highly available, scalable, and cost-effective shared fi
 
 </details>
 
-### 408. q-936 `cost`
+### 406. ce-936 `cost`
 
 A company wants to migrate an application that processes logs to AWS. Currently, the application runs on an on-premises storage area network (SAN). The application reads and processes large log files sequentially. The application requires throughput of up to 500 MBps. A solutions architect needs to migrate the application with minimal change to the application architecture. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4642,7 +4621,7 @@ The workload involves processing large log files sequentially, which is a throug
 
 </details>
 
-### 409. q-937 `least-ops`
+### 407. ce-937 `least-ops`
 
 A video production company stores raw 4K video footage on an Amazon EFS file system by using the EFS Standard storage class. Each video file is around 100 GB. The EFS file system is mounted to an Auto Scaling group of Amazon EC2 instances that transcode the video files. Editors need to access each file frequently for up to 90 days. After 90 days, the files are rarely needed. However, the files must remain available with sub-second latency for on-demand edit requests. The company wants to reduce monthly storage costs without any changes to the existing mount points that the editors use. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -4654,7 +4633,7 @@ Amazon EFS lifecycle management automates the process of moving files that have 
 
 </details>
 
-### 410. q-945 `cost`
+### 408. ce-945 `cost`
 
 A company runs a non-production Oracle database on an Amazon EC2 instance. The database contains 1 TB of data. The EC2 instance runs in a private subnet of a VPC. A backup of the EC2 instance is taken every day and uploaded to an Amazon S3 bucket. The current backup process uses a NAT gateway to access the S3 bucket. The company does not want the backup process to use public IP addresses. Which solution will meet this requirement MOST cost-effectively?
 
@@ -4666,7 +4645,7 @@ A VPC gateway endpoint for Amazon S3 provides a private, secure connection betwe
 
 </details>
 
-### 411. q-951 `least-ops`
+### 409. ce-951 `least-ops`
 
 A company has an on-premises application that uses SFTP to collect financial data from multiple vendors. The company is migrating to the AWS Cloud. The company has created an application that uses Amazon S3 APIs to upload files from vendors. Some vendors run their systems on legacy applications that do not support S3 APIs. The vendors want to continue to use SFTP-based applications to upload dat a. The company wants to use managed services for the needs of the vendors that use legacy applications. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -4678,7 +4657,7 @@ AWS Transfer Family is a fully managed service designed specifically for this us
 
 </details>
 
-### 412. q-954
+### 410. ce-954
 
 A company is redesigning its data intake process. In the existing process, the company receives data transfers and uploads the data to an Amazon S3 bucket every night. The company uses AWS Glue crawlers and jobs to prepare the data for a machine learning (ML) workflow. The company needs a low-code solution to run multiple AWS Glue jobs in sequence and provide a visual workflow. Which solution will meet these requirements?
 
@@ -4690,7 +4669,7 @@ The solution requires a low-code method to run multiple AWS Glue jobs sequential
 
 </details>
 
-### 413. q-961 `cost`
+### 411. ce-961 `cost`
 
 A company is building a new web application that serves static and dynamic content from an API. Users will access the application from around the world. The company wants to minimize latency in the most cost-effective way. Which solution will meet these requirements MOST cost-effectively?
 
@@ -4702,7 +4681,7 @@ This solution provides a globally distributed, low-latency, and highly cost-effe
 
 </details>
 
-### 414. q-963 `least-ops`
+### 412. ce-963 `least-ops`
 
 A company wants to migrate an on-premises video processing application to AWS. Processing times range from 5-30 minutes. The application must run multiple jobs in parallel. The application processes videos that users upload to an Amazon S3 bucket. Which solution will meet these requirements with the LEAST operational overhead?
 

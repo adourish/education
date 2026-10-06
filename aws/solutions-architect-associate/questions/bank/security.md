@@ -1,22 +1,10 @@
 # Security and identity — IAM, encryption, protection, governance
 
-197 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
+192 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
 
 ---
 
-### 1. q-2
-
-A company is migrating a multi-tier application to AWS and needs to implement fine-grained access control across multiple AWS accounts. The application has separate development, staging, and production environments, each in its own account. The company wants to allow developers in the development account to assume a role in the staging account with limited permissions, but prevent them from accessing production. Which combination of AWS services and configurations should be used to implement this requirement?
-
-<details><summary>Answer</summary>
-
-**A. Create IAM roles in each account with trust relationships. In the staging account role, set a trust policy that allows the development account's IAM principal to assume it. In the production account role, do not include the development account in the trust policy.**
-
-To grant cross-account access in AWS, the architectural best practice is to use IAM roles with properly configured trust policies. The target account (Staging) must create an IAM role and attach a trust policy (a resource-based policy) that explicitly grants the trusted account (Development) the sts:AssumeRole permission. The identity-based permissions policy attached to this role dictates what the assumed identity can do in the Staging account. To prevent access to the Production account, you simply omit the Development account from any trust relationships within the Production account's roles. This approach provides secure, fine-grained access using temporary security credentials without duplicating IAM users. Why Incorrect Options are Wrong: B. SCPs are used to set maximum permission guardrails, not to grant cross-account access. Furthermore, bucket policies only secure S3 resources,
-
-</details>
-
-### 2. q-3
+### 1. ce-3
 
 A company is running a highly sensitive application on Amazon EC2 backed by an Amazon RDS database Compliance regulations mandate that all personally identifiable information (Pll) be encrypted at rest. Which solution should a solutions architect recommend to meet this requirement with the LEAST amount of changes to the infrastructure?
 
@@ -28,7 +16,7 @@ The requirement is to encrypt personally identifiable information (PII) at rest 
 
 </details>
 
-### 3. q-4
+### 2. ce-4
 
 A company is preparing to store confidential data in Amazon S3. For compliance reasons, the data must be encrypted at rest. Encryption key usage must be logged for auditing purposes. Keys must be rotated every year. Which solution meets these requirements and is the MOST operationally efficient?
 
@@ -40,19 +28,7 @@ The solution requires encryption at rest, logging of key usage for auditing, ann
 
 </details>
 
-### 4. q-8
-
-A financial services company must store sensitive customer data in AWS and comply with regulatory requirements mandating encryption at rest and in transit, with strict key management controls. The company wants a solution that provides centralized key management and automatic key rotation without managing infrastructure. Which approach best satisfies these compliance requirements?
-
-<details><summary>Answer</summary>
-
-**B. Use AWS Key Management Service (KMS) with customer-managed keys (CMK), enable automatic key rotation, and enforce TLS on all data connections. Enable CloudTrail logging for key usage. Use Amazon S3 server-side encryption with S3-managed keys (SSE-S3) and enable MFA Delete on buckets for additional security.**
-
-AWS Key Management Service (KMS) is a fully managed, centralized service that eliminates infrastructure management while providing strict cryptographic controls. Using Customer Managed Keys (CMKs) allows the company to enforce granular access policies and enable automatic annual key rotation, satisfying strict regulatory compliance for data at rest. Enforcing TLS ensures data is encrypted in transit. Furthermore, integrating KMS with AWS CloudTrail logs all key usage, providing the necessary audit trails required by financial regulations to prove compliance, monitor access to sensitive customer data, and detect unauthorized usage. Why Incorrect Options are Wrong: A. AWS Secrets Manager is designed for rotating database credentials and API secrets, not for acting as a centralized cryptographic key provider for data-at-rest encryption. C. SSE-S3 uses AWS-managed keys, depriving the custome
-
-</details>
-
-### 5. dt-11
+### 3. dt-11
 
 In regards to IAM you can edit user properties later, but you cannot use the console to change the [...].
 
@@ -62,19 +38,7 @@ In regards to IAM you can edit user properties later, but you cannot use the con
 
 </details>
 
-### 6. q-13 `security`
-
-A company is designing a multi-account AWS environment to separate production and development workloads. They need to allow developers in the development account to assume a role in the production account to perform read-only audits, while ensuring that production administrators retain full control over what permissions developers receive. Which combination of AWS services and mechanisms should be used to implement this securely?
-
-<details><summary>Answer</summary>
-
-**A. Create an IAM role in the production account with read-only permissions, and configure a trust relationship that allows the development account principal to assume it. Use an SCP in the production account to restrict what the assumed role can do.**
-
-To securely grant cross-account access, AWS best practices dictate creating an IAM role in the trusting account (production) that specifies the trusted account (development) as the principal in its trust policy. The production administrators attach an identity-based policy to this role granting only read-only permissions, ensuring they retain full control over the authorization scope. Developers in the development account then use the sts:AssumeRole API to obtain temporary security credentials. Additionally, Service Control Policies (SCPs) applied via AWS Organizations can enforce organizational guardrails, ensuring that even if the role's permissions are misconfigured, the maximum available permissions are strictly bounded by the production account's administrators. Why Incorrect Options are Wrong: B: Creating IAM users in multiple accounts for the same individuals creates credential sp
-
-</details>
-
-### 7. q-14 `least-ops`
+### 4. ce-14 `least-ops`
 
 A company has separate AWS accounts for its finance, data analytics, and development departments. Because of costs and security concerns, the company wants to control which services each AWS account can use Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -86,7 +50,7 @@ AWS Organizations is designed for centrally governing and managing multiple AWS 
 
 </details>
 
-### 8. wl-16
+### 5. wl-16
 
 Your organization has an AWS setup and planning to build Single Sign-On for users to authenticate with on-premise Microsoft Active Directory Federation Services (ADFS) and let users log in to the AWS console using AWS STS Enterprise Identity Federation. Which of the following services do you need to call from AWS STS service after you authenticate with your on-premise?
 
@@ -100,43 +64,7 @@ https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_saml.html
 
 </details>
 
-### 9. q-21
-
-A company is designing a multi-account AWS architecture where they need to grant a development team in Account A access to an S3 bucket in Account B. The team requires the ability to read objects and list the bucket contents, but they should not be able to delete objects or modify bucket policies. Which combination of IAM configurations will correctly implement least-privilege access?
-
-<details><summary>Answer</summary>
-
-**A. Create an IAM role in Account B with a policy granting s3:GetObject and s3:ListBucket permissions, then configure a trust relationship allowing principals from Account A to assume the role.**
-
-To grant cross-account access following the principle of least privilege, the AWS best practice is to use IAM roles. By creating an IAM role in Account B (the resource account) with an identity-based policy explicitly granting only s3:GetObject and s3:ListBucket permissions, you strictly limit the actions the assumed role can perform. The trust policy on this role must specify Account A (the trusted account) as the principal, allowing the development team to assume the role via AWS STS. This approach avoids sharing long-term credentials and ensures that the development team cannot delete objects or modify bucket policies, perfectly aligning with AWS security best practices. Why Incorrect Options are Wrong: Option B: Granting s3: violates the principle of least privilege. SCPs are organizational guardrails, not a substitute for granular resource-level or identity-based access controls. Op
-
-</details>
-
-### 10. q-31
-
-A company is implementing a data governance policy requiring encryption of all data at rest using customer- managed keys. They operate across multiple AWS Regions and need centralized key management while minimizing operational overhead. The organization also requires that keys remain in specific geographic regions for compliance. Which approach best meets these requirements?
-
-<details><summary>Answer</summary>
-
-**A. Use AWS Config rules to define and detect resources that are not properly tagged.**
-
-AWS Config continuously records the configuration of supported resources, including EC2 instances, RDS DB instances and Redshift clusters, and evaluates them against rules. The managed required-tags rule flags any resource missing the tag keys you specify, so the check is set up once and then runs on its own - which is what 'minimize the effort of configuring and operating this check' asks for. Config reports non-compliance; it does not add tags itself. If you also want a tag applied automatically, you attach a remediation action, for example an SSM Automation document, to the rule.
-
-</details>
-
-### 11. q-33
-
-Your organization is deploying a multi-account AWS architecture across three AWS regions to serve customers globally. You need to implement a centralized identity and access management solution that allows users in a subsidiary company (in a separate AWS account) to access resources in your main organization's AWS accounts without creating duplicate user accounts. The subsidiary should only have access to specific Amazon S3 buckets and EC2 instances in the production account. Which combination of AWS services and configurations would best meet these requirements?
-
-<details><summary>Answer</summary>
-
-**B. Use AWS Single Sign-On (SSO) with a federated identity provider connected to the subsidiary's directory service, then assign permission sets that grant access to the required resources. Create an IAM user in the production account for each employee in the subsidiary, then manage their credentials and MFA tokens centrally.**
-
-AWS IAM Identity Center (formerly AWS SSO) is the AWS-recommended centralized identity and access management solution for multi-account architectures. By federating the subsidiary's existing directory service with AWS SSO, users can authenticate using their existing corporate credentials, strictly satisfying the requirement to avoid creating duplicate user accounts. Administrators can centrally create and assign permission sets to specific AWS accounts (such as the production account) to grant least-privilege access. This ensures the subsidiary users are authorized to access only the specified Amazon S3 buckets and EC2 instances, providing a scalable, single-pane-of-glass access management strategy across the global architecture. Why Incorrect Options are Wrong: A: While cross-account roles prevent duplicate users, managing IAM users and roles individually across accounts is a decentrali
-
-</details>
-
-### 12. dt-33
+### 6. dt-33
 
 You have been asked to tighten up the password policies in your organization after a serious security breach, so you need to consider every possible security measure. Which of the following is not an account password policy for IAM Users that can be set?
 
@@ -146,7 +74,7 @@ You have been asked to tighten up the password policies in your organization aft
 
 </details>
 
-### 13. q-36 `least-ops`
+### 7. ce-36 `least-ops`
 
 A financial services company plans to launch a new application on AWS to handle sensitive financial transactions. The company will deploy the application on Amazon EC2 instances. The company will use Amazon RDS for MySQL as the database. The company's security policies mandate that data must be encrypted at rest and in transit. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -158,7 +86,7 @@ This solution meets the requirements with the least operational overhead by leve
 
 </details>
 
-### 14. q-43 `least-ops`
+### 8. ce-43 `least-ops`
 
 A company is designing an application on AWS that processes sensitive dat a. The application stores and processes financial data for multiple customers. To meet compliance requirements, the data for each customer must be encrypted separately at rest by using a secure, centralized key management solution. The company wants to use AWS Key Management Service (AWS KMS) to implement encryption. Which solution will meet these requirements with the LEAST operational overhead'?
 
@@ -170,19 +98,19 @@ The core requirement is to encrypt each customer's data separately using a centr
 
 </details>
 
-### 15. q-44 `least-ops` `security`
+### 9. ce-44 `least-ops` `security`
 
 A company is building a cloud-based application on AWS that will handle sensitive customer dat a. The application uses Amazon RDS for the database. Amazon S3 for object storage, and S3 Event Notifications that invoke AWS Lambda for serverless processing. The company uses AWS IAM Identity Center to manage user credentials. The development, testing, and operations teams need secure access to Amazon RDS and Amazon S3 while ensuring the confidentiality of sensitive customer data. The solution must comply with the principle of least privilege. Which solution meets these requirements with the LEAST operational overhead?
 
 <details><summary>Answer</summary>
 
-**Enable versioning on the S3 bucket, and enable MFA Delete on the S3 bucket.**
+**B. Enable IAM Identity Center with an Identity Center directory. Create and configure permission sets with granular access to Amazon RDS and Amazon S3. Assign all the teams to groups that have specific access with the permission sets.**
 
-Versioning is the primary protection: with it on, an overwrite keeps the previous version and a delete writes a delete marker rather than destroying data, so any accidental change can be undone by restoring the earlier version or removing the delete marker. MFA Delete then guards the two actions that would undo that protection - permanently deleting a specific object version, and suspending or changing the bucket's versioning state - by requiring a code from an MFA device on the request. It does not prompt for MFA on an everyday object delete, because in a versioned bucket that delete is not destructive. MFA Delete is configured by the bucket owner's root user through the AWS CLI or API, not from the console.
+The company already uses AWS IAM Identity Center, which is the recommended service for centrally managing workforce access to AWS accounts and applications. The most efficient and scalable solution is to leverage this existing system. By creating groups for each team (development, testing, operations) and attaching granular permission sets, the company can manage access based on job functions. This approach adheres to the principle of least privilege by defining specific permissions for Amazon RDS and Amazon S3 in the permission sets. It also minimizes operational overhead, as administrators only need to manage group memberships and permission sets, rather than individual user policies. Why Incorrect Options are Wrong: A. This describes using standard IAM roles, which is less efficient than using IAM Identity Center's permission sets and group management, especially since Identity Center
 
 </details>
 
-### 16. q-45 `security`
+### 10. ce-45 `security`
 
 A company has applications that run in an organization in AWS Organizations. The company outsources operational support of the applications. The company needs to provide access for the external support engineers without compromising security. The external support engineers need access to the AWS Management Console. The external support engineers also need operating system access to the company's fleet of Amazon EC2 instances that run Amazon Linux in private subnets. Which solution will meet these requirements MOST securely?
 
@@ -194,19 +122,19 @@ This solution provides the most secure and manageable access. AWS IAM Identity C
 
 </details>
 
-### 17. q-46 `least-ops` `security`
+### 11. ce-46 `least-ops` `security`
 
 A company is designing a new internal web application in the AWS Cloud. The new application must securely retrieve and store multiple employee usernames and passwords from an AWS managed service. Which solution will meet these requirements with the LEAST operational overhead?
 
 <details><summary>Answer</summary>
 
-**Use an Amazon S3 bucket as a secure transfer point. Use Amazon Macie to scan the objects in the bucket. If objects contain PII, use Amazon Simple Notification Service (Amazon SNS) to trigger a notification to the administrators to remove the objects that contain PII.**
+**D. Store the employee credentials in AWS Secrets Manager. Use AWS Cloud Formation and the BatchGetSecretValue API to retrieve the usernames and passwords from Secrets Manager.**
 
-Amazon Macie is the managed service that discovers personally identifiable information in S3 objects, so no detection code has to be written or maintained - that is what makes this the least development effort. S3 is also the right landing point for the uploads: it handles 200 GB files comfortably (the object limit is 5 TB, with 5 GB being only the single-PUT limit), and AWS Transfer Family can front the bucket so the stores keep their existing SFTP workflow. Macie publishes its results as findings, so routing them to an SNS topic alerts the administrators, and the same event can drive an automated remediation step. Every alternative here requires building and operating custom scanning logic.
+AWS Secrets Manager is the purpose-built service for securely storing, managing, and retrieving secrets such as usernames and passwords. It offers features like automatic secret rotation, which significantly reduces operational overhead compared to manual management. The BatchGetSecretValue API call is a specific function within the Secrets Manager service designed to efficiently retrieve multiple secret values in a single request. Using AWS CloudFormation to provision the secrets as part of the infrastructure deployment is a standard Infrastructure as Code (IaC) best practice. This combination provides a secure, scalable, and low-overhead solution that directly meets all the stated requirements. Why Incorrect Options are Wrong: A. The BatchGetSecretValue API is part of AWS Secrets Manager, not AWS Systems Manager Parameter Store. This option incorrectly pairs an API with the wrong servi
 
 </details>
 
-### 18. q-57
+### 12. ce-57
 
 A company needs a solution to enforce data encryption at rest on Amazon EC2 instances. The solution must automatically identify noncompliant resources and enforce compliance policies on findings. Which solution will meet these requirements with the LEAST administrative overhead?
 
@@ -218,7 +146,7 @@ This solution provides a comprehensive, multi-layered approach with minimal admi
 
 </details>
 
-### 19. q-60
+### 13. ce-60
 
 A company wants to restrict access to the content of its web application. The company needs to protect the content by using authorization techniques that are available on AWS. The company also wants to implement a serverless architecture for authorization and authentication that has low login latency. The solution must integrate with the web application and serve web content globally. The application currently has a small user base, but the company expects the application's user base to increase Which solution will meet these requirements?
 
@@ -230,7 +158,7 @@ This solution meets all requirements by using a combination of serverless, globa
 
 </details>
 
-### 20. q-63
+### 14. ce-63
 
 A company is migrating applications from an on-premises Microsoft Active Directory that the company manages to AWS. The company deploys the applications in multiple AWS accounts. The company uses AWS Organizations to manage the accounts centrally. The company's security team needs a single sign-on solution across all the company's AWS accounts. The company must continue to manage users and groups that are in the on-premises Active Directory Which solution will meet these requirements?
 
@@ -242,7 +170,7 @@ AWS IAM Identity Center (formerly AWS SSO) is the recommended service for centra
 
 </details>
 
-### 21. q-64 `security`
+### 15. ce-64 `security`
 
 A company is designing a microservice-based architecture tor a new application on AWS. Each microservice will run on its own set of Amazon EC2 instances. Each microservice will need to interact with multiple AWS services such as Amazon S3 and Amazon Simple Queue Service (Amazon SQS). The company wants to manage permissions for each EC2 instance based on the principle of least privilege. Which solution will meet this requirement?
 
@@ -254,7 +182,7 @@ This solution directly implements the principle of least privilege. By creating 
 
 </details>
 
-### 22. q-69
+### 16. ce-69
 
 A company runs an application on EC2 instances that need access to RDS credentials stored in AWS Secrets Manager. Which solution meets this requirement?
 
@@ -266,7 +194,7 @@ The most secure and standard AWS method for granting permissions to applications
 
 </details>
 
-### 23. q-72
+### 17. ce-72
 
 How can a company detect and notify security teams about PII in S3 buckets?
 
@@ -278,7 +206,7 @@ Amazon Macie is the designated AWS service for discovering and protecting sensit
 
 </details>
 
-### 24. q-74
+### 18. ce-74
 
 A company wants to provide a third-party system that runs in a private data center with access to its AWS account. The company wants to call AWS APIs directly from the third-party system. The company has an existing process for managing digital certificates. The company does not want to use SAML or OpenID Connect (OIDC) capabilities and does not want to store long-term AWS credentials. Which solution will meet these requirements?
 
@@ -290,7 +218,7 @@ AWS Identity and Access Management (IAM) Roles Anywhere is designed for this exa
 
 </details>
 
-### 25. dt-75
+### 19. dt-75
 
 A company is building software on AWS that requires access to various AWS services. Which configuration should be used to ensure that AWS credentials (i.e., Access Key ID/Secret Access Key combination) are not compromised?
 
@@ -300,7 +228,7 @@ A company is building software on AWS that requires access to various AWS servic
 
 </details>
 
-### 26. q-82
+### 20. ce-82
 
 A company runs an application on Amazon EC2 instances. The instances need to access an Amazon RDS database by using specific credentials. The company uses AWS Secrets Manager to contain the credentials the EC2 instances must use. Which solution will meet this requirement?
 
@@ -312,7 +240,7 @@ The most secure and standard method for an AWS service, like an EC2 instance, to
 
 </details>
 
-### 27. dt-82 `availability`
+### 21. dt-82 `availability`
 
 You are developing a new mobile application and are considering storing user preferences in AWS. This would provide a more uniform cross-device experience to users using multiple mobile devices to access the application. The preference data for each user is estimated to be 50KB in size. Additionally, 5 million customers are expected to use the application on a regular basis. The solution needs to be cost-effective, highly available, scalable and secure. How would you design a solution to meet the above requirements?
 
@@ -322,7 +250,7 @@ You are developing a new mobile application and are considering storing user pre
 
 </details>
 
-### 28. q-84
+### 22. ce-84
 
 A company stores data in Amazon S3. According to regulations, the data must not contain personally identifiable information (PII). The company recently discovered that S3 buckets have some objects that contain PII. The company needs to automatically detect PII in S3 buckets and to notify the company's security team. Which solution will meet these requirements?
 
@@ -334,7 +262,7 @@ Amazon Macie is the designated AWS service for discovering and protecting sensit
 
 </details>
 
-### 29. q-91
+### 23. ce-91
 
 A company is developing a new application that will run on Amazon EC2 instances. The application needs to access multiple AWS services. The company needs to ensure that the application will not use long-term access keys to access AWS services.
 
@@ -346,7 +274,7 @@ The most secure and recommended method for applications running on Amazon EC2 in
 
 </details>
 
-### 30. q-95
+### 24. ce-95
 
 A company is developing a public web application that needs to access multiple AWS services. The application will have hundreds of users who must log in to the application first before using the services. The company needs to implement a secure and scalable method to grant the web application temporary access to the AWS resources. Which solution will meet these requirements?
 
@@ -358,7 +286,7 @@ The most secure and scalable method for an application to access AWS resources i
 
 </details>
 
-### 31. q-102
+### 25. ce-102
 
 A company is implementing a new policy to enhance the security of its AWS environment. The policy requires all administrative actions that users perform on the AWS Management Console to be secured by multi-factor authentication (MFA). Which solution will allow the company to enforce this policy in the MOST operationally efficient way?
 
@@ -370,7 +298,7 @@ The most operationally efficient and secure method to enforce Multi-Factor Authe
 
 </details>
 
-### 32. q-106
+### 26. ce-106
 
 A global company is migrating its workloads from an on-premises data center to AWS. The AWS environment includes multiple AWS accounts. IAM roles. AWS Config rules, and a VPC. The company wants an automated process to provision new accounts on demand when the company's business units require new accounts. Which solution will meet these requirements with LEAST effort?
 
@@ -382,7 +310,7 @@ AWS Control Tower is a managed service designed to set up and govern a secure, m
 
 </details>
 
-### 33. q-107 `least-ops`
+### 27. ce-107 `least-ops`
 
 An international company needs to share data from an Amazon S3 bucket to employees who are located around the world. The company needs a secure solution to provide employees with access to the S3 bucket. The employees are already enrolled in AWS IAM Identity Center. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -394,7 +322,7 @@ The most efficient solution with the least operational overhead is to leverage t
 
 </details>
 
-### 34. dt-108
+### 28. dt-108
 
 After creating a new IAM user which of the following must be done before they can successfully make API calls?
 
@@ -404,7 +332,7 @@ After creating a new IAM user which of the following must be done before they ca
 
 </details>
 
-### 35. q-109
+### 29. ce-109
 
 A company stores sensitive customer data in an Amazon DynamoDB table. The company frequently updates the dat a. The company wants to use the data to personalize offers for customers. The company's analytics team has its own AWS account. The analytics team runs an application on Amazon EC2 instances that needs to process data from the DynamoDB tables. The company needs to follow security best practices to create a process to regularly share data from DynamoDB to the analytics team. Which solution will meet these requirements?
 
@@ -416,7 +344,7 @@ The most secure and appropriate method for granting programmatic, cross-account 
 
 </details>
 
-### 36. dt-110
+### 30. dt-110
 
 IAM's Policy Evaluation Logic always starts with a default [...] for every request, except for those that use the AWS account's root security credentials?
 
@@ -426,7 +354,7 @@ IAM's Policy Evaluation Logic always starts with a default [...] for every reque
 
 </details>
 
-### 37. q-113 `least-ops`
+### 31. ce-113 `least-ops`
 
 A company has an e-commerce site. The site is designed as a distributed web application hosted in multiple AWS accounts under one AWS Organizations organization. The web application is comprised of multiple microservices. All microservices expose their AWS services either through Amazon CloudFront distributions or public Application Load Balancers (ALBs). The company wants to protect public endpoints from malicious attacks and monitor security configurations. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -438,7 +366,7 @@ The solution requires protecting public endpoints (ALBs, CloudFront) across mult
 
 </details>
 
-### 38. dt-114
+### 32. dt-114
 
 A corporate web application is deployed within an Amazon Virtual Private Cloud (VPC) and is connected to the corporate data center via an IPsec VPN. The application must authenticate against the on-premises LDAP server. After authentication, each logged-in user can only access an Amazon Simple Storage Space (S3) keyspace specific to that user. Which two approaches can satisfy these objectives? (Choose 2 answers)
 
@@ -448,7 +376,7 @@ A corporate web application is deployed within an Amazon Virtual Private Cloud (
 
 </details>
 
-### 39. q-118
+### 33. ce-118
 
 A company manages multiple AWS accounts in an organization in AWS Organizations. The company's applications run on Amazon EC2 instances in multiple AWS Regions. The company needs a solution to simplify the management of security rules across the accounts in its organization. The solution must apply shared security group rules, audit security groups, and detect unused and redundant rules in VPC security groups across all AWS environments. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -460,7 +388,7 @@ AWS Firewall Manager is a security management service designed to centrally conf
 
 </details>
 
-### 40. q-125
+### 34. ce-125
 
 A company uses AWS to run its e-commerce platform, which is critical to its operations and experiences a high volume of traffic and transactions. The company has configured a multi-factor authentication (MFA) device to secure its AWS account root user credentials. The company wants to ensure that it will not lose access to the root user account if the MFA device is lost. Which solution will meet these requirements?
 
@@ -472,7 +400,7 @@ AWS Identity and Access Management (IAM) supports the assignment of multiple Mul
 
 </details>
 
-### 41. q-127
+### 35. ce-127
 
 A company is planning to migrate customer records to an Amazon S3 bucket. The company needs to ensure that customer records are protected against unauthorized access and are encrypted in transit and at rest. The company must monitor all access to the S3 bucket.
 
@@ -484,7 +412,7 @@ This option provides a comprehensive and correct security strategy for Amazon S3
 
 </details>
 
-### 42. q-129
+### 36. ce-129
 
 A company uses AWS Organizations to manage multiple AWS accounts. Each department in the company has its own AWS account. A security team needs to implement centralized governance and control to enforce security best practices across all accounts. The team wants to have control over which AWS services each account can use. The team needs to restrict access to sensitive resources based on IP addresses or geographic regions. The root user must be protected with multi-factor authentication (MFA) across all accounts. Options:
 
@@ -496,7 +424,7 @@ AWS Control Tower is designed to set up and govern a secure, multi-account AWS e
 
 </details>
 
-### 43. dt-129 `security`
+### 37. dt-129 `security`
 
 An enterprise wants to use a third-party SaaS application. The SaaS application needs to have access to issue several API commands to discover Amazon EC2 resources running within the enterprise's account The enterprise has internal security policies that require any outside access to their environment must conform to the principles of least privilege and there must be controls in place to ensure that the credentials used by the 5aa5 vendor cannot be used by any other third party. Which of the following would meet all of these conditions?
 
@@ -506,7 +434,7 @@ An enterprise wants to use a third-party SaaS application. The SaaS application 
 
 </details>
 
-### 44. q-137
+### 38. ce-137
 
 A company needs to grant a team of developers access to the company's AWS resources. The company must maintain a high level of security for the resources. The company requires an access control solution that will prevent unauthorized access to the sensitive data. Which solution will meet these requirements?
 
@@ -518,7 +446,7 @@ The most secure and scalable solution is to use IAM roles with permissions defin
 
 </details>
 
-### 45. q-138 `security`
+### 39. ce-138 `security`
 
 A company is setting up a development environment on AWS for a team of developers. The team needs to access multiple Amazon S3 buckets to store project dat a. The team also needs to use Amazon EC2 to run development instances. The company needs to ensure that the developers have access only to specific Amazon S3 buckets and EC2 instances. Access permissions must be assigned according to each developer's role on the team. The company wants to minimize the use of permanent credentials and to ensure access is securely managed according to the principle of least privilege. Which solution will meet these requirements?
 
@@ -530,7 +458,7 @@ This solution directly addresses all requirements. AWS IAM Identity Center (form
 
 </details>
 
-### 46. dt-148
+### 40. dt-148
 
 Which of the below mentioned options is a possible solution to avoid any security threat?
 
@@ -540,7 +468,7 @@ Which of the below mentioned options is a possible solution to avoid any securit
 
 </details>
 
-### 47. dt-150
+### 41. dt-150
 
 You are looking to migrate your Development (Dev) and Test environments to AWS. You have decided to use separate AWS accounts to host each environment. You plan to link each accounts bill to a Master AWS account using Consolidated Billing. To make sure you Keep within budget you would like to implement a way for administrators in the Master account to have access to stop, delete and/or terminate resources in both the Dev and Test accounts. Identify which option will allow you to achieve this goal.
 
@@ -550,7 +478,7 @@ You are looking to migrate your Development (Dev) and Test environments to AWS. 
 
 </details>
 
-### 48. dt-154
+### 42. dt-154
 
 A company is building a voting system for a popular TV show. Viewers will watch the performances then visit the show's website to vote for their favorite performer. It is expected that in a short period of time after the show has finished the site will receive millions of visitors. The visitors will first login to the site using their Amazon.com credentials and then submit their vote. After the voting is completed the page will display the vote totals. The company needs to build the site such that can handle the rapid influx of traffic while maintaining good performance but also wants to keep costs to a minimum. Which of the design patterns below should they use?
 
@@ -560,7 +488,7 @@ A company is building a voting system for a popular TV show. Viewers will watch 
 
 </details>
 
-### 49. q-155 `security`
+### 43. ce-155 `security`
 
 A company runs an application on Amazon EC2 instances. The application needs to access an Amazon RDS database. The company wants to grant the EC2 instances access permissions to the RDS database while following the principle of least privilege. Which solution will meet these requirements?
 
@@ -572,7 +500,7 @@ The most secure and scalable method to grant permissions from an EC2 instance to
 
 </details>
 
-### 50. dt-155 `security`
+### 44. dt-155 `security`
 
 You are designing a photo sharing mobile app. The application will store all pictures in a single Amazon S3 bucket. Users will upload pictures from their mobile device directly to Amazon S3 and will be able to view and download their own pictures directly from Amazon S3. You want to configure security to handle potentially millions of users in the most secure manner possible. What should your server-side application do when a new user registers on the photo sharing mobile application?
 
@@ -582,7 +510,7 @@ You are designing a photo sharing mobile app. The application will store all pic
 
 </details>
 
-### 51. q-159
+### 45. ce-159
 
 A company is using AWS Identity and Access Management (IAM) Access Analyzer to refine IAM permissions for employee users. The company uses an organization in AWS Organizations and AWS Control Tower to manage its AWS accounts. The company has designated a specific member account as an audit account. A solutions architect needs to set up IAM Access Analyzer to aggregate findings from all member accounts in the audit account. What is the first step the solutions architect should take?
 
@@ -594,7 +522,7 @@ To centralize IAM Access Analyzer findings across an AWS Organization, the first
 
 </details>
 
-### 52. dt-159
+### 46. dt-159
 
 A [...] is a document that provides a formal statement of one or more permissions.
 
@@ -604,7 +532,7 @@ A [...] is a document that provides a formal statement of one or more permission
 
 </details>
 
-### 53. q-161
+### 47. ce-161
 
 A company has AWS Lambda functions that use environment variables. The company does not want its developers to see environment variables in plaintext. Which solution will meet these requirements?
 
@@ -616,7 +544,7 @@ AWS Lambda provides built-in integration with AWS Key Management Service (KMS) t
 
 </details>
 
-### 54. q-172
+### 48. ce-172
 
 A company stores sensitive financial reports in an Amazon S3 bucket. To comply with auditing requirements, the company must encrypt the data at rest. Users must not have the ability to change the encryption method or remove encryption when the users upload dat a. The company must be able to audit all encryption and storage actions. Which solution will meet these requirements and provide the MOST granular control?
 
@@ -628,7 +556,7 @@ This solution meets all requirements by leveraging server-side encryption with A
 
 </details>
 
-### 55. q-177
+### 49. ce-177
 
 A solutions architect is storing sensitive data generated by an application in Amazon S3. The solutions architect wants to encrypt the data at rest. A company policy requires an audit trail of when the AWS KMS key was used and by whom. Which encryption option will meet these requirements?
 
@@ -640,7 +568,7 @@ The core requirements are encryption at rest and a detailed audit trail of encry
 
 </details>
 
-### 56. q-181
+### 50. ce-181
 
 A multinational company operates in multiple AWS Regions. The company must ensure that its developers and administrators have secure, role-based access to AWS resources. The roles must be specific to each user's geographic location and job responsibilities. The company wants to implement a solution to ensure that each team can access only resources within the team's Region. The company wants to use its existing directory service to manage user access. The existing directory service organizes users into roles based on location. The system must be capable of integrating seamlessly with multi-factor authentication (MFA). Which solution will meet these requirements?
 
@@ -652,7 +580,7 @@ AWS IAM Identity Center (formerly AWS SSO) is the recommended service for centra
 
 </details>
 
-### 57. q-183 `least-ops`
+### 51. ce-183 `least-ops`
 
 A company needs to provide a team of contractors with temporary access to the company's AWS resources for a short-term project. The contractors need different levels of access to AWS services. The company needs to revoke permissions for all the contractors when the project is finished. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -664,7 +592,7 @@ The most efficient and secure method to provide temporary access is by using AWS
 
 </details>
 
-### 58. dt-187
+### 52. dt-187
 
 True or False: Amazon EC2 has no Amazon Resource Names (ARNs) because you can't specify a particular Amazon EC2 resource in an IAM policy.
 
@@ -674,7 +602,7 @@ True or False: Amazon EC2 has no Amazon Resource Names (ARNs) because you can't 
 
 </details>
 
-### 59. q-188
+### 53. ce-188
 
 A company plans to store sensitive user data on Amazon S3. Internal security compliance requirements mandate encryption of data before sending it to Amazon S3. What should a solutions architect recommend to satisfy these requirements?
 
@@ -686,7 +614,7 @@ The core requirement is to encrypt data before sending it to Amazon S3. This pro
 
 </details>
 
-### 60. q-193
+### 54. ce-193
 
 A company has established a new AWS account. The account is newly provisioned and no changes have been made to the default settings. The company is concerned about the security of the AWS account root user. What should be done to secure the root user?
 
@@ -698,7 +626,7 @@ AWS security best practices strongly recommend securing the AWS account root use
 
 </details>
 
-### 61. q-194 `least-ops`
+### 55. ce-194 `least-ops`
 
 A company runs an application on premises. The application needs to periodically upload large files to an Amazon S3 bucket. A solutions architect needs a solution to provide the application with short- lived authenticated access to the S3 bucket. The solution must not use long-term credentials. The solution needs to be secure and scalable. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -710,7 +638,7 @@ The most secure and efficient solution is to use AWS Security Token Service (STS
 
 </details>
 
-### 62. q-200
+### 56. ce-200
 
 A company runs several custom applications on Amazon EC2 instances. Each team within the company manages its own set of applications and backups. To comply with regulations, the company must be able to report on the status of backups and ensure that backups are encrypted. Which solution will meet these requirements with the LEAST effort?
 
@@ -722,7 +650,19 @@ AWS Backup Audit Manager is a purpose-built feature within AWS Backup designed t
 
 </details>
 
-### 63. dt-203
+### 57. ce-201
+
+A healthcare company stores personally identifiable information (PII) data in an Amazon RDS for Oracle database. The company must encrypt the PII data at rest. The company must use dedicated hardware modules to store and manage the encryption keys.
+
+<details><summary>Answer</summary>
+
+**B. Use AWS CloudHSM backed AWS KMS keys to configure transparent encryption for the RDS database.**
+
+The requirement is to encrypt an Amazon RDS for Oracle database at rest, with encryption keys managed in dedicated hardware modules. Amazon RDS integrates with AWS Key Management Service (KMS) to encrypt databases. To satisfy the requirement for dedicated hardware, AWS KMS can be configured to use a custom key store backed by an AWS CloudHSM cluster. This ensures that the KMS keys used for RDS encryption are generated, stored, and used exclusively within your single-tenant Hardware Security Modules (HSMs). RDS for Oracle uses Transparent Data Encryption (TDE), and this integrated solution transparently encrypts the data while meeting the stringent key management requirements. Why Incorrect Options are Wrong: A: This option is less precise. You cannot directly configure RDS to store and manage keys in CloudHSM. The correct and required integration path is through an AWS KMS custom key sto
+
+</details>
+
+### 58. dt-203
 
 Which service enables AWS customers to manage users and permissions in AWS?
 
@@ -732,7 +672,7 @@ Which service enables AWS customers to manage users and permissions in AWS?
 
 </details>
 
-### 64. q-206
+### 59. ce-206
 
 A company uses Amazon EC2 instances to host its internal systems. As part of a deployment operation, an administrator tries to use the AWS CLI to terminate an EC2 instance. However, the administrator receives a 403 (Access Denied) error message. The administrator is using an IAM role that has the following IAM policy attached: What is the cause of the unsuccessful request?
 
@@ -744,7 +684,7 @@ The IAM policy includes a Condition element that restricts access based on the s
 
 </details>
 
-### 65. dt-213
+### 60. dt-213
 
 You log in to IAM on your AWS console and notice the following message. 'Delete your root access keys.' Why do you think IAM is requesting this?
 
@@ -754,7 +694,7 @@ You log in to IAM on your AWS console and notice the following message. 'Delete 
 
 </details>
 
-### 66. q-221 `least-ops`
+### 61. ce-221 `least-ops`
 
 A home security company is expanding globally and needs to encrypt customer data. The company does not want to manage encryption keys. The keys must be usable in multiple AWS Regions, and access to the keys must be controlled. Which solution meets these requirements with the least operational overhead?
 
@@ -766,7 +706,7 @@ The solution requires a managed encryption service that minimizes operational ov
 
 </details>
 
-### 67. q-222
+### 62. et-222
 
 A company has hired an external vendor to perform work in the company’s AWS account. The vendor uses an automated tool that is hosted in an AWS account that the vendor owns. The vendor does not have IAM access to the company’s AWS account. How should a solutions architect grant this access to the vendor?
 
@@ -778,7 +718,7 @@ IAM roles allow you to delegate access to resources in your AWS account to anoth
 
 </details>
 
-### 68. q-223
+### 63. et-223
 
 A company has deployed a Java Spring Boot application as a pod that runs on Amazon Elastic Kubernetes Service (Amazon EKS) in private subnets. The application needs to write data to an Amazon DynamoDB table. A solutions architect must ensure that the application can interact with the DynamoDB table without exposing traffic to the internet. Which combination of steps should the solutions architect take to accomplish this goal? (Choose two.)
 
@@ -790,7 +730,7 @@ D. Create a VPC endpoint for DynamoDB. Most Voted  This IAM role should have the
 
 </details>
 
-### 69. q-225 `least-ops`
+### 64. ce-225 `least-ops`
 
 A home security company is expanding its business globally. The company needs to encrypt customer data. The company does not want to manage its own keys. The company needs the keys to be usable in multiple AWS Regions and needs to control access to the keys. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -802,7 +742,7 @@ The solution requires a low-overhead, multi-region encryption key strategy where
 
 </details>
 
-### 70. dt-226
+### 65. dt-226
 
 Is there a method in the IAM system to allow or deny access to a specific instance?
 
@@ -812,7 +752,7 @@ Is there a method in the IAM system to allow or deny access to a specific instan
 
 </details>
 
-### 71. dt-227
+### 66. dt-227
 
 Using Amazon IAM, can I give permission based on organizational groups?
 
@@ -822,7 +762,7 @@ Using Amazon IAM, can I give permission based on organizational groups?
 
 </details>
 
-### 72. q-232
+### 67. et-232
 
 A company runs demonstration environments for its customers on Amazon EC2 instances. Each environment is isolated in its own VPC. The company’s operations team needs to be notified when RDP or SSH access to an environment has been established.
 
@@ -834,7 +774,7 @@ VPC flow logs record every accepted and rejected connection on the network inter
 
 </details>
 
-### 73. q-234 `security`
+### 68. ce-234 `security`
 
 A company is designing a microservice-based architecture for a new application on AWS. Each microservice will run on its own set of Amazon EC2 instances. Each microservice will need to interact with multiple AWS services. The company wants to manage permissions for each EC2 instance according to the principle of least privilege. Which solution will meet this requirement with the LEAST administrative overhead?
 
@@ -846,7 +786,7 @@ An IAM role can be scoped to exactly the API actions that a given microservice n
 
 </details>
 
-### 74. q-234
+### 69. et-234
 
 A company is building a new web-based customer relationship management application. The application will use several Amazon EC2 instances that are backed by Amazon Elastic Block Store (Amazon EBS) volumes behind an Application Load Balancer (ALB). The application will also use an Amazon Aurora database. All data for the application must be encrypted at rest and in transit. Which solution will meet these requirements?
 
@@ -858,7 +798,7 @@ Using AWS KMS to encrypt EBS volumes and Aurora database storage at rest is a go
 
 </details>
 
-### 75. q-235 `least-ops`
+### 70. ce-235 `least-ops`
 
 A company is developing a new application that uses Amazon EC2, Amazon S3, and AWS Lambda resources. The company wants to allow employees to access the AWS Management Console by using existing credentials that the company stores and manages in an on-premises Microsoft Active Directory. Each employee must have a specific level of access to the AWS resources that is based on the employee's role. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -870,7 +810,7 @@ The requirement is to integrate an on-premises Microsoft Active Directory with A
 
 </details>
 
-### 76. q-236
+### 71. ce-236
 
 A company hosts an end-user application on Amazon EC2 instances behind an Application Load Balancer (ALB). The company needs to configure end-to-end encryption between the ALB and the EC2 instances. Which solution will meet this requirement with the LEAST operational effort?
 
@@ -882,7 +822,7 @@ For end-to-end encryption with minimal operational effort, you need certificates
 
 </details>
 
-### 77. q-238
+### 72. ce-238
 
 A company is building an Amazon Elastic Kubernetes Service (Amazon EKS) cluster for its workloads. All secrets that are stored in Amazon EKS must be encrypted in the Kubernetes etcd key-value store. Which solution will meet these requirements?
 
@@ -894,7 +834,7 @@ Amazon Elastic Kubernetes Service (Amazon EKS) provides a native feature to encr
 
 </details>
 
-### 78. q-239
+### 73. ce-239
 
 A company uses AWS WAF to protect its web applications. A solutions architect configures a web ACL that uses several rules, including a rule that inspects the HTTP request body for malicious content. The solutions architect notices that the web ACL is not inspecting large HTTP POST requests properly. As a result, suspicious activities are not being detected. Some large HTTP POST requests are more than 8 MB in size. The solutions architect must ensure that the web ACL inspects the large HTTP POST requests properly. Which solution will meet this requirement?
 
@@ -906,7 +846,7 @@ AWS WAF has a default size limit of 8 KB for inspecting the body of an HTTP/S re
 
 </details>
 
-### 79. q-239
+### 74. et-239
 
 A solutions architect needs to design a new microservice for a company’s application. Clients must be able to call an HTTPS endpoint to reach the microservice. The microservice also must use AWS Identity and Access Management (IAM) to authenticate calls. The solutions architect will write the logic for this microservice by using a single AWS Lambda function that is written in Go 1.x. Which solution will deploy the function in the MOST operationally efficient way?
 
@@ -918,7 +858,7 @@ Explanation: A Lambda function URL gives the function its own HTTPS endpoint dir
 
 </details>
 
-### 80. q-242
+### 75. ce-242
 
 A solutions architect has created an AWS Lambda function that is written in Java. A company will use the Lambda function as a new microservice for its application. The company's customers must be able to call an HTTPS endpoint to reach the microservice. The microservice must use AWS Identity and Access Management (IAM) to authenticate calls. Which solution will meet these requirements?
 
@@ -930,7 +870,7 @@ AWS Lambda Function URLs are a built-in feature that provides a dedicated HTTPS 
 
 </details>
 
-### 81. q-247
+### 76. ce-247
 
 A company uses AWS CloudFormation to deploy IAM resources within accounts that AWS Control Tower governs. The security team wants to prevent the deployment of IAM roles that include inline policies with the following statements: "Effect": "Allow", "Action": "*", "Resource": "*" Which solution will meet this requirement?
 
@@ -942,7 +882,7 @@ The requirement is to prevent the deployment of non-compliant IAM resources. AWS
 
 </details>
 
-### 82. q-248
+### 77. ce-248
 
 A company wants DevOps teams to create IAM roles, but no role may have administrative permissions. Which solution will meet these requirements?
 
@@ -954,7 +894,7 @@ To allow IAM role creation while preventing administrative permissions, the best
 
 </details>
 
-### 83. q-249 `least-ops`
+### 78. ce-249 `least-ops`
 
 A company requires centralized auditing for all AWS accounts and compliance monitoring against AWS Foundational Security Best Practices (FSBP) with minimal operational overhead. Which solution will meet these requirements?
 
@@ -966,7 +906,7 @@ AWS Control Tower provides the most streamlined way to set up and govern a secur
 
 </details>
 
-### 84. q-250
+### 79. ce-250
 
 A company has an application that runs on Amazon EC2 instances and uses an Amazon Aurora database. The EC2 instances connect to the Aurora database by using user names and passwords that the company stores locally in a file. The company changes the user names and passwords every month. The company wants to minimize the operational overhead of credential management. Which solution will meet these requirements?
 
@@ -978,7 +918,7 @@ AWS Secrets Manager is the ideal service for managing database credentials. It s
 
 </details>
 
-### 85. q-251
+### 80. ce-251
 
 A company has deployed a non-production Amazon EC2 instance by using an Amazon Linux AMI in a private subnet. The company wants to allow a group of developers to connect to the EC2 instance remotely by using SSH without exposing the EC2 instance to the internet. The developers must be able to connect to the EC2 instance through the AWS Management Console. Which solution will meet these requirements?
 
@@ -990,7 +930,7 @@ EC2 Instance Connect Endpoint enables console-initiated SSH to instances located
 
 </details>
 
-### 86. dt-253
+### 81. dt-253
 
 In AWS, which security aspects are the customer's responsibility? (Choose 4 answers)
 
@@ -1000,7 +940,7 @@ In AWS, which security aspects are the customer's responsibility? (Choose 4 answ
 
 </details>
 
-### 87. q-254
+### 82. ce-254
 
 A company needs to allow a vendor to access CloudWatch Logs in the company's AWS account by using IAM roles for cross-account access. Which solution will meet these requirements?
 
@@ -1012,7 +952,7 @@ To establish cross-account access, the account containing the resources (the com
 
 </details>
 
-### 88. q-259 `security`
+### 83. ce-259 `security`
 
 A company has hired an external vendor to work in the company's AWS account. The vendor uses an automated tool that the vendor hosts in its own AWS account. The vendor does not have IAM access to the company's AWS account. A solutions architect needs to grant access to the vendor. Which solution will meet these requirements MOST securely?
 
@@ -1024,7 +964,7 @@ The most secure method for granting cross-account access to an automated tool is
 
 </details>
 
-### 89. q-262
+### 84. ce-262
 
 A global company operates in multiple AWS Regions to meet data residency requirements. The company uses AWS Organizations to manage its accounts. The company wants to restrict IAM roles and access to specific Regions to prevent accidental data operations across geographic boundaries. Which solution will meet these requirements?
 
@@ -1036,7 +976,7 @@ The most direct and effective method to restrict IAM actions to specific AWS Reg
 
 </details>
 
-### 90. q-264
+### 85. ce-264
 
 A company needs to save confidential medical results in an Amazon S3 bucket. The repository must allow a few approved users to add new files. The repository must restrict all other users to read-only access by using a write once, read many (WORM) approach. The company must keep every file in the repository for a minimum of 1 year after its creation date. Which solution will meet these requirements with the LEAST implementation effort?
 
@@ -1048,19 +988,19 @@ S3 Object Lock is the purpose-built AWS feature for implementing a write-once-re
 
 </details>
 
-### 91. q-268
+### 86. ce-268
 
 A company needs to use its on-premises LDAP directory service to authenticate its users to the AWS Management Console. The directory service is not compatible with Security Assertion Markup Language (SAML). Which solution meets these requirements?
 
 <details><summary>Answer</summary>
 
-**Put Amazon ElastiCache between the application and the Amazon RDS for MySQL database so repeated score reads are served from the cache instead of the database.**
+**D. Develop an on-premises custom identity broker application or process that uses AWS STS to get short-lived credentials.**
 
-The bottleneck is read volume against the MySQL database, so the fix has to take reads off it. ElastiCache serves the hot, frequently requested score data from memory, which cuts both the delays and the load on RDS without re-platforming the application. RDS Proxy only manages and reuses database connections - useful when an application opens too many connections or needs faster failover, but it adds no read capacity. Migrating to Lambda or to DynamoDB would be a far larger change than the question allows.
+Since the on-premises LDAP directory is not compatible with SAML, standard federation methods like using AWS IAM Identity Center with a SAML 2.0 identity provider are not possible. The correct pattern for this scenario is to create a custom identity broker. This on-premises application authenticates users against the LDAP directory. Upon successful authentication, the broker application calls the AWS Security Token Service (STS) AssumeRole API action to trade the application's credentials for temporary, short-lived AWS credentials scoped for the authenticated user. The user can then use these temporary credentials to access the AWS Management Console. Why Incorrect Options are Wrong: A. AWS IAM Identity Center typically requires a SAML 2.0-compatible identity provider or Active Directory for federation, which is not available in this scenario. B. This is not a valid or secure integration
 
 </details>
 
-### 92. q-274
+### 87. ce-274
 
 A company uses an organization in AWS Organizations to manage multiple AWS accounts. The company is migrating users from IAM to AWS IAM Identity Center. The company wants to ensure that no new IAM users can be created in any of the member accounts. The company wants to allow only existing IAM users to have access to the accounts. Which solution will meet these requirements?
 
@@ -1072,7 +1012,7 @@ Service Control Policies (SCPs) are a feature of AWS Organizations used to manag
 
 </details>
 
-### 93. dt-277
+### 88. dt-277
 
 A company is preparing to give AWS Management Console access to developers. Company policy mandates identity federation and role-based access control. Roles are currently assigned using groups in the corporate Active Directory. What combination of the following will give developers access to the AWS console? (Choose 2 answers)
 
@@ -1082,7 +1022,7 @@ A company is preparing to give AWS Management Console access to developers. Comp
 
 </details>
 
-### 94. q-279
+### 89. ce-279
 
 A solutions architect is using Amazon EC2 instances to host an application. The solutions architect needs to grant permissions for the application to access an Amazon DynamoDB table. Which solution will meet this requirement?
 
@@ -1094,7 +1034,7 @@ The standard and most secure method for an application on an Amazon EC2 instance
 
 </details>
 
-### 95. q-280
+### 90. ce-280
 
 A company has an AWS Lambda function and an Amazon S3 bucket. A solutions architect creates an IAM role that has S3:GetObject and S3:ListBucket permissions and configures it as the Lambda function execution role. The function must write logs to an Amazon CloudWatch Logs log group when the function is invoked. Which solution will meet this requirement?
 
@@ -1106,7 +1046,7 @@ The AWS Lambda function's permissions are defined by its execution role. To allo
 
 </details>
 
-### 96. q-282
+### 91. ce-282
 
 A company uses an organization in AWS Organizations to manage multiple AWS accounts. Multiple teams access each AWS account by assuming IAM roles. Each team has a unique IAM role. Each IAM role has a unique set of permissions. A security team wants to automate some security tasks by deploying AWS Lambda functions within each AWS account. The security team wants to ensure that only members of the security team can modify the Lambda functions directly. Which solution will meet these requirements?
 
@@ -1118,7 +1058,7 @@ Service Control Policies (SCPs) are the correct mechanism to enforce organizatio
 
 </details>
 
-### 97. q-283
+### 92. ce-283
 
 A company hosts customer data in an Amazon S3 bucket. The company wants to ensure that only specific applications that run on Amazon EC2 instances in a private subnet have access to the S3 bucket. The applications must not require long-term AWS access keys. The company needs to log all access to S3 objects for auditing purposes. Which solution will meet these requirements?
 
@@ -1130,7 +1070,7 @@ This solution meets all requirements securely and efficiently. Using an IAM role
 
 </details>
 
-### 98. q-286 `security`
+### 93. ce-286 `security`
 
 A company performs a security review of its AWS workloads and finds that all the company's IAM users have the AdministratorAccess IAM managed policy directly attached. The company's IAM users belong to either an engineering department or an operations department. Engineering users require full read and write access to all resources. Operations users require only read access to all resources. The company must apply the principle of least privilege to user access. Which solution will meet this requirement in the MOST operationally efficient way?
 
@@ -1142,7 +1082,7 @@ This solution is the most operationally efficient and aligns with AWS IAM best p
 
 </details>
 
-### 99. q-287
+### 94. ce-287
 
 A company wants to share data between applications that run in separate AWS accounts. The company wants to use Amazon API Gateway REST APIs to expose private APIs. The company wants to ensure that only authorized accounts can invoke the private APIs. Which solution will meet this requirement?
 
@@ -1154,7 +1094,7 @@ The standard and most direct method to control cross-account access to a private
 
 </details>
 
-### 100. q-288
+### 95. ce-288
 
 A company uses an organization in AWS Organizations to manage five AWS accounts. The company requires a centralized solution to prevent anyone from creating IAM users or access keys in any account. Which solution will meet this requirement with the LEAST administrative overhead?
 
@@ -1166,7 +1106,7 @@ The goal is to centrally prevent the creation of IAM users and access keys acros
 
 </details>
 
-### 101. q-289 `security`
+### 96. et-289 `security`
 
 A company has an AWS Lambda function that needs read access to an Amazon S3 bucket that is located in the same AWS account. Which solution will meet these requirements in the MOST secure manner?
 
@@ -1178,7 +1118,7 @@ An IAM role provides temporary credentials to the Lambda function to access AWS 
 
 </details>
 
-### 102. q-296 `security`
+### 97. ce-296 `security`
 
 A company uses an organization in AWS Organizations to manage multiple AWS accounts. The company is building a product that spans multiple accounts. Developers at the company who work in multiple accounts need to give AWS Lambda functions access to write logs to an Amazon S3 bucket that is in a central logging account. Which solution will meet this requirement in the MOST secure way?
 
@@ -1190,7 +1130,7 @@ The most secure and standard method for granting cross-account access is to use 
 
 </details>
 
-### 103. q-298
+### 98. ce-298
 
 A company is building an application on an Amazon ECS cluster that uses the AWS Fargate launch type. The application must read files from a private Amazon S3 bucket. The company needs to design a security solution to allow ECS tasks to retrieve data from the S3 bucket. Which solution will meet these requirements with the LEAST administrative effort?
 
@@ -1202,7 +1142,7 @@ The most secure and efficient method to grant AWS permissions to applications ru
 
 </details>
 
-### 104. q-299
+### 99. ce-299
 
 A company runs a web application on Amazon EC2 instances behind an Application Load Balancer ALB. The application experiences periodic spikes in malicious traffic attempts from attackers. The application receives mostly SQL injection and cross-site scripting XSS attacks from external sources. The company requires a solution to protect the application from the attacks. The solution must have minimal effect on application performance. Which solution will meet these requirements?
 
@@ -1214,7 +1154,7 @@ The requirement is to protect a web application from common layer 7 attacks like
 
 </details>
 
-### 105. q-300 `security`
+### 100. ce-300 `security`
 
 The company must encrypt finance reports that are stored in an Amazon S3 bucket. An AWS Lambda function must be able to decrypt the reports dynamically. An IAM group that the company's security administrators use must manage the encryption keys. The IAM group must manage key rotation, deletion, and creation. The company must grant access to the keys according to the principle of least privilege. Which solution will meet these requirements?
 
@@ -1226,7 +1166,7 @@ The requirements necessitate granular control over key management and adherence 
 
 </details>
 
-### 106. dt-300
+### 101. dt-300
 
 Without [...] you must either create multiple AWS accounts-each with its own billing and subscriptions to AWS products-or your employees must share the security credentials of a single AWS account.
 
@@ -1236,7 +1176,7 @@ Without [...] you must either create multiple AWS accounts-each with its own bil
 
 </details>
 
-### 107. q-306 `least-ops`
+### 102. ce-306 `least-ops`
 
 A company uses an Amazon Aurora PostgreSQL DB cluster to store structured sensitive data about its customers. To meet compliance requirements, the company introduced a policy that all the customer-related data must be encrypted at rest. Which solution will ensure that the company is compliant with the policy with the LEAST operational overhead?
 
@@ -1248,7 +1188,7 @@ You cannot enable encryption on an existing, unencrypted Amazon Aurora DB cluste
 
 </details>
 
-### 108. dt-306
+### 103. dt-306
 
 A company needs to deploy services to an AWS region which they have not previously used. The company currently has an AWS identity and Access Management (IAM) role for the Amazon EC2 instances, which permits the instance to have access to Amazon DynamoDB. The company wants their EC2 instances in the new region to have the same privileges. How should the company achieve this?
 
@@ -1258,7 +1198,7 @@ A company needs to deploy services to an AWS region which they have not previous
 
 </details>
 
-### 109. q-309
+### 104. ce-309
 
 A company's cloud operations team uses the AWS Management Console to administer AWS resources from remote locations, including employees' home offices. The cloud operations team logs in by using individual IAM user accounts. The IAM users belong to an IAM user group that has the PowerUserAccess AWS managed policy attached. A solutions architect needs to recommend a solution to improve security for the cloud operations team's AWS account. The solution must not increase operational overhead for the cloud operations team. Which solution will meet these requirements?
 
@@ -1270,7 +1210,7 @@ Enforcing multi-factor authentication (MFA) is a fundamental security best pract
 
 </details>
 
-### 110. q-311
+### 105. ce-311
 
 A large company requires a data backup strategy. The solution must replicate long-term backups from a source AWS account to a dedicated backup AWS account. All backups must be encrypted. The encryption keys must be available for encryption and decryption operations in both the source account and the backup account. Only specific AWS accounts, resources, and users must have access permissions for the encryption keys. Which solution will meet these requirements?
 
@@ -1282,7 +1222,7 @@ This solution correctly addresses all requirements using the most appropriate AW
 
 </details>
 
-### 111. dt-319
+### 106. dt-319
 
 A user has created an application which will be hosted on EC2. The application makes calls to DynamoDB to fetch certain data. The application is using the DynamoDB SDK to connect with from theEC2 instance. Which of the below mentioned statements is true with respect to the best practice for security in this scenario?
 
@@ -1292,7 +1232,7 @@ A user has created an application which will be hosted on EC2. The application m
 
 </details>
 
-### 112. q-325
+### 107. et-325
 
 A company is hosting a web application from an Amazon S3 bucket. The application uses Amazon Cognito as an identity provider to authenticate users and return a JSON Web Token (JWT) that provides access to protected resources that are stored in another S3 bucket. Upon deployment of the application, users report errors and are unable to access the protected content. A solutions architect must resolve this issue by providing proper permissions so that users can access the protected content. Which solution meets these requirements?
 
@@ -1304,7 +1244,7 @@ Amazon Cognito Identity Pool: When users authenticate through Amazon Cognito, th
 
 </details>
 
-### 113. q-330
+### 108. et-330
 
 A company is planning to store data on Amazon RDS DB instances. The company must encrypt the data at rest. What should a solutions architect do to meet this requirement?
 
@@ -1316,7 +1256,7 @@ By creating a key in AWS KMS and enabling encryption for the RDS DB instances, y
 
 </details>
 
-### 114. q-336
+### 109. et-336
 
 A company hosts a multi-tier web application that uses an Amazon Aurora MySQL DB cluster for storage. The application tier is hosted on Amazon EC2 instances. The company’s IT security guidelines mandate that the database credentials be encrypted and rotated every 14 days. What should a solutions architect do to meet this requirement with the LEAST operational effort?
 
@@ -1328,7 +1268,7 @@ A proposes to create a new AWS KMS encryption key and use AWS Secrets Manager to
 
 </details>
 
-### 115. dt-337
+### 110. dt-337
 
 Through which of the following interfaces is AWS Identity and Access Management available? A. AWS Management Console. B. Command line interface (CLI). C. IAM Query API. D. Existing libraries.
 
@@ -1338,7 +1278,7 @@ Through which of the following interfaces is AWS Identity and Access Management 
 
 </details>
 
-### 116. q-345 `cost`
+### 111. et-345 `cost`
 
 A company wants to restrict access to the content of one of its main web applications and to protect the content by using authorization techniques available on AWS. The company wants to implement a serverless architecture and an authentication solution for fewer than 100 users. The solution needs to integrate with the main web application and serve web content globally. The solution must also scale as the company's user base grows while providing the lowest login latency possible. Which solution will meet these requirements MOST cost-effectively?
 
@@ -1350,7 +1290,7 @@ Amazon Cognito for Authentication: Amazon Cognito is a fully managed service for
 
 </details>
 
-### 117. q-359
+### 112. et-359
 
 A hospital needs to store patient records in an Amazon S3 bucket. The hospital’s compliance team must ensure that all protected health information (PHI) is encrypted in transit and at rest. The compliance team must administer the encryption key for data at rest. Which solution will meet these requirements?
 
@@ -1362,7 +1302,7 @@ it allows the compliance team to manage the KMS keys used for server-side encryp
 
 </details>
 
-### 118. dt-363
+### 113. dt-363
 
 Every user you create in the IAM system starts with [...].
 
@@ -1372,7 +1312,7 @@ Every user you create in the IAM system starts with [...].
 
 </details>
 
-### 119. q-364
+### 114. et-364
 
 A hospital is designing a new application that gathers symptoms from patients. The hospital has decided to use Amazon Simple Queue Service (Amazon SQS) and Amazon Simple Notification Service (Amazon SNS) in the architecture. A solutions architect is reviewing the infrastructure design. Data must be encrypted at rest and in transit. Only authorized personnel of the hospital should be able to access the data. Which combination of steps should the solutions architect take to meet these requirements? (Choose two.)
 
@@ -1384,7 +1324,7 @@ D. Turn on server-side encryption on the SQS components by using an AWS Key Mana
 
 </details>
 
-### 120. q-368
+### 115. et-368
 
 A solutions architect wants all new users to have specific complexity requirements and mandatory rotation periods for IAM user passwords. What should the solutions architect do to accomplish this?
 
@@ -1396,7 +1336,7 @@ Amazon Web Services (AWS) allows you to set an account-wide password policy usin
 
 </details>
 
-### 121. dt-378
+### 116. dt-378
 
 True or False: Without IAM, you cannot control the tasks a particular user or system can do and what AWS resources they might use.
 
@@ -1406,7 +1346,7 @@ True or False: Without IAM, you cannot control the tasks a particular user or sy
 
 </details>
 
-### 122. dt-384
+### 117. dt-384
 
 In AWS CloudHSM, in addition to the AWS recommendation that you use two or more HSM appliances in a high-availability configuration to prevent the loss of keys and data, you can also perform a remote backup/restore of a Luna SA partition if you have purchased a:
 
@@ -1416,7 +1356,7 @@ In AWS CloudHSM, in addition to the AWS recommendation that you use two or more 
 
 </details>
 
-### 123. q-387 `security`
+### 118. et-387 `security`
 
 A new employee has joined a company as a deployment engineer. The deployment engineer will be using AWS CloudFormation templates to create multiple AWS resources. A solutions architect wants the deployment engineer to perform job activities while following the principle of least privilege. Which combination of actions should the solutions architect take to accomplish this goal? (Choose two.)
 
@@ -1428,7 +1368,7 @@ E. Create an IAM role for the deployment engineer to explicitly define the permi
 
 </details>
 
-### 124. dt-391
+### 119. dt-391
 
 After a major security breach your manager has requested a report of all users and their credentials in AWS. You discover that in IAM you can generate and download a credential report that lists all users in your account and the status of their various credentials, including passwords, access keys, MFA devices, and signing certificates. Which following statement is incorrect in regards to the use of credential reports?
 
@@ -1438,7 +1378,7 @@ After a major security breach your manager has requested a report of all users a
 
 </details>
 
-### 125. q-399 `least-ops`
+### 120. et-399 `least-ops`
 
 A financial company hosts a web application on AWS. The application uses an Amazon API Gateway Regional API endpoint to give users the ability to retrieve current stock prices. The company’s security team has noticed an increase in the number of API requests. The security team is concerned that HTTP flood attacks might take the application offline. A solutions architect must design a solution to protect the application from this type of attack. Which solution meets these requirements with the LEAST operational overhead?
 
@@ -1450,7 +1390,7 @@ Rate-based Rule with AWS WAF: AWS WAF provides protection against various web ap
 
 </details>
 
-### 126. dt-400
+### 121. dt-400
 
 A/An [...] is the concept of allowing (or disallowing) an entity such as a user, group, or role some type of access to one or more resources.
 
@@ -1460,7 +1400,7 @@ A/An [...] is the concept of allowing (or disallowing) an entity such as a user,
 
 </details>
 
-### 127. q-403
+### 122. et-403
 
 A developer has an application that uses an AWS Lambda function to upload files to Amazon S3 and needs the required permissions to perform the task. The developer already has an IAM user with valid IAM credentials required for Amazon S3. What should a solutions architect do to grant the permissions?
 
@@ -1472,7 +1412,7 @@ o grant the necessary permissions to an AWS Lambda function to upload files to A
 
 </details>
 
-### 128. dt-407
+### 123. dt-407
 
 The AWS CloudHSM service defines a resource known as a high-availability (HA) [...], which is a virtual partition that represents a group of partitions, typically distributed between several physical HSMs for high-availability.
 
@@ -1482,7 +1422,7 @@ The AWS CloudHSM service defines a resource known as a high-availability (HA) [.
 
 </details>
 
-### 129. q-412
+### 124. et-412
 
 An image-hosting company stores its objects in Amazon S3 buckets. The company wants to avoid accidental exposure of the objects in the S3 buckets to the public. All S3 objects in the entire AWS account need to remain private. Which solution will meet these requirements?
 
@@ -1494,7 +1434,7 @@ AWS Organizations allows you to create service control policies (SCPs) that set 
 
 </details>
 
-### 130. dt-414
+### 125. dt-414
 
 Your company has recently extended its datacenter into a VPC on AWS to add burst computing capacity as needed Members of your Network Operations Center need to be able to go to the AWSManagement Console and administer Amazon EC2 instances as necessary You don't want to create new IAM users for each NOC member and make those users sign in again to the AWS Management Console Which option below will meet the needs for your NOC members?
 
@@ -1504,7 +1444,7 @@ Your company has recently extended its datacenter into a VPC on AWS to add burst
 
 </details>
 
-### 131. q-418 `security`
+### 126. et-418 `security`
 
 A solutions architect needs to allow team members to access Amazon S3 buckets in two different AWS accounts: a development account and a production account. The team currently has access to S3 buckets in the development account by using unique IAM users that are assigned to an IAM group that has appropriate permissions in the account. The solutions architect has created an IAM role in the production account. The role has a policy that grants access to an S3 bucket in the production account. Which solution will meet these requirements while complying with the principle of least privilege?
 
@@ -1516,7 +1456,7 @@ A role has two separate policies: the trust policy, which lists the principals a
 
 </details>
 
-### 132. q-419
+### 127. et-419
 
 A company uses AWS Organizations with all features enabled and runs multiple Amazon EC2 workloads in the ap-southeast-2 Region. The company has a service control policy (SCP) that prevents any resources from being created in any other Region. A security policy requires the company to encrypt all data at rest. An audit discovers that employees have created Amazon Elastic Block Store (Amazon EBS) volumes for EC2 instances without encrypting the volumes. The company wants any new EC2 instances that any IAM user or root user launches in ap-southeast-2 to use encrypted EBS volumes. The company wants a solution that will have minimal effect on employees who create EBS volumes. Which combination of steps will meet these requirements? (Choose two.)
 
@@ -1528,7 +1468,7 @@ C. Create an SCP. Attach the SCP to the root organizational unit (OU). Define th
 
 </details>
 
-### 133. q-428 `security`
+### 128. et-428 `security`
 
 A serverless application uses Amazon API Gateway, AWS Lambda, and Amazon DynamoDB. The Lambda function needs permissions to read and write to the DynamoDB table. Which solution will give the Lambda function access to the DynamoDB table MOST securely?
 
@@ -1540,7 +1480,7 @@ IAM Role with Lambda as a Trusted Service: This approach follows the principle o
 
 </details>
 
-### 134. dt-429
+### 129. dt-429
 
 True or False: When you use the AWS Management Console to delete an IAM user, IAM also deletes any signing certificates and any access keys belonging to the user.
 
@@ -1550,7 +1490,7 @@ True or False: When you use the AWS Management Console to delete an IAM user, IA
 
 </details>
 
-### 135. q-433
+### 130. et-433
 
 A company is running its production and nonproduction environment workloads in multiple AWS accounts. The accounts are in an organization in AWS Organizations. The company needs to design a solution that will prevent the modification of cost usage tags. Which solution will meet these requirements?
 
@@ -1562,7 +1502,7 @@ SCPs in AWS Organizations are used to set fine-grained permissions on what actio
 
 </details>
 
-### 136. q-438 `security`
+### 131. et-438 `security`
 
 A company wants to share accounting data with an external auditor. The data is stored in an Amazon RDS DB instance that resides in a private subnet. The auditor has its own AWS account and requires its own copy of the database. What is the MOST secure way for the company to share the database with the auditor?
 
@@ -1574,7 +1514,7 @@ Creating an encrypted snapshot ensures that the database data is protected durin
 
 </details>
 
-### 137. dt-459
+### 132. dt-459
 
 A user has defined an AutoScaling termination policy to first delete the instance with the nearest billing hour. AutoScaling has launched 3 instances in the US-East-1A region and 2 instances in the US-East-1B region. One of the instances in the US-East-1B region is running nearest to the billing hour. Which instance will AutoScaling terminate first while executing the termination action?
 
@@ -1584,7 +1524,7 @@ A user has defined an AutoScaling termination policy to first delete the instanc
 
 </details>
 
-### 138. q-459
+### 133. et-459
 
 A company uses AWS Organizations to run workloads within multiple AWS accounts. A tagging policy adds department tags to AWS resources when the company creates tags. An accounting team needs to determine spending on Amazon EC2 consumption. The accounting team must determine which departments are responsible for the costs regardless ofAWS account. The accounting team has access to AWS Cost Explorer for all AWS accounts within the organization and needs to access all reports from Cost Explorer. Which solution meets these requirements in the MOST operationally efficient way?
 
@@ -1596,7 +1536,7 @@ While AWS provides AWS-defined tags, the use of a user-defined tag provides flex
 
 </details>
 
-### 139. q-460 `security`
+### 134. et-460 `security`
 
 A company wants to securely exchange data between its software as a service (SaaS) application Salesforce account and Amazon S3. The company must encrypt the data at rest by using AWS Key Management Service (AWS KMS) customer managed keys (CMKs). The company must also encrypt the data in transit. The company has enabled API access for the Salesforce account.
 
@@ -1608,7 +1548,7 @@ Amazon AppFlow is a fully managed integration service that allows you to securel
 
 </details>
 
-### 140. q-463
+### 135. ce-463
 
 A company has an organization in AWS Organizations that has all features enabled. The company has multiple Amazon S3 buckets in multiple AWS Regions around the world. The S3 buckets contain sensitive data. The company needs to ensure that no personally identifiable information (PII) is stored in the S3 buckets. The company also needs a scalable solution to identify PII. Which solution will meet these requirements?
 
@@ -1620,7 +1560,7 @@ Amazon Macie is the AWS managed service designed for discovering sensitive data,
 
 </details>
 
-### 141. dt-464
+### 136. dt-464
 
 Within the IAM service a GROUP is regarded as a:
 
@@ -1630,7 +1570,7 @@ Within the IAM service a GROUP is regarded as a:
 
 </details>
 
-### 142. q-476 `security`
+### 137. et-476 `security`
 
 A company is expecting rapid growth in the near future. A solutions architect needs to configure existing users and grant permissions to new users on AWS. The solutions architect has decided to create IAM groups. The solutions architect will add the new users to IAM groups based on department. Which additional action is the MOST secure way to grant permissions to the new users?
 
@@ -1642,7 +1582,7 @@ Creating an IAM policy that grants the least privilege required for the users' t
 
 </details>
 
-### 143. q-483
+### 138. ce-483
 
 A company uses AWS to run its ecommerce platform. The platform is critical to the company's operations and has a high volume of traffic and transactions. The company configures a multi-factor authentication (MFA) device to secure its AWS account root user credentials. The company wants to ensure that it will not lose access to the root user account if the MFA device is lost. Which solution will meet these requirements?
 
@@ -1654,7 +1594,7 @@ To prevent losing access to the AWS account root user if a single Multi-Factor A
 
 </details>
 
-### 144. q-484
+### 139. et-484
 
 A company wants to move from many standalone AWS accounts to a consolidated, multi-account architecture. The company plans to create many new AWS accounts for different business units. The company needs to authenticate access to these AWS accounts by using a centralized corporate directory service. Which combination of actions should a solutions architect recommend to meet these requirements? (Choose two.)
 
@@ -1666,7 +1606,7 @@ E. Set up AWS IAM Identity Center (AWS Single Sign-On) in the organization. Conf
 
 </details>
 
-### 145. q-488
+### 140. et-488
 
 A 4-year-old media company is using the AWS Organizations all features feature set to organize its AWS accounts. According to the company's finance team, the billing information on the member accounts must not be accessible to anyone, including the root user of the member accounts. Which solution will meet these requirements?
 
@@ -1678,7 +1618,7 @@ SCPs in AWS Organizations allow you to set fine-grained permissions and controls
 
 </details>
 
-### 146. q-492
+### 141. et-492
 
 A company has multiple AWS accounts for development work. Some staff consistently use oversized Amazon EC2 instances, which causes the company to exceed the yearly budget for the development accounts. The company wants to centrally restrict the creation of AWS resources in these accounts. Which solution will meet these requirements with the LEAST development effort?
 
@@ -1690,7 +1630,7 @@ An SCP is a guardrail, not a grant: it sets the maximum permissions available to
 
 </details>
 
-### 147. dt-500
+### 142. dt-500
 
 Are you able to integrate a multi-factor token service with the AWS Platform?
 
@@ -1700,7 +1640,7 @@ Are you able to integrate a multi-factor token service with the AWS Platform?
 
 </details>
 
-### 148. dt-501
+### 143. dt-501
 
 What is the default maximum number of MFA devices in use per AWS account (at the root account level)?
 
@@ -1710,7 +1650,7 @@ What is the default maximum number of MFA devices in use per AWS account (at the
 
 </details>
 
-### 149. q-503 `security`
+### 144. et-503 `security`
 
 A company runs an infrastructure monitoring service. The company is building a new feature that will enable the service to monitor data in customer AWS accounts. The new feature will call AWS APIs in customer accounts to describe Amazon EC2 instances and read Amazon CloudWatch metrics. What should the company do to obtain access to customer accounts in the MOST secure way?
 
@@ -1720,7 +1660,7 @@ A company runs an infrastructure monitoring service. The company is building a n
 
 </details>
 
-### 150. dt-511
+### 145. dt-511
 
 A user is sending bulk emails using AWS SES. The emails are not reaching some of the targeted audience because they are not authorized by the ISPs. How can the user ensure that the emails are all delivered?
 
@@ -1730,7 +1670,7 @@ A user is sending bulk emails using AWS SES. The emails are not reaching some of
 
 </details>
 
-### 151. dt-516
+### 146. dt-516
 
 You are setting up some IAM user policies and have also become aware that some services support resource-based permissions, which let you attach policies to the service's resources instead of to IAM users or groups. Which of the below statements is true in regards to resource-level permissions?
 
@@ -1740,7 +1680,7 @@ You are setting up some IAM user policies and have also become aware that some s
 
 </details>
 
-### 152. q-521 `security`
+### 147. et-521 `security`
 
 A retail company has several businesses. The IT team for each business manages its own AWS account. Each team account is part of an organization in AWS Organizations. Each team monitors its product inventory levels in an Amazon DynamoDB table in the team's own AWS account. The company is deploying a central inventory reporting application into a shared AWS account. The application must be able to read items from all the teams' DynamoDB tables. Which authentication option will meet these requirements MOST securely?
 
@@ -1750,7 +1690,7 @@ A retail company has several businesses. The IT team for each business manages i
 
 </details>
 
-### 153. dt-524
+### 148. dt-524
 
 Can I encrypt connections between my application and my DB Instance using SSL?
 
@@ -1760,7 +1700,7 @@ Can I encrypt connections between my application and my DB Instance using SSL?
 
 </details>
 
-### 154. q-524
+### 149. et-524
 
 A company wants to analyze and troubleshoot Access Denied errors and Unauthorized errors that are related to IAM permissions. The company has AWS CloudTrail turned on. Which solution will meet these requirements with the LEAST effort?
 
@@ -1772,7 +1712,7 @@ Amazon Athena allows you to query data directly from S3 using standard SQL queri
 
 </details>
 
-### 155. dt-528
+### 150. dt-528
 
 IAM provides several policy templates you can use to automatically assign permissions to the groups you create. The [...] policy template gives the Admins group permission to access all account resources, except your AWS account information.
 
@@ -1782,7 +1722,7 @@ IAM provides several policy templates you can use to automatically assign permis
 
 </details>
 
-### 156. dt-536
+### 151. dt-536
 
 Which IAM role do you use to grant AWS Lambda permission to access a DynamoDB Stream?
 
@@ -1792,7 +1732,7 @@ Which IAM role do you use to grant AWS Lambda permission to access a DynamoDB St
 
 </details>
 
-### 157. dt-550
+### 152. dt-550
 
 Can you create IAM security credentials for existing users?
 
@@ -1802,7 +1742,7 @@ Can you create IAM security credentials for existing users?
 
 </details>
 
-### 158. q-550
+### 153. et-550
 
 A company is using AWS Key Management Service (AWS KMS) keys to encrypt AWS Lambda environment variables. A solutions architect needs to ensure that the required permissions are in place to decrypt and use the environment variables. Which steps must the solutions architect take to implement the correct permissions? (Choose two.)
 
@@ -1814,7 +1754,7 @@ D. Allow the Lambda execution role in the AWS KMS key policy.  The Lambda execut
 
 </details>
 
-### 159. q-553 `least-ops`
+### 154. et-553 `least-ops`
 
 A solutions architect needs to review a company's Amazon S3 buckets to discover personally identifiable information (PII). The company stores the PII data in the us-east-1 Region and us-west-2 Region. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1826,7 +1766,7 @@ Amazon Macie is a managed data security and data privacy service that uses machi
 
 </details>
 
-### 160. dt-554
+### 155. dt-554
 
 Which technique can be used to integrate AWS IAM (Identity and Access Management) with an on-premise LDAP (Lightweight Directory Access Protocol) directory service?
 
@@ -1836,7 +1776,7 @@ Which technique can be used to integrate AWS IAM (Identity and Access Management
 
 </details>
 
-### 161. q-556
+### 156. et-556
 
 A solutions architect is using an AWS CloudFormation template to deploy a three-tier web application. The web application consists of a web tier and an application tier that stores and retrieves user data in Amazon DynamoDB tables. The web and application tiers are hosted on Amazon EC2 instances, and the database tier is not publicly accessible. The application EC2 instances need to access the DynamoDB tables without exposing API credentials in the template. What should the solutions architect do to meet these requirements?
 
@@ -1848,7 +1788,7 @@ Option B is the correct choice because it leverages IAM roles and instance profi
 
 </details>
 
-### 162. q-560 `least-ops`
+### 157. et-560 `least-ops`
 
 A company's solutions architect is designing an AWS multi-account solution that uses AWS Organizations. The solutions architect has organized the company's accounts into organizational units (OUs). The solutions architect needs a solution that will identify any changes to the OU hierarchy. The solution also needs to notify the company's operations team of any changes. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1860,7 +1800,7 @@ AWS Control Tower is a service that simplifies the process of setting up and gov
 
 </details>
 
-### 163. q-571
+### 158. et-571
 
 A company is creating a REST API. The company has strict requirements for the use of TLS. The company requires TLSv1.3 on the API endpoints. The company also requires a specific public third-party certificate authority (CA) to sign the TLS certificate. Which solution will meet these requirements?
 
@@ -1870,7 +1810,7 @@ A company is creating a REST API. The company has strict requirements for the us
 
 </details>
 
-### 164. dt-574
+### 159. dt-574
 
 A company needs to deploy virtual desktops to its customers in a virtual private cloud, leveraging existing security controls. Which set of AWS services and features will meet the company's requirements?
 
@@ -1880,7 +1820,7 @@ A company needs to deploy virtual desktops to its customers in a virtual private
 
 </details>
 
-### 165. q-586
+### 160. et-586
 
 A company has five organizational units (OUs) as part of its organization in AWS Organizations. Each OU correlates to the five businesses that the company owns. The company's research and development (R&D) business is separating from the company and will need its own organization. A solutions architect creates a separate new management account for this purpose. What should the solutions architect do next in the new management account?
 
@@ -1890,7 +1830,7 @@ A company has five organizational units (OUs) as part of its organization in AWS
 
 </details>
 
-### 166. dt-599 `security`
+### 161. dt-599 `security`
 
 How should the application use AWS credentials to access the S3 bucket securely?
 
@@ -1900,7 +1840,7 @@ How should the application use AWS credentials to access the S3 bucket securely?
 
 </details>
 
-### 167. dt-609
+### 162. dt-609
 
 An organization has three separate AWS accounts, one each for development, testing, and production. The organization wants the testing team to have access to certain AWS resources in the production account. How can the organization achieve this?
 
@@ -1910,7 +1850,7 @@ An organization has three separate AWS accounts, one each for development, testi
 
 </details>
 
-### 168. dt-611
+### 163. dt-611
 
 You launch an Amazon EC2 instance without an assigned AWS identity and Access Management (IAM) role. Later, you decide that the instance should be running with an IAM role. Which action must you take in order to have a running Amazon EC2 instance with an IAM role assigned to it?
 
@@ -1920,7 +1860,7 @@ You launch an Amazon EC2 instance without an assigned AWS identity and Access Ma
 
 </details>
 
-### 169. q-613 `least-ops`
+### 164. et-613 `least-ops`
 
 A company uses Amazon Elastic Kubernetes Service (Amazon EKS) to run a container application. The EKS cluster stores sensitive information in the Kubernetes secrets object. The company wants to ensure that the information is encrypted. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1932,7 +1872,7 @@ Amazon EKS provides built-in support for encrypting Kubernetes secrets using AWS
 
 </details>
 
-### 170. q-619
+### 165. et-619
 
 A solutions architect is designing a security solution for a company that wants to provide developers with individual AWS accounts through AWS Organizations, while also maintaining standard security controls. Because the individual developers will have AWS account root user-level access to their own accounts, the solutions architect wants to ensure that the mandatory AWS CloudTrail configuration that is applied to new developer accounts is not modified. Which action meets these requirements?
 
@@ -1944,7 +1884,7 @@ SCPs are used in AWS Organizations to set fine-grained permissions and restricti
 
 </details>
 
-### 171. q-628 `least-ops`
+### 166. et-628 `least-ops`
 
 A global company runs its applications in multiple AWS accounts in AWS Organizations. The company's applications use multipart uploads to upload data to multiple Amazon S3 buckets across AWS Regions. The company wants to report on incomplete multipart uploads for cost compliance purposes. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1956,7 +1896,7 @@ S3 Storage Lens is a feature in Amazon S3 that provides a comprehensive view of 
 
 </details>
 
-### 172. dt-630
+### 167. dt-630
 
 Can I attach more than one policy to a particular entity?
 
@@ -1966,7 +1906,7 @@ Can I attach more than one policy to a particular entity?
 
 </details>
 
-### 173. q-640
+### 168. et-640
 
 A company has an application workflow that uses an AWS Lambda function to download and decrypt files from Amazon S3. These files are encrypted using AWS Key Management Service (AWS KMS) keys. A solutions architect needs to design a solution that will ensure the required permissions are set correctly. Which combination of actions accomplish this? (Choose two.)
 
@@ -1978,7 +1918,7 @@ E. Create a new IAM role with the kms:decrypt permission and attach the executio
 
 </details>
 
-### 174. q-644
+### 169. et-644
 
 An international company has a subdomain for each country that the company operates in. The subdomains are formatted as example.com, country1.example.com, and country2.example.com. The company's workloads are behind an Application Load Balancer. The company wants to encrypt the website data that is in transit. Which combination of steps will meet these requirements? (Choose two.)
 
@@ -1990,7 +1930,7 @@ An international company has a subdomain for each country that the company opera
 
 </details>
 
-### 175. q-645 `least-ops`
+### 170. et-645 `least-ops`
 
 A company is required to use cryptographic keys in its on-premises key manager. The key manager is outside of the AWS Cloud because of regulatory and compliance requirements. The company wants to manage encryption and decryption by using cryptographic keys that are retained outside of the AWS Cloud and that support a variety of external key managers from different vendors. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2000,7 +1940,7 @@ A company is required to use cryptographic keys in its on-premises key manager. 
 
 </details>
 
-### 176. dt-649
+### 171. dt-649
 
 A company is planning to run a group of Amazon EC2 instances that connect to an Amazon Aurora database. The company has built an AWS CloudFormation template to deploy the EC2 instances and the Aurora DB cluster. The company wants to allow the instances to authenticate to the database in a secure way. The company does not want to maintain static database credentials. Which solution meets these requirements with the LEAST operational effort?
 
@@ -2010,7 +1950,7 @@ A company is planning to run a group of Amazon EC2 instances that connect to an 
 
 </details>
 
-### 177. dt-650
+### 172. dt-650
 
 A company wants to configure its Amazon CloudFront distribution to use SSL/TLS certificates. The company does not want to use the default domain name for the distribution. Instead, the company wants to use a different domain name for the distribution. Which solution will deploy the certificate without incurring any additional costs?
 
@@ -2020,7 +1960,7 @@ A company wants to configure its Amazon CloudFront distribution to use SSL/TLS c
 
 </details>
 
-### 178. dt-666
+### 173. dt-666
 
 A company has two AWS accounts: Production and Development. There are code changes ready in the Development account to push to the Production account. In the alpha phase, only two senior developers on the development team need access to the Production account. In the beta phase, more developers might need access to perform testing as well. What should a solutions architect recommend?
 
@@ -2030,7 +1970,7 @@ A company has two AWS accounts: Production and Development. There are code chang
 
 </details>
 
-### 179. dt-668 `least-ops`
+### 174. dt-668 `least-ops`
 
 A development team uses multiple AWS accounts for its development, Staging, and production environments Team members have been launching large Amazon EC2 instances that are underutilized. A solutions architect must prevent large instances from being launched in all accounts. How can the solutions architect meet this requirement with the LEAST operational overhead?
 
@@ -2040,7 +1980,7 @@ A development team uses multiple AWS accounts for its development, Staging, and 
 
 </details>
 
-### 180. q-668
+### 175. et-668
 
 A company created a new organization in AWS Organizations. The organization has multiple accounts for the company's development teams. The development team members use AWS IAM Identity Center (AWS Single Sign-On) to access the accounts. For each of the company's applications, the development teams must use a predefined application name to tag resources that are created. A solutions architect needs to design a solution that gives the development team the ability to create resources only if the application name tag has an approved value. Which solution will meet these requirements?
 
@@ -2052,19 +1992,19 @@ A tag policy is defined once in the Organizations management account and attache
 
 </details>
 
-### 181. q-670
+### 176. ce-670
 
 A global media streaming company is migrating its user authentication and content delivery services to AWS. The company wants to use Amazon API Gateway for user authentication and authorization. The company needs a solution that restricts API access to AWS Regions in the United States and ensures minimal latency. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**A. Choose on-demand capacity mode for the table.**
+**A. Create an API Gateway REST API. Configure an AWS WAF firewall in the same Region. Implement AWS WAF rules to deny requests that originate from Regions outside the United States. Associate the AWS WAF firewall with the API Gateway REST API.**
 
-The table is used for 4 hours a week and sits idle the rest of the time. On-demand mode charges per read and write request and nothing for idle time, so the bill tracks the actual 4 hours of testing. Provisioned mode charges for the capacity units every hour of the month, so roughly 97 percent of what you paid would be for an idle table; on-demand only loses to provisioned once a table is busy something like 15 to 20 percent of the time, far above this workload. Reserved capacity deepens the problem by committing to those hourly charges for a year or more. Knowing the per-second request rate is a distractor - predictable traffic favours provisioned capacity only when the table is busy most of the time.
+The solution requires an API that supports robust user authentication and authorization, geographic access restriction, and minimal latency for users in the United States. Amazon API Gateway REST APIs are better suited for this scenario than HTTP APIs because they offer more comprehensive, built-in features for authentication and authorization, such as IAM permissions, Cognito user pools, and Lambda authorizers. To restrict access based on geography, AWS WAF is the appropriate service. A WAF geographic match rule can be configured to allow requests only from the United States. For a regional API Gateway endpoint, the AWS WAF web ACL must be deployed in the same AWS Region as the API. Deploying this regional API in a US region ensures minimal latency for the target user base. Why Incorrect Options are Wrong: B. This is incorrect. For a regional resource like an API Gateway HTTP API, the A
 
 </details>
 
-### 182. dt-674
+### 177. dt-674
 
 A company uses AWS Organizations to create dedicated AWS accounts for each business unit to manage each business unit's account independently upon request. The root email recipient missed a notification that was sent to the root user email address of one account. The company wants to ensure that all future notifications are not missed. Future notifications must be limited to account administrators. Which solution will meet these requirements?
 
@@ -2074,7 +2014,7 @@ A company uses AWS Organizations to create dedicated AWS accounts for each busin
 
 </details>
 
-### 183. gh-678
+### 178. gh-678
 
 A company stores sensitive data in Amazon S3. A solutions architect needs to create an encryption solution. The company needs to fully control
 the ability of users to create, rotate, and disable encryption keys with minimal effort for any data that must be encrypted.
@@ -2089,7 +2029,7 @@ Client-side encryption (Option D) is complex.
 
 </details>
 
-### 184. dt-692
+### 179. dt-692
 
 A company is migrating applications to AWS. The applications are deployed in different accounts. The company manages the accounts centrally by using AWS Organizations. The company's security team needs a single sign-on (SSO) solution across all the company's accounts. The company must continue managing the users and groups in its on-premises self-managed Microsoft Active Directory. Which solution will meet these requirements?
 
@@ -2099,7 +2039,7 @@ A company is migrating applications to AWS. The applications are deployed in dif
 
 </details>
 
-### 185. dt-699 `least-ops` `security`
+### 180. dt-699 `least-ops` `security`
 
 A company recently launched a variety of new workloads on Amazon EC2 instances in its AWS account. The company needs to create a strategy to access and administer the instances remotely and securely. The company needs to implement a repeatable process that works with native AWS services and follows the AWS Well-Architected Framework. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2109,7 +2049,7 @@ A company recently launched a variety of new workloads on Amazon EC2 instances i
 
 </details>
 
-### 186. dt-704 `least-ops`
+### 181. dt-704 `least-ops`
 
 A company has deployed a multi-account strategy on AWS by using AWS Control Tower. The company has provided individual AWS accounts to each of its developers. The company wants to implement controls to limit AWS resource costs that the developers incur. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2119,7 +2059,7 @@ A company has deployed a multi-account strategy on AWS by using AWS Control Towe
 
 </details>
 
-### 187. dt-720 `least-ops`
+### 182. dt-720 `least-ops`
 
 A company's cloud operations team wants to standardize resource remediation. The company wants to provide a standard set of governance evaluations and remediations to all member accounts in its organization in AWS Organizations. Which self-managed AWS service can the company use to meet these requirements with the LEAST amount of operational effort?
 
@@ -2129,7 +2069,7 @@ A company's cloud operations team wants to standardize resource remediation. The
 
 </details>
 
-### 188. dt-722
+### 183. dt-722
 
 A company designs a mobile app for its customers to upload photos to a website. The app needs a secure login with multi-factor authentication (MFA). The company wants to limit the initial build time and the maintenance of the solution. Which solution should a solutions architect recommend to meet these requirements?
 
@@ -2139,7 +2079,7 @@ A company designs a mobile app for its customers to upload photos to a website. 
 
 </details>
 
-### 189. dt-724
+### 184. dt-724
 
 A company is planning to use Amazon S3 to store images uploaded by its users. The images must be encrypted at rest in Amazon S3. The company does not want to spend time managing and rotating the keys, but it does want to control who can access those keys. What should a solutions architect use to accomplish this?
 
@@ -2149,7 +2089,7 @@ A company is planning to use Amazon S3 to store images uploaded by its users. Th
 
 </details>
 
-### 190. dt-727
+### 185. dt-727
 
 An ecommerce company runs several internal applications in multiple AWS accounts. The company uses AWS Organizations to manage its AWS accounts. A security appliance in the company's networking account must inspect interactions between applications across AWS accounts. Which solution will meet these requirements?
 
@@ -2159,7 +2099,7 @@ An ecommerce company runs several internal applications in multiple AWS accounts
 
 </details>
 
-### 191. dt-729
+### 186. dt-729
 
 A company wants to automate the security assessment of its Amazon EC2 instances. The company needs to validate and demonstrate that security and compliance standards are being followed throughout the development process. What should a solutions architect do to meet these requirements?
 
@@ -2169,7 +2109,7 @@ A company wants to automate the security assessment of its Amazon EC2 instances.
 
 </details>
 
-### 192. dt-739
+### 187. dt-739
 
 An administrator of a large company wants to monitor for and prevent any cryptocurrency-related attacks on the company's AWS accounts. Which AWS service can the administrator use to protect the company against attacks?
 
@@ -2179,7 +2119,7 @@ An administrator of a large company wants to monitor for and prevent any cryptoc
 
 </details>
 
-### 193. dt-756
+### 188. dt-756
 
 A company is preparing to deploy a data lake on AWS. A solutions architect must define the encryption strategy for data at rest in Amazon S3. The company's security policy states: Keys must be rotated every 90 days. Strict separation of duties between key users and key administrators must be implemented. Auditing key usage must be possible. What should the solutions architect recommend?
 
@@ -2189,7 +2129,7 @@ A company is preparing to deploy a data lake on AWS. A solutions architect must 
 
 </details>
 
-### 194. dt-767
+### 189. dt-767
 
 A company has a dynamic web application hosted on two Amazon EC2 instances. The company has its own SSL certificate, which is on each instance to perform SSL termination. There has been an increase in traffic recently, and the operations team determined that SSL encryption and decryption is causing the compute capacity of the web servers to reach their maximum limit. What should a solutions architect do to increase the application's performance?
 
@@ -2199,7 +2139,7 @@ A company has a dynamic web application hosted on two Amazon EC2 instances. The 
 
 </details>
 
-### 195. q-900
+### 190. ce-900
 
 A company has offices in multiple countries. The company has a separate AWS account for each office. The company uses an organization in AWS Organizations to manage all the accounts. Each office has an allocated budget that is set by company leadership. The company needs a solution to monitor account costs and automatically review service consumption when an account reaches a spending threshold. The solution must not immediately disable resources when an account reaches a spending threshold. The solution must detect budget overruns as soon as possible. Which solution will meet these requirements?
 
@@ -2211,7 +2151,7 @@ AWS Budgets allows setting cost or usage thresholds and can trigger alerts or ac
 
 </details>
 
-### 196. q-918
+### 191. ce-918
 
 An application team uses an organization in AWS Organizations to manage multiple AWS accounts in a dedicated organizational unit OU. The accounts do not host production workloads. The application team is implementing an ecommerce solution by using Amazon EC2 instances. A solutions architect needs to implement controls to prevent the application team from exceeding the project budget for the application. Which solution will meet this requirement?
 
@@ -2223,7 +2163,7 @@ The most effective solution to proactively prevent budget overruns is to use AWS
 
 </details>
 
-### 197. q-968 `cost`
+### 192. ce-968 `cost`
 
 A solutions architect is designing an asynchronous application to process credit card data validation requests for a bank. The application must be secure and be able to process each request at least once. Which solution will meet these requirements MOST cost-effectively?
 
