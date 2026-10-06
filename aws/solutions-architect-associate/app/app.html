@@ -781,7 +781,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.11.1";
+  var APP_VERSION = "1.11.2";
   var BUILD_DATE  = "2026-10-06";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -844,6 +844,20 @@ footer .v { font-family: var(--mono); }
     return s;
   }
 
+  // The time an answer was given, as a plain readable date. Seconds are enough;
+  // nothing here needs to be finer than that.
+  function stampNow() {
+    return new Date().toISOString().replace(/\.\d+Z$/, "Z");
+  }
+
+  // Accepts either shape: a readable date, or the count of seconds that the
+  // first version of the log wrote.
+  function stampSeconds(v) {
+    if (typeof v === "number") return v;
+    var ms = Date.parse(v);
+    return isNaN(ms) ? 0 : Math.floor(ms / 1000);
+  }
+
   function countsOf(p) {
     return { concepts: p.concepts || {}, rows: p.rows || {},
              sections: p.sections || {}, questions: p.questions || {},
@@ -859,7 +873,14 @@ footer .v { font-family: var(--mono); }
       var p = JSON.parse(raw);
       var s = blankCounts();
       s.started = p.started || null;
-      s.log = Array.isArray(p.log) ? p.log : [];
+      // Anything written as a count of seconds is turned into a readable date
+      // on the way in, so the two shapes never sit side by side in one file
+      // and the same answer from two machines still matches when merging.
+      s.log = (Array.isArray(p.log) ? p.log : []).map(function (e) {
+        if (!e) return e;
+        if (typeof e[0] !== "number") return e;
+        return [new Date(e[0] * 1000).toISOString().replace(/\.\d+Z$/, "Z"), e[1], e[2]];
+      });
       s.baseAt = p.baseAt || BASE_DAY;
       // Anything written by a version before the log existed becomes the lump.
       s.base = p.base ? {
@@ -953,13 +974,14 @@ footer .v { font-family: var(--mono); }
   function scoresFor(days) {
     var out = blankCounts();
     var cut = days ? Math.floor(Date.now() / 1000) - days * 86400 : -1;
+
     // The lump has one date. Either the whole of it is inside the window or
     // none of it is; there is no way to split it, because nothing recorded
     // when any single one of those answers was given.
     var lumpDay = Date.parse((S.baseAt || BASE_DAY) + "T12:00:00Z") / 1000;
     if (!days || lumpDay >= cut) addLump(out, S.base);
     (S.log || []).forEach(function (e) {
-      if (!e || (days && e[0] < cut)) return;
+      if (!e || (days && stampSeconds(e[0]) < cut)) return;
       var q = QBYID[e[1]];
       if (q) applyAnswer(out, q, !!e[2]);
     });
@@ -1011,7 +1033,7 @@ footer .v { font-family: var(--mono); }
       seenKeys[e[0] + "|" + e[1]] = 1;
       S.log.push(e);
     });
-    S.log.sort(function (a, b) { return a[0] - b[0]; });
+    S.log.sort(function (a, b) { return stampSeconds(a[0]) - stampSeconds(b[0]); });
 
     if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
 
@@ -1527,8 +1549,9 @@ footer .v { font-family: var(--mono); }
     // The answer goes in the log and nowhere else. Every score on the board is
     // worked out from the log and the lump, so writing the counters here as
     // well would only be a second copy waiting to disagree with the first.
-    // Seconds, not milliseconds: the list travels in every export.
-    S.log.push([Math.floor(Date.now() / 1000), q.id, ok ? 1 : 0]);
+    // The list travels in every export, so the time is written as a readable
+    // date rather than a count of seconds.
+    S.log.push([stampNow(), q.id, ok ? 1 : 0]);
     recompute();
 
     saveState();
