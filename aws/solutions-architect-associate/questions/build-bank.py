@@ -28,6 +28,12 @@ SOURCES = HERE / "sources"
 BANK = HERE / "bank"
 CORRECTIONS = HERE / "corrections.json"
 
+# Sources whose questions carry a star: a human has checked them, so they are
+# worth more than a scraped set. Also sources that must never be published,
+# because the file they came from is a watermarked paid product.
+REVIEWED_SOURCES = {"certempire"}
+PRIVATE_SOURCES: set[str] = set()   # nothing is held back from the build
+
 # --------------------------------------------------------------------------
 # Topic areas. Each is a list of (weight, regex). Highest total score wins.
 # Weights let a decisive term ("DynamoDB") beat an incidental one ("bucket").
@@ -497,6 +503,11 @@ def main() -> None:
     if not records:
         print("No records parsed — is sources/ empty?")
         return
+
+    # Stamp provenance once, centrally, rather than inside every parser.
+    for r in records:
+        r["reviewed"] = r["source"] in REVIEWED_SOURCES
+        r["private"] = r["source"] in PRIVATE_SOURCES
 
     # Apply the adjudicators' verdicts. These live outside the bank because the
     # bank is regenerated from sources/ and would otherwise lose them.

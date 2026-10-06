@@ -1,6 +1,6 @@
 # What actually gets asked
 
-Counted across **1253 questions** in the bank. A concept is counted once per
+Counted across **1822 questions** in the bank. A concept is counted once per
 question, matching on the question stem and the correct answer only — the
 explanations are excluded because they name services the question never asked about.
 
@@ -18,72 +18,72 @@ Re-run `yield-report.py` after adding sources and the tiers move with the data.
 
 | Concept | Questions | Share | Tier |
 |---|---:|---:|:--:|
-| Auto Scaling | 89 | 7.1% | `▰▰▰` |
-| ALB vs NLB | 69 | 5.5% | `▰▰▰` |
-| VPC security groups vs NACLs | 68 | 5.4% | `▰▰▰` |
-| DynamoDB | 61 | 4.9% | `▰▰▰` |
-| Lambda | 56 | 4.5% | `▰▰▰` |
-| CloudFront | 51 | 4.1% | `▰▰▰` |
-| IAM roles vs users / instance profile | 50 | 4.0% | `▰▰▰` |
-| RDS Multi-AZ | 47 | 3.8% | `▰▰▰` |
-| S3 storage classes / lifecycle | 46 | 3.7% | `▰▰▰` |
-| SQS | 46 | 3.7% | `▰▰▰` |
-| EC2 purchasing (Spot/RI/Savings Plans) | 43 | 3.4% | `▰▰▰` |
-| Aurora | 42 | 3.4% | `▰▰▰` |
-| Route 53 routing policies | 40 | 3.2% | `▰▰▰` |
-| CloudWatch metrics / alarms | 34 | 2.7% | `▰▰▰` |
-| Organizations / SCPs | 32 | 2.6% | `▰▰▱` |
-| Containers (ECS/EKS/Fargate) | 31 | 2.5% | `▰▰▱` |
-| SNS | 29 | 2.3% | `▰▰▱` |
-| VPC endpoints / PrivateLink | 28 | 2.2% | `▰▰▱` |
-| RDS read replicas | 27 | 2.2% | `▰▰▱` |
-| Direct Connect / Site-to-Site VPN | 26 | 2.1% | `▰▰▱` |
-| API Gateway | 25 | 2.0% | `▰▰▱` |
-| KMS / encryption keys | 23 | 1.8% | `▰▰▱` |
-| IAM policies / least privilege | 21 | 1.7% | `▰▰▱` |
-| EBS volume types / IOPS | 20 | 1.6% | `▰▰▱` |
-| Storage Gateway | 20 | 1.6% | `▰▰▱` |
-| Kinesis | 20 | 1.6% | `▰▰▱` |
-| CloudFormation | 18 | 1.4% | `▰▰▱` |
-| EFS | 16 | 1.3% | `▰▰▱` |
-| FSx (Windows / Lustre) | 16 | 1.3% | `▰▰▱` |
-| CloudTrail | 16 | 1.3% | `▰▰▱` |
-| NAT gateway | 15 | 1.2% | `▰▰▱` |
-| ElastiCache (Redis/Memcached) | 15 | 1.2% | `▰▰▱` |
-| EBS snapshots | 13 | 1.0% | `▰▰▱` |
-| Placement groups | 13 | 1.0% | `▰▰▱` |
-| Elastic Beanstalk | 12 | 1.0% | `▰▰▱` |
-| VPC peering / Transit Gateway | 12 | 1.0% | `▰▰▱` |
-| Global Accelerator | 11 | 0.9% | `▰▱▱` |
-| Redshift | 11 | 0.9% | `▰▱▱` |
-| Directory Service / AD | 11 | 0.9% | `▰▱▱` |
-| Athena | 11 | 0.9% | `▰▱▱` |
-| Snow family | 10 | 0.8% | `▰▱▱` |
-| EventBridge | 10 | 0.8% | `▰▱▱` |
-| GuardDuty / Inspector / Macie | 10 | 0.8% | `▰▱▱` |
-| Cost Explorer / Budgets | 10 | 0.8% | `▰▱▱` |
-| S3 versioning / Object Lock / MFA Delete | 9 | 0.7% | `▰▱▱` |
-| EMR | 9 | 0.7% | `▰▱▱` |
-| Cross-account access / STS | 8 | 0.6% | `▰▱▱` |
-| AWS WAF | 8 | 0.6% | `▰▱▱` |
-| AWS Config | 8 | 0.6% | `▰▱▱` |
-| Glue | 8 | 0.6% | `▰▱▱` |
-| S3 encryption (SSE-S3/KMS/C) | 7 | 0.6% | `▰▱▱` |
-| DataSync | 7 | 0.6% | `▰▱▱` |
-| Systems Manager / Session Manager | 7 | 0.6% | `▰▱▱` |
-| Secrets Manager / Parameter Store | 6 | 0.5% | `▰▱▱` |
-| VPC Flow Logs | 5 | 0.4% | `▰▱▱` |
-| QuickSight | 5 | 0.4% | `▰▱▱` |
-| S3 replication (CRR/SRR) | 4 | 0.3% | `▰▱▱` |
-| DynamoDB DAX | 4 | 0.3% | `▰▱▱` |
-| Cognito | 4 | 0.3% | `▰▱▱` |
-| Shield / DDoS | 4 | 0.3% | `▰▱▱` |
-| DMS / SCT migration | 3 | 0.2% | `▰▱▱` |
-| Step Functions | 3 | 0.2% | `▰▱▱` |
+| Auto Scaling | 147 | 8.1% | `▰▰▰` |
+| Lambda | 145 | 8.0% | `▰▰▰` |
+| ALB vs NLB | 134 | 7.4% | `▰▰▰` |
+| DynamoDB | 99 | 5.4% | `▰▰▰` |
+| IAM roles vs users / instance profile | 90 | 4.9% | `▰▰▰` |
+| SQS | 88 | 4.8% | `▰▰▰` |
+| CloudFront | 81 | 4.4% | `▰▰▰` |
+| S3 storage classes / lifecycle | 80 | 4.4% | `▰▰▰` |
+| VPC security groups vs NACLs | 78 | 4.3% | `▰▰▰` |
+| Aurora | 74 | 4.1% | `▰▰▰` |
+| Containers (ECS/EKS/Fargate) | 72 | 4.0% | `▰▰▰` |
+| EC2 purchasing (Spot/RI/Savings Plans) | 69 | 3.8% | `▰▰▰` |
+| RDS Multi-AZ | 65 | 3.6% | `▰▰▰` |
+| Route 53 routing policies | 58 | 3.2% | `▰▰▰` |
+| API Gateway | 56 | 3.1% | `▰▰▱` |
+| Organizations / SCPs | 55 | 3.0% | `▰▰▱` |
+| IAM policies / least privilege | 51 | 2.8% | `▰▰▱` |
+| VPC endpoints / PrivateLink | 44 | 2.4% | `▰▰▱` |
+| CloudWatch metrics / alarms | 44 | 2.4% | `▰▰▱` |
+| Direct Connect / Site-to-Site VPN | 43 | 2.4% | `▰▰▱` |
+| KMS / encryption keys | 43 | 2.4% | `▰▰▱` |
+| SNS | 42 | 2.3% | `▰▰▱` |
+| RDS read replicas | 38 | 2.1% | `▰▰▱` |
+| EFS | 36 | 2.0% | `▰▰▱` |
+| Kinesis | 32 | 1.8% | `▰▰▱` |
+| EventBridge | 30 | 1.6% | `▰▰▱` |
+| Storage Gateway | 28 | 1.5% | `▰▰▱` |
+| NAT gateway | 28 | 1.5% | `▰▰▱` |
+| EBS volume types / IOPS | 26 | 1.4% | `▰▰▱` |
+| ElastiCache (Redis/Memcached) | 26 | 1.4% | `▰▰▱` |
+| Athena | 26 | 1.4% | `▰▰▱` |
+| FSx (Windows / Lustre) | 25 | 1.4% | `▰▰▱` |
+| AWS WAF | 22 | 1.2% | `▰▰▱` |
+| CloudTrail | 21 | 1.2% | `▰▰▱` |
+| VPC peering / Transit Gateway | 20 | 1.1% | `▰▰▱` |
+| S3 versioning / Object Lock / MFA Delete | 19 | 1.0% | `▰▱▱` |
+| Secrets Manager / Parameter Store | 19 | 1.0% | `▰▱▱` |
+| CloudFormation | 19 | 1.0% | `▰▱▱` |
+| Redshift | 18 | 1.0% | `▰▱▱` |
+| GuardDuty / Inspector / Macie | 18 | 1.0% | `▰▱▱` |
+| Directory Service / AD | 17 | 0.9% | `▰▱▱` |
+| Cost Explorer / Budgets | 17 | 0.9% | `▰▱▱` |
+| EBS snapshots | 16 | 0.9% | `▰▱▱` |
+| Placement groups | 16 | 0.9% | `▰▱▱` |
+| Global Accelerator | 16 | 0.9% | `▰▱▱` |
+| S3 encryption (SSE-S3/KMS/C) | 15 | 0.8% | `▰▱▱` |
+| AWS Config | 15 | 0.8% | `▰▱▱` |
+| Snow family | 14 | 0.8% | `▰▱▱` |
+| QuickSight | 14 | 0.8% | `▰▱▱` |
+| Elastic Beanstalk | 13 | 0.7% | `▰▱▱` |
+| Cross-account access / STS | 13 | 0.7% | `▰▱▱` |
+| EMR | 13 | 0.7% | `▰▱▱` |
+| S3 replication (CRR/SRR) | 11 | 0.6% | `▰▱▱` |
+| Shield / DDoS | 11 | 0.6% | `▰▱▱` |
+| Systems Manager / Session Manager | 11 | 0.6% | `▰▱▱` |
+| Glue | 11 | 0.6% | `▰▱▱` |
+| DataSync | 10 | 0.5% | `▰▱▱` |
+| Step Functions | 10 | 0.5% | `▰▱▱` |
+| SQS visibility timeout / DLQ | 9 | 0.5% | `▰▱▱` |
+| DynamoDB DAX | 7 | 0.4% | `▰▱▱` |
+| DMS / SCT migration | 6 | 0.3% | `▰▱▱` |
+| Cognito | 5 | 0.3% | `▰▱▱` |
+| S3 presigned URL | 4 | 0.2% | `▰▱▱` |
+| S3 Transfer Acceleration | 4 | 0.2% | `▰▱▱` |
+| VPC Flow Logs | 4 | 0.2% | `▰▱▱` |
+| DynamoDB Global Tables | 4 | 0.2% | `▰▱▱` |
 | CloudHSM | 3 | 0.2% | `▰▱▱` |
 | Trusted Advisor | 3 | 0.2% | `▰▱▱` |
-| S3 presigned URL | 2 | 0.2% | `▰▱▱` |
-| S3 Transfer Acceleration | 2 | 0.2% | `▰▱▱` |
-| DynamoDB Global Tables | 2 | 0.2% | `▰▱▱` |
-| SQS visibility timeout / DLQ | 2 | 0.2% | `▰▱▱` |
-| OpenSearch / Elasticsearch | 1 | 0.1% | `▰▱▱` |
+| OpenSearch / Elasticsearch | 3 | 0.2% | `▰▱▱` |
