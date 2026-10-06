@@ -1,6 +1,6 @@
 # Compute — EC2, Lambda, containers, scaling
 
-366 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
+363 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
 
 ---
 
@@ -172,19 +172,19 @@ inter-instance communication.
 
 </details>
 
-### 6. q-7
+### 6. ce-7
 
 A company has applications that run on Amazon EC2 instances in a VPC One of the applications needs to call the Amazon S3 API to store and read objects. According to the company's security regulations, no traffic from the applications is allowed to travel across the internet. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**D. Publish the messages to an Amazon Simple Notification Service (Amazon SNS) topic with multiple Amazon Simple Queue Service (Amazon SQS) queue subscriptions. Configure the consumer applications to process the messages from the queues.**
+**A. Configure an S3 gateway endpoint.**
 
-The fan-out pattern has the producer publish each message once to an SNS topic, which then delivers a copy into every subscribed SQS queue, so each of the dozens of consumers reads from its own queue and can scale, slow down or fail without affecting the others. The queues absorb the sudden spikes, which is what decouples the producer from consumer speed. Standard SQS queues give at-least-once delivery, best-effort ordering, and a nearly unlimited number of transactions per second, so a burst of 100,000 messages per second needs no quota request; it is FIFO queues that are capped, at 300 API calls per second per action or 3,000 messages per second when batching, with high throughput mode raising that further. Optionally give each subscription a filter policy so a consumer's queue only receives the message types it cares about.
+A VPC gateway endpoint for Amazon S3 provides a secure and private connection between your VPC and S3. It functions by creating a target for a route in your VPC's route table for traffic destined for S3. This ensures that traffic from your EC2 instances to S3 is routed over the AWS private network and does not traverse the public internet. This solution directly meets the company's security regulation by keeping all S3 API calls within the AWS network, without needing an internet gateway or a NAT gateway. Why Incorrect Options are Wrong: B. S3 buckets are global resources with data stored in a specific region; they do not reside within a VPC or a private subnet. This option is architecturally incorrect. C. Placing the S3 bucket in the same region is a best practice for latency and cost, but it does not prevent traffic from traversing the internet by default. D. A NAT gateway is specifica
 
 </details>
 
-### 7. q-12
+### 7. ce-12
 
 A company is designing a new multi-tier web application that consists of the following components: • Web and application servers that run on Amazon EC2 instances as part of Auto Scaling groups • An Amazon RDS DB instance for data storage A solutions architect needs to limit access to the application servers so that only the web servers can access them. Which solution will meet these requirements?
 
@@ -216,21 +216,7 @@ Name the disk storage supported by Amazon Elastic Compute Cloud (EC2)
 
 </details>
 
-### 10. wl-19
-
-Which of the following are not backup and restore solutions provided by AWS? (choose multiple)
-
-<details><summary>Answer</summary>
-
-**C. AWS Elastic Beanstalk; E.**
-
-Option A is snapshot based data backup solution.
-Option B, AWS Storage Gateway provides multiple solutions for backup & recovery.
-Option D can be used as a Database backup solution.
-
-</details>
-
-### 11. q-20
+### 10. ce-20
 
 A company has an application that serves clients that are deployed in more than 20.000 retail storefront locations around the world. The application consists of backend web services that are exposed over HTTPS on port 443 The application is hosted on Amazon EC2 Instances behind an Application Load Balancer (ALB). The retail locations communicate with the web application over the public internet. The company allows each retail location to register the IP address that the retail location has been allocated by its local ISP. The company's security team recommends to increase the security of the application endpoint by restricting access to only the IP addresses registered by the retail locations. What should a solutions architect do to meet these requirements?
 
@@ -242,7 +228,7 @@ The most appropriate solution is to use AWS WAF (Web Application Firewall) with 
 
 </details>
 
-### 12. dt-20
+### 11. dt-20
 
 Select the most correct The device name /dev/sdal (within Amazon EC2) is [...].
 
@@ -252,7 +238,7 @@ Select the most correct The device name /dev/sdal (within Amazon EC2) is [...].
 
 </details>
 
-### 13. wl-20
+### 12. wl-20
 
 Organization ABC has a requirement to send emails to multiple users from their application deployed on EC2 instance in a private VPC. Email receivers will not be IAM users. You have decided to use AWS Simple Email Service and configured from email address. You are using AWS SES API to send emails from your EC2 instance to multiple users. However, email sending getting failed. Which of the following options could be the reason?
 
@@ -273,7 +259,7 @@ ml
 
 </details>
 
-### 14. q-27
+### 13. ce-27
 
 A developer is creating a serverless application that performs video encoding. The encoding process runs as background jobs and takes several minutes to encode each video. The process must not send an immediate result to users. The developer is using Amazon API Gateway to manage an API for the application. The developer needs to run test invocations and request validations. The developer must distribute API keys to control access to the API. Which solution will meet these requirements?
 
@@ -285,7 +271,7 @@ The solution requires an API that supports test invocations, request validation,
 
 </details>
 
-### 15. dt-29
+### 14. dt-29
 
 What is the network performance offered by the c4.8xlarge instance in Amazon EC2?
 
@@ -295,7 +281,7 @@ What is the network performance offered by the c4.8xlarge instance in Amazon EC2
 
 </details>
 
-### 16. dt-35
+### 15. dt-35
 
 What does Amazon Elastic Beanstalk provide?
 
@@ -305,7 +291,7 @@ What does Amazon Elastic Beanstalk provide?
 
 </details>
 
-### 17. dt-45 `availability`
+### 16. dt-45 `availability`
 
 A user is planning a highly available application deployment with EC2. Which of the below mentioned options will not help to achieve HA?
 
@@ -315,7 +301,7 @@ A user is planning a highly available application deployment with EC2. Which of 
 
 </details>
 
-### 18. dt-47
+### 17. dt-47
 
 Which of the following statements is true of tagging an Amazon EC2 resource?
 
@@ -325,7 +311,7 @@ Which of the following statements is true of tagging an Amazon EC2 resource?
 
 </details>
 
-### 19. q-47
+### 18. et-47
 
 A company needs guaranteed Amazon EC2 capacity in three specific Availability Zones in a specific AWS Region for an upcoming event that will last 1 week. What should the company do to guarantee the EC2 capacity?
 
@@ -337,7 +323,7 @@ An On-Demand Capacity Reservation is a type of Amazon EC2 reservation that enabl
 
 </details>
 
-### 20. q-48
+### 19. ce-48
 
 A company runs its workloads on Amazon Elastic Container Service (Amazon ECS). The container images that the ECS task definition uses need to be scanned for Common Vulnerabilities and Exposures (CVEs). New container images that are created also need to be scanned. Which solution will meet these requirements with the FEWEST changes to the workloads?
 
@@ -349,7 +335,7 @@ Amazon Elastic Container Registry (ECR) is the native AWS fully-managed containe
 
 </details>
 
-### 21. q-48 `availability`
+### 20. et-48 `availability`
 
 A company's website uses an Amazon EC2 instance store for its catalog of items. The company wants to make sure that the catalog is highly available and that the catalog is stored in a durable location. What should a solutions architect do to meet these requirements?
 
@@ -361,7 +347,7 @@ EFS is fully managed, durable, highly available, and shared file system.
 
 </details>
 
-### 22. dt-49
+### 21. dt-49
 
 Are Reserved Instances available for Multi-AZ Deployments?
 
@@ -371,7 +357,7 @@ Are Reserved Instances available for Multi-AZ Deployments?
 
 </details>
 
-### 23. q-51
+### 22. et-51
 
 A company is developing an application that provides order shipping statistics for retrieval by a REST API. The company wants to extract the shipping statistics, organize the data into an easy-to-read HTML format, and send the report to several email addresses at the same time every morning. Which combination of steps should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -383,7 +369,7 @@ The report has to go out at the same time every morning, which is exactly what a
 
 </details>
 
-### 24. q-53
+### 23. ce-53
 
 A company wants to implement new security compliance requirements for its development team to limit the use of approved Amazon Machine Images (AMIs). The company wants to provide access to only the approved operating system and software for all its Amazon EC2 instances. The company wants the solution to have the least amount of lead time for launching EC2 instances. Which solution will meet these requirements?
 
@@ -395,7 +381,7 @@ AWS Service Catalog allows organizations to create and manage catalogs of IT ser
 
 </details>
 
-### 25. dt-53 `cost`
+### 24. dt-53 `cost`
 
 To serve Web traffic for a popular product your chief financial officer and IT director have purchased 10 ml large heavy utilization Reserved Instances (RIs) evenly spread across two Availability Zones. Route 53 is used to deliver the traffic to an Elastic Load Balancer (ELB). After several months, the product grows even more popular and you need additional capacity. As a result, your company purchases two C3.2xlarge medium utilization RIs. You register the two c3 2xlarge instances with your ELB and quickly find that the ml large instances are at 100% of capacity and the c3 2xlarge instances have significant capacity that's unused. Which option is the most cost effective and uses EC2 capacity most effectively?
 
@@ -405,7 +391,7 @@ To serve Web traffic for a popular product your chief financial officer and IT d
 
 </details>
 
-### 26. dt-55
+### 25. dt-55
 
 A user has launched one EC2 instance in the US West region. The user wants to access the RDS instance launched in the US East region from that EC2 instance. How can the user configure the access for that EC2 instance?
 
@@ -415,7 +401,7 @@ A user has launched one EC2 instance in the US West region. The user wants to ac
 
 </details>
 
-### 27. dt-57
+### 26. dt-57
 
 While creating an Amazon RDS DB, your first task is to set up a DB [...] that controls which IP address or EC2 instance can access your DB Instance.
 
@@ -425,7 +411,7 @@ While creating an Amazon RDS DB, your first task is to set up a DB [...] that co
 
 </details>
 
-### 28. dt-59
+### 27. dt-59
 
 In the context of AWS support, why must an EC2 instance be unreachable for 20 minutes rather than allowing customers to open tickets immediately?
 
@@ -435,7 +421,7 @@ In the context of AWS support, why must an EC2 instance be unreachable for 20 mi
 
 </details>
 
-### 29. dt-62
+### 28. dt-62
 
 While creating the snapshots using the command line tools, which command should I be using?
 
@@ -445,7 +431,7 @@ While creating the snapshots using the command line tools, which command should 
 
 </details>
 
-### 30. dt-63
+### 29. dt-63
 
 All Amazon EC2 instances are assigned two IP addresses at launch, out of which one can only be reached from within the Amazon EC2 network?
 
@@ -455,7 +441,7 @@ All Amazon EC2 instances are assigned two IP addresses at launch, out of which o
 
 </details>
 
-### 31. dt-65
+### 30. dt-65
 
 You've created your first load balancer and have registered your EC2 instances with the load balancer. Elastic Load Balancing routinely performs health checks on all the registered EC2 instances and automatically distributes all incoming requests to the DNS name of your load balancer across your registered, healthy EC2 instances. By default, the load balancer uses the [...] protocol for checking the health of your instances.
 
@@ -465,7 +451,7 @@ You've created your first load balancer and have registered your EC2 instances w
 
 </details>
 
-### 32. dt-66
+### 31. dt-66
 
 Amazon Elastic Load Balancing is used to manage traffic on a fleet of Amazon EC2 instances, distributing traffic to instances across all Availability Zones within a region. Elastic Load Balancing has all the advantages of an on-premises load balancer, plus several security benefits. Which of the following is not an advantage of ELB over an on-premise load balancer?
 
@@ -475,7 +461,7 @@ Amazon Elastic Load Balancing is used to manage traffic on a fleet of Amazon EC2
 
 </details>
 
-### 33. dt-67 `availability`
+### 32. dt-67 `availability`
 
 A web company is looking to implement an external payment service into their highly available application deployed in a VPC. Their application EC2 instances are behind a public facing ELB. Auto scaling is used to add additional instances as traffic increases. Under normal load the application runs 2 instances in the Auto Scaling group but at peak it can scale 3x in size. The application instances need to communicate with the payment service over the Internet which requires whitelisting of all public IP addresses used to communicate with it. A maximum of 4 whitelisting IP addresses are allowed at a time and can be added through an API. How should they architect their solution?
 
@@ -485,7 +471,7 @@ A web company is looking to implement an external payment service into their hig
 
 </details>
 
-### 34. q-68 `least-ops`
+### 33. ce-68 `least-ops`
 
 A media company hosts a web application on AWS for uploading videos. Only authenticated users should upload within a specified time frame after authentication. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -497,7 +483,7 @@ Generating a pre-signed URL is the most efficient and secure method for this sce
 
 </details>
 
-### 35. dt-74
+### 34. dt-74
 
 You are trying to launch an EC2 instance, however the instance seems to go into a terminated status immediately. What would probably not be a reason that this is happening?
 
@@ -507,7 +493,7 @@ You are trying to launch an EC2 instance, however the instance seems to go into 
 
 </details>
 
-### 36. dt-78
+### 35. dt-78
 
 Your company produces customer commissioned one-of-a-kind skiing helmets combining high fashion with custom technical enhancements. Customers can show off their Individuality on the ski slopes and have access to head-up-displays. GPS rear-view cams and any other technical innovation they wish to embed in the helmet. The current manufacturing process is data rich and complex including assessments to ensure that the custom electronics and materials used to assemble the helmets are to the highest standards. Assessments are a mixture of human and automated assessments you need to add a new set of assessment to model the failure modes of the custom electronics using GPUs with CUDA, across a cluster of servers with low latency networking. What architecture would allow you to automate the existing process using a hybrid approach and ensure that the architecture can support the evolution of processes over time?
 
@@ -517,7 +503,7 @@ Your company produces customer commissioned one-of-a-kind skiing helmets combini
 
 </details>
 
-### 37. dt-89
+### 36. dt-89
 
 A user is aware that a huge download is occurring on his instance. He has already set the Auto Scaling policy to increase the instance count when the network I/O increases beyond a certain limit. How can the user ensure that this temporary event does not result in scaling?
 
@@ -527,7 +513,7 @@ A user is aware that a huge download is occurring on his instance. He has alread
 
 </details>
 
-### 38. dt-90
+### 37. dt-90
 
 The Amazon EC2 web service can be accessed using the [...] web services messaging protocol. This interface is described by a Web Services Description Language (WSDL) document.
 
@@ -537,7 +523,7 @@ The Amazon EC2 web service can be accessed using the [...] web services messagin
 
 </details>
 
-### 39. q-94
+### 38. ce-94
 
 A company is designing a new Amazon Elastic Kubernetes Service (Amazon EKS) deployment to host multi-tenant applications that use a single cluster. The company wants to ensure that each pod has its own hosted environment. The environments must not share CPU, memory, storage, or elastic network interfaces. Which solution will meet these requirements?
 
@@ -549,7 +535,7 @@ The question requires a solution where each pod in a multi-tenant Amazon EKS clu
 
 </details>
 
-### 40. dt-103
+### 39. dt-103
 
 What is a Security Group?
 
@@ -559,7 +545,7 @@ What is a Security Group?
 
 </details>
 
-### 41. dt-111
+### 40. dt-111
 
 You have been given a scope to deploy some AWS infrastructure for a large organization. The requirements are that you will have a lot of EC2 instances but may need to add more when the average utilization of your Amazon EC2 fleet is high and conversely remove them when CPU utilization is low. Which AWS services would be best to use to accomplish this?
 
@@ -569,7 +555,7 @@ You have been given a scope to deploy some AWS infrastructure for a large organi
 
 </details>
 
-### 42. dt-112
+### 41. dt-112
 
 When does the billing of an Amazon EC2 system begin?
 
@@ -579,7 +565,7 @@ When does the billing of an Amazon EC2 system begin?
 
 </details>
 
-### 43. q-116
+### 42. ce-116
 
 An e-commerce company stores inventory, order, and user information in multiple Amazon Redshift clusters. The Redshift clusters must comply with the company's security policies. The company must receive notifications about any security configuration violations. Which solution will meet these requirements?
 
@@ -591,7 +577,7 @@ This solution correctly uses AWS Config, the service designed for assessing, aud
 
 </details>
 
-### 44. dt-117
+### 43. dt-117
 
 Can you move a Reserved Instance from one Availability Zone to another?
 
@@ -601,7 +587,7 @@ Can you move a Reserved Instance from one Availability Zone to another?
 
 </details>
 
-### 45. q-121
+### 44. ce-121
 
 A company wants to create an Amazon EMR cluster that multiple teams will use. The company wants to ensure that each team's big data workloads can access only the AWS services that each team needs to interact with. The company does not want the workloads to have access to Instance Metadata Service Version 2 (IMDSv2) on the cluster's underlying EC2 instances. Which solution will meet these requirements?
 
@@ -613,7 +599,7 @@ Amazon EMR runtime roles are the designated feature for providing granular, leas
 
 </details>
 
-### 46. dt-121
+### 45. dt-121
 
 Which of the following statements best describes the differences between Elastic Beanstalk and CloudFormation?
 
@@ -623,7 +609,7 @@ Which of the following statements best describes the differences between Elastic
 
 </details>
 
-### 47. dt-125
+### 46. dt-125
 
 Does AWS CloudFormation support Amazon EC2 tagging?
 
@@ -633,7 +619,7 @@ Does AWS CloudFormation support Amazon EC2 tagging?
 
 </details>
 
-### 48. dt-128
+### 47. dt-128
 
 To specify a resource in a policy statement, in Amazon EC2, can you use its Amazon Resource Name (ARN)?
 
@@ -643,7 +629,7 @@ To specify a resource in a policy statement, in Amazon EC2, can you use its Amaz
 
 </details>
 
-### 49. dt-130
+### 48. dt-130
 
 By default what are ENIs that are automatically created and attached to instances using the EC2 console set to do when the attached instance terminates?
 
@@ -653,7 +639,7 @@ By default what are ENIs that are automatically created and attached to instance
 
 </details>
 
-### 50. dt-131
+### 49. dt-131
 
 In EC2, what happens to the data in an instance store if an instance reboots (either intentionally or unintentionally)?
 
@@ -663,7 +649,7 @@ In EC2, what happens to the data in an instance store if an instance reboots (ei
 
 </details>
 
-### 51. dt-141
+### 50. dt-141
 
 All Amazon EC2 instances are assigned two IP addresses at launch. Which are those?
 
@@ -673,7 +659,7 @@ All Amazon EC2 instances are assigned two IP addresses at launch. Which are thos
 
 </details>
 
-### 52. dt-142
+### 51. dt-142
 
 You need to pass a custom script to new Amazon Linux instances created in your Auto Scaling group. Which feature allows you to accomplish this?
 
@@ -683,7 +669,7 @@ You need to pass a custom script to new Amazon Linux instances created in your A
 
 </details>
 
-### 53. dt-144
+### 52. dt-144
 
 Which DNS name can only be resolved within Amazon EC2?
 
@@ -693,7 +679,7 @@ Which DNS name can only be resolved within Amazon EC2?
 
 </details>
 
-### 54. dt-145
+### 53. dt-145
 
 An AWS customer is deploying an application that is composed of an AutoScaling group of EC2 Instances. The customers security policy requires that every outbound connection from these instances to any other service within the customers Virtual Private Cloud must be authenticated using a unique x 509 certificate that contains the specific instance-id. In addition an x 509 certificates must be designed by the customer's Key management service in order to be trusted for authentication. Which of the following configurations will support these requirements?
 
@@ -703,7 +689,7 @@ An AWS customer is deploying an application that is composed of an AutoScaling g
 
 </details>
 
-### 55. dt-147
+### 54. dt-147
 
 In Amazon EC2, you are billed instance-hours when [...].
 
@@ -713,7 +699,7 @@ In Amazon EC2, you are billed instance-hours when [...].
 
 </details>
 
-### 56. dt-149
+### 55. dt-149
 
 In Amazon EC2 Container Service components, what is the name of a logical grouping of container instances on which you can place tasks?
 
@@ -723,7 +709,7 @@ In Amazon EC2 Container Service components, what is the name of a logical groupi
 
 </details>
 
-### 57. q-157
+### 56. ce-157
 
 A company needs an automated solution to detect cryptocurrency mining activity on Amazon EC2 instances. The solution must automatically isolate any identified EC2 instances for forensic analysis. Which solution will meet these requirements?
 
@@ -735,7 +721,7 @@ Amazon GuardDuty is a threat detection service that continuously monitors for ma
 
 </details>
 
-### 58. q-163
+### 57. ce-163
 
 A company runs an application on Amazon EC2 instances behind an Application Load Balancer (ALB). The company wants to create a public API for the application that uses JSON Web Tokens (JWT) for authentication. The company wants the API to integrate directly with the ALB. Which solution will meet these requirements?
 
@@ -747,7 +733,7 @@ Amazon API Gateway HTTP APIs are the ideal solution for this scenario. They are 
 
 </details>
 
-### 59. dt-164
+### 58. dt-164
 
 A major customer has asked you to set up his AWS infrastructure so that it will be easy to recover in the case of a disaster of some sort. Which of the following statements is true of Amazon EC2 security groups?
 
@@ -757,7 +743,7 @@ A major customer has asked you to set up his AWS infrastructure so that it will 
 
 </details>
 
-### 60. dt-165
+### 59. dt-165
 
 Select a true statement about Amazon EC2 Security Groups (EC2-Classic).
 
@@ -767,7 +753,7 @@ Select a true statement about Amazon EC2 Security Groups (EC2-Classic).
 
 </details>
 
-### 61. dt-168
+### 60. dt-168
 
 You have an EC2 Security Group with several running EC2 instances. You change the Security Group rules to allow inbound traffic on a new port and protocol, and launch several new instances in the same Security Group. The new rules apply:
 
@@ -777,7 +763,7 @@ You have an EC2 Security Group with several running EC2 instances. You change th
 
 </details>
 
-### 62. dt-173
+### 61. dt-173
 
 You try to connect via SSH to a newly created Amazon EC2 instance and get one of the following error messages: 'Network error: Connection timed out' or 'Error connecting to [instance], reason: -> Connection timed out: connect,' You have confirmed that the network and security group rules are configured correctly and the instance is passing status checks. What steps should you take to identify the source of the behavior? (Choose 2 answers)
 
@@ -787,7 +773,7 @@ You try to connect via SSH to a newly created Amazon EC2 instance and get one of
 
 </details>
 
-### 63. dt-174
+### 62. dt-174
 
 An Auto-Scaling group spans 3 AZs and currently has 4 running EC2 instances. When Auto Scaling needs to terminate an EC2 instance by default, AutoScaling will: (Choose 2 answers)
 
@@ -797,7 +783,7 @@ An Auto-Scaling group spans 3 AZs and currently has 4 running EC2 instances. Whe
 
 </details>
 
-### 64. q-190 `availability`
+### 63. et-190 `availability`
 
 A company has a web application that is based on Java and PHP. The company plans to move the application from on premises to AWS. The company needs the ability to test new site features frequently. The company also needs a highly available and managed solution that requires minimum operational overhead. Which solution will meet these requirements?
 
@@ -809,7 +795,7 @@ Elastic Beanstalk allows you to perform blue-green deployments, which involve cr
 
 </details>
 
-### 65. q-192
+### 64. ce-192
 
 A developer creates a web application that runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The instances are in an Auto Scaling group. The developer reviews the deployment and notices some suspicious traffic to the application. The traffic is malicious and is coming from a single public IP address. A solutions architect must block the public IP address. Which solution will meet this requirement?
 
@@ -821,7 +807,7 @@ AWS Web Application Firewall (WAF) is a service designed to protect web applicat
 
 </details>
 
-### 66. dt-201
+### 65. dt-201
 
 Which Amazon Elastic Compute Cloud feature can you query from within the instance to access instance properties?
 
@@ -831,7 +817,7 @@ Which Amazon Elastic Compute Cloud feature can you query from within the instanc
 
 </details>
 
-### 67. q-209
+### 66. et-209
 
 A solutions architect is designing the architecture of a new application being deployed to the AWS Cloud. The application will run on Amazon EC2 On-Demand Instances and will automatically scale across multiple Availability Zones. The EC2 instances will scale up and down frequently throughout the day. An Application Load Balancer (ALB) will handle the load distribution. The architecture needs to support distributed session data management. The company is willing to make changes to code if needed. What should the solutions architect do to ensure that the architecture supports distributed session data management?
 
@@ -843,7 +829,7 @@ Amazon ElastiCache is a fully managed, in-memory data store service. It is commo
 
 </details>
 
-### 68. dt-214
+### 67. dt-214
 
 What is the minimum charge for the data transferred between Amazon RDS and Amazon EC2 Instances in the same Availability Zone?
 
@@ -853,7 +839,7 @@ What is the minimum charge for the data transferred between Amazon RDS and Amazo
 
 </details>
 
-### 69. dt-219
+### 68. dt-219
 
 [...] let you categorize your EC2 resources in different ways, for example, by purpose, owner, or environment.
 
@@ -863,7 +849,7 @@ What is the minimum charge for the data transferred between Amazon RDS and Amazo
 
 </details>
 
-### 70. dt-220
+### 69. dt-220
 
 Which of the below mentioned options is not available when an instance is launched by Auto Scaling with EC2 Classic?
 
@@ -873,7 +859,7 @@ Which of the below mentioned options is not available when an instance is launch
 
 </details>
 
-### 71. q-220 `cost`
+### 70. et-220 `cost`
 
 A solutions architect is designing a new API using Amazon API Gateway that will receive requests from users. The volume of requests is highly variable; several hours can pass without receiving a single request. The data processing will take place asynchronously, but should be completed within a few seconds after a request is made. Which compute service should the solutions architect have the API invoke to deliver the requirements at the lowest cost?
 
@@ -885,7 +871,7 @@ AWS Lambda supports asynchronous invocation, which is suitable for scenarios whe
 
 </details>
 
-### 72. dt-228
+### 71. dt-228
 
 Which services allow the customer to retain full administrative privileges of the underlying EC2 instances? (Choose 2 answers)
 
@@ -895,7 +881,7 @@ Which services allow the customer to retain full administrative privileges of th
 
 </details>
 
-### 73. q-229
+### 72. ce-229
 
 A company hosts dozens of multi-tier applications on AWS. The presentation layer and logic layer are comprised of Amazon EC2 Linux instances that use Amazon Elastic Block Store (Amazon EBS) volumes. The company needs a solution to ensure that operating system vulnerabilities are not introduced to the EC2 instances when the company deploys new features. The company uses custom AMIs to deploy the EC2 instances in an Auto Scaling group. The solution must scale to handle all applications that the company hosts. Which solution will meet these requirements?
 
@@ -907,7 +893,7 @@ EC2 Image Builder is a fully managed AWS service designed to automate the creati
 
 </details>
 
-### 74. dt-238
+### 73. dt-238
 
 The one-time payment for Reserved Instances is [...] refundable if the reservation is cancelled.
 
@@ -917,7 +903,7 @@ The one-time payment for Reserved Instances is [...] refundable if the reservati
 
 </details>
 
-### 75. dt-239
+### 74. dt-239
 
 Is it possible to get a history of all EC2 API calls made on your account for security analysis and operational troubleshooting purposes?
 
@@ -927,7 +913,7 @@ Is it possible to get a history of all EC2 API calls made on your account for se
 
 </details>
 
-### 76. dt-243
+### 75. dt-243
 
 What are the Amazon EC2 API tools?
 
@@ -937,7 +923,7 @@ What are the Amazon EC2 API tools?
 
 </details>
 
-### 77. q-245 `cost`
+### 76. et-245 `cost`
 
 A company is launching an application on AWS. The application uses an Application Load Balancer (ALB) to direct traffic to at least two Amazon EC2 instances in a single target group. The instances are in an Auto Scaling group for each environment. The company requires a development environment and a production environment. The production environment will have periods of high traffic. Which solution will configure the development environment MOST cost-effectively?
 
@@ -949,7 +935,7 @@ Development and production each have their own Auto Scaling group, and only prod
 
 </details>
 
-### 78. dt-248
+### 77. dt-248
 
 Which of the following cannot be used in Amazon EC2 to control who has access to specific Amazon EC2 instances?
 
@@ -959,7 +945,7 @@ Which of the following cannot be used in Amazon EC2 to control who has access to
 
 </details>
 
-### 79. gh-248
+### 78. gh-248
 
 Users report that some submitted data is not being processed Amazon CloudWatch reveals that the EC2 instances have a consistent CPU utilization at or near 100%. The company wants to improve system performance and scale the system based on user load.
 What should a solutions architect do to meet these requirements?
@@ -972,7 +958,7 @@ This option addresses the issue by offloading incoming requests to an SQS queue,
 
 </details>
 
-### 80. q-252
+### 79. ce-252
 
 A company has an application that runs on Amazon EC2 instances in an Auto Scaling group. The application uses hardcoded credentials to access an Amazon RDS database. To comply with new regulations, the company needs to automatically rotate the database password for the application service account every 90 days. Which solution will meet these requirements?
 
@@ -984,7 +970,7 @@ The most secure and efficient way to manage and automatically rotate database cr
 
 </details>
 
-### 81. dt-254 `availability`
+### 80. dt-254 `availability`
 
 You have a web application running on six Amazon EC2 instances, consuming about 45% of resources on each instance. You are using auto-scaling to make sure that six instances are running at all times. The number of requests this application processes is consistent and does not experience spikes. The application is critical to your business and you want high availability at all times. You want the load to be distributed evenly between all instances. You also want to use the same Amazon Machine Image (AMI) for all instances. Which of the following architectural choices should you make?
 
@@ -994,7 +980,7 @@ You have a web application running on six Amazon EC2 instances, consuming about 
 
 </details>
 
-### 82. dt-257
+### 81. dt-257
 
 Amazon EC2 provides a repository of public data sets that can be seamlessly integrated into AWS cloud-based applications. What is the monthly charge for using the public data sets?
 
@@ -1004,7 +990,7 @@ Amazon EC2 provides a repository of public data sets that can be seamlessly inte
 
 </details>
 
-### 83. dt-261
+### 82. dt-261
 
 You have set up an Auto Scaling group. The cool down period for the Auto Scaling group is 7 minutes. The first instance is launched after 3 minutes, while the second instance is launched after 4 minutes. How many minutes after the first instance is launched will Auto Scaling accept another scaling activity request?
 
@@ -1014,7 +1000,7 @@ You have set up an Auto Scaling group. The cool down period for the Auto Scaling
 
 </details>
 
-### 84. q-261
+### 83. et-261
 
 A company recently announced the deployment of its retail website to a global audience. The website runs on multiple Amazon EC2 instances behind an Elastic Load Balancer. The instances run in an Auto Scaling group across multiple Availability Zones. The company wants to provide its customers with different versions of content based on the devices that the customers use to access the website. Which combination of actions should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -1026,7 +1012,7 @@ C. Configure a Lambda@Edge function to send specific objects to users based on t
 
 </details>
 
-### 85. q-263
+### 84. et-263
 
 A company is building an application that consists of several microservices. The company has decided to use container technologies to deploy its software on AWS. The company needs a solution that minimizes the amount of ongoing effort for maintenance and scaling. The company cannot manage additional infrastructure. Which combination of actions should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -1038,7 +1024,7 @@ D. Deploy an Amazon Elastic Container Service (Amazon ECS) service with a Fargat
 
 </details>
 
-### 86. dt-264
+### 85. dt-264
 
 Your system recently experienced down time during the troubleshooting process. You found that a new administrator mistakenly terminated several production EC2 instances. Which of the following strategies will help prevent a similar situation in the future? The administrator still must be able to: Launch, start stop, and terminate development resources. Launch and start production instances.
 
@@ -1048,7 +1034,7 @@ Your system recently experienced down time during the troubleshooting process. Y
 
 </details>
 
-### 87. q-266
+### 86. et-266
 
 A company has a popular gaming platform running on AWS. The application is sensitive to latency because latency can impact the user experience and introduce unfair advantages to some players. The application is deployed in every AWS Region. It runs on Amazon EC2 instances that are part of Auto Scaling groups configured behind Application Load Balancers (ALBs). A solutions architect needs to implement a mechanism to monitor the health of the application and redirect traffic to healthy endpoints. Which solution meets these requirements?
 
@@ -1060,7 +1046,7 @@ AWS Global Accelerator is designed to provide static IP addresses for global app
 
 </details>
 
-### 88. dt-268
+### 87. dt-268
 
 You have a periodic Image analysis application that gets some files in input, analyzes them and for each file writes some data in output to a text file. The number of files in input per day is high and concentrated in a few hours of the day. Currently you have a server on EC2 with a large EBS volume that hosts the input data and the results. It takes almost 20 hours per day to complete the process. What services could be used to reduce the elaboration time and improve the availability of the solution?
 
@@ -1070,7 +1056,7 @@ You have a periodic Image analysis application that gets some files in input, an
 
 </details>
 
-### 89. dt-269
+### 88. dt-269
 
 While controlling access to Amazon EC2 resources, which of the following acts as a firewall that controls the traffic allowed to reach one or more instances?
 
@@ -1080,7 +1066,7 @@ While controlling access to Amazon EC2 resources, which of the following acts as
 
 </details>
 
-### 90. q-271
+### 89. ce-271
 
 A company regularly receives route status updates from its delivery trucks as events in Amazon EventBridge. The company is building an API-based application in a VPC that will consume and process the events to create a delivery status dashboard. The API application must not be available by using public IP addresses because of security and compliance requirements. How should the company send events from EventBridge to the API application?
 
@@ -1092,7 +1078,7 @@ The API application must not have a public IP address. Amazon EventBridge can ta
 
 </details>
 
-### 91. dt-271
+### 90. dt-271
 
 While using the EC2 GET requests as URLs, the [...] is the URL that serves as the entry point for the web service.
 
@@ -1102,7 +1088,7 @@ While using the EC2 GET requests as URLs, the [...] is the URL that serves as th
 
 </details>
 
-### 92. q-271
+### 91. et-271
 
 A solutions architect observes that a nightly batch processing job is automatically scaled up for 1 hour before the desired Amazon EC2 capacity is reached. The peak capacity is the ‘same every night and the batch jobs always start at 1 AM. The solutions architect needs to find a cost-effective solution that will allow for the desired EC2 capacity to be reached quickly and allow the Auto Scaling group to scale down after the batch jobs are complete. What should the solutions architect do to meet these requirements?
 
@@ -1114,7 +1100,7 @@ Scheduled scaling allows you to define specific times when your Auto Scaling gro
 
 </details>
 
-### 93. dt-274
+### 92. dt-274
 
 A user has launched 10 EC2 instances inside a placement group. Which of the below mentioned statements is true with respect to the placement group?
 
@@ -1124,7 +1110,7 @@ A user has launched 10 EC2 instances inside a placement group. Which of the belo
 
 </details>
 
-### 94. dt-275
+### 93. dt-275
 
 A user has created a CloudFormation stack. The stack creates AWS services, such as EC2 instances, ELB, AutoScaling, and RDS. While creating the stack it created EC2, ELB and AutoScaling but failed to create RDS. What will CloudFormation do in this scenario?
 
@@ -1134,7 +1120,7 @@ A user has created a CloudFormation stack. The stack creates AWS services, such 
 
 </details>
 
-### 95. q-275
+### 94. et-275
 
 A company runs an internal browser-based application. The application runs on Amazon EC2 instances behind an Application Load Balancer. The instances run in an Amazon EC2 Auto Scaling group across multiple Availability Zones. The Auto Scaling group scales up to 20 instances during work hours, but scales down to 2 instances overnight. Staff are complaining that the application is very slow when the day begins, although it runs well by mid-morning. How should the scaling be changed to address the staff complaints and keep costs to a minimum?
 
@@ -1144,7 +1130,7 @@ A company runs an internal browser-based application. The application runs on Am
 
 </details>
 
-### 96. dt-276
+### 95. dt-276
 
 You have been asked to design the storage layer for an application. The application requires disk performance of at least 100,000 IOPS. In addition, the storage layer must be able to survive the loss of an individual disk, EC2 instance, or Availability Zone without any data loss. The volume you provide must have a capacity of at least 3 TB. Which of the following designs will meet these objectives?
 
@@ -1154,7 +1140,7 @@ You have been asked to design the storage layer for an application. The applicat
 
 </details>
 
-### 97. q-276
+### 96. et-276
 
 A company has a multi-tier application deployed on several Amazon EC2 instances in an Auto Scaling group. An Amazon RDS for Oracle instance is the application’ s data layer that uses Oracle-specific PL/SQL functions. Traffic to the application has been steadily increasing. This is causing the EC2 instances to become overloaded and the RDS instance to run out of storage. The Auto Scaling group does not have any scaling metrics and defines the minimum healthy instance count only. The company predicts that traffic will continue to increase at a steady but unpredictable rate before leveling off. What should a solutions architect do to ensure the system can automatically scale for the increased traffic? (Choose two.)
 
@@ -1166,7 +1152,7 @@ This option allows the RDS instance to automatically scale its storage based on 
 
 </details>
 
-### 98. dt-278
+### 97. dt-278
 
 Your startup wants to implement an order fulfillment process for selling a personalized gadget that needs an average of 3-4 days to produce with some orders taking up to 6 months. You expect 10 orders per day on your first day, 1000 orders per day after 6 months and 10,000 orders after 12 months. Orders coming in are checked for consistency, then dispatched to your manufacturing plant for production, quality control, packaging, shipment and payment processing. If the product does not meet the quality standards at any stage of the process, employees may force the process to repeat a step. Customers are notified via email about order status and any critical issues with their orders such as payment failure. Your base architecture includes AWS Elastic Beanstalk for your website with an RDS MySQL instance for customer data and orders. How can you implement the order fulfillment process while making sure that the emails are delivered reliably?
 
@@ -1176,7 +1162,7 @@ Your startup wants to implement an order fulfillment process for selling a perso
 
 </details>
 
-### 99. dt-280
+### 98. dt-280
 
 A user is accessing an EC2 instance on the SSH port for IP 10.20.30.40. Which one is a secure way to configure that the instance can be accessed only from this IP?
 
@@ -1186,7 +1172,7 @@ A user is accessing an EC2 instance on the SSH port for IP 10.20.30.40. Which on
 
 </details>
 
-### 100. dt-283
+### 99. dt-283
 
 You have a content management system running on an Amazon EC2 instance that is approaching 100% CPU utilization. Which option will reduce load on the Amazon EC2 instance?
 
@@ -1196,7 +1182,7 @@ You have a content management system running on an Amazon EC2 instance that is a
 
 </details>
 
-### 101. q-284
+### 100. ce-284
 
 A company is designing an application to run in a VPC on AWS. The application consists of Amazon EC2 instances that run in private subnets as part of an Auto Scaling group. The application stores data in an Amazon RDS DB instance. The company attaches a security group named web-servers to the EC2 instances. The company attaches a security group named database to the DB instance. The company needs a solution to establish communication between the EC2 instances and the DB instance. Which solution will meet this requirement?
 
@@ -1208,7 +1194,7 @@ The most secure and scalable method for allowing communication between AWS resou
 
 </details>
 
-### 102. dt-286
+### 101. dt-286
 
 You have decided to change the instance type for instances running in your application tier that is using Auto Scaling. In which area below would you change the instance type definition?
 
@@ -1218,7 +1204,7 @@ You have decided to change the instance type for instances running in your appli
 
 </details>
 
-### 103. dt-287
+### 102. dt-287
 
 Which of the following statements is true of creating a launch configuration using an EC2 instance?
 
@@ -1228,7 +1214,7 @@ Which of the following statements is true of creating a launch configuration usi
 
 </details>
 
-### 104. q-287
+### 103. et-287
 
 A company wants to migrate a Windows-based application from on premises to the AWS Cloud. The application has three tiers: an application tier, a business tier, and a database tier with Microsoft SQL Server. The company wants to use specific features of SQL Server such as native backups and Data Quality Services. The company also needs to share files for processing between the tiers. How should a solutions architect design the architecture to meet these requirements?
 
@@ -1240,7 +1226,7 @@ hosting all three tiers on Amazon EC2 instances allows you to have flexibility a
 
 </details>
 
-### 105. q-290
+### 104. ce-290
 
 A company is deploying a new SFTP service. The service consists of Amazon EC2 instances in an Auto Scaling group that spans two Availability Zones and a shared Amazon EFS file system. The service is behind a Network Load Balancer NLB that has a security group attached. A solutions architect needs to grant a list of IP addresses access to the new service. Which solution will meet this requirement?
 
@@ -1252,7 +1238,7 @@ This solution correctly implements a layered security approach using the princip
 
 </details>
 
-### 106. q-290
+### 105. et-290
 
 A company hosts a web application on multiple Amazon EC2 instances. The EC2 instances are in an Auto Scaling group that scales in response to user demand. The company wants to optimize cost savings without making a long-term commitment. Which EC2 instance purchasing option should a solutions architect recommend to meet these requirements?
 
@@ -1264,7 +1250,7 @@ On-Demand Instances: These instances are charged per hour or per second of usage
 
 </details>
 
-### 107. dt-293
+### 106. dt-293
 
 A user has launched 10 EC2 instances inside a placement group. Which of the following statements is true in regards to what ability launching your instances into a VPC instead of EC2-Classic gives you?
 
@@ -1274,7 +1260,7 @@ A user has launched 10 EC2 instances inside a placement group. Which of the foll
 
 </details>
 
-### 108. dt-295
+### 107. dt-295
 
 What is the average IOPS that the user will get for most of the year as per EC2 SLA if the instance is attached to the EBS optimized instance?
 
@@ -1284,7 +1270,7 @@ What is the average IOPS that the user will get for most of the year as per EC2 
 
 </details>
 
-### 109. gh-297
+### 108. gh-297
 
 A solutions architect needs to implement a solution to automate the scalability of the application. The solution must optimize the cost of the architecture and must ensure that the application has enough CPU resources when surges occur.
 Which solution will meet these requirements?
@@ -1299,7 +1285,7 @@ This solution provides scalability when needed, ensures that there are enough CP
 
 </details>
 
-### 110. dt-299
+### 109. dt-299
 
 Please select the Amazon EC2 resource which can be tagged.
 
@@ -1309,7 +1295,7 @@ Please select the Amazon EC2 resource which can be tagged.
 
 </details>
 
-### 111. q-300 `cost`
+### 110. et-300 `cost`
 
 A company needs to migrate a legacy application from an on-premises data center to the AWS Cloud because of hardware capacity constraints. The application runs 24 hours a day, 7 days a week. The application’s database storage continues to grow over time. What should a solutions architect do to meet these requirements MOST cost-effectively?
 
@@ -1321,7 +1307,7 @@ Using Amazon EC2 Reserved Instances for the application layer provides cost savi
 
 </details>
 
-### 112. q-303
+### 111. et-303
 
 A company is launching a new application deployed on an Amazon Elastic Container Service (Amazon ECS) cluster and is using the Fargate launch type for ECS tasks. The company is monitoring CPU and memory usage because it is expecting high traffic to the application upon its launch. However, the company wants to reduce costs when utilization decreases. What should a solutions architect recommend?
 
@@ -1333,7 +1319,7 @@ AWS Application Auto Scaling is a service that can automatically adjust the numb
 
 </details>
 
-### 113. q-306
+### 112. et-306
 
 A company wants to run an in-memory database for a latency-sensitive application that runs on Amazon EC2 instances. The application processes more than 100,000 transactions each minute and requires high network throughput. A solutions architect needs to provide a cost- effective network design that minimizes data transfer charges. Which solution meets these requirements?
 
@@ -1345,7 +1331,7 @@ A placement group is a logical grouping of instances within a single Availabilit
 
 </details>
 
-### 114. dt-307
+### 113. dt-307
 
 If you want to launch Amazon Elastic Compute Cloud (EC2) instances and assign each instance a predetermined private IP address you should:
 
@@ -1355,7 +1341,7 @@ If you want to launch Amazon Elastic Compute Cloud (EC2) instances and assign ea
 
 </details>
 
-### 115. dt-309
+### 114. dt-309
 
 You have a Business support plan with AWS. One of your EC2 instances is running Microsoft Windows Server 2008 R2 and you are having problems with the software. Can you receive support from AWS for this software?
 
@@ -1365,7 +1351,7 @@ You have a Business support plan with AWS. One of your EC2 instances is running 
 
 </details>
 
-### 116. dt-314
+### 115. dt-314
 
 The [...] service is targeted at organizations with multiple users or systems that use AWS products such as Amazon EC2, Amazon SimpleDB, and the AWS Management Console.
 
@@ -1375,7 +1361,7 @@ The [...] service is targeted at organizations with multiple users or systems th
 
 </details>
 
-### 117. q-315 `security`
+### 116. ce-315 `security`
 
 A company has a prototype application that runs in a Linux container on Amazon ECS. The company needs to provide sensitive environment variables to the container before the application starts. What is the MOST secure way to load the environment variables into the running container?
 
@@ -1387,7 +1373,7 @@ The most secure method to manage sensitive data for Amazon ECS containers is to 
 
 </details>
 
-### 118. q-317
+### 117. ce-317
 
 A company serves its website by using an Auto Scaling group of Amazon EC2 instances in a single AWS Region. The website does not require a database The company is expanding, and the company's engineering team deploys the website to a second Region. The company wants to distribute traffic across both Regions to accommodate growth and for disaster recovery purposes The solution should not serve traffic from a Region in which the website is unhealthy. Which policy or resource should the company use to meet these requirements?
 
@@ -1399,7 +1385,7 @@ Amazon Route 53 is the appropriate service for directing traffic to multiple AWS
 
 </details>
 
-### 119. dt-317
+### 118. dt-317
 
 You have written a CloudFormation template that creates 1 Elastic Load Balancer fronting 2 EC2 Instances. Which section of the template should you edit so that the DNS of the load balancer is returned upon creation of the stack?
 
@@ -1409,7 +1395,7 @@ You have written a CloudFormation template that creates 1 Elastic Load Balancer 
 
 </details>
 
-### 120. dt-318
+### 119. dt-318
 
 AWS CloudFormation is a service that helps you model and set up your Amazon Web Services resources so that you can spend less time managing those resources and more time focusing on your applications that run in AWS. You create a template that describes all the AWS resources that you want (like Amazon EC2 instances or Amazon RDS DB instances), and AWS CloudFormation takes care of provisioning and configuring those resources for you. What formatting is required for this template?
 
@@ -1419,7 +1405,7 @@ AWS CloudFormation is a service that helps you model and set up your Amazon Web 
 
 </details>
 
-### 121. q-318
+### 120. et-318
 
 A company recently migrated its entire IT environment to the AWS Cloud. The company discovers that users are provisioning oversized Amazon EC2 instances and modifying security group rules without using the appropriate change control process. A solutions architect must devise a strategy to track and audit these inventory and configuration changes. Which actions should the solutions architect take to meet these requirements? (Choose two.)
 
@@ -1431,7 +1417,7 @@ D. Enable AWS Config and create rules for auditing and compliance purposes.  A. 
 
 </details>
 
-### 122. dt-320
+### 121. dt-320
 
 After setting up an EC2 security group with a cluster of 20 EC2 instances, you find an error in the security group settings. You quickly make changes to the security group settings. When will the changes to the settings be effective?
 
@@ -1441,9 +1427,10 @@ After setting up an EC2 security group with a cluster of 20 EC2 instances, you f
 
 </details>
 
-### 123. q-320
+### 122. gh-320
 
-A company is using a fleet of Amazon EC2 instances to ingest data from on-premises data sources. The data is in JSON format and ingestion rates can be as high as 1 MB/s. When an EC2 instance is rebooted, the data in-flight is lost. The company’s data science team wants to query ingested data in near-real time. Which solution provides near-real-time data querying that is scalable with minimal data loss?
+A company is using a fleet of Amazon EC2 instances to ingest data from on-premises data sources. The data is in JSON format and ingestion rates can be as high as 1 MB/s. When an EC2 instance is rebooted, the data in-flight is lost. The company’s data science team wants to query ingested data in near-real time.
+Which solution provides near-real-time data querying that is scalable with minimal data loss?
 
 <details><summary>Answer</summary>
 
@@ -1453,7 +1440,7 @@ Kinesis Data Streams accepts the 1 MB/s feed and holds every record durably acro
 
 </details>
 
-### 124. dt-321
+### 123. dt-321
 
 Can a user get a notification of each instance start / terminate configured with Auto Scaling?
 
@@ -1463,7 +1450,7 @@ Can a user get a notification of each instance start / terminate configured with
 
 </details>
 
-### 125. dt-326
+### 124. dt-326
 
 In an experiment, if the minimum size for an Auto Scaling group is 1 instance, which of the following statements holds true when you terminate the running instance?
 
@@ -1473,7 +1460,7 @@ In an experiment, if the minimum size for an Auto Scaling group is 1 instance, w
 
 </details>
 
-### 126. q-328
+### 125. et-328
 
 A company is hosting a three-tier ecommerce application in the AWS Cloud. The company hosts the website on Amazon S3 and integrates the website with an API that handles sales requests. The company hosts the API on three Amazon EC2 instances behind an Application Load Balancer (ALB). The API consists of static and dynamic front-end content along with backend workers that process sales requests asynchronously. The company is expecting a significant and sudden increase in the number of sales requests during events for the launch of new products. What should a solutions architect recommend to ensure that all the requests are processed successfully?
 
@@ -1485,7 +1472,7 @@ Amazon CloudFront for Static Content: By using CloudFront, you can distribute st
 
 </details>
 
-### 127. dt-331 `cost`
+### 126. dt-331 `cost`
 
 You have a distributed application that periodically processes large volumes of data across multiple Amazon EC2 Instances. The application is designed to recover gracefully from Amazon EC2 instance failures. You are required to accomplish this task in the most cost-effective way. Which of the following will meet your requirements?
 
@@ -1495,7 +1482,7 @@ You have a distributed application that periodically processes large volumes of 
 
 </details>
 
-### 128. q-333
+### 127. et-333
 
 A company’s application runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The instances run in an Amazon EC2 Auto Scaling group across multiple Availability Zones. On the first day of every month at midnight, the application becomes much slower when the month-end financial calculation batch runs. This causes the CPU utilization of the EC2 instances to immediately peak to 100%, which disrupts the application. What should a solutions architect recommend to ensure the application is able to handle the workload and avoid downtime?
 
@@ -1507,7 +1494,7 @@ By configuring a scheduled scaling policy, the EC2 Auto Scaling group can proact
 
 </details>
 
-### 129. q-335
+### 128. et-335
 
 A company is experiencing sudden increases in demand. The company needs to provision large Amazon EC2 instances from an Amazon Machine Image (AMI). The instances will run in an Auto Scaling group. The company needs a solution that provides minimum initialization latency to meet the demand. Which solution meets these requirements?
 
@@ -1519,7 +1506,7 @@ Amazon EBS Fast Snapshot Restore: Enabling fast snapshot restore allows you to p
 
 </details>
 
-### 130. q-340 `availability`
+### 129. ce-340 `availability`
 
 A company is developing a containerized web application that needs to be highly available and scalable. The application requires access to GPU resources.
 
@@ -1531,7 +1518,7 @@ The most effective solution is to use Amazon Elastic Container Service (Amazon E
 
 </details>
 
-### 131. q-342
+### 130. ce-342
 
 A company has an application that runs only on Amazon EC2 Spot Instances. The instances run in an Amazon EC2 Auto Scaling group with scheduled scaling actions. However, the capacity does not always increase at the scheduled times, and instances terminate many times a day. A solutions architect must ensure that the instances launch on time and have fewer interruptions. Which action will meet these requirements?
 
@@ -1543,7 +1530,7 @@ The capacity-optimized allocation strategy is designed to fulfill Spot Instance 
 
 </details>
 
-### 132. q-342 `least-ops`
+### 131. et-342 `least-ops`
 
 A transaction processing company has weekly scripted batch jobs that run on Amazon EC2 instances. The EC2 instances are in an Auto Scaling group. The number of transactions can vary, but the baseline CPU utilization that is noted on each run is at least 60%. The company needs to provision the capacity 30 minutes before the jobs run. Currently, engineers complete this task by manually modifying the Auto Scaling group parameters. The company does not have the resources to analyze the required capacity trends for the Auto Scaling group counts. The company needs an automated way to modify the Auto Scaling group’s desired capacity. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1555,7 +1542,7 @@ In general, if you have regular patterns of traffic increases and applications t
 
 </details>
 
-### 133. dt-343
+### 132. dt-343
 
 In Amazon RDS, security groups are ideally used to:
 
@@ -1565,7 +1552,7 @@ In Amazon RDS, security groups are ideally used to:
 
 </details>
 
-### 134. dt-344
+### 133. dt-344
 
 How long does an AWS free usage tier EC2 last for?
 
@@ -1575,7 +1562,7 @@ How long does an AWS free usage tier EC2 last for?
 
 </details>
 
-### 135. dt-346
+### 134. dt-346
 
 You can seamlessly join an EC2 instance to your directory domain. What connectivity do you need to be able to connect remotely to this instance?
 
@@ -1585,7 +1572,7 @@ You can seamlessly join an EC2 instance to your directory domain. What connectiv
 
 </details>
 
-### 136. dt-348 `performance`
+### 135. dt-348 `performance`
 
 You have multiple Amazon EC2 instances running in a cluster across multiple Availability Zones within the same region. What combination of the following should be used to ensure the highest network performance (packets per second), lowest latency, and lowest jitter? (Choose 3 answers)
 
@@ -1595,7 +1582,7 @@ You have multiple Amazon EC2 instances running in a cluster across multiple Avai
 
 </details>
 
-### 137. q-355
+### 136. ce-355
 
 A company runs a critical public application on Amazon Elastic Kubernetes Service (Amazon EKS) clusters. The application has a microservices architecture. The company needs to implement a solution that collects, aggregates, and summarizes metrics and logs from the application in a centralized location. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -1607,7 +1594,7 @@ Amazon CloudWatch Container Insights is a purpose-built feature for monitoring, 
 
 </details>
 
-### 138. q-355 `least-ops`
+### 137. et-355 `least-ops`
 
 A company is migrating an old application to AWS. The application runs a batch job every hour and is CPU intensive. The batch job takes 15 minutes on average with an on-premises server. The server has 64 virtual CPU (vCPU) and 512 GiB of memory. Which solution will run the batch job within 15 minutes with the LEAST operational overhead?
 
@@ -1619,7 +1606,7 @@ AWS Batch on Amazon EC2: AWS Batch is a fully managed service for batch computin
 
 </details>
 
-### 139. dt-357
+### 138. dt-357
 
 You are configuring your company's application to use Auto Scaling and need to move user state information. Which of the following AWS services provides a shared data store with durability and low latency?
 
@@ -1629,7 +1616,7 @@ You are configuring your company's application to use Auto Scaling and need to m
 
 </details>
 
-### 140. dt-360
+### 139. dt-360
 
 You deployed your company website using Elastic Beanstalk and you enabled log file rotation to S3. An Elastic MapReduce job is periodically analyzing the logs on S3 to build a usage dashboard that you share with your CIO. You recently improved overall performance of the website using CloudFront for dynamic content delivery and your website as the origin. After this architectural change, the usage dashboard shows that the traffic on your website dropped by an order of magnitude. How do you fix your usage dashboard?
 
@@ -1639,7 +1626,7 @@ You deployed your company website using Elastic Beanstalk and you enabled log fi
 
 </details>
 
-### 141. q-363
+### 140. ce-363
 
 A company needs to design a resilient web application to process customer orders. The web application must automatically handle increases in web traffic and application usage without affecting the customer experience or losing customer orders. Which solution will meet these requirements?
 
@@ -1651,7 +1638,7 @@ This solution describes a classic, well-architected, and decoupled three-tier we
 
 </details>
 
-### 142. q-368
+### 141. ce-368
 
 A company uses an Amazon EC2 instance to handle requests for a public web application. The application routes traffic to multiple application pages by using URL paths. The company begins to experience large surges of traffic at unpredictable times. The traffic surges cause the web application to experience issues and to occasionally become unavailable. The company needs to make the web application more scalable to handle sudden increases in traffic. Which solution will meet this requirement?
 
@@ -1663,7 +1650,7 @@ This solution directly addresses the core requirements of scalability and high a
 
 </details>
 
-### 143. dt-368
+### 142. dt-368
 
 An application hosted at the EC2 instance receives an HTTP request from ELB. The same request has an X-Forwarded-For header, which has three IP addresses. Which system's IP will be a part of this header?
 
@@ -1673,7 +1660,7 @@ An application hosted at the EC2 instance receives an HTTP request from ELB. The
 
 </details>
 
-### 144. q-369 `least-ops`
+### 143. et-369 `least-ops`
 
 A company has migrated an application to Amazon EC2 Linux instances. One of these EC2 instances runs several 1-hour tasks on a schedule. These tasks were written by different teams and have no common programming language. The company is concerned about performance and scalability while these tasks run on a single instance. A solutions architect needs to implement a solution to resolve these concerns. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1685,7 +1672,7 @@ AWS Batch: AWS Batch is a fully managed service for running batch computing work
 
 </details>
 
-### 145. q-372
+### 144. ce-372
 
 A company is building a critical data processing application that will run on Amazon EC2 instances. The company must not run any two nodes on the same underlying hardware. The company requires at least 99.99% availability for the application. Which solution will meet these requirements?
 
@@ -1697,7 +1684,7 @@ The solution must meet two key requirements: high availability (99.99%) and hard
 
 </details>
 
-### 146. dt-372
+### 145. dt-372
 
 After setting up a Virtual Private Cloud (VPC) network, a more experienced cloud engineer suggests that to achieve low network latency and high network throughput you should look into setting up a placement group. You know nothing about this, but begin to do some research about it and are especially curious about its limitations. Which of the below statements is wrong in describing the limitations of a placement group?
 
@@ -1707,7 +1694,7 @@ After setting up a Virtual Private Cloud (VPC) network, a more experienced cloud
 
 </details>
 
-### 147. q-375 `least-ops`
+### 146. et-375 `least-ops`
 
 An ecommerce company is building a distributed application that involves several serverless functions and AWS services to complete order- processing tasks. These tasks require manual approvals as part of the workflow. A solutions architect needs to design an architecture for the order-processing application. The solution must be able to combine multiple AWS Lambda functions into responsive serverless applications. The solution also must orchestrate data and services that run on Amazon EC2 instances, containers, or on-premises servers. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1719,7 +1706,7 @@ Step Functions provide a way to coordinate and orchestrate multiple AWS services
 
 </details>
 
-### 148. dt-376
+### 147. dt-376
 
 For which of the following use cases are Simple Workflow Service (SWF) and Amazon EC2 an appropriate solution? (Choose 2 answers)
 
@@ -1729,7 +1716,7 @@ For which of the following use cases are Simple Workflow Service (SWF) and Amazo
 
 </details>
 
-### 149. dt-377
+### 148. dt-377
 
 Which of the following instance types are available as Amazon EBS-backed only? (Choose 2 answers)
 
@@ -1739,7 +1726,7 @@ Which of the following instance types are available as Amazon EBS-backed only? (
 
 </details>
 
-### 150. q-377
+### 149. et-377
 
 A company recently deployed a new auditing system to centralize information about operating system versions, patching, and installed software for Amazon EC2 instances. A solutions architect must ensure all instances provisioned through EC2 Auto Scaling groups successfully send reports to the auditing system as soon as they are launched and terminated. Which solution achieves these goals MOST efficiently?
 
@@ -1749,7 +1736,7 @@ A company recently deployed a new auditing system to centralize information abou
 
 </details>
 
-### 151. q-380
+### 150. et-380
 
 A company is migrating its on-premises workload to the AWS Cloud. The company already uses several Amazon EC2 instances and Amazon RDS DB instances. The company wants a solution that automatically starts and stops the EC2 instances and DB instances outside of business hours. The solution must minimize cost and infrastructure maintenance. Which solution will meet these requirements?
 
@@ -1761,7 +1748,7 @@ AWS Lambda Function: Create a Lambda function that contains the logic to start a
 
 </details>
 
-### 152. dt-381
+### 151. dt-381
 
 In Amazon AWS, which of the following statements is true of key pairs?
 
@@ -1771,7 +1758,7 @@ In Amazon AWS, which of the following statements is true of key pairs?
 
 </details>
 
-### 153. q-382
+### 152. et-382
 
 A company has a three-tier application on AWS that ingests sensor data from its users’ devices. The traffic flows through a Network Load Balancer (NLB), then to Amazon EC2 instances for the web tier, and finally to EC2 instances for the application tier. The application tier makes calls to a database. What should a solutions architect do to improve the security of the data in transit?
 
@@ -1783,7 +1770,7 @@ TLS Listener on NLB: By configuring a TLS (Transport Layer Security) listener on
 
 </details>
 
-### 154. dt-388
+### 153. dt-388
 
 You have a video transcoding application running on Amazon EC2. Each instance polls a queue to find out which video should be transcoded, and then runs a transcoding process. If this process is interrupted, the video will be transcoded by another instance based on the queuing system. You have a large backlog of videos which need to be transcoded and would like to reduce this backlog by adding more instances. You will need these instances only until the backlog is reduced. Which type of Amazon EC2 instances should you use to reduce the backlog in the most cost efficient way?
 
@@ -1793,7 +1780,7 @@ You have a video transcoding application running on Amazon EC2. Each instance po
 
 </details>
 
-### 155. q-388
+### 154. et-388
 
 A company is deploying a two-tier web application in a VPC. The web tier is using an Amazon EC2 Auto Scaling group with public subnets that span multiple Availability Zones. The database tier consists of an Amazon RDS for MySQL DB instance in separate private subnets. The web tier requires access to the database to retrieve product information. The web application is not working as intended. The web application reports that it cannot connect to the database. The database is confirmed to be up and running. All configurations for the network ACLs, security groups, and route tables are still in their default states. What should a solutions architect recommend to fix the application?
 
@@ -1805,7 +1792,7 @@ Security Groups: Security groups act as virtual firewalls for your instances to 
 
 </details>
 
-### 156. q-391
+### 155. et-391
 
 A company needs a backup strategy for its three-tier stateless web application. The web application runs on Amazon EC2 instances in an Auto Scaling group with a dynamic scaling policy that is configured to respond to scaling events. The database tier runs on Amazon RDS for PostgreSQL. The web application does not require temporary local storage on the EC2 instances. The company’s recovery point objective (RPO) is 2 hours. The backup strategy must maximize scalability and optimize resource utilization for this environment. Which solution will meet these requirements?
 
@@ -1817,7 +1804,7 @@ Snapshots of EBS volumes would be necessary if you want to back up the entire EC
 
 </details>
 
-### 157. q-393
+### 156. ce-393
 
 A company is moving a legacy data processing application to the AWS Cloud. The application needs to run on Amazon EC2 instances behind an Application Load Balancer (ALB). The application must handle incoming traffic spikes and continue to work in the event of an application fault in one Availability Zone. The company requires that a Web Application Firewall (WAF) must be attached to the ALB. Which solution will meet these requirements?
 
@@ -1829,7 +1816,7 @@ The solution requires high availability, automatic scaling, and web application 
 
 </details>
 
-### 158. dt-393
+### 157. dt-393
 
 Per the AWS Acceptable Use Policy, penetration testing of EC2 instances
 
@@ -1839,7 +1826,7 @@ Per the AWS Acceptable Use Policy, penetration testing of EC2 instances
 
 </details>
 
-### 159. dt-396
+### 158. dt-396
 
 You decide that you need to create a number of Auto Scaling groups to try and save some money as you have noticed that at certain times most of your EC2 instances are not being used. By default, what is the maximum number of Auto Scaling groups that AWS will allow you to create?
 
@@ -1849,7 +1836,7 @@ You decide that you need to create a number of Auto Scaling groups to try and sa
 
 </details>
 
-### 160. dt-397
+### 159. dt-397
 
 After moving an E-Commerce website for a client from a dedicated server to AWS you have also set up auto scaling to perform health checks on the instances in your group and replace instances that fail these checks. Your client has come to you with his own health check system that he wants you to use as it has proved to be very useful prior to his site running on AWS. What do you think would be an appropriate response to this given all that you know about auto scaling?
 
@@ -1859,7 +1846,7 @@ After moving an E-Commerce website for a client from a dedicated server to AWS y
 
 </details>
 
-### 161. q-397
+### 160. et-397
 
 An ecommerce company needs to run a scheduled daily job to aggregate and filter sales records for analytics. The company stores the sales records in an Amazon S3 bucket. Each object can be up to 10 GB in size. Based on the number of sales events, the job can take up to an hour to complete. The CPU and memory usage of the job are constant and are known in advance. A solutions architect needs to minimize the amount of operational effort that is needed for the job to run. Which solution meets these requirements?
 
@@ -1871,7 +1858,7 @@ C. Amazon ECS with Fargate: Fargate allows you to run containers without managin
 
 </details>
 
-### 162. q-398
+### 161. ce-398
 
 A disaster response team is using drones to collect images of recent storm damage. The response team's laptops lack the storage and compute capacity to transfer the images and process the data. While the team has Amazon EC2 instances for processing and Amazon S3 buckets for storage, network connectivity is intermittent and unreliable. The images need to be processed to evaluate the damage. What should a solutions architect recommend?
 
@@ -1883,7 +1870,7 @@ The scenario describes a need for local storage and compute power in an environm
 
 </details>
 
-### 163. q-405
+### 162. ce-405
 
 A company is migrating a distributed application to AWS. The application serves variable workloads. The legacy platform consists of a primary server that coordinates jobs across multiple compute nodes. The company wants to modernize the application with a solution that maximizes resiliency and scalability. How should a solutions architect design the architecture to meet these requirements?
 
@@ -1895,7 +1882,7 @@ This architecture effectively modernizes the legacy application by decoupling th
 
 </details>
 
-### 164. q-405
+### 163. et-405
 
 A solutions architect is designing the architecture for a software demonstration environment. The environment will run on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer (ALB). The system will experience significant increases in traffic during working hours but is not required to operate on weekends. Which combination of actions should the solutions architect take to ensure that the system can scale to meet demand? (Choose two.)
 
@@ -1907,7 +1894,7 @@ E. Use scheduled scaling to change the Auto Scaling group minimum, maximum, and 
 
 </details>
 
-### 165. dt-408
+### 164. dt-408
 
 In Amazon EC2, partial instance-hours are billed [...].
 
@@ -1917,7 +1904,7 @@ In Amazon EC2, partial instance-hours are billed [...].
 
 </details>
 
-### 166. dt-409
+### 165. dt-409
 
 In Amazon EC2, what is the limit of Reserved Instances per Availability Zone each month?
 
@@ -1927,7 +1914,7 @@ In Amazon EC2, what is the limit of Reserved Instances per Availability Zone eac
 
 </details>
 
-### 167. q-409 `availability`
+### 166. et-409 `availability`
 
 A solutions architect must migrate a Windows Internet Information Services (IIS) web application to AWS. The application currently relies on a file share hosted in the user's on-premises network-attached storage (NAS). The solutions architect has proposed migrating the IIS web servers to Amazon EC2 instances in multiple Availability Zones that are connected to the storage solution, and configuring an Elastic Load Balancer attached to the instances. Which replacement to the on-premises file share is MOST resilient and durable?
 
@@ -1939,7 +1926,7 @@ Amazon FSx for Windows File Server: Amazon FSx is a fully managed file storage s
 
 </details>
 
-### 168. dt-412
+### 167. dt-412
 
 A user wants to use an EBS-backed Amazon EC2 instance for a temporary job. Based on the input data, the job is most likely to finish within a week. Which of the following steps should be followed to terminate the instance automatically once the job is finished?
 
@@ -1949,7 +1936,7 @@ A user wants to use an EBS-backed Amazon EC2 instance for a temporary job. Based
 
 </details>
 
-### 169. q-413
+### 168. et-413
 
 An ecommerce company is experiencing an increase in user traffic. The company’s store is deployed on Amazon EC2 instances as a two-tier web application consisting of a web tier and a separate database tier. As traffic increases, the company notices that the architecture is causing significant delays in sending timely marketing and order confirmation email to users. The company wants to reduce the time it spends resolving complex email delivery issues and minimize operational overhead. What should a solutions architect do to meet these requirements?
 
@@ -1961,7 +1948,7 @@ Amazon Simple Email Service (Amazon SES) is a fully managed email sending servic
 
 </details>
 
-### 170. dt-416
+### 169. dt-416
 
 A t2.medium EC2 instance type must be launched with what type of Amazon Machine Image (AMI)?
 
@@ -1971,7 +1958,7 @@ A t2.medium EC2 instance type must be launched with what type of Amazon Machine 
 
 </details>
 
-### 171. dt-419
+### 170. dt-419
 
 Amazon EC2 provides a [...]. It is an HTTP or HTTPS request that uses the HTTP verbs GET or POST.
 
@@ -1981,7 +1968,7 @@ Amazon EC2 provides a [...]. It is an HTTP or HTTPS request that uses the HTTP v
 
 </details>
 
-### 172. dt-420
+### 171. dt-420
 
 Which of the following requires a custom Cloud Watch metric to monitor?
 
@@ -1991,7 +1978,7 @@ Which of the following requires a custom Cloud Watch metric to monitor?
 
 </details>
 
-### 173. q-421 `cost`
+### 172. ce-421 `cost`
 
 A company deployed a three-tier web application in a single Availability Zone in the us-east-1 Region on a single Amazon EC2 instance. Usage of the application is growing. A solutions architect needs to ensure that the application can handle the growing amount of traffic. The solutions architect also needs to ensure the application is resilient. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2003,7 +1990,7 @@ This solution correctly addresses all requirements. An EC2 Auto Scaling group co
 
 </details>
 
-### 174. dt-422
+### 173. dt-422
 
 An Elastic IP address (EIP) is a static IP address designed for dynamic cloud computing. With an EIP, you can mask the failure of an instance or software by rapidly remapping the address to another instance in your account. Your EIP is associated with your AWS account, not a particular EC2 instance, and it remains associated with your account until you choose to explicitly release it. By default how many EIPs is each AWS account limited to on a per region basis?
 
@@ -2013,7 +2000,7 @@ An Elastic IP address (EIP) is a static IP address designed for dynamic cloud co
 
 </details>
 
-### 175. q-422
+### 174. et-422
 
 A company is developing a new machine learning (ML) model solution on AWS. The models are developed as independent microservices that fetch approximately 1 GB of model data from Amazon S3 at startup and load the data into memory. Users access the models through an asynchronous API. Users can send a request or a batch of requests and specify where the results should be sent. The company provides models to hundreds of users. The usage patterns for the models are irregular. Some models could be unused for days or weeks. Other models could receive batches of thousands of requests at a time. Which design should a solutions architect recommend to meet these requirements?
 
@@ -2025,7 +2012,7 @@ The API is asynchronous, so requests can sit in an SQS queue and be picked up wh
 
 </details>
 
-### 176. q-424 `cost`
+### 175. et-424 `cost`
 
 A company is running a custom application on Amazon EC2 On-Demand Instances. The application has frontend nodes that need to run 24 hours a day, 7 days a week and backend nodes that need to run only for a short time based on workload. The number of backend nodes varies during the day. The company needs to scale out and scale in more instances based on workload. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2037,7 +2024,7 @@ Reserved Instances (RIs) for Frontend Nodes: Since the frontend nodes need to ru
 
 </details>
 
-### 177. dt-426
+### 176. dt-426
 
 Which of the following is true of Amazon EC2 security group?
 
@@ -2047,7 +2034,7 @@ Which of the following is true of Amazon EC2 security group?
 
 </details>
 
-### 178. q-427 `availability`
+### 177. et-427 `availability`
 
 A solutions architect is implementing a complex Java application with a MySQL database. The Java application must be deployed on Apache Tomcat and must be highly available. What should the solutions architect do to meet these requirements?
 
@@ -2059,7 +2046,7 @@ AWS Elastic Beanstalk: It is a fully managed service that simplifies the deploym
 
 </details>
 
-### 179. dt-428
+### 178. dt-428
 
 A user is trying to launch a similar EC2 instance from an existing instance with the option 'Launch More like this'. The AMI of the selected instance is deleted. What will happen in this case?
 
@@ -2069,7 +2056,7 @@ A user is trying to launch a similar EC2 instance from an existing instance with
 
 </details>
 
-### 180. dt-434 `availability`
+### 179. dt-434 `availability`
 
 A client application requires operating system privileges on a relational database server. What is an appropriate configuration for a highly available database architecture?
 
@@ -2079,7 +2066,7 @@ A client application requires operating system privileges on a relational databa
 
 </details>
 
-### 181. q-437
+### 180. et-437
 
 A company operates an ecommerce website on Amazon EC2 instances behind an Application Load Balancer (ALB) in an Auto Scaling group. The site is experiencing performance issues related to a high request rate from illegitimate external systems with changing IP addresses. The security team is worried about potential DDoS attacks against the website. The company must block the illegitimate incoming requests in a way that has a minimal impact on legitimate users. What should a solutions architect recommend?
 
@@ -2091,7 +2078,7 @@ AWS WAF is a web application firewall service that helps protect your web applic
 
 </details>
 
-### 182. dt-440
+### 181. dt-440
 
 Regarding Amazon Route 53, if your application is running on Amazon EC2 instances in two or more Amazon EC2 regions and if you have more than one Amazon EC2 instance in one or more regions, you can use [...] to route traffic to the correct region and then use [...] route traffic to instances within the region, based on probabilities that you specify.
 
@@ -2101,7 +2088,7 @@ Regarding Amazon Route 53, if your application is running on Amazon EC2 instance
 
 </details>
 
-### 183. q-441 `cost`
+### 182. et-441 `cost`
 
 A company hosts a multi-tier web application on Amazon Linux Amazon EC2 instances behind an Application Load Balancer. The instances run in an Auto Scaling group across multiple Availability Zones. The company observes that the Auto Scaling group launches more On-Demand Instances when the application's end users access high volumes of static web content. The company wants to optimize cost. What should a solutions architect do to redesign the application MOST cost-effectively?
 
@@ -2113,7 +2100,7 @@ Amazon CloudFront is a content delivery network (CDN) service that delivers stat
 
 </details>
 
-### 184. dt-442 `availability`
+### 183. dt-442 `availability`
 
 When using the following AWS services, which should be implemented in multiple Availability Zones for high availability solutions? (Choose 2 answers)
 
@@ -2123,7 +2110,7 @@ When using the following AWS services, which should be implemented in multiple A
 
 </details>
 
-### 185. q-444
+### 184. et-444
 
 A company has hired a solutions architect to design a reliable architecture for its application. The application consists of one Amazon RDS DB instance and two manually provisioned Amazon EC2 instances that run web servers. The EC2 instances are located in a single Availability Zone. An employee recently deleted the DB instance, and the application was unavailable for 24 hours as a result. The company is concerned with the overall reliability of its environment. What should the solutions architect do to maximize reliability of the application's infrastructure?
 
@@ -2135,7 +2122,7 @@ Multi-AZ RDS Instance: By updating the DB instance to be Multi-AZ, you ensure th
 
 </details>
 
-### 186. dt-445
+### 185. dt-445
 
 Which of the following features ensures even distribution of traffic to Amazon EC2 instances in multiple Availability Zones registered with a load balancer?
 
@@ -2145,7 +2132,7 @@ Which of the following features ensures even distribution of traffic to Amazon E
 
 </details>
 
-### 187. dt-447
+### 186. dt-447
 
 You have been using T2 instances as your CPU requirements have not been that intensive. However you now start to think about larger instance types and start looking at M1 and M3 instances. You are a little confused as to the differences between them as they both seem to have the same ratio of CPU and memory. Which statement below is incorrect as to why you would use one over the other?
 
@@ -2155,7 +2142,7 @@ You have been using T2 instances as your CPU requirements have not been that int
 
 </details>
 
-### 188. dt-450
+### 187. dt-450
 
 If you're unable to connect via SSH to your EC2 instance, which of the following should you check and possibly correct to restore connectivity?
 
@@ -2165,7 +2152,7 @@ If you're unable to connect via SSH to your EC2 instance, which of the following
 
 </details>
 
-### 189. q-451
+### 188. et-451
 
 A company is migrating its applications and databases to the AWS Cloud. The company will use Amazon Elastic Container Service (Amazon ECS), AWS Direct Connect, and Amazon RDS. Which activities will be managed by the company's operational team? (Choose three.)
 
@@ -2177,7 +2164,7 @@ The company's operational team is responsible for configuring additional softwar
 
 </details>
 
-### 190. q-452 `least-ops`
+### 189. ce-452 `least-ops`
 
 A company is developing a microservices-based application to manage the company's delivery operations. The application consists of microservices that process orders, manage a fleet of delivery vehicles, and optimize delivery routes. The microservices must be able to scale independently and must be able to handle bursts of traffic without any data loss. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2189,7 +2176,7 @@ This solution effectively meets all requirements. Amazon SQS provides a durable,
 
 </details>
 
-### 191. dt-455
+### 190. dt-455
 
 A user has hosted an application on EC2 instances. The EC2 instances are configured with ELB and Auto Scaling. The application server session time out is 2 hours. The user wants to configure connection draining to ensure that all in-flight requests are supported by ELB even though the instance is being deregistered. What time out period should the user specify for connection draining?
 
@@ -2199,7 +2186,7 @@ A user has hosted an application on EC2 instances. The EC2 instances are configu
 
 </details>
 
-### 192. dt-456
+### 191. dt-456
 
 What does the following command do with respect to the Amazon EC2 security groups? ec2-create-group CreateSecurityGroup
 
@@ -2209,7 +2196,7 @@ What does the following command do with respect to the Amazon EC2 security group
 
 </details>
 
-### 193. q-457
+### 192. et-457
 
 A company that uses AWS is building an application to transfer data to a product manufacturer. The company has its own identity provider (IdP). The company wants the IdP to authenticate application users while the users use the application to transfer data. The company must use Applicability Statement 2 (AS2) protocol. Which solution will meet these requirements?
 
@@ -2221,7 +2208,7 @@ AWS Transfer Family (Option C): AWS Transfer Family is a fully managed service t
 
 </details>
 
-### 194. dt-458
+### 193. dt-458
 
 Which of the following are characteristics of a reserved instance? (Choose 3 answers)
 
@@ -2231,7 +2218,7 @@ Which of the following are characteristics of a reserved instance? (Choose 3 ans
 
 </details>
 
-### 195. q-460
+### 194. ce-460
 
 A solutions architect is designing a web application that will run on Amazon EC2 instances behind an Application Load Balancer (ALB). The company strictly requires that the application be resilient against malicious internet activity and attacks, and protect against new common vulnerabilities and exposures. What should the solutions architect recommend?
 
@@ -2243,7 +2230,7 @@ AWS WAF (Web Application Firewall) is the service designed to protect web applic
 
 </details>
 
-### 196. q-461
+### 195. et-461
 
 A company is developing a mobile gaming app in a single AWS Region. The app runs on multiple Amazon EC2 instances in an Auto Scaling group. The company stores the app data in Amazon DynamoDB. The app communicates by using TCP traffic and UDP traffic between the users and the servers. The application will be used globally. The company wants to ensure the lowest possible latency for all users. Which solution will meet these requirements?
 
@@ -2253,7 +2240,7 @@ A company is developing a mobile gaming app in a single AWS Region. The app runs
 
 </details>
 
-### 197. dt-462
+### 196. dt-462
 
 What is a placement group?
 
@@ -2263,7 +2250,7 @@ What is a placement group?
 
 </details>
 
-### 198. q-462
+### 197. et-462
 
 A company has an application that processes customer orders. The company hosts the application on an Amazon EC2 instance that saves the orders to an Amazon Aurora database. Occasionally when traffic is high the workload does not process orders fast enough. What should a solutions architect do to write the orders reliably to the database as quickly as possible?
 
@@ -2275,7 +2262,7 @@ Amazon SQS, which is a fully managed message queuing service. Writing orders to 
 
 </details>
 
-### 199. dt-466
+### 198. dt-466
 
 A user is planning to make a mobile game which can be played online or offline and will be hosted on EC2. The user wants to ensure that if someone breaks the highest score or they achieve some milestone they can inform all their colleagues through email. Which of the below mentioned AWS services helps achieve this goal?
 
@@ -2285,7 +2272,7 @@ A user is planning to make a mobile game which can be played online or offline a
 
 </details>
 
-### 200. q-466 `availability`
+### 199. et-466 `availability`
 
 A company designed a stateless two-tier application that uses Amazon EC2 in a single Availability Zone and an Amazon RDS Multi-AZ DB instance. New company management wants to ensure the application is highly available. What should a solutions architect do to meet this requirement?
 
@@ -2295,7 +2282,7 @@ A company designed a stateless two-tier application that uses Amazon EC2 in a si
 
 </details>
 
-### 201. dt-468
+### 200. dt-468
 
 Which of the following is NOT a characteristic of Amazon Elastic Compute Cloud (Amazon EC2)?
 
@@ -2305,7 +2292,7 @@ Which of the following is NOT a characteristic of Amazon Elastic Compute Cloud (
 
 </details>
 
-### 202. q-468
+### 201. et-468
 
 A company is developing a microservices application that will provide a search catalog for customers. The company must use REST APIs to present the frontend of the application to users. The REST APIs must access the backend services that the company hosts in containers in private VPC subnets. Which solution will meet these requirements?
 
@@ -2315,7 +2302,7 @@ A company is developing a microservices application that will provide a search c
 
 </details>
 
-### 203. q-469
+### 202. ce-469
 
 A company wants to use AWS to scale up the number of its long-running critical simulations. The company wants to perform large-scale parallel simulations that run for days. The simulations cannot be stopped. The company must store the output for later review by using durable and fault-tolerant storage. The output includes structured and unstructured data. The structured data includes simulation results. The unstructured data includes images up to 1 MB in size. Which solution will meet these requirements?
 
@@ -2327,7 +2314,7 @@ The requirement is for long-running, parallel simulations that cannot be interru
 
 </details>
 
-### 204. dt-469
+### 203. dt-469
 
 A user has launched one EC2 instance in the US East region and one in the US West region. The user has launched an RDS instance in the US East region. How can the user configure access from both the EC2 instances to RDS?
 
@@ -2337,7 +2324,7 @@ A user has launched one EC2 instance in the US East region and one in the US Wes
 
 </details>
 
-### 205. q-471 `least-ops` `availability`
+### 204. ce-471 `least-ops` `availability`
 
 A company wants to deploy its containerized application workloads to a VPC across three Availability Zones. The company needs a solution that is highly available across Availability Zones. The solution must require minimal changes to the application. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2349,7 +2336,7 @@ The requirement is for a highly available, containerized application with minima
 
 </details>
 
-### 206. q-474
+### 205. ce-474
 
 A company runs a critical data analysis job each week before the first day of the work week. The job requires at least 1 hour to complete the analysis. The job is stateful and cannot tolerate interruptions. The company needs a solution to run the job on AWS. Which solution will meet these requirements?
 
@@ -2361,7 +2348,7 @@ The job is stateful, cannot be interrupted, and runs for over an hour. AWS Farga
 
 </details>
 
-### 207. dt-475
+### 206. dt-475
 
 While creating an Amazon RDS DB, your first task is to set up a DB [...] that controls what IP addresses or EC2 instances have access to your DB Instance.
 
@@ -2371,7 +2358,7 @@ While creating an Amazon RDS DB, your first task is to set up a DB [...] that co
 
 </details>
 
-### 208. q-477 `least-ops`
+### 207. ce-477 `least-ops`
 
 A company is running a web application on AWS Elastic Beanstalk. The web application is deployed across multiple Amazon EC2 instances that are behind an Application Load Balancer (ALB). The company plans to release a new version of the application. The company wants to test the new version of the application by using a subset of production traffic before a full rollout. The company needs to design a solution that helps ensure minimal disruption during testing. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2383,7 +2370,7 @@ The goal is to test a new application version with a subset of production traffi
 
 </details>
 
-### 209. dt-482
+### 208. dt-482
 
 What would be the best way to retrieve the public IP address of your EC2 instance using the CLI?
 
@@ -2393,7 +2380,7 @@ What would be the best way to retrieve the public IP address of your EC2 instanc
 
 </details>
 
-### 210. dt-483
+### 209. dt-483
 
 A company is building a two-tier web application to serve dynamic transaction-based content. The data tier is leveraging an Online Transactional Processing (OLTP) database. What services should you leverage to enable an elastic and scalable web tier?
 
@@ -2403,7 +2390,7 @@ A company is building a two-tier web application to serve dynamic transaction-ba
 
 </details>
 
-### 211. q-483 `cost`
+### 210. et-483 `cost`
 
 A company containerized a Windows job that runs on .NET 6 Framework under a Windows container. The company wants to run this job in the AWS Cloud. The job runs every 10 minutes. The job’s runtime varies between 1 minute and 3 minutes. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2415,7 +2402,7 @@ Amazon ECS is a fully managed container orchestration service, and AWS Fargate a
 
 </details>
 
-### 212. q-486
+### 211. et-486
 
 A company is building a three-tier application on AWS. The presentation tier will serve a static website The logic tier is a containerized application. This application will store data in a relational database. The company wants to simplify deployment and to reduce operational costs. Which solution will meet these requirements?
 
@@ -2427,7 +2414,7 @@ Amazon S3 is a highly scalable and cost-effective storage service that can be us
 
 </details>
 
-### 213. dt-488
+### 212. dt-488
 
 You have three Amazon EC2 instances with Elastic IP addresses in the US East (Virginia) region, and you want to distribute requests across all three IPs evenly for users for whom US East (Virginia) is the appropriate region. How many EC2 instances would be sufficient to distribute requests in other regions?
 
@@ -2437,7 +2424,7 @@ You have three Amazon EC2 instances with Elastic IP addresses in the US East (Vi
 
 </details>
 
-### 214. dt-490
+### 213. dt-490
 
 You are implementing a URL whitelisting system for a company that wants to restrict outbound HTTPS connections to specific domains from their EC2-hosted applications. You deploy a single EC2 instance running proxy software and configure it to accept traffic from all subnets and EC2 instances in the VPC. You configure the proxy to only pass through traffic to domains that you define in its whitelist configuration. You have a nightly maintenance window of 10 minutes where all instances fetch new software updates. Each update is about 200MB in size and there are 500 instances in the VPC that routinely fetch updates. After a few days you notice that some machines are failing to successfully download some, but not all of their updates within the maintenance window. The download URLs used for these updates are correctly listed in the proxy's whitelist configuration and you are able to access them manually using a web browser on the instances. What might be happening? (Choose 2 answers)
 
@@ -2447,19 +2434,19 @@ You are implementing a URL whitelisting system for a company that wants to restr
 
 </details>
 
-### 215. q-492
+### 214. ce-492
 
 A company plans to run a high performance computing (HPC) workload on Amazon EC2 Instances The workload requires low-latency network performance and high network throughput with tightly coupled node-to-node communication. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**B. Use AWS Organizations to organize the accounts into organizational units (OUs). Define and attach a service control policy (SCP) to control the usage of EC2 instance types.**
+**A. Configure the EC2 instances to be part of a cluster placement group**
 
-An SCP is a guardrail, not a grant: it sets the maximum permissions available to principals in the accounts it applies to, and a user still needs an IAM identity-based policy that allows the action before anything works. Writing one SCP that denies ec2:RunInstances unless the ec2:InstanceType condition matches an approved list, then attaching it to the OUs holding the development accounts, stops oversized launches everywhere in those accounts at once, including by account administrators. That is far less work than maintaining IAM policies account by account or building a detection-and-remediation pipeline. Two limits to remember: an SCP never restricts the organization's management account, so keep workloads out of it, and SCPs have no effect unless all features are enabled in the organization.
+A cluster placement group is a logical grouping of instances within a single Availability Zone. This strategy places instances on the same rack, using the same network switch, which is ideal for applications requiring low network latency, high network throughput, and tightly-coupled node-to-node communication. This configuration minimizes the network distance between instances, making it the optimal solution for High Performance Computing (HPC) workloads as described in the scenario. The primary benefit is providing the best possible network performance between the instances within the group. Why Incorrect Options are Wrong: B. Dedicated Instance tenancy ensures instances run on physically isolated hardware for a single customer, primarily for compliance or licensing, not for optimizing internode network performance. C. Spot Instances are a pricing model that offers spare EC2 capacity at
 
 </details>
 
-### 216. dt-498
+### 215. dt-498
 
 A user has launched a large EBS backed EC2 instance in the US-East-1a region. The user wants to achieve Disaster Recovery (DR) for that instance by creating another small instance in Europe. How can the user achieve DR?
 
@@ -2469,7 +2456,7 @@ A user has launched a large EBS backed EC2 instance in the US-East-1a region. Th
 
 </details>
 
-### 217. q-502
+### 216. ce-502
 
 A company recently migrated a monolithic application to an Amazon EC2 instance and Amazon RDS. The application has tightly coupled modules. The existing design of the application gives the application the ability to run on only a single EC2 instance. The company has noticed high CPU utilization on the EC2 instance during peak usage times. The high CPU utilization corresponds to degraded performance on Amazon RDS for read requests. The company wants to reduce the high CPU utilization and improve read request performance. Which solution will meet these requirements?
 
@@ -2481,7 +2468,7 @@ The solution must address two distinct issues: high CPU on a single EC2 instance
 
 </details>
 
-### 218. dt-502
+### 217. dt-502
 
 Select the correct statement: Within Amazon EC2, when using Linux instances, the device name /dev/sda1 is [...].
 
@@ -2491,7 +2478,7 @@ Select the correct statement: Within Amazon EC2, when using Linux instances, the
 
 </details>
 
-### 219. dt-504
+### 218. dt-504
 
 Your web application front end consists of multiple EC2 instances behind an Elastic Load Balancer. You configured ELB to perform health checks on these EC2 instances, if an instance fails to pass health checks, which statement will be true?
 
@@ -2501,7 +2488,7 @@ Your web application front end consists of multiple EC2 instances behind an Elas
 
 </details>
 
-### 220. dt-505
+### 219. dt-505
 
 George has launched three EC2 instances inside the US-East-1a zone with his AWS account. Ray has launched two EC2 instances in the US-East-1a zone with his AWS account. Which of the below mentioned statements will help George and Ray understand the Availability Zone (AZ) concept better?
 
@@ -2511,7 +2498,7 @@ George has launched three EC2 instances inside the US-East-1a zone with his AWS 
 
 </details>
 
-### 221. q-505 `cost`
+### 220. et-505 `cost`
 
 A company has Amazon EC2 instances that run nightly batch jobs to process data. The EC2 instances run in an Auto Scaling group that uses On- Demand billing. If a job fails on one instance, another instance will reprocess the job. The batch jobs run between 12:00 AM and 06:00 AM local time every day. Which solution will provide EC2 instances to meet these requirements MOST cost-effectively?
 
@@ -2523,7 +2510,7 @@ Spot Instances: Spot Instances allow you to bid for unused EC2 capacity at a pot
 
 </details>
 
-### 222. dt-508
+### 221. dt-508
 
 Which AWS instance address has the following characteristics? 'If you stop an instance, its Elastic IP address is unmapped, and you must remap it when you restart the instance.'
 
@@ -2533,7 +2520,7 @@ Which AWS instance address has the following characteristics? 'If you stop an in
 
 </details>
 
-### 223. q-508
+### 222. et-508
 
 A company has migrated multiple Microsoft Windows Server workloads to Amazon EC2 instances that run in the us-west-1 Region. The company manually backs up the workloads to create an image as needed. In the event of a natural disaster in the us-west-1 Region, the company wants to recover workloads quickly in the us-west-2 Region. The company wants no more than 24 hours of data loss on the EC2 instances. The company also wants to automate any backups of the EC2 instances. Which solutions will meet these requirements with the LEAST administrative effort? (Choose two.)
 
@@ -2545,7 +2532,7 @@ D. Create a backup vault by using AWS Backup. Use AWS Backup to create a backup 
 
 </details>
 
-### 224. gh-508
+### 223. gh-508
 
 Topic 1
 A company has migrated multiple Microsoft Windows Server workloads to Amazon EC2 instances that run in the us-west-1 Region. The company manually backs up the workloads to create an image as needed.
@@ -2560,7 +2547,7 @@ D. Create a backup vault by using AWS Backup. Use AWS Backup to create a backup 
 
 </details>
 
-### 225. q-516 `cost`
+### 224. ce-516 `cost`
 
 An online education platform experiences lag and buffering during peak usage hours, when thousands of students access video lessons concurrently. A solutions architect needs to improve the performance of the education platform. The platform needs to handle unpredictable traffic surges without losing responsiveness. The platform must provide smooth video playback performance at all times. The platform must create multiple copies of each video lesson and store the copies in various bitrates to serve users who have different internet speeds. The smallest video size is 7 GB. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2572,7 +2559,7 @@ The solution must handle unpredictable traffic surges for thousands of concurren
 
 </details>
 
-### 226. q-516 `least-ops`
+### 225. et-516 `least-ops`
 
 A company provides an API interface to customers so the customers can retrieve their financial information. Еhe company expects a larger number of requests during peak usage times of the year. The company requires the API to respond consistently with low latency to ensure customer satisfaction. The company needs to provide a compute host for the API. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2584,7 +2571,7 @@ Amazon API Gateway is a fully managed service that makes it easy for developers 
 
 </details>
 
-### 227. q-518
+### 226. ce-518
 
 A company hosts its main public web application in one AWS Region across multiple Availability Zones. The application uses an Amazon EC2 Auto Scaling group and an Application Load Balancer (ALB). A web development team needs a cost-optimized compute solution to improve the company's ability to serve dynamic content globally to millions of customers. Which solution will meet these requirements?
 
@@ -2596,7 +2583,7 @@ Amazon CloudFront is a global Content Delivery Network (CDN) designed to provide
 
 </details>
 
-### 228. q-522 `least-ops`
+### 227. et-522 `least-ops`
 
 A company runs container applications by using Amazon Elastic Kubernetes Service (Amazon EKS). The company's workload is not consistent throughout the day. The company wants Amazon EKS to scale in and out according to the workload. Which combination of steps will meet these requirements with the LEAST operational overhead? (Choose two.)
 
@@ -2608,7 +2595,7 @@ Kubernetes supports Horizontal Pod Autoscaling (HPA) based on custom metrics or 
 
 </details>
 
-### 229. q-523
+### 228. et-523
 
 A company runs a microservice-based serverless web application. The application must be able to retrieve data from multiple Amazon DynamoDB tables A solutions architect needs to give the application the ability to retrieve the data with no impact on the baseline performance of the application. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -2620,7 +2607,7 @@ AppSync is a managed GraphQL front end for serverless applications, and a pipeli
 
 </details>
 
-### 230. dt-525
+### 229. dt-525
 
 Which of the following items are required to allow an application deployed on an EC2 instance to write data to a DynamoDB table? Assume that no security keys are allowed to be stored on the EC2 instance. (Choose 3 answers)
 
@@ -2630,19 +2617,7 @@ Which of the following items are required to allow an application deployed on an
 
 </details>
 
-### 231. q-526 `performance`
-
-An online SaaS platform serves customers across North America, Europe, and Asia-Pacific regions. Users report slow API response times during peak hours, and the company needs to improve performance without redesigning their core application. The API responses are mostly static content that does not change frequently. Which approach best optimizes performance for a global audience?
-
-<details><summary>Answer</summary>
-
-**B. Implement Amazon CloudFront with the application origin, and enable edge caching with an appropriate TTL for the static API responses. Increase the compute capacity (EC2 instance size) in the primary region to handle all global traffic more quickly.**
-
-Amazon CloudFront is a global Content Delivery Network (CDN) that caches static and dynamic content at edge locations worldwide. Because the API responses are mostly static and change infrequently, caching them at the edge using an appropriate Time to Live (TTL) significantly reduces latency for global users by serving requests from the nearest edge location. This approach directly addresses the slow response times during peak hours by offloading traffic from the origin servers. It is the most cost-effective and efficient solution because it requires no core application redesign while simultaneously solving both the geographic latency and peak-load capacity issues. Why Incorrect Options are Wrong: A: Deploying the application across multiple regions introduces significant architectural complexity, data synchronization challenges, and operational overhead, violating the constraint to avoi
-
-</details>
-
-### 232. dt-526
+### 230. dt-526
 
 Identify a true statement about the On-Demand instances purchasing option provided by Amazon EC2.
 
@@ -2652,7 +2627,7 @@ Identify a true statement about the On-Demand instances purchasing option provid
 
 </details>
 
-### 233. q-527
+### 231. ce-527
 
 How can trade data from DynamoDB be ingested into an S3 data lake for near real-time analysis?
 
@@ -2664,7 +2639,7 @@ This architecture leverages DynamoDB Streams to capture item-level changes in ne
 
 </details>
 
-### 234. q-527
+### 232. et-527
 
 A company has a regional subscription-based streaming service that runs in a single AWS Region. The architecture consists of web servers and application servers on Amazon EC2 instances. The EC2 instances are in Auto Scaling groups behind Elastic Load Balancers. The architecture includes an Amazon Aurora global database cluster that extends across multiple Availability Zones. The company wants to expand globally and to ensure that its application has minimal downtime. Which solution will provide the MOST fault tolerance?
 
@@ -2676,7 +2651,7 @@ An Aurora global database allows you to replicate your database across multiple 
 
 </details>
 
-### 235. dt-530
+### 233. dt-530
 
 Can I change the EC2 security groups after an instance is launched in EC2-Classic?
 
@@ -2686,7 +2661,7 @@ Can I change the EC2 security groups after an instance is launched in EC2-Classi
 
 </details>
 
-### 236. dt-531
+### 234. dt-531
 
 Please select the Amazon EC2 resource which cannot be tagged.
 
@@ -2696,7 +2671,7 @@ Please select the Amazon EC2 resource which cannot be tagged.
 
 </details>
 
-### 237. q-533
+### 235. ce-533
 
 A company has developed an API using an Amazon API Gateway REST API and AWS Lambda functions. The API serves static and dynamic content to users worldwide. The company wants to decrease the latency of transferring content for API requests. Options:
 
@@ -2708,19 +2683,19 @@ To decrease latency for a global user base, an edge-optimized API endpoint is th
 
 </details>
 
-### 238. q-534
+### 236. ce-534
 
 A company has developed an API by using an Amazon API Gateway REST API and AWS Lambda functions. The API serves static content and dynamic content to users worldwide. The company wants to decrease the latency of transferring the content for API requests. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**Transition objects to an S3 infrequent-access storage class 30 days after creation, and write an expiration action that directs Amazon S3 to delete objects after 90 days - with no Glacier transition. Where S3 One Zone-Infrequent Access is offered, it is the cheapest valid choice, because high availability is only required for the first 30 days and the remaining 60 days are backup only; if One Zone-IA is not among the options, S3 Standard-Infrequent Access is the correct pick.**
+**A. Deploy the REST API as an edge-optimized API endpoint. Enable caching. Enable content encoding in the API definition to compress the application data in transit.**
 
-The logs need frequent, highly available access for 30 days, so they stay in S3 Standard for that period. From day 30 to day 90 they are held only for backup, so an infrequent-access class costs less per GB, and One Zone-IA is cheaper still once the high-availability requirement has lapsed. Because everything is deleted at day 90, an expiration action at 90 days is all that is needed, and a Glacier transition on the same day is wasted: expiration wins over a same-day transition, and Glacier Flexible Retrieval would in any case bill a 90-day minimum for objects that no longer exist. Adding the Glacier step therefore raises cost and complexity without meeting any stated requirement.
+To reduce latency for a global user base, the solution must address both network latency and response generation time. An edge-optimized API endpoint leverages the Amazon CloudFront content delivery network (CDN) to serve requests from edge locations closer to users, significantly reducing network latency. Enabling API Gateway caching further reduces latency for repeated requests by serving responses directly from the cache, avoiding backend Lambda invocations. Finally, enabling content encoding (e.g., GZIP) compresses the API payload, which reduces the amount of data transferred over the network and decreases transfer time. This combination provides a comprehensive, multi-layered approach to minimizing latency. Why Incorrect Options are Wrong: B. A Regional API endpoint serves traffic from a single AWS Region, which results in high latency for geographically distant users and is not sui
 
 </details>
 
-### 239. dt-535
+### 237. dt-535
 
 What does the following policy for Amazon EC2 do? { 'Statement':[{ 'Effect': 'Allow', 'Action':'ec2: Describe*', 'Resource':'*' }] }
 
@@ -2730,7 +2705,7 @@ What does the following policy for Amazon EC2 do? { 'Statement':[{ 'Effect': 'Al
 
 </details>
 
-### 240. dt-538
+### 238. dt-538
 
 In Amazon Elastic Compute Cloud, which of the following is used for communication between instances in the same network (EC2-Classic or a VPC)?
 
@@ -2740,7 +2715,7 @@ In Amazon Elastic Compute Cloud, which of the following is used for communicatio
 
 </details>
 
-### 241. q-539 `least-ops`
+### 239. ce-539 `least-ops`
 
 A company provides a trading platform to customers. The platform uses an Amazon API Gateway REST API, AWS Lambda functions, and an Amazon DynamoDB table. Each trade that the platform processes invokes a Lambda function that stores the trade data in Amazon DynamoDB. The company wants to ingest trade data into a data lake in Amazon S3 for near real-time analysis. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2752,7 +2727,7 @@ The most efficient solution with the least operational overhead is to use Amazon
 
 </details>
 
-### 242. dt-539
+### 240. dt-539
 
 A user is planning to host a mobile game on EC2 which sends notifications to active users on either high score or the addition of new features. The user should get this notification when he is online on his mobile device. Which of the below mentioned AWS services can help achieve this functionality?
 
@@ -2762,7 +2737,7 @@ A user is planning to host a mobile game on EC2 which sends notifications to act
 
 </details>
 
-### 243. dt-540
+### 241. dt-540
 
 You need to create an Amazon Machine Image (AMI) for a customer for an application which does not appear to be part of the standard AWS AMI template that you can see in the AWS console. What are the alternative possibilities for creating an AMI on AWS?
 
@@ -2772,7 +2747,7 @@ You need to create an Amazon Machine Image (AMI) for a customer for an applicati
 
 </details>
 
-### 244. q-542
+### 242. ce-542
 
 A company runs a containerized application on a Kubernetes cluster in an on-premises data center. The company is using a MongoDB database for data storage. The company wants to migrate some of these environments to AWS, but no code changes or deployment method changes are possible at this time. The company needs a solution that minimizes operational overhead.
 
@@ -2784,7 +2759,7 @@ The solution must accommodate an existing Kubernetes application using MongoDB w
 
 </details>
 
-### 245. q-548
+### 243. ce-548
 
 A company has an application that receives and processes purchase orders. The application supports only XML dat a. The company needs to configure the application to accept orders in JSON format. The company does not want to modify the application. A solutions architect is using an Amazon API Gateway HTTP API to create a new purchase order API. The solutions architect needs to modify the application DNS record to point to the new HTTP API.
 
@@ -2796,7 +2771,7 @@ This solution correctly addresses the two distinct requirements using the featur
 
 </details>
 
-### 246. q-550
+### 244. ce-550
 
 A company is migrating an online marketplace application from a mainframe system to an Auto Scaling group of Amazon EC2 instances. The EC2 instances access an Amazon Aurora cluster. The application requires a scalable, persistent caching solution to store the results of in-progress transactions and SQL queries.
 
@@ -2808,7 +2783,7 @@ The core requirements are for a scalable and persistent caching solution that is
 
 </details>
 
-### 247. dt-551
+### 245. dt-551
 
 Can I move a Reserved Instance from one Region to another?
 
@@ -2818,7 +2793,7 @@ Can I move a Reserved Instance from one Region to another?
 
 </details>
 
-### 248. q-552
+### 246. et-552
 
 A company needs to optimize the cost of its Amazon EC2 instances. The company also needs to change the type and family of its EC2 instances every 2-3 months. What should the company do to meet these requirements?
 
@@ -2830,7 +2805,7 @@ WHat is Upfront --- You don't pay anything upfront. You receive a smaller discou
 
 </details>
 
-### 249. q-557 `least-ops`
+### 247. ce-557 `least-ops`
 
 A company wants to design a microservices architecture for an application. Each microservice must perform operations that can be completed within 30 seconds. The microservices need to expose RESTful APIs and must automatically scale in response to varying loads. The APIs must also provide client access control and rate limiting to maintain equitable usage and service availability. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2842,7 +2817,7 @@ The combination of AWS Lambda and Amazon API Gateway provides a fully serverless
 
 </details>
 
-### 250. q-558 `least-ops`
+### 248. ce-558 `least-ops`
 
 A company currently runs a Linux-based application in a self-managed Docker container that runs on Amazon EC2 instances. The application runs a lightweight data processing tool that always completes its job within 3 minutes. The company wants an alternative deployment solution for the application to reduce infrastructure management overhead. The company is willing to make any required changes to the image. Which solution will meet this requirement with the LEAST operational overhead?
 
@@ -2854,7 +2829,7 @@ Deploying the application as an AWS Lambda function using a container image is t
 
 </details>
 
-### 251. dt-558
+### 249. dt-558
 
 You have been doing a lot of testing of your VPC Network by deliberately failing EC2 instances to test whether instances are failing over properly. Your customer who will be paying the AWS bill for all this asks you if he being charged for all these instances. You try to explain to him how the billing works on EC2 instances to the best of your knowledge. What would be an appropriate response to give to the customer in regards to this?
 
@@ -2864,7 +2839,7 @@ You have been doing a lot of testing of your VPC Network by deliberately failing
 
 </details>
 
-### 252. dt-559
+### 250. dt-559
 
 Refer to the architecture diagram above of a batch processing solution using Simple Queue Service (SQS) to set up a message queue between EC2 instances which are used as batch processors Cloud Watch monitors the number of Job requests (queued messages) and an Auto Scaling group adds or deletes batch servers automatically based on parameters set in Cloud Watch alarms. You can use this architecture to implement which of the following features in a cost effective and efficient manner?
 
@@ -2874,7 +2849,7 @@ Refer to the architecture diagram above of a batch processing solution using Sim
 
 </details>
 
-### 253. q-559
+### 251. et-559
 
 A company hosts multiple applications on AWS for different product lines. The applications use different compute resources, including Amazon EC2 instances and Application Load Balancers. The applications run in different AWS accounts under the same organization in AWS Organizations across multiple AWS Regions. Teams for each product line have tagged each compute resource in the individual accounts. The company wants more details about the cost for each product line from the consolidated billing feature in Organizations. Which combination of steps will meet these requirements? (Choose two.)
 
@@ -2886,7 +2861,7 @@ E. Activate the selected tag from the Organizations management account.  User-de
 
 </details>
 
-### 254. gh-559
+### 252. gh-559
 
 559Topic 1
 A company hosts multiple applications on AWS for different product lines. The applications use different compute resources, including Amazon EC2 instances and Application Load Balancers. The applications run in different AWS accounts under the same organization in AWS Organizations across multiple AWS Regions. Teams for each product line have tagged each compute resource in the individual accounts.
@@ -2905,7 +2880,7 @@ The consolidated billing feature in AWS Organizations allows you to view and man
 
 </details>
 
-### 255. q-560
+### 253. ce-560
 
 A company has a legacy mainframe system that can retrieve data only from systems that provide synchronous RESTful APIs. A developer at the company creates a new web service to calculate stock prices. The new web service takes 3 minutes on average to process each request. The developer must integrate the new web service with the legacy mainframe system. Which solution will meet these requirements?
 
@@ -2917,7 +2892,7 @@ The core requirement is to handle a synchronous API call that takes 3 minutes (1
 
 </details>
 
-### 256. q-561
+### 254. ce-561
 
 A company has a serverless web application that is comprised of AWS Lambda functions. The application experiences spikes in traffic that cause increased latency because of cold starts. The company wants to improve the application's ability to handle traffic spikes and to minimize latency. The solution must optimize costs during periods when traffic is low. Which solution will meet these requirements?
 
@@ -2929,7 +2904,7 @@ The question requires a solution to mitigate AWS Lambda cold start latency durin
 
 </details>
 
-### 257. dt-562
+### 255. dt-562
 
 Which of the following strategies can be used to control access to your Amazon EC2 instances?
 
@@ -2939,7 +2914,7 @@ Which of the following strategies can be used to control access to your Amazon E
 
 </details>
 
-### 258. q-562
+### 256. et-562
 
 A solutions architect needs to ensure that API calls to Amazon DynamoDB from Amazon EC2 instances in a VPC do not travel across the internet. Which combination of steps should the solutions architect take to meet this requirement? (Choose two.)
 
@@ -2951,7 +2926,7 @@ B. Create a gateway endpoint for DynamoDB.
 
 </details>
 
-### 259. gh-563 `least-ops`
+### 257. gh-563 `least-ops`
 
 clusters and workloads from a central location.
 Which solution will meet these requirements with the LEAST operational overhead?
@@ -2964,7 +2939,7 @@ EKS Connector installs a small agent into a Kubernetes cluster that AWS does not
 
 </details>
 
-### 260. dt-565
+### 258. dt-565
 
 In Amazon EC2, how many Elastic IP addresses can you have by default?
 
@@ -2974,7 +2949,7 @@ In Amazon EC2, how many Elastic IP addresses can you have by default?
 
 </details>
 
-### 261. dt-566
+### 259. dt-566
 
 A user has created photo editing software and hosted it on EC2. The software accepts requests from the user about the photo format and resolution and sends a message to S3 to enhance the picture accordingly. Which of the below mentioned AWS services will help make a scalable software with the AWS infrastructure in this scenario?
 
@@ -2984,7 +2959,7 @@ A user has created photo editing software and hosted it on EC2. The software acc
 
 </details>
 
-### 262. dt-569
+### 260. dt-569
 
 A user is running a webserver on EC2. The user wants to receive the SMS when the EC2 instance utilization is above the threshold limit. Which AWS services should the user configure in this case?
 
@@ -2994,7 +2969,7 @@ A user is running a webserver on EC2. The user wants to receive the SMS when the
 
 </details>
 
-### 263. q-570 `least-ops`
+### 261. et-570 `least-ops`
 
 A company has a large workload that runs every Friday evening. The workload runs on Amazon EC2 instances that are in two Availability Zones in the us-east-1 Region. Normally, the company must run no more than two instances at all times. However, the company wants to scale up to six instances each Friday to handle a regularly repeating increased workload. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3006,7 +2981,7 @@ By creating an Auto Scaling group with a scheduled action, you can configure the
 
 </details>
 
-### 264. dt-575 `cost`
+### 262. dt-575 `cost`
 
 You are designing a multi-platform web application for AWS. The application will run on EC2 instances and will be accessed from PCs, tablets and smart phones. Supported accessing platforms are Windows, macOS, iOS and Android. Separate sticky session and SSL certificate setups are required for different platform types. Which of the following describes the most cost effective and performance efficient architecture setup?
 
@@ -3016,19 +2991,19 @@ You are designing a multi-platform web application for AWS. The application will
 
 </details>
 
-### 265. q-576 `cost`
+### 263. ce-576 `cost`
 
 A company hosts a public web application on AWS. The website has a three-tier architecture. The frontend web tier is comprised of Amazon EC2 instances in an Auto Scaling group. The application tier is a second Auto Scaling group. The database tier is an Amazon RDS database. The company has configured the Auto Scaling groups to handle the application's normal level of demand. During an unexpected spike in demand, the company notices a long delay in the startup time when the frontend and application layers scale out. The company needs to improve the scaling performance of the application without negatively affecting the user experience. Which solution will meet these requirements MOST cost-effectively?
 
 <details><summary>Answer</summary>
 
-**An edge-optimized API endpoint.**
+**B. Configure the maximum number of instances for both Auto Scaling groups to be the number required to meet the peak demand. Create a warm pool.**
 
-With an edge-optimized endpoint, API Gateway puts a CloudFront distribution that it manages in front of your API, so a request from a geographically distant user enters the AWS network at the nearest edge location and travels the rest of the way over the AWS backbone instead of the public internet. That cuts the latency of connection setup and transit for scattered users, which is what the requirement asks for. A regional endpoint sends clients straight to the API in its own region and is the better choice when callers are in that same region or when you want to run your own CloudFront distribution; a private endpoint is reachable only from inside a VPC.
+The core issue is the long startup time for new EC2 instances during a scale-out event, which is caused by application bootstrapping and configuration. An Amazon EC2 Auto Scaling warm pool is the ideal solution for this problem. A warm pool maintains a set of pre-initialized EC2 instances in a stopped state. When the Auto Scaling group needs to scale out, it pulls instances from the warm pool and starts them. Starting a stopped, pre-initialized instance is significantly faster than launching a new one from scratch. This reduces scaling latency without keeping expensive, fully running instances idle, making it a highly cost-effective solution for handling unexpected traffic spikes. Why Incorrect Options are Wrong: A. Setting the desired number of instances to meet peak demand is essentially over-provisioning. This is not cost-effective as you pay for running instances even during periods
 
 </details>
 
-### 266. q-583
+### 264. ce-583
 
 A solutions architect manages a web application for a company. The application runs on Amazon EC2 instances in an Auto Scaling group. The Auto Scaling group configuration includes a minimum of 3 instances and a maximum of 300 instances. The maximum helps handle unpredictable, short-lived traffic surges. The application must scale to meet demand. However, to help manage costs, the number of running instances should not exceed 180 for longer than 1 continuous hour. Which solution will meet these requirements?
 
@@ -3040,7 +3015,7 @@ The requirement is to allow scaling up to 300 instances for short-lived surges b
 
 </details>
 
-### 267. dt-583
+### 265. dt-583
 
 A company has a workflow that sends video files from their on-premise system to AWS for transcoding. They use EC2 worker instances that pull transcoding jobs from SQS. Why is SQS an appropriate service for this scenario?
 
@@ -3050,7 +3025,7 @@ A company has a workflow that sends video files from their on-premise system to 
 
 </details>
 
-### 268. q-584
+### 266. et-584
 
 A company is deploying an application that processes large quantities of data in parallel. The company plans to use Amazon EC2 instances for the workload. The network architecture must be configurable to prevent groups of nodes from sharing the same underlying hardware. Which networking solution meets these requirements?
 
@@ -3062,19 +3037,19 @@ A spread placement group is a logical grouping of instances that are placed on d
 
 </details>
 
-### 269. q-585
+### 267. ce-585
 
 A company has an application with a REST-based interface that allows data to be received in near- real time from a third-party vendor. Once received, the application processes and stores the data for further analysis. The application is running on Amazon EC2 instances. The third-party vendor has received many 503 Service Unavailable Errors when sending data to the application. When the data volume spikes, the compute capacity reaches its maximum limit and the application is unable to process all requests. Which design should a solutions architect recommend to provide a more scalable solution?
 
 <details><summary>Answer</summary>
 
-**D. Purchase a Capacity Reservation in the failover Region.**
+**A. Use Amazon Kinesis Data Streams to ingest the data. Process the data using AWS Lambda functions.**
 
-An On-Demand Capacity Reservation holds EC2 capacity for your account in one Availability Zone for a stated instance type, platform and tenancy, and that capacity stays held whether or not you have instances running in it, so it is there when you declare a disaster and fail over. Because it is pinned that tightly, you must create the reservation for the exact instance types and the exact AZ your DR plan will launch into, and you pay the On-Demand rate for the reserved capacity for as long as it exists. The key distinction the question is testing: Savings Plans and regional Reserved Instances are billing discounts and reserve no capacity at all, so they cannot guarantee a failover launch will succeed. If you want the discount as well, a Capacity Reservation can be combined with a Savings Plan or a Reserved Instance, which then applies to the reserved capacity's charges.
+The core problem is that the application's compute layer is directly exposed to unpredictable traffic spikes, causing it to become overwhelmed and return 503 Service Unavailable errors. The most effective solution is to decouple the data ingestion from the processing logic using a buffering or queueing service. Amazon Kinesis Data Streams is designed for high-throughput, real-time data ingestion and can act as a durable, scalable buffer. By having the third-party vendor send data to a Kinesis stream, the ingestion point becomes highly available and capable of handling massive spikes. AWS Lambda can then be used to process records from the stream. Lambda scales automatically with the volume of data, providing a serverless, highly scalable processing backend. This event-driven architecture completely resolves the original issue of overwhelming the compute resources. Why Incorrect Options a
 
 </details>
 
-### 270. q-586
+### 268. ce-586
 
 A company has an industrial application that controls a process in real time. The company plans to rearchitect the application to distribute jobs across several Amazon EC2 instances in a VPC. The solution needs to maximize the network throughput and minimize the network latency between the instances.
 
@@ -3086,7 +3061,7 @@ A cluster placement group is the only strategy that logically groups instances w
 
 </details>
 
-### 271. dt-586
+### 269. dt-586
 
 What does Amazon EC2 provide?
 
@@ -3096,7 +3071,7 @@ What does Amazon EC2 provide?
 
 </details>
 
-### 272. q-589
+### 270. ce-589
 
 A genomics research company is designing a scalable architecture for a loosely coupled workload. Tasks in the workload are independent and can be processed in parallel. The architecture needs to minimize management overhead and provide automatic scaling based on demand. Options:
 
@@ -3108,7 +3083,7 @@ The scenario requires an architecture for a loosely coupled workload with indepe
 
 </details>
 
-### 273. q-591
+### 271. ce-591
 
 An ecommerce company hosts an API that handles sales requests. The company hosts the API frontend on Amazon EC2 instances that run behind an Application Load Balancer (ALB). The company hosts the API backend on EC2 instances that perform the transactions. The backend tiers are loosely coupled by an Amazon Simple Queue Service (Amazon SQS) queue. The company anticipates a significant increase in request volume during a new product launch event. The company wants to ensure that the API can handle increased loads successfully. Options:
 
@@ -3120,7 +3095,7 @@ This solution provides a comprehensive and elastic approach for the decoupled, t
 
 </details>
 
-### 274. q-594
+### 272. et-594
 
 A company plans to migrate to AWS and use Amazon EC2 On-Demand Instances for its application. During the migration testing phase, a technical team observes that the application takes a long time to launch and load memory to become fully productive. Which solution will reduce the launch time of the application during the next testing phase?
 
@@ -3132,7 +3107,7 @@ When you launch EC2 On-Demand Instances with hibernation turned on, the instance
 
 </details>
 
-### 275. q-595 `cost`
+### 273. et-595 `cost`
 
 A company's applications run on Amazon EC2 instances in Auto Scaling groups. The company notices that its applications experience sudden traffic increases on random days of the week. The company wants to maintain application performance during sudden traffic increases. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3144,7 +3119,7 @@ Dynamic Scaling: With dynamic scaling, the Auto Scaling group automatically adju
 
 </details>
 
-### 276. q-597
+### 274. ce-597
 
 An ecommerce company is launching a new marketing campaign. The company anticipates the campaign to generate ten times the normal number of daily orders through the company's ecommerce application. The campaign will last 3 days. The ecommerce application architecture is based on Amazon EC2 instances in an Auto Scaling group and an Amazon RDS for MySQL database. The application writes order transactions to an Amazon Elastic File System (Amazon EFS) file system before the application writes orders to the database. During normal operations, the application write operations peak at 5,000 IOPS. A solutions architect needs to ensure that the application can handle the anticipated workload during the marketing campaign. Which solution will meet this requirement?
 
@@ -3156,7 +3131,7 @@ The scenario requires scaling both the database and the file system to handle a 
 
 </details>
 
-### 277. q-597
+### 275. et-597
 
 A company hosts an internal serverless application on AWS by using Amazon API Gateway and AWS Lambda. The company’s employees report issues with high latency when they begin using the application each day. The company wants to reduce latency. Which solution will meet these requirements?
 
@@ -3168,7 +3143,7 @@ Lambda Provisioned Concurrency: Provisioned concurrency is the number of simulta
 
 </details>
 
-### 278. dt-602
+### 276. dt-602
 
 How many types of block devices does Amazon EC2 support?
 
@@ -3178,7 +3153,7 @@ How many types of block devices does Amazon EC2 support?
 
 </details>
 
-### 279. q-608
+### 277. ce-608
 
 A company is deploying an application that processes streaming data in near-real time. The company plans to use Amazon EC2 instances for the workload. The network architecture must be configurable to provide the lowest possible latency between nodes. Which networking solution meets these requirements?
 
@@ -3190,7 +3165,7 @@ An Elastic Fabric Adapter (EFA) is a network interface for Amazon EC2 instances 
 
 </details>
 
-### 280. q-615
+### 278. et-615
 
 A company runs a critical, customer-facing application on Amazon Elastic Kubernetes Service (Amazon EKS). The application has a microservices architecture. The company needs to implement a solution that collects, aggregates, and summarizes metrics and logs from the application in a centralized location. Which solution meets these requirements?
 
@@ -3202,7 +3177,7 @@ CloudWatch Container Insights is specifically designed for monitoring containeri
 
 </details>
 
-### 281. dt-617
+### 279. dt-617
 
 A web-startup runs its very successful social news application on Amazon EC2 with an Elastic Load Balancer, an Auto-Scaling group of Java/Tomcat application-servers, and DynamoDB as data store. The main web-application best runs on m2 x large instances since it is highly memory- bound Each new deployment requires semi-automated creation and testing of a new AMI for the application servers which takes quite a while and is therefore only done once per week. Recently, a new chat feature has been implemented in nodejs and waits to be integrated in the architecture. First tests show that the new component is CPU bound Because the company has some experience with using Chef, they decided to streamline the deployment process and use AWS OpsWorks as an application life cycle tool to simplify management of the application and reduce the deployment cycles. What configuration in AWS OpsWorks is necessary to integrate the new chat module in the most cost-efficient and flexible way?
 
@@ -3212,7 +3187,7 @@ A web-startup runs its very successful social news application on Amazon EC2 wit
 
 </details>
 
-### 282. dt-619
+### 280. dt-619
 
 A user is currently building a website which will require a large number of instances in six months, when a demonstration of the new site will be given upon launch. Which of the below mentioned options allows the user to procure the resources beforehand so that they need not worry about infrastructure availability during the demonstration?
 
@@ -3222,7 +3197,7 @@ A user is currently building a website which will require a large number of inst
 
 </details>
 
-### 283. dt-624
+### 281. dt-624
 
 To help you manage your Amazon EC2 instances, images, and other Amazon EC2 resources, you can assign your own metadata to each resource in the form of [...].
 
@@ -3232,7 +3207,7 @@ To help you manage your Amazon EC2 instances, images, and other Amazon EC2 resou
 
 </details>
 
-### 284. dt-626
+### 282. dt-626
 
 If I write the below command, what does it do? ec2-run ami-e3a5408a -n 20 -g appserver
 
@@ -3242,7 +3217,7 @@ If I write the below command, what does it do? ec2-run ami-e3a5408a -n 20 -g app
 
 </details>
 
-### 285. dt-628
+### 283. dt-628
 
 In order to optimize performance for a compute cluster that requires low inter-node latency, which of the following feature should you use?
 
@@ -3252,7 +3227,7 @@ In order to optimize performance for a compute cluster that requires low inter-n
 
 </details>
 
-### 286. q-629
+### 284. ce-629
 
 A company runs multiple web applications on Amazon EC2 instances behind a single Application Load Balancer (ALB). The application experiences unpredictable traffic spikes throughout each day. The traffic spikes cause high latency. The unpredictable spikes last less than 3 hours. The company needs a solution to resolve the latency issue caused by traffic spikes.
 
@@ -3264,7 +3239,7 @@ The most effective solution for handling unpredictable traffic spikes and associ
 
 </details>
 
-### 287. q-630
+### 285. ce-630
 
 A company hosts an application in an Amazon EC2 Auto Scaling group. The company has observed that during periods of high demand, new instances take too long to join the Auto Scaling group and serve the increased demand. The company determines that the root cause of the issue is the long boot time of the instances in the Auto Scaling group. The company needs to reduce the time required to launch new instances to respond to demand. Which solution will meet this requirement?
 
@@ -3276,7 +3251,7 @@ The core issue is the long boot time for new EC2 instances, which delays their a
 
 </details>
 
-### 288. q-630 `cost`
+### 286. et-630 `cost`
 
 A solutions architect is creating a data processing job that runs once daily and can take up to 2 hours to complete. If the job is interrupted, it has to restart from the beginning. How should the solutions architect address this issue in the MOST cost-effective manner?
 
@@ -3288,7 +3263,7 @@ ECS Fargate is a serverless container service, and it abstracts away the underly
 
 </details>
 
-### 289. q-633
+### 287. ce-633
 
 A company is designing an application to maintain a record of customer orders. The application will generate events. The company wants to use an Amazon EventBridge event bus to send the application's events to an Amazon DynamoDB table. Which solution will meet these requirements?
 
@@ -3300,7 +3275,7 @@ The most appropriate solution is to use a custom event bus for the company's app
 
 </details>
 
-### 290. dt-633
+### 288. dt-633
 
 How can you apply more than 100 rules to an Amazon EC2-Classic?
 
@@ -3310,7 +3285,7 @@ How can you apply more than 100 rules to an Amazon EC2-Classic?
 
 </details>
 
-### 291. dt-634
+### 289. dt-634
 
 A user has created an ELB with Auto Scaling. Which of the below mentioned offerings from ELB helps the user to stop sending new requests traffic from the load balancer to the EC2 instance when the instance is being deregistered while continuing in-flight requests?
 
@@ -3320,7 +3295,7 @@ A user has created an ELB with Auto Scaling. Which of the below mentioned offeri
 
 </details>
 
-### 292. q-635 `least-ops`
+### 290. et-635 `least-ops`
 
 A company uses Amazon FSx for NetApp ONTAP in its primary AWS Region for CIFS and NFS file shares. Applications that run on Amazon EC2 instances access the file shares. The company needs a storage disaster recovery (DR) solution in a secondary Region. The data that is replicated in the secondary Region needs to be accessed by using the same protocols as the primary Region. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3332,7 +3307,7 @@ FSx for ONTAP supports NetApp SnapMirror, which is a robust data replication tec
 
 </details>
 
-### 293. dt-637
+### 291. dt-637
 
 A user is launching an EC2 instance in the US East region. Which of the below mentioned options is recommended by AWS with respect to the selection of the Availability Zone?
 
@@ -3342,7 +3317,7 @@ A user is launching an EC2 instance in the US East region. Which of the below me
 
 </details>
 
-### 294. dt-638
+### 292. dt-638
 
 ec2-revoke RevokeSecurityGroup Ingress
 
@@ -3352,7 +3327,7 @@ ec2-revoke RevokeSecurityGroup Ingress
 
 </details>
 
-### 295. dt-641
+### 293. dt-641
 
 A large real-estate brokerage is exploring the option of adding a cost-effective location based alert to their existing mobile application. The application backend infrastructure currently runs on AWS. Users who opt in to this service will receive alerts on their mobile device regarding real-estate offers in proximity to their location. For the alerts to be relevant delivery time needs to be in the low minute count. The existing mobile app has 5 million users across the US. Which one of the following architectural suggestions would you make to the customer?
 
@@ -3362,7 +3337,7 @@ A large real-estate brokerage is exploring the option of adding a cost-effective
 
 </details>
 
-### 296. q-642
+### 294. et-642
 
 A company wants to run a gaming application on Amazon EC2 instances that are part of an Auto Scaling group in the AWS Cloud. The application will transmit data by using UDP packets. The company wants to ensure that the application can scale out and in as traffic increases and decreases. What should a solutions architect do to meet these requirements?
 
@@ -3374,7 +3349,7 @@ UDP is a connectionless protocol, and Network Load Balancers (NLB) support UDP, 
 
 </details>
 
-### 297. dt-644
+### 295. dt-644
 
 What is a placement group in Amazon EC2?
 
@@ -3384,7 +3359,7 @@ What is a placement group in Amazon EC2?
 
 </details>
 
-### 298. q-647
+### 296. ce-647
 
 A solutions architect needs to design a solution for a high performance computing (HPC) workload. The solution must include multiple Amazon EC2 instances. Each EC2 instance requires 10 Gbps of bandwidth individually for single-flow traffic. The EC2 instances require an aggregate throughput of 100 Gbps of bandwidth across all EC2 instances. Communication between the EC2 instances must have low latency. Which solution will meet these requirements?
 
@@ -3396,7 +3371,7 @@ The question requires a solution for a High Performance Computing (HPC) workload
 
 </details>
 
-### 299. q-656
+### 297. ce-656
 
 A company is building a web application that serves a content management system. The content management system runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The EC2 instances run in an Auto Scaling group across multiple Availability Zones. Users are constantly adding and updating files, blogs, and other website assets in the content management system. A solutions architect must implement a solution in which all the EC2 instances share up-to-date website content with the least possible lag time.
 
@@ -3408,7 +3383,7 @@ The most effective solution is to use Amazon Elastic File System (Amazon EFS). E
 
 </details>
 
-### 300. q-657
+### 298. ce-657
 
 A company is building a serverless web application that will serve customers globally by using REST API endpoints. The application must minimize latency regardless of the application us-er's geographic location. The initial amount of traffic that the application will handle is un-known.
 
@@ -3420,7 +3395,7 @@ The most effective solution to minimize latency for a global user base is to use
 
 </details>
 
-### 301. q-660
+### 299. ce-660
 
 The customers of a finance company request appointments with financial advisors by sending text messages. A web application that runs on Amazon EC2 instances accepts the appointment requests. The text messages are published to an Amazon Simple Queue Service (Amazon SQS) queue through the web application. Another application that runs on EC2 instances then sends meeting invitations and meeting confirmation email messages to the customers. After successful scheduling, this application stores the meeting information in an Amazon DynamoDB database. As the company expands, customers report that their meeting invitations are taking longer to arrive. What should a solutions architect recommend to resolve this issue?
 
@@ -3432,7 +3407,7 @@ The delay in sending meeting invitations indicates that the backend application 
 
 </details>
 
-### 302. q-660
+### 300. et-660
 
 A company hosts an application on Amazon EC2 On-Demand Instances in an Auto Scaling group. Application peak hours occur at the same time each day. Application users report slow application performance at the start of peak hours. The application performs normally 2-3 hours after peak hours begin. The company wants to ensure that the application works properly at the start of peak hours. Which solution will meet these requirements?
 
@@ -3444,7 +3419,7 @@ Proactively scales instances to handle predictable traffic spikes. Dynamic scali
 
 </details>
 
-### 303. dt-661
+### 301. dt-661
 
 A company's near-real-time streaming application is running on AWS. As the data is ingested, a job runs on the data and takes 30 minutes to complete. The workload frequently experiences high latency due to large amounts of incoming data. A solutions architect needs to design a scalable and serverless solution to enhance performance. Which combination of steps should the solutions architect take? (Choose two.)
 
@@ -3454,7 +3429,7 @@ A company's near-real-time streaming application is running on AWS. As the data 
 
 </details>
 
-### 304. q-662
+### 302. ce-662
 
 A company hosts a web application on an on-premises server that processes incoming requests. Processing time for each request varies from 5 minutes to 20 minutes. The number of requests is growing. The company wants to move the application to AWS. The company wants to update the architecture to scale automatically.
 
@@ -3466,7 +3441,7 @@ The core requirements are to handle long-running processes (up to 20 minutes) an
 
 </details>
 
-### 305. gh-664
+### 303. gh-664
 
 A company has a web application that runs on premises. The application experiences latency issues during peak hours. The latency issues occur
 twice each month. At the start of a latency issue, the application's CPU utilization immediately increases to 10 times its normal amount.
@@ -3483,7 +3458,7 @@ Compute-optimized instances (Option B) are overprovisioned for intermittent spik
 
 </details>
 
-### 306. dt-670
+### 304. dt-670
 
 A company hosts its application in the AWS Cloud. The application runs on Amazon EC2 instances behind an Elastic Load Balancer in an Auto Scaling group and with an Amazon DynamoDB table. The company wants to ensure the application can be made available in another AWS Region with minimal downtime. What should a solutions architect do to meet these requirements with the LEAST amount of downtime?
 
@@ -3493,7 +3468,7 @@ A company hosts its application in the AWS Cloud. The application runs on Amazon
 
 </details>
 
-### 307. gh-671
+### 305. gh-671
 
 A company runs its applications on Amazon EC2 instances. The company performs periodic nancial assessments of its AWS costs. The
 company recently identi ed unusual spending.
@@ -3509,7 +3484,7 @@ Cost Anomaly Detection applies machine learning to your AWS cost and usage data 
 
 </details>
 
-### 308. dt-672 `cost` `availability`
+### 306. dt-672 `cost` `availability`
 
 A company hosts an application on Amazon EC2 instances that run in a single Availability Zone. The application is accessible by using the transport layer of the Open Systems Interconnection (OSI) model. The company needs the application architecture to have high availability. Which combination of steps will meet these requirements MOST cost-effectively? (Choose two.)
 
@@ -3519,7 +3494,7 @@ A company hosts an application on Amazon EC2 instances that run in a single Avai
 
 </details>
 
-### 309. dt-675 `cost`
+### 307. dt-675 `cost`
 
 A company runs an ecommerce application on AWS. Amazon EC2 instances process purchases and store the purchase details in an Amazon Aurora PostgreSQL DB cluster. Customers are experiencing application timeouts during times of peak usage. A solutions architect needs to rearchitect the application so that the application can scale to meet peak usage demands. Which combination of actions will meet these requirements MOST cost-effectively? (Choose two.)
 
@@ -3529,7 +3504,7 @@ A company runs an ecommerce application on AWS. Amazon EC2 instances process pur
 
 </details>
 
-### 310. gh-677 `cost`
+### 308. gh-677 `cost`
 
 A company is developing an application that will run on a production Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster
 has managed node groups that are provisioned with On-Demand Instances.
@@ -3545,7 +3520,7 @@ Spot Instances are the cheapest way to get EC2 capacity, at a steep discount to 
 
 </details>
 
-### 311. q-678 `least-ops` `availability`
+### 309. ce-678 `least-ops` `availability`
 
 A global ecommerce company is designing a three-tier application on AWS. The application includes a web tier that serves static content. An application tier handles business logic. A database tier stores product information and user data. The application interacts with a relational database. The company needs a highly available application architecture to serve global users with the low latency. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3557,7 +3532,7 @@ This solution comprehensively addresses all requirements with the least operatio
 
 </details>
 
-### 312. dt-678
+### 310. dt-678
 
 A company uses Amazon EC2 instances and AWS Lambda functions to run its application. The company has VPCs with public subnets and private subnets in its AWS account. The EC2 instances run in a private subnet in one of the VPCs. The Lambda functions need direct network access to the EC2 instances for the application to work. The application will run for at least 1 year. The company expects the number of Lambda functions that the application uses to increase during that time. The company wants to maximize its savings on all application resources and to keep network latency between the services low. Which solution will meet these requirements?
 
@@ -3567,7 +3542,7 @@ A company uses Amazon EC2 instances and AWS Lambda functions to run its applicat
 
 </details>
 
-### 313. q-680
+### 311. ce-680
 
 A company is building a solution to provide customers with an API that accesses financial data. The API backend needs to compute tax data for each request. The company anticipates greater demand to access the data during the last 3 months of each year. A solutions architect needs to design a scalable solution that can meet the regular demand and the peak demand at the end of each year. Which solution will meet these requirements?
 
@@ -3579,7 +3554,7 @@ This solution uses a serverless architecture, which is ideal for workloads with 
 
 </details>
 
-### 314. q-684
+### 312. ce-684
 
 A company runs container applications by using Amazon Elastic Kubernetes Service (Amazon EKS) and the Kubernetes Horizontal Pod Autoscaler. The workload is not consistent throughout the day. A solutions architect notices that the number of nodes does not automatically scale out when the existing nodes have reached maximum capacity in the cluster, which causes performance issues. Which solution will resolve this issue with the LEAST administrative overhead?
 
@@ -3591,7 +3566,7 @@ The scenario describes a situation where the Horizontal Pod Autoscaler (HPA) is 
 
 </details>
 
-### 315. q-687 `least-ops`
+### 313. ce-687 `least-ops`
 
 A company wants to re-architect a large-scale web application to a serverless microservices architecture. The application uses Amazon EC2 instances and is written in Python. The company selected one component of the web application to test as a microservice. The component supports hundreds of requests per second. The company wants to create and test the microservice on an AWS solution that supports Python. The solution must also scale automatically and require minimal infrastructure and minimal operational support. Which solution will meet these requirements?
 
@@ -3603,7 +3578,7 @@ The requirements specify a serverless microservices architecture that scales aut
 
 </details>
 
-### 316. dt-688 `least-ops`
+### 314. dt-688 `least-ops`
 
 A company observes an increase in Amazon EC2 costs in its most recent bill. The billing team notices unwanted vertical scaling of instance types for a couple of EC2 instances. A solutions architect needs to create a graph comparing the last 2 months of EC2 costs and perform an in-depth analysis to identify the root cause of the vertical scaling. How should the solutions architect generate the information with the LEAST operational overhead?
 
@@ -3613,7 +3588,7 @@ A company observes an increase in Amazon EC2 costs in its most recent bill. The 
 
 </details>
 
-### 317. q-704
+### 315. ce-704
 
 An events company runs a web application on Amazon EKS that uses an Amazon DynamoDB table. The table has 1,000 RCUs and 500 WCUs provisioned. The application uses eventually consistent reads. Traffic is usually low but occasionally spikes. During spikes, DynamoDB throttles requests, causing user-facing errors. What should a solutions architect do to reduce these errors?
 
@@ -3625,7 +3600,7 @@ The application experiences throttling during occasional traffic spikes, indicat
 
 </details>
 
-### 318. q-706
+### 316. ce-706
 
 A company is developing a social media application that must scale rapidly and handle long-running, ordered processes that store large amounts of relational data. Components must scale independently and evolve without downtime. Which combination of AWS services will meet these requirements?
 
@@ -3637,7 +3612,7 @@ The architecture requires independently scalable components, pointing to a micro
 
 </details>
 
-### 319. dt-707
+### 317. dt-707
 
 A company has released a new version of its production application. The company's workload uses Amazon EC2, AWS Lambda, AWS Fargate, and Amazon SageMaker. The company wants to cost optimize the workload now that usage is at a steady state. The company wants to cover the most services with the fewest savings plans. Which combination of savings plans will meet these requirements? (Choose two.)
 
@@ -3647,7 +3622,7 @@ A company has released a new version of its production application. The company'
 
 </details>
 
-### 320. q-711
+### 318. ce-711
 
 An insurance company wants to migrate an application that calculates insurance premiums to AWS. The company must run calculations immediately when a customer submits information through the application. The application usually takes 10 seconds to process a calculation. Which solution will meet this requirement?
 
@@ -3659,7 +3634,7 @@ The requirement is for immediate, on-demand processing of customer data that tak
 
 </details>
 
-### 321. q-712
+### 319. ce-712
 
 A company runs an ecommerce website on AWS. The website architecture uses a single Amazon EC2 instance to run a custom application that handles the website's functions. The website functions include product catalog management and customer checkout. The company's website traffic and transaction volume are increasing rapidly. The company wants to re-architect the application from its current monolithic architecture to a loosely coupled architecture to enable independent scaling. Which solution will meet these requirements?
 
@@ -3671,7 +3646,7 @@ The goal is to create a loosely coupled architecture where components can scale 
 
 </details>
 
-### 322. q-715
+### 320. ce-715
 
 A company hosts an application on Amazon EC2 On-Demand Instances in an Auto Scaling group. Application peak hours occur at the same time each day. Application users experience slow application performance at the start of peak hours. The application performs normally 2-3 hours after peak hours begin. The company wants to ensure that the application works properly at the start of peak hours. Which solution will meet these requirements?
 
@@ -3683,7 +3658,7 @@ The problem states that peak hours are predictable, occurring at the same time e
 
 </details>
 
-### 323. q-720
+### 321. ce-720
 
 A company needs to integrate with a third-party data feed. The data feed sends a webhook to notify an external service when new data is ready for consumption. A developer wrote an AWS Lambda function to retrieve data when the company receives a webhook callback. The developer must make the Lambda function available for the third party to call. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -3695,7 +3670,7 @@ A Lambda function URL provides a dedicated HTTPS endpoint for a Lambda function,
 
 </details>
 
-### 324. q-722 `least-ops`
+### 322. ce-722 `least-ops`
 
 A company provides an API interface to customers so the customers can retrieve their financial information. The company expects a larger number of requests during peak usage times of the year. The company requires the API to respond consistently with low latency to ensure customer satisfaction. The company needs to provide a compute host for the API. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3707,7 +3682,7 @@ The solution requires consistent low latency and the least operational overhead.
 
 </details>
 
-### 325. q-728
+### 323. ce-728
 
 A company operates a food delivery service. Because of recent growth, the company's order processing system is experiencing scaling problems during peak traffic hours. The current architecture includes Amazon EC2 instances in an Auto Scaling group that collect orders from an application. A second group of EC2 instances in an Auto Scaling group fulfills the orders. The order collection process occurs quickly, but the order fulfillment process can take longer. Data must not be lost because of a scaling event. A solutions architect must ensure that the order collection process and the order fulfillment process can both scale adequately during peak traffic hours. Which solution will meet these requirements?
 
@@ -3719,7 +3694,7 @@ This solution effectively decouples the fast order collection from the slower or
 
 </details>
 
-### 326. q-734
+### 324. ce-734
 
 A company runs a web application on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer ALB. The application is served at one hostname that has two dynamic paths. The first path is named /reports and performs CPU-intensive work that has unpredictable traffic. The second path is named /generateToken and must always respond in less than 1 second. All requests currently go to a single target group. The /generateToken path latency exceeds 1 second during periods when the /reports usage is high. The company must ensure that latency for /generateToken remains under 1 second. Which solution will meet this requirement?
 
@@ -3731,7 +3706,7 @@ The core issue is resource contention on the EC2 instances between the CPU-inten
 
 </details>
 
-### 327. q-736 `performance`
+### 325. ce-736 `performance`
 
 A company hosts a website on multiple Amazon EC2 instances that run in an Auto Scaling group. Users are reporting slow responses during peak times between 6 PM and 11 PM every weekend. A solutions architect must implement a solution to improve performance during these peak times. What is the MOST operationally efficient solution that meets these requirements?
 
@@ -3743,7 +3718,7 @@ The scenario describes a predictable, recurring traffic pattern (peak times on w
 
 </details>
 
-### 328. dt-742
+### 326. dt-742
 
 A company wants to host its web application on AWS using multiple Amazon EC2 instances across different AWS Regions. Since the application content will be specific to each geographic region, the client requests need to be routed to the server that hosts the content for that clients Region. What should a solutions architect do to accomplish this?
 
@@ -3753,7 +3728,7 @@ A company wants to host its web application on AWS using multiple Amazon EC2 ins
 
 </details>
 
-### 329. q-743
+### 327. ce-743
 
 A company's application is experiencing a sudden increase in demand. The company needs to provision Amazon EC2 instances by using a large Amazon Machine Image AMI. The EC2 instances must run in an Auto Scaling group. The company needs a solution that provides minimum initialization latency to meet the demand. Which solution will meet these requirements?
 
@@ -3765,7 +3740,7 @@ When an EC2 instance launches from a standard AMI, the data from the underlying 
 
 </details>
 
-### 330. dt-744
+### 328. dt-744
 
 A recently created startup built a three-tier web application. The front end has static content. The application layer is based on microservices. User data is stored as JSON documents that need to be accessed with low latency. The company expects regular traffic to be low during the first year, with peaks in traffic when it publicizes new features every month. The startup team needs to minimize operational overhead costs. What should a solutions architect recommend to accomplish this?
 
@@ -3775,7 +3750,7 @@ A recently created startup built a three-tier web application. The front end has
 
 </details>
 
-### 331. dt-747
+### 329. dt-747
 
 A company is developing a new machine learning model solution in AWS. The models are developed as independent microservices that fetch about 1 GB of model data from Amazon S3 at startup and load the data into memory. Users access the models through an asynchronous API. Users can send a request or a batch of requests and specify where the results should be sent. The company provides models to hundreds of users. The usage patterns for the models are irregular. Some models could be unused for days or weeks. Other models could receive batches of thousands of requests at a time. Which solution meets these requirements?
 
@@ -3785,7 +3760,7 @@ A company is developing a new machine learning model solution in AWS. The models
 
 </details>
 
-### 332. dt-754
+### 330. dt-754
 
 A company hosts its web application on AWS using seven Amazon EC2 instances. The company requires that the IP addresses of all healthy EC2 instances be returned in response to DNS queries. Which policy should be used to meet this requirement?
 
@@ -3795,7 +3770,7 @@ A company hosts its web application on AWS using seven Amazon EC2 instances. The
 
 </details>
 
-### 333. q-756 `least-ops`
+### 331. ce-756 `least-ops`
 
 A company has deployed an application that uses Amazon EC2 Auto Scaling. The Auto Scaling group is associated with a Network Load Balancer and has a minimum desired capacity of 1 and a maximum desired capacity of 6. The CPU utilization of the single running EC2 instance occasionally reaches 90%, which causes the application to become unstable. Which solution will resolve the stability issue with the LEAST operational overhead?
 
@@ -3807,7 +3782,7 @@ The application becomes unstable when a single instance's CPU utilization reache
 
 </details>
 
-### 334. q-757
+### 332. ce-757
 
 A company hosts a public product catalog. The product catalog is accessible through an Amazon API Gateway REST API with AWS Lambda function integrations in a single AWS Region. Most traffic consists of read-only GET requests to the /products resource from global users. The catalog changes approximately once every hour. The company needs to lower latency for global users and reduce the load on the Lambda functions. Which solution will meet these requirements?
 
@@ -3819,7 +3794,7 @@ The solution requires addressing two issues: high latency for global users and h
 
 </details>
 
-### 335. q-759
+### 333. ce-759
 
 A company runs code compilation tasks that span many virtual machines (VMs) in its on-premises data center. These tasks require low latency and high bandwidth between servers. The company wants to migrate this workload to run on Amazon EC2 instances in the AWS Cloud. After the migration, the workload must maintain low latency and high bandwidth between EC2 instances. Which solution will meet these requirements?
 
@@ -3831,7 +3806,7 @@ The solution must provide low latency and high bandwidth between EC2 instances f
 
 </details>
 
-### 336. dt-763
+### 334. dt-763
 
 An ecommerce website is deploying its web application as Amazon Elastic Container Service (Amazon ECS) container instances behind an Application Load Balancer (ALB). During periods of high activity, the website slows down and availability is reduced. A solutions architect uses Amazon CloudWatch alarms to receive notifications whenever there is an availability issue so they can scale out resources. Company management wants a solution that automatically responds to such events. Which solution meets these requirements?
 
@@ -3841,7 +3816,7 @@ An ecommerce website is deploying its web application as Amazon Elastic Containe
 
 </details>
 
-### 337. dt-766
+### 335. dt-766
 
 A company has a three-tier environment on AWS that ingests sensor data from its users' devices. The traffic flows through a Network Load Balancer (NLB) then to Amazon EC2 instances for the web tier, and finally to EC2 instances for the application tier that makes database calls. What should a solutions architect do to improve the security of data in transit to the web tier?
 
@@ -3851,7 +3826,7 @@ A company has a three-tier environment on AWS that ingests sensor data from its 
 
 </details>
 
-### 338. q-767
+### 336. ce-767
 
 A company is building a RESTful serverless web application on AWS by using Amazon API Gateway and AWS Lambda. The users of this web application will be geographically distributed, and the company wants to reduce the latency of API requests to these users. Which type of endpoint should a solutions architect use to meet these requirements?
 
@@ -3863,7 +3838,7 @@ An edge-optimized API endpoint is the ideal choice for serving geographically di
 
 </details>
 
-### 339. dt-769
+### 337. dt-769
 
 A company runs a web application on Amazon EC2 instances in an Auto Scaling group that has a target group. The company designed the application to work with session affinity (sticky sessions) for a better user experience. The application must be available publicly over the internet as an endpoint. A WAF must be applied to the endpoint for additional security. Session affinity (sticky sessions) must be configured on the endpoint. Which combination of steps will meet these requirements? (Choose two.)
 
@@ -3873,7 +3848,7 @@ A company runs a web application on Amazon EC2 instances in an Auto Scaling grou
 
 </details>
 
-### 340. dt-770 `availability`
+### 338. dt-770 `availability`
 
 A company runs a web application on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer that has sticky sessions enabled. The web server currently hosts the user session state. The company wants to ensure high availability and avoid user session state loss in the event of a web server outage. Which solution will meet these requirements?
 
@@ -3883,7 +3858,7 @@ A company runs a web application on Amazon EC2 instances in an Auto Scaling grou
 
 </details>
 
-### 341. q-791
+### 339. ce-791
 
 A company has an employee web portal. Employees log in to the portal to view payroll details. The company is developing a new system to give employees the ability to upload scanned documents for reimbursement. The company runs a program to extract text-based data from the documents and attach the extracted information to each employee's reimbursement IDs for processing. The employee web portal requires 100% uptime. The document extract program runs infrequently throughout the day on an on-demand basis. The company wants to build a scalable and cost-effective new system that will require minimal changes to the existing web portal. The company does not want to make any code changes. Which solution will meet these requirements with the LEAST implementation effort?
 
@@ -3895,7 +3870,7 @@ This solution meets all requirements by effectively separating the new and exist
 
 </details>
 
-### 342. q-798 `least-ops`
+### 340. ce-798 `least-ops`
 
 A company has multiple Amazon RDS DB instances that run in a development AWS account. All the instances have tags to identify them as development resources. The company needs the development DB instances to run on a schedule only during business hours. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -3907,7 +3882,7 @@ This solution represents a standard, serverless, and automated pattern for sched
 
 </details>
 
-### 343. q-803
+### 341. ce-803
 
 A company hosts a multi-tier inventory reporting application on AWS. The company needs a cost- effective solution to generate inventory reports on demand. Admin users need to have the ability to generate new reports. Reports take approximately 5-10 minutes to finish. The application must send reports to the email address of the admin user who generates each report. Options:
 
@@ -3919,7 +3894,7 @@ This solution is the most cost-effective and architecturally sound for the given
 
 </details>
 
-### 344. q-807 `cost`
+### 342. ce-807 `cost`
 
 A solutions architect is investigating compute options for a critical analytics application. The application uses long-running processes to prepare and aggregate dat a. The processes cannot be interrupted. The application has a known baseline load. The application needs to handle occasional usage surges. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3931,7 +3906,7 @@ This scenario requires a solution that is both cost-effective and reliable for a
 
 </details>
 
-### 345. q-808 `cost`
+### 343. ce-808 `cost`
 
 A company hosts a website analytics application on a single Amazon EC2 On-Demand Instance. The analytics application is highly resilient and is designed to run in stateless mode. The company notices that the application is showing signs of performance degradation during busy times and is presenting 5xx errors. The company needs to make the application scale seamlessly. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3943,19 +3918,7 @@ This solution provides a comprehensive, automated, and highly cost-effective arc
 
 </details>
 
-### 346. q-812
-
-A company operates a web application that experiences predictable traffic patterns: high demand during business hours (9 AM-5 PM, 500 instances) and low demand outside those hours (50 instances). The company wants to optimize costs while maintaining performance. Current infrastructure uses On-Demand EC2 instances with a fixed capacity, costing $8,000 per month. Which cost optimization strategy would deliver the greatest savings?
-
-<details><summary>Answer</summary>
-
-**A. Purchase a mix of Reserved Instances for the baseline 50 instances and use On-Demand instances for peak hours, supplemented by Spot Instances for non-critical workloads.**
-
-Option A perfectly aligns with the AWS Well-Architected Framework's Cost Optimization pillar. For workloads with predictable patterns, AWS recommends purchasing Reserved Instances (or Compute Savings Plans) for the always-on baseline capacity (the 50 instances) to achieve up to 72% discounts compared to On-Demand pricing. For the predictable peak hours, using Auto Scaling with On-Demand instances ensures performance and availability without paying for idle capacity during off-hours. Supplementing with Spot Instances for non-critical, fault-tolerant tasks further reduces costs. This hybrid purchasing model maximizes financial savings while guaranteeing compute resources are available when needed, directly addressing the predictable traffic pattern while maintaining application performance. Why Incorrect Options are Wrong: B: Disabling the application during off-peak times would cause an o
-
-</details>
-
-### 347. q-835 `cost`
+### 344. ce-835 `cost`
 
 A company needs to run a critical data processing workload that uses a Python script every night. The workload takes 1 hour to finish. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3967,7 +3930,7 @@ The most cost-effective solution is to use AWS Fargate with the Spot capacity pr
 
 </details>
 
-### 348. q-857 `cost`
+### 345. ce-857 `cost`
 
 A company has a batch processing application that runs every day. The process typically takes an average 3 hours to complete. The application can handle interruptions and can resume the process after a restart. Currently, the company runs the application on Amazon EC2 On-Demand Instances. The company wants to optimize costs while maintaining the same performance level. Which solution will meet these requirements MOST cost-effectively?
 
@@ -3979,7 +3942,7 @@ The application is described as a batch process that is fault-tolerant and can h
 
 </details>
 
-### 349. q-858
+### 346. ce-858
 
 A company's packaged application dynamically creates and returns single-use text files in response to user requests. The company is using Amazon CloudFront for distribution, but wants to further reduce data transfer costs. The company cannot modify the application's source code. What should a solutions architect do to reduce costs?
 
@@ -3991,7 +3954,7 @@ The most effective way to reduce data transfer costs without modifying the appli
 
 </details>
 
-### 350. q-866
+### 347. ce-866
 
 A company is developing a monolithic Microsoft Windows based application that will run on Amazon EC2 instances. The application will run long data-processing jobs that must not be in-terrupted. The company has modeled expected usage growth for the next 3 years. The company wants to optimize costs for the EC2 instances during the 3-year growth period.
 
@@ -4003,7 +3966,7 @@ The company's goal is to optimize costs over a 3-year period for a workload that
 
 </details>
 
-### 351. q-870
+### 348. ce-870
 
 A company runs a Java-based job on an Amazon EC2 instance. The job runs every hour and takes 10 seconds to run. The job runs on a scheduled interval and consumes 1 GB of memory. The CPU utilization of the instance is low except for short surges during which the job uses the maximum CPU available. The company wants to optimize the costs to run the job.
 
@@ -4015,7 +3978,7 @@ The most cost-effective solution for a short-duration, periodic job is to use a 
 
 </details>
 
-### 352. q-875 `cost`
+### 349. ce-875 `cost`
 
 A company runs Amazon EC2 instances as web servers. Peak traffic occurs at two predictable times each day. The web servers remain mostly idle during the rest of the day. A solutions architect must manage the web servers while maintaining fault tolerance in the most cost-effective way. Which solution will meet these requirements?
 
@@ -4027,7 +3990,7 @@ The most suitable solution is to use an Amazon EC2 Auto Scaling group. This serv
 
 </details>
 
-### 353. q-876 `cost`
+### 350. ce-876 `cost`
 
 A company runs a custom application on Amazon EC2 On-Demand Instances. The application has frontend nodes that must run 24/7. The backend nodes only need to run for short periods depending on the workload. Frontend nodes accept jobs and place them in queues. Backend nodes asynchronously process jobs from the queues, and jobs can be restarted. The company wants to scale infrastructure based on workload, using the most cost-effective option. Which solution meets these requirements MOST cost-effectively?
 
@@ -4039,7 +4002,7 @@ This solution is the most cost-effective because it correctly aligns the EC2 pri
 
 </details>
 
-### 354. q-888 `cost`
+### 351. ce-888 `cost`
 
 A company wants to reduce the cost of its existing three-tier web application. The web servers, application servers, and database servers run on Amazon EC2 On-Demand instances in development, test, and production environments. The EC2 instances average 30% CPU utilization during peak hours and 10% CPU utilization during non-peak hours. The production EC2 instances run 24 hours a day all year. The development and test EC2 instances run for at least 8 hours a day all year. The company wants to implement automation to stop the development and test EC2 instances when those EC2 instances are not in use. Which EC2 instance purchasing solution will meet these requirements MOST cost-effectively?
 
@@ -4051,7 +4014,7 @@ This solution provides the most cost-effective purchasing strategy by matching t
 
 </details>
 
-### 355. q-892
+### 352. ce-892
 
 A company runs an application on an Amazon ECS cluster that uses AWS Fargate On-Demand capacity. The application cannot tolerate any sudden interruptions. The company wants to optimize costs for the application and ensure that the application remains operational. Which solution will meet these requirements?
 
@@ -4063,7 +4026,7 @@ A Compute Savings Plan provides the most flexibility and significant cost saving
 
 </details>
 
-### 356. q-896 `cost`
+### 353. ce-896 `cost`
 
 A company processes large amounts of data by using Amazon EC2 instances in an Auto Scaling group. The data processing jobs run for up to 48 hours each week. The data processing jobs can handle interruptions. However, the company wants to minimize the interruptions. The company wants to use the latest generation of Amazon EC2 instances each year. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4075,7 +4038,7 @@ The workload is interruptible and runs for a limited duration (48 hours/week), m
 
 </details>
 
-### 357. q-901
+### 354. ce-901
 
 A company has a development account that contains Amazon EC2 instances. The company uses the EC2 instances for testing. A recent audit of the development account showed that some developers occasionally forget to stop instances after the tests are finished, which incurs extra costs. The company wants to optimize costs for the development account. The company wants to use AWS Budgets to implement a budget for the account. Which solution will meet these requirements?
 
@@ -4087,7 +4050,7 @@ Create an AWS Budget that monitors forecasted cost; set an action of type "Stop 
 
 </details>
 
-### 358. q-915
+### 355. ce-915
 
 A company runs an application on Amazon EC2 instances. EC2 instance usage is higher during daytime hours than nighttime hours. A solutions architect wants to automatically optimize Amazon EC2 costs based on this usage pattern. Which AWS service or purchasing option will meet this requirement?
 
@@ -4099,7 +4062,7 @@ The scenario describes a predictable, cyclical usage pattern where demand is hig
 
 </details>
 
-### 359. q-919 `cost`
+### 356. ce-919 `cost`
 
 A company needs to design a solution to process videos that users upload to an Amazon S3 bucket. Each video file is approximately 1 GB in size and takes approximately 20 minutes to process. During peak hours, the company expects to process approximately 100 simultaneous uploads. The video file processing is stateless and can run in parallel as soon as the video files arrive in the S3 bucket. Which solution will meet these requirements in the MOST cost-effective way?
 
@@ -4111,7 +4074,7 @@ The video processing takes 20 minutes, which exceeds the 15-minute maximum execu
 
 </details>
 
-### 360. q-920 `least-ops`
+### 357. ce-920 `least-ops`
 
 A company runs a web application in an Amazon EC2 Auto Scaling group. The application runs during business hours only. The company cannot allow interruptions to the application during business hours. The company wants to optimize compute costs for the application based on the application's usage pattern. Which solution will meet this requirement with the LEAST operational overhead?
 
@@ -4123,7 +4086,7 @@ The requirement is to optimize costs for an application that runs only during bu
 
 </details>
 
-### 361. q-924
+### 358. ce-924
 
 A company is planning to migrate multiple workloads to Amazon EC2 instances and needs to determine an appropriate AWS account structure. The workloads must be isolated from one another and belong to separate business units. The company needs to be able to perform chargeback to the business units by using a consolidated monthly view. Which solution will meet these requirements with the LEAST administrative overhead?
 
@@ -4135,7 +4098,7 @@ AWS Organizations is the recommended service for managing multiple AWS accounts.
 
 </details>
 
-### 362. q-950 `availability`
+### 359. ce-950 `availability`
 
 A media streaming company is redesigning its infrastructure to accommodate increasing demand for video content that users consume daily. The company needs to process terabyte-sized videos to block some content in the videos. Video processing can take up to 20 minutes. The company needs a solution that is cost-effective, highly available, and scalable. Which solution will meet these requirements?
 
@@ -4147,7 +4110,7 @@ This solution meets all requirements. AWS Fargate is a serverless compute engine
 
 </details>
 
-### 363. q-964
+### 360. ce-964
 
 A company uses on-premises virtual machines VMs to run a Kubernetes cluster. The company must operate network connectivity for the cluster on premises. The company wants to simplify overall management for the Kubernetes cluster while maintaining control over the underlying infrastructure. Which solution will meet these requirements?
 
@@ -4159,7 +4122,7 @@ Amazon EKS Anywhere is a deployment option for Amazon EKS that allows you to cre
 
 </details>
 
-### 364. q-967 `availability`
+### 361. ce-967 `availability`
 
 A company hosts a popular social networking application on premises. Both the web tier and the application tier run on the same server. The company wants to migrate the application to AWS to handle increased user traffic. The solution must minimize migration effort and ongoing operational costs. The solution must reuse the existing application code. The application must scale to handle millions of requests. The application must be highly available. Which solution will meet these requirements?
 
@@ -4171,7 +4134,7 @@ This solution effectively meets all requirements. Containerizing the application
 
 </details>
 
-### 365. q-969
+### 362. ce-969
 
 A company needs a solution to prevent photos with unwanted content from being uploaded to the company's web application. The solution must not involve training a machine learning (ML) model. Which solution will meet these requirements?
 
@@ -4183,7 +4146,7 @@ The most effective solution is to use Amazon Rekognition, a service that provide
 
 </details>
 
-### 366. q-972 `least-ops`
+### 363. ce-972 `least-ops`
 
 A company runs its applications on both Amazon EKS clusters and on-premises Kubernetes clusters. The company wants to view all clusters and workloads from a central location. Which solution will meet these requirements with the LEAST operational overhead?
 

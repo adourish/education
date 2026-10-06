@@ -126,7 +126,7 @@ def main() -> None:
     # optioned source, so a flag or verdict against one has to find the other.
     def alias(qid: str) -> list[str]:
         out = [qid]
-        for a, b in (("gh-", "q-"), ("q-", "gh-")):
+        for a, b in (("gh-", "et-"), ("et-", "gh-")):
             if qid.startswith(a):
                 out.append(b + qid[len(a):])
         return out

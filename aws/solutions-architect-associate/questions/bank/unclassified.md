@@ -174,7 +174,7 @@ Can a 'user' be associated with multiple AWS accounts?
 
 </details>
 
-### 18. q-144
+### 18. ce-144
 
 A company wants to provide users with access to AWS resources. The company has 1,500 users and manages their access to on-premises resources through Active Directory user groups on the corporate network. However, the company does not want users to have to maintain another identity to access the resources. A solutions architect must manage user access to the AWS resources while preserving access to the on-premises resources. What should the solutions architect do to meet these requirements?
 
@@ -306,7 +306,7 @@ Location of Instances are [...].
 
 </details>
 
-### 31. q-233
+### 31. et-233
 
 A solutions architect has created a new AWS account and must secure AWS account root user access. Which combination of actions will accomplish this? (Choose two.)
 
@@ -528,7 +528,7 @@ True or False: REST or Query requests are HTTP or HTTPS requests that use an HTT
 
 </details>
 
-### 53. q-454
+### 53. et-454
 
 A company has resources across multiple AWS Regions and accounts. A newly hired solutions architect discovers a previous employee did not provide details about the resources inventory. The solutions architect needs to build and map the relationship details of the various workloads across all accounts. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -550,7 +550,7 @@ What does Amazon Cloud Formation provide?
 
 </details>
 
-### 55. q-493
+### 55. et-493
 
 A company wants to use artificial intelligence (AI) to determine the quality of its customer service calls. The company currently manages calls in four different languages, including English. The company will offer new languages in the future. The company does not have the resources to regularly maintain machine learning (ML) models. The company needs to create written sentiment analysis reports from the customer service call recordings. The customer service call recording text must be translated into English. Which combination of steps will meet these requirements? (Choose three.)
 

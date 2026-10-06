@@ -1,10 +1,10 @@
 # Networking — VPC, load balancing, DNS, edge, hybrid
 
-252 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
+248 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
 
 ---
 
-### 1. q-1 `security`
+### 1. ce-1 `security`
 
 A company's software development team needs an Amazon RDS Multi-AZ cluster. The RDS cluster will serve as a backend for a desktop client that is deployed on premises. The desktop client requires direct connectivity to the RDS cluster. The company must give the development team the ability to connect to the cluster by using the client when the team is in the office. Which solution provides the required connectivity MOST securely?
 
@@ -16,7 +16,7 @@ This solution provides the highest level of security by implementing a defense-i
 
 </details>
 
-### 2. q-4
+### 2. et-4
 
 An application runs on an Amazon EC2 instance in a VPC. The application processes logs that are stored in an Amazon S3 bucket. The EC2 instance needs to access the S3 bucket without connectivity to the internet. Which solution will provide private network connectivity to Amazon S3?
 
@@ -48,7 +48,7 @@ How can the domain's zone apex, for example, 'myzoneapexdomain.com', be pointed 
 
 </details>
 
-### 5. q-9 `least-ops`
+### 5. ce-9 `least-ops`
 
 A company wants to isolate its workloads by creating an AWS account for each workload. The company needs a solution that centrally manages networking components for the workloads. The solution also must create accounts with automatic security controls (guardrails). Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -77,17 +77,7 @@ through cloud Computing and AWS basics along with AWS products and services!
 
 </details>
 
-### 7. dt-15
-
-After an Amazon VPC instance is launched, can I change the VPC security groups it belongs to?
-
-<details><summary>Answer</summary>
-
-**B. Yes. You can.**
-
-</details>
-
-### 8. q-15
+### 7. et-15
 
 A company recently migrated to AWS and wants to implement a solution to protect the traffic that flows in and out of the production VPC. The company had an inspection server in its on-premises data center. The inspection server performed specific operations such as traffic flow inspection and traffic filtering. The company wants to have the same functionalities in the AWS Cloud. Which solution will meet these requirements?
 
@@ -99,7 +89,7 @@ AWS Network Firewall is a managed firewall service that provides filtering for b
 
 </details>
 
-### 9. dt-16
+### 8. dt-16
 
 If I want an instance to have a public IP address, which IP address should I use?
 
@@ -109,22 +99,7 @@ If I want an instance to have a public IP address, which IP address should I use
 
 </details>
 
-### 10. wl-17
-
-How many VPCs can an Internet Gateway be attached to at any given time?
-
-<details><summary>Answer</summary>
-
-**C. 1**
-
-https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/amazon-vpc-limits.html
-#vpc-limits-gateways
-At any given time, an Internet Gateway can be attached to only one VPC. It can be
-detached from the VPC and be used for another VPC.
-
-</details>
-
-### 11. wl-18
+### 9. wl-18
 
 Your organization was planning to develop a web application on AWS EC2. Application admin was tasked to perform AWS setup required to spin EC2 instance inside an existing private VPC. He/she has created a subnet and wants to ensure no other subnets in the VPC can communicate with your subnet except for the specific IP address. So he/she created a new route table and associated with the new subnet. When he/she was trying to delete the route with the target as local, there is no option to delete the route. What could have caused this behavior?
 
@@ -137,7 +112,7 @@ l#RouteTa
 
 </details>
 
-### 12. dt-21
+### 10. dt-21
 
 How can I change the security group membership for interfaces owned by other AWS, such as Elastic Load Balancing?
 
@@ -147,7 +122,7 @@ How can I change the security group membership for interfaces owned by other AWS
 
 </details>
 
-### 13. dt-22
+### 11. dt-22
 
 You have created a Route 53 latency record set from your domain to a machine in Northern Virginia and a similar record to a machine in Sydney. When a user located in US visits your domain he will be routed to
 
@@ -157,7 +132,7 @@ You have created a Route 53 latency record set from your domain to a machine in 
 
 </details>
 
-### 14. wl-22
+### 12. wl-22
 
 You had set up an internal HTTP(S) Elastic Load Balancer to route requests to two EC2 instances inside a private VPC. However, one of the target EC2 instance is showing Unhealthy status. Which of the following options could not be a reason for this?
 
@@ -174,7 +149,7 @@ th-checks.html
 
 </details>
 
-### 15. wl-23
+### 13. wl-23
 
 Your organization has an existing VPC setup and has a requirement to route any traffic going from VPC to AWS S3 bucket through AWS internal network. So they have created a VPC endpoint for S3 and configured to allow traffic for S3 buckets. The application you are developing involves sending traffic to AWS S3 bucket from VPC for which you planned to use a similar approach. You have created a new route table, added route to VPC endpoint and associated route table with your new subnet. However, when you are trying to send a request from EC2 to S3 bucket using AWS CLI, the request is getting failed with 403 access denied errors. What could be causing the failure?
 
@@ -186,7 +161,7 @@ The failure is an HTTP 403 AccessDenied, which means the request reached Amazon 
 
 </details>
 
-### 16. dt-24
+### 14. dt-24
 
 Which one of the below doesn't affect Amazon CloudFront billing?
 
@@ -196,7 +171,7 @@ Which one of the below doesn't affect Amazon CloudFront billing?
 
 </details>
 
-### 17. wl-25
+### 15. wl-25
 
 Which of the following is an AWS component which consumes resources from your VPC?
 
@@ -228,7 +203,7 @@ update the route table associated wi
 
 </details>
 
-### 18. wl-26
+### 16. wl-26
 
 You have successfully set up a VPC peering connection in your account between two VPCs – VPC A and VPC B, each in a different region. When you are trying to make a request from VPC A to VPC B, the request fails. Which of the following could be a reason?
 
@@ -255,7 +230,7 @@ ml#Defaul
 
 </details>
 
-### 19. wl-27
+### 17. wl-27
 
 Which of the following statements are true in terms of allowing/denying traffic from/to VPC assuming the default rules are not in effect? (choose multiple)
 
@@ -298,19 +273,7 @@ The passing score of the exam is around
 
 </details>
 
-### 20. q-28
-
-An enterprise is implementing a hub-and-spoke VPC architecture with a central security VPC for inspection and a dozen application VPCs. Network traffic from application VPCs must flow through security appliances in the central VPC for inspection before reaching the internet. Which AWS service architecture should be used to enforce this requirement at scale?
-
-<details><summary>Answer</summary>
-
-**B. Use Transit Gateway with Network Firewall attached to the security VPC, configuring rules to inspect all traffic. Create VPC peering between each application VPC and the security VPC, manually managing routes in each VPC.**
-
-To implement a scalable hub-and-spoke architecture with centralized egress inspection, AWS Transit Gateway is the recommended service. It acts as a central cloud router, simplifying network topology. By attaching the application VPCs (spokes) and a central security VPC to the Transit Gateway, you can use Transit Gateway route tables to direct all outbound internet traffic from the application VPCs to the security VPC. Within the security VPC, AWS Network Firewall inspects the traffic before routing it to a NAT Gateway and an Internet Gateway. This architecture scales seamlessly, avoids complex point-to-point peering, and provides centralized security management for enterprise workloads. Why Incorrect Options are Wrong: A. Gateway endpoints are exclusively used to access Amazon S3 and DynamoDB privately; they cannot route general internet traffic through security appliances. C. VPC peerin
-
-</details>
-
-### 21. dt-32
+### 18. dt-32
 
 Security groups act like a firewall at the instance level, whereas [...] are an additional layer of security that act at the subnet level.
 
@@ -320,7 +283,7 @@ Security groups act like a firewall at the instance level, whereas [...] are an 
 
 </details>
 
-### 22. q-35 `cost` `security`
+### 19. ce-35 `cost` `security`
 
 A solutions architect wants to design a data warehouse by using an Amazon Redshift cluster in the eu-west-1 Region. The data warehouse will initially ingest data from Amazon DynamoDB tables in eu- west-1. The VPC that the Redshift cluster will be deployed in must not connect to the internet. Which solution will securely load data MOST cost-effectively?
 
@@ -332,7 +295,7 @@ To allow a resource in a private VPC to securely access AWS services like Dynamo
 
 </details>
 
-### 23. q-38 `cost`
+### 20. et-38 `cost`
 
 A company is hosting a static website on Amazon S3 and is using Amazon Route 53 for DNS. The website is experiencing increased demand from around the world. The company must decrease latency for users who access the website. Which solution meets these requirements MOST cost-effectively?
 
@@ -344,7 +307,7 @@ Amazon CloudFront is a content delivery network (CDN) service that distributes c
 
 </details>
 
-### 24. dt-39
+### 21. dt-39
 
 You are configuring a new VPC for one of your clients for a cloud migration project, and only a public VPN will be in place. After you created your VPC, you created a new subnet, a new internet gateway, and attached your internet gateway to your VPC. When you launched your first instance into your VPC, you realized that you aren't able to connect to the instance, even if it is configured with an elastic IP. What should be done to access the instance?
 
@@ -354,19 +317,7 @@ You are configuring a new VPC for one of your clients for a cloud migration proj
 
 </details>
 
-### 25. q-40
-
-A company runs an Amazon Redshift cluster in a VPC in an AWS account named Account
-
-<details><summary>Answer</summary>
-
-**A. Create a VPC peering connection between each team's VPC and Account A's VPC.**
-
-VPC peering is the most cost-effective solution for connecting a small number of VPCs (five team VPCs to one central VPC) within the same AWS Region. Unlike AWS Transit Gateway or AWS PrivateLink, VPC peering does not incur any hourly base charges or data processing fees; you only pay standard intra-region data transfer rates. Since the data volume is minimal (1 GB per database nightly) and the number of VPCs is well below the peering limit, establishing a hub-and-spoke VPC peering topology minimizes costs while securely routing traffic between the Aurora databases and the Redshift cluster across different AWS accounts. Why Incorrect Options are Wrong: B. Interface VPC endpoints (AWS PrivateLink) incur hourly endpoint charges and per-GB data processing fees, making it significantly more expensive than VPC peering for this scenario. C. AWS Transit Gateway charges an hourly fee per VPC att
-
-</details>
-
-### 26. q-42
+### 22. ce-42
 
 A company is building an application in the AWS Cloud. The application is hosted on Amazon EC2 instances behind an Application Load Balancer (ALB). The company uses Amazon Route 53 for the DNS. The company needs a managed solution with proactive engagement to detect against DDoS attacks. Which solution will meet these requirements?
 
@@ -378,7 +329,7 @@ AWS Shield Advanced is a managed Distributed Denial of Service (DDoS) protection
 
 </details>
 
-### 27. q-42 `cost` `availability`
+### 23. et-42 `cost` `availability`
 
 A company runs a highly available image-processing application on Amazon EC2 instances in a single VPC. The EC2 instances run inside several subnets across multiple Availability Zones. The EC2 instances do not communicate with each other. However, the EC2 instances download images from Amazon S3 and upload images to Amazon S3 through a single NAT gateway. The company is concerned about data transfer charges. What is the MOST cost-effective way for the company to avoid Regional data transfer charges?
 
@@ -390,7 +341,7 @@ S3 VPC endpoint provides a way for an S3 request to be routed through to the Ama
 
 </details>
 
-### 28. dt-43
+### 24. dt-43
 
 You are in the process of creating a Route 53 DNS failover to direct traffic to two EC2 zones. Obviously, if one fails, you would like Route 53 to direct traffic to the other region. Each region has an ELB with some instances being distributed. What is the best way for you to configure the Route 53 health check?
 
@@ -400,7 +351,7 @@ You are in the process of creating a Route 53 DNS failover to direct traffic to 
 
 </details>
 
-### 29. q-47
+### 25. ce-47
 
 A company hosts a video streaming web application in a VPC. The company uses a Network Load Balancer (NLB) to handle TCP traffic for real-time data processing. There have been unauthorized attempts to access the application. The company wants to improve application security with minimal architectural change to prevent unauthorized attempts to access the application. Which solution will meet these requirements?
 
@@ -412,7 +363,7 @@ A Network Load Balancer (NLB) operates at the transport layer (Layer 4) of the O
 
 </details>
 
-### 30. dt-50
+### 26. dt-50
 
 A [...] for a VPC is a collection of subnets (typically private) that you may want to designate for your backend RDS DB Instances.
 
@@ -422,7 +373,7 @@ A [...] for a VPC is a collection of subnets (typically private) that you may wa
 
 </details>
 
-### 31. dt-51
+### 27. dt-51
 
 An instance is launched into a VPC subnet with the network ACL configured to allow all inbound traffic and deny all outbound traffic. The instance's security group is configured to allow SSH from any IP address and deny all outbound traffic. What changes need to be made to allow SSH access to the instance?
 
@@ -432,7 +383,7 @@ An instance is launched into a VPC subnet with the network ACL configured to all
 
 </details>
 
-### 32. dt-61
+### 28. dt-61
 
 A friend tells you he is being charged $100 a month to host his WordPress website, and you tell him you can move it to AWS for him and he will only pay a fraction of that, which makes him very happy. He then tells you he is being charged $50 a month for the domain, which is registered with the same people that set it up, and he asks if it's possible to move that to AWS as well. You tell him you aren't sure, but will look into it. Which of the following statements is true in regards to transferring domain names to AWS?
 
@@ -442,7 +393,7 @@ A friend tells you he is being charged $100 a month to host his WordPress websit
 
 </details>
 
-### 33. dt-72
+### 29. dt-72
 
 Any person or application that interacts with AWS requires security credentials. AWS uses these credentials to identify who is making the call and whether to allow the requested access. You have just set up a VPC network for a client and you are now thinking about the best way to secure this network. You set up a security group called vpcsecuritygroup. Which following statement is true in respect to the initial settings that will be applied to this security group if you choose to use the default settings for this group?
 
@@ -452,7 +403,7 @@ Any person or application that interacts with AWS requires security credentials.
 
 </details>
 
-### 34. dt-73
+### 30. dt-73
 
 Which one of the below is not an AWS Storage Service?
 
@@ -462,7 +413,7 @@ Which one of the below is not an AWS Storage Service?
 
 </details>
 
-### 35. q-75
+### 31. ce-75
 
 A company is migrating a new application from an on-premises data center to a new VPC in the AWS Cloud. The company has multiple AWS accounts and VPCs that share many subnets and applications. The company wants to have fine-grained access control for the new application.The company wants to ensure that all network resources across accounts and VPCs that are granted permission to access the new application can access the application. Which solution will meet these requirements?
 
@@ -474,7 +425,7 @@ An AWS Transit Gateway acts as a cloud router and a central hub for connecting m
 
 </details>
 
-### 36. dt-79 `availability`
+### 32. dt-79 `availability`
 
 You are designing Internet connectivity for your VPC. The Web servers must be available on the Internet. The application must have a highly available architecture. Which alternatives should you consider? (Choose 2 answers)
 
@@ -484,7 +435,7 @@ You are designing Internet connectivity for your VPC. The Web servers must be av
 
 </details>
 
-### 37. dt-84
+### 33. dt-84
 
 You have deployed a web application targeting a global audience across multiple AWS Regions under the domain name.example.com. You decide to use Route 53 Latency-Based Routing to serve web requests to users from the region closest to the user. To provide business continuity in the event of server downtime you configure weighted record sets associated with two web servers in separate Availability Zones per region. During a DR test you notice that when you disable all web servers in one of the regions Route 53 does not automatically direct all users to the other region. What could be happening? (Choose 2 answers)
 
@@ -494,7 +445,7 @@ You have deployed a web application targeting a global audience across multiple 
 
 </details>
 
-### 38. dt-86
+### 34. dt-86
 
 You've been hired to enhance the overall security posture for a very large e-commerce site. They have a well architected multi-tier application running in a VPC that uses ELBs in front of both the web and the app tier with static assets served directly from S3. They are using a combination of RDS and DynamoDB for their dynamic data and then archiving nightly into S3 for further processing with EMR. They are concerned because they found questionable log entries and suspect someone is attempting to gain unauthorized access. Which approach provides a cost effective scalable mitigation to this kind of attack?
 
@@ -504,7 +455,7 @@ You've been hired to enhance the overall security posture for a very large e-com
 
 </details>
 
-### 39. dt-87
+### 35. dt-87
 
 You are designing the network infrastructure for an application server in Amazon VPC. Users will access all the application instances from the Internet as well as from an on-premises network. The on-premises network is connected to your VPC over an AWS Direct Connect link. How would you design routing to meet the above requirements?
 
@@ -514,7 +465,7 @@ You are designing the network infrastructure for an application server in Amazon
 
 </details>
 
-### 40. q-89
+### 36. ce-89
 
 A company is launching a new application that will be hosted on Amazon EC2 instances. A solutions architect needs to design a solution that does not allow public IPv4 access that originates from the internet. However, the solution must allow the EC2 instances to make outbound IPv4 internet requests.
 
@@ -526,7 +477,7 @@ The requirement is to allow EC2 instances to make outbound IPv4 requests to the 
 
 </details>
 
-### 41. q-90
+### 37. ce-90
 
 A company hosts an application on Amazon EC2 instances that are part of a target group behind an Application Load Balancer (ALB). The company has attached a security group to the ALB. During a recent review of application logs, the company found many unauthorized login attempts from IP addresses that belong to countries outside the company's normal user base. The company wants to allow traffic only from the United States and Australia.
 
@@ -538,7 +489,7 @@ The most effective and scalable solution is to use AWS WAF (Web Application Fire
 
 </details>
 
-### 42. q-104 `security`
+### 38. ce-104 `security`
 
 A company is creating a low-latency payment processing application that supports TLS connections from IPv4 clients. The application requires outbound access to the public internet. Users must access the application from a single entry point. The bank wants to use Amazon Elastic Container Service (Amazon ECS) tasks to deploy the application. The company wants to enable AWSVPC network mode. Which solution will meet these requirements MOST securely?
 
@@ -550,7 +501,7 @@ This solution provides the most secure and functional architecture. Placing the 
 
 </details>
 
-### 43. q-120
+### 39. ce-120
 
 A company has a multi-tier web application. The application's internal service components are deployed on Amazon EC2 instances. The internal service components need to access third-party software as a service (SaaS) APIs that are hosted on AWS. The company needs to provide secure and private connectivity from the application's internal services to the third-party SaaS application. The company needs to ensure that there is minimal public internet exposure. Which solution will meet these requirements?
 
@@ -562,7 +513,7 @@ AWS PrivateLink is the purpose-built AWS service for creating secure, private co
 
 </details>
 
-### 44. dt-120
+### 40. dt-120
 
 You have launched an Amazon Elastic Compute Cloud (EC2) instance into a public subnet with a primary private I P address assigned, an internet gateway is attached to the VPC, and the public route table is configured to send all Internet-based traffic to the Internet gateway. The instance security group is set to allow all outbound traffic but cannot access the internet. Why is the Internet unreachable from this instance?
 
@@ -572,7 +523,7 @@ You have launched an Amazon Elastic Compute Cloud (EC2) instance into a public s
 
 </details>
 
-### 45. q-131
+### 41. ce-131
 
 A company wants to deploy an internal web application on AWS. The web application must be accessible only from the company's office. The company needs to download security patches for the web application from the internet. The company has created a VPC and has configured an AWS Site- to-Site VPN connection to the company's office. A solutions architect must design a secure architecture for the web application. Which solution will meet these requirements? Options:
 
@@ -584,7 +535,7 @@ This solution provides a secure and functional architecture that meets all requi
 
 </details>
 
-### 46. q-132
+### 42. ce-132
 
 A company hosts a public application on AWS. The company uses an Application Load Balancer (ALB) to distribute application traffic to multiple Amazon EC2 instances that are hosted in private subnets. The company wants to authenticate all the requests by using an on-premises Active Directory Federation Service (AD FS). The company uses AWS Direct Connect to connect its on-premises data center to AWS. Which solution will meet this requirement?
 
@@ -596,7 +547,7 @@ The most effective solution is to use an Application Load Balancer (ALB) integra
 
 </details>
 
-### 47. dt-133
+### 43. dt-133
 
 In Amazon CloudFront, if you use Amazon EC2 instances and other custom origins with CloudFront, it is recommended to [...].
 
@@ -606,7 +557,7 @@ In Amazon CloudFront, if you use Amazon EC2 instances and other custom origins w
 
 </details>
 
-### 48. dt-134
+### 44. dt-134
 
 Which of the following statements is true regarding attaching network interfaces to your instances in your VPC?
 
@@ -616,7 +567,7 @@ Which of the following statements is true regarding attaching network interfaces
 
 </details>
 
-### 49. q-148
+### 45. ce-148
 
 A solutions architect is designing the architecture for a two-tier web application. The web application consists of an internet-facing Application Load Balancer (ALB) that forwards traffic to an Auto Scaling group of Amazon EC2 instances. The EC2 instances must be able to access an Amazon RDS database. The company does not want to rely solely on security groups or network ACLs. Only the minimum resources that are necessary should be routable from the internet. Which network design meets these requirements?
 
@@ -628,7 +579,7 @@ This architecture represents a standard and secure multi-tier design. An interne
 
 </details>
 
-### 50. dt-152
+### 46. dt-152
 
 A customer is running a multi-tier web application farm in a virtual private cloud (VPC) that is not connected to their corporate network. They are connecting to the VPC over the Internet to manage all of their Amazon EC2 instances running in both the public and private subnets. They have only authorized the bastion-security-group with Microsoft Remote Desktop Protocol (RDP) access to the application instance security groups, but the company wants to further limit administrative access to all of the instances in the VPC. Which of the following Bastion deployment scenarios will meet this requirement?
 
@@ -638,7 +589,7 @@ A customer is running a multi-tier web application farm in a virtual private clo
 
 </details>
 
-### 51. dt-158 `availability`
+### 47. dt-158 `availability`
 
 Your company hosts a social media site supporting users in multiple countries. You have been asked to provide a highly available design for the application that leverages multiple regions for the most recently accessed content and latency sensitive portions of the web site. The most latency sensitive component of the application involves reading user preferences to support web site personalization and ad selection. In addition to running your application in multiple regions, which option will support this application's requirements?
 
@@ -648,7 +599,7 @@ Your company hosts a social media site supporting users in multiple countries. Y
 
 </details>
 
-### 52. q-164
+### 48. ce-164
 
 A company is designing an IPv6 application that is hosted on Amazon EC2 instances in a private subnet within a VPC. The application will store user-uploaded content in Amazon S3 buckets. The application will save each S3 object's URL link and metadata in Amazon DynamoDB. The company must not use public internet connections to transmit user-uploaded content or metadata. Which solution will meet these requirements?
 
@@ -660,7 +611,7 @@ The core requirement is to establish private connectivity for an IPv6 applicatio
 
 </details>
 
-### 53. q-165
+### 49. ce-165
 
 A solutions architect is configuring a VPC that has public subnets and private subnets. The VPC and subnets use IPv4 CIDR blocks. There is one public subnet and one private subnet in each of three Availability Zones (AZs). An internet gateway is attached to the VPC. The private subnets require access to the internet to allow Amazon EC2 instances to download software updates. Which solution will meet this requirement?
 
@@ -672,7 +623,7 @@ To enable instances in a private subnet to initiate outbound internet connection
 
 </details>
 
-### 54. dt-169
+### 50. dt-169
 
 An edge location refers to which Amazon Web Service?
 
@@ -682,7 +633,7 @@ An edge location refers to which Amazon Web Service?
 
 </details>
 
-### 55. q-170
+### 51. ce-170
 
 A company is planning to connect a remote office to its AWS infrastructure. The office requires permanent and secure connectivity to AWS. The connection must provide secure access to resources in two VPCs. However, the VPCs must not be able to access each other.
 
@@ -694,7 +645,7 @@ This solution establishes two independent AWS Site-to-Site VPN connections, one 
 
 </details>
 
-### 56. q-171
+### 52. ce-171
 
 A company has a VPC with multiple private subnets that host multiple applications. The applications must not be accessible to the internet. However, the applications need to access multiple AWS services. The applications must not use public IP addresses to access the AWS services.
 
@@ -706,7 +657,7 @@ Interface VPC endpoints, powered by AWS PrivateLink, provide private connectivit
 
 </details>
 
-### 57. q-175 `security`
+### 53. ce-175 `security`
 
 A company has deployed a multi-tier web application to support a website. The architecture includes an Application Load Balancer (ALB) in public subnets, two Amazon Elastic Container Service (Amazon ECS) tasks in the public subnets, and a PostgreSQL cluster that runs on Amazon EC2 instances in private subnets. The EC2 instances that host the PostgreSQL database run shell scripts that need to access an external API to retrieve product information. A solutions architect must design a solution to allow the EC2 instances to securely communicate with the external API without increasing operational overhead. Which solution will meet these requirements?
 
@@ -718,7 +669,7 @@ The most secure and operationally efficient solution is to use a NAT gateway. EC
 
 </details>
 
-### 58. q-182
+### 54. ce-182
 
 A company wants to protect resources that the company hosts on AWS, including Application Load Balancers and Amazon CloudFront distributions. The company wants an AWS service that can provide near real-time visibility into attacks on the company's resources. The service must also have a dedicated AWS team to assist with DDoS attacks. Which AWS service will meet these requirements?
 
@@ -730,7 +681,7 @@ AWS Shield Advanced is a managed DDoS protection service that provides enhanced 
 
 </details>
 
-### 59. dt-183
+### 55. dt-183
 
 Which of the following statements are true about Amazon Route 53 resource records? (Choose 2 answers)
 
@@ -740,7 +691,7 @@ Which of the following statements are true about Amazon Route 53 resource record
 
 </details>
 
-### 60. q-184
+### 56. ce-184
 
 A company runs an application on Amazon EC2 instances behind an Application Load Balancer (ALB). The company uses Amazon Route 53 to route traffic to the ALB. The ALB is a resource in an AWS Shield Advanced protection group. The company is preparing for a blue/green deployment in which traffic will shift to a new ALB. The company wants to protect against DDoS attacks during the deployment. Which solution will meet this requirement?
 
@@ -752,7 +703,7 @@ During a blue/green deployment, traffic is gradually shifted from the old enviro
 
 </details>
 
-### 61. q-185
+### 57. ce-185
 
 A company runs multiple applications on Amazon EC2 instances in a VPC. Application A runs in a private subnet that has a custom route table and network ACL. Application B runs in a second private subnet in the same VPC. The company needs to prevent Application A from sending traffic to Application B. Which solution will meet this requirement?
 
@@ -764,7 +715,7 @@ The requirement is to prevent traffic originating from Application A from reachi
 
 </details>
 
-### 62. q-186 `security`
+### 58. ce-186 `security`
 
 A company uses AWS Lambda functions in a private subnet in a VPC to run application logic. The Lambda functions must not have access to the public internet. Additionally, all data communication must remain within the private network. As part of a new requirement, the application logic needs access to an Amazon DynamoDB table. What is the MOST secure way to meet this new requirement?
 
@@ -776,7 +727,7 @@ The most secure method to allow a Lambda function in a private subnet to access 
 
 </details>
 
-### 63. dt-188
+### 59. dt-188
 
 A major client who has been spending a lot of money on his internet service provider asks you to set up an AWS Direct Connection to try and save him some money. You know he needs high-speed connectivity. Which connection port speeds are available on AWS Direct Connect?
 
@@ -786,7 +737,7 @@ A major client who has been spending a lot of money on his internet service prov
 
 </details>
 
-### 64. dt-196
+### 60. dt-196
 
 A user has configured ELB with two EBS backed EC2 instances. The user is trying to understand the DNS access and IP support for ELB. Which of the below mentioned statements may not help the user understand the IP mechanism supported by ELB?
 
@@ -796,7 +747,7 @@ A user has configured ELB with two EBS backed EC2 instances. The user is trying 
 
 </details>
 
-### 65. dt-198
+### 61. dt-198
 
 You can use [...] to help secure the instances in your VPC.
 
@@ -806,7 +757,7 @@ You can use [...] to help secure the instances in your VPC.
 
 </details>
 
-### 66. q-204
+### 62. ce-204
 
 A company is designing a serverless application to process a large number of events within an AWS account. The application saves the events to a data warehouse for further analysis. The application sends incoming events to an Amazon SQS queue. Traffic between the application and the SQS queue must not use public IP addresses.
 
@@ -818,7 +769,7 @@ The core requirement is to ensure traffic between an application in a VPC and an
 
 </details>
 
-### 67. dt-205
+### 63. dt-205
 
 A user has configured a website and launched it using the Apache web server on port 80. The user is using ELB with the EC2 instances for Load Balancing. What should the user do to ensure that the EC2 instances accept requests only from ELB?
 
@@ -828,7 +779,7 @@ A user has configured a website and launched it using the Apache web server on p
 
 </details>
 
-### 68. dt-206
+### 64. dt-206
 
 You're trying to delete an SSL certificate from the IAM certificate store, and you're getting the message 'Certificate: <certificate< span=''>-id> is being used by CloudFront.' Which of the following statements is probably the reason why you are getting this error?
 
@@ -838,7 +789,7 @@ You're trying to delete an SSL certificate from the IAM certificate store, and y
 
 </details>
 
-### 69. dt-207
+### 65. dt-207
 
 A government client needs you to set up secure cryptographic key storage for some of their extremely confidential data. You decide that the AWS CloudHSM is the best service for this. However, there seem to be a few pre-requisites before this can happen, one of those being a security group that has certain ports open. Which of the following is correct in regards to those security groups?
 
@@ -848,7 +799,7 @@ A government client needs you to set up secure cryptographic key storage for som
 
 </details>
 
-### 70. dt-208
+### 66. dt-208
 
 A web company is looking to implement an intrusion detection and prevention system into their deployed VPC. This platform should have the ability to scale to thousands of instances running inside of the VPC. How should they architect their solution to achieve these goals?
 
@@ -858,7 +809,7 @@ A web company is looking to implement an intrusion detection and prevention syst
 
 </details>
 
-### 71. q-208
+### 67. et-208
 
 A company needs to move data from an Amazon EC2 instance to an Amazon S3 bucket. The company must ensure that no API calls and no data are routed through public internet routes. Only the EC2 instance can have access to upload data to the S3 bucket. Which solution will meet these requirements?
 
@@ -870,7 +821,7 @@ An interface VPC endpoint for Amazon S3 is backed by AWS PrivateLink: it places 
 
 </details>
 
-### 72. q-210 `security`
+### 68. ce-210 `security`
 
 A company operates multiple VPCs in a single AWS account. Account users need temporary access to Amazon S3 buckets. The S3 buckets are private and have no public endpoints. The solution must follow the principle of least privilege for access to each environment and must avoid distributing permanent access keys. Which solution will meet these requirements?
 
@@ -882,7 +833,7 @@ This solution correctly addresses all requirements. A gateway VPC endpoint for A
 
 </details>
 
-### 73. q-213
+### 69. et-213
 
 A company is developing a new mobile app. The company must implement proper traffic filtering to protect its Application Load Balancer (ALB) against common application-level attacks, such as cross-site scripting or SQL injection. The company has minimal infrastructure and operational staff. The company needs to reduce its share of the responsibility in managing, updating, and securing servers for its AWS environment. What should a solutions architect recommend to meet these requirements?
 
@@ -894,7 +845,7 @@ AWS WAF (Web Application Firewall) is a service that helps protect web applicati
 
 </details>
 
-### 74. dt-217
+### 70. dt-217
 
 What are the initial settings of an user created security group?
 
@@ -904,7 +855,7 @@ What are the initial settings of an user created security group?
 
 </details>
 
-### 75. q-217
+### 71. et-217
 
 A company runs a global web application on Amazon EC2 instances behind an Application Load Balancer. The application stores data in Amazon Aurora. The company needs to create a disaster recovery solution and can tolerate up to 30 minutes of downtime and potential data loss. The solution does not need to handle the load when the primary infrastructure is healthy. What should a solutions architect do to meet these requirements?
 
@@ -914,7 +865,7 @@ A company runs a global web application on Amazon EC2 instances behind an Applic
 
 </details>
 
-### 76. q-218
+### 72. ce-218
 
 A company wants to protect AWS-hosted resources, including Application Load Balancers and CloudFront distributions. They need near real-time visibility into attacks and a dedicated AWS response team for DDoS events. Which AWS service meets these requirements?
 
@@ -926,7 +877,7 @@ AWS Shield Advanced is a managed Distributed Denial of Service (DDoS) protection
 
 </details>
 
-### 77. q-218
+### 73. et-218
 
 A company has a web server running on an Amazon EC2 instance in a public subnet with an Elastic IP address. The default security group is assigned to the EC2 instance. The default network ACL has been modified to block all traffic. A solutions architect needs to make the web server accessible from everywhere on port 443. Which combination of steps will accomplish this task? (Choose two.)
 
@@ -938,7 +889,7 @@ E. Update the network ACL to allow inbound TCP port 443 from source 0.0.0.0/0 an
 
 </details>
 
-### 78. q-223
+### 74. ce-223
 
 An insurance company is creating an application to record personal user data. The data includes users' names, ages, and health data. The company wants to run the application in a private subnet on AWS. Because of data security requirements, the company must have access to the operating system of the compute resources that run the application tier. The company must use a low-latency NoSQL database to store the data. Which solution will meet these requirements?
 
@@ -950,7 +901,7 @@ This solution meets all the specified requirements. Amazon EC2 instances provide
 
 </details>
 
-### 79. dt-224
+### 75. dt-224
 
 You are tasked with setting up a Linux bastion host for access to Amazon EC2 instances running in your VPC. Only clients connecting from the corporate external public IP address 72.34.51.100 should have SSH access to the host. Which option will meet the customer requirement?
 
@@ -960,7 +911,7 @@ You are tasked with setting up a Linux bastion host for access to Amazon EC2 ins
 
 </details>
 
-### 80. q-231 `security`
+### 76. et-231 `security`
 
 An application runs on an Amazon EC2 instance that has an Elastic IP address in VPC A. The application requires access to a database in VPC B. Both VPCs are in the same AWS account. Which solution will provide the required access MOST securely?
 
@@ -972,7 +923,7 @@ VPC peering allows direct connectivity between two VPCs. This solution enables c
 
 </details>
 
-### 81. q-233
+### 77. ce-233
 
 A company is building a web application. The company needs a load balancing solution that supports HTTPS header-based routing. The company's security team also requires a rules-based method of blocking specific incoming requests to decrease the effects of malicious activity. Which solution will meet these requirements?
 
@@ -984,7 +935,7 @@ The solution requires two key capabilities: Layer 7 (application layer) routing 
 
 </details>
 
-### 82. q-237
+### 78. et-237
 
 An application running on an Amazon EC2 instance in VPC-A needs to access files in another EC2 instance in VPC-B. Both VPCs are in separate AWS accounts. The network administrator needs to design a solution to configure secure access to EC2 instance in VPC-B from VPC-A. The connectivity should not have a single point of failure or bandwidth concerns. Which solution will meet these requirements?
 
@@ -996,19 +947,19 @@ A VPC peering connection allows secure communication between instances in differ
 
 </details>
 
-### 83. q-245
+### 79. ce-245
 
 A company's application uses Network Load Balancers, Auto Scaling groups, Amazon EC2 instances, and databases that are deployed in an Amazon VPC. The company wants to capture information about traffic to and from the network interfaces in near real time in its Amazon VPC. The company wants to send the information to Amazon OpenSearch Service for analysis. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**Reduce the maximum number of EC2 instances in the development environment's Auto Scaling group.**
+**B. Create a log group in Amazon CloudWatch Logs. Configure VPC Flow Logs to send the log data to the log group. Use Amazon Data Firehose to stream the logs from the log group to OpenSearch Service.**
 
-Development and production each have their own Auto Scaling group, and only production sees bursts of traffic. Capping the maximum size of the development group stops it from ever scaling out to a production-sized fleet, so development runs the minimum it needs and nothing more. Taking a target out of the development target group saves nothing, because the instance keeps running and billing - the Auto Scaling group still owns it and will simply register it again - and it also contradicts the requirement that the load balancer serve at least two instances. Shrinking instance sizes in both environments would change production as well, and the load balancing algorithm has no bearing on cost.
+The goal is to send VPC Flow Logs to Amazon OpenSearch Service for analysis in near real time. VPC Flow Logs can be published to Amazon CloudWatch Logs. From there, Amazon Data Firehose provides a direct, managed integration to stream data from CloudWatch Logs to OpenSearch Service. This is the most efficient and streamlined architecture. A CloudWatch Logs subscription filter sends log events to a Firehose delivery stream, which then buffers and delivers the data to the OpenSearch Service domain automatically. Why Incorrect Options are Wrong: A. While possible, using Kinesis Data Streams would require an additional compute layer (like AWS Lambda) to consume the stream and write to OpenSearch Service, adding complexity. C. AWS CloudTrail is for logging API calls and user activity, not for capturing network traffic information from VPCs. VPC Flow Logs cannot be sent to CloudTrail. D. VPC F
 
 </details>
 
-### 84. q-246
+### 80. et-246
 
 A company runs a web application on Amazon EC2 instances in multiple Availability Zones. The EC2 instances are in private subnets. A solutions architect implements an internet-facing Application Load Balancer (ALB) and specifies the EC2 instances as the target group. However, the internet traffic is not reaching the EC2 instances. How should the solutions architect reconfigure the architecture to resolve this issue?
 
@@ -1020,7 +971,7 @@ This option involves creating public subnets for the ALB, allowing it to receive
 
 </details>
 
-### 85. dt-250
+### 81. dt-250
 
 You have a load balancer configured for VPC, and all back-end Amazon EC2 instances are in service. However, your web browser times out when connecting to the load balancer's DNS name. Which options are probable causes of this behavior? (Choose 2 answers)
 
@@ -1030,7 +981,7 @@ You have a load balancer configured for VPC, and all back-end Amazon EC2 instanc
 
 </details>
 
-### 86. q-251
+### 82. et-251
 
 An Amazon EC2 instance is located in a private subnet in a new VPC. This subnet does not have outbound internet access, but the EC2 instance needs the ability to download monthly security updates from an outside vendor. What should a solutions architect do to meet these requirements?
 
@@ -1042,7 +993,7 @@ NAT gateways are designed to provide outbound internet access for instances in p
 
 </details>
 
-### 87. q-254 `security`
+### 83. et-254 `security`
 
 A company is reviewing a recent migration of a three-tier application to a VPC. The security team discovers that the principle of least privilege is not being applied to Amazon EC2 security group ingress and egress rules between the application tiers. What should a solutions architect do to correct this issue?
 
@@ -1054,7 +1005,7 @@ Using security group IDs allows for dynamic and flexible configuration. Referenc
 
 </details>
 
-### 88. q-255 `security`
+### 84. ce-255 `security`
 
 A company is designing a web application on AWS. The application uses a VPN connection between the company's on-premises data center and the company's VPC. The company uses Amazon Route 53 as its DNS service. The application must use private DNS records to communicate with the on-premises services from a VPC. Which solution will meet these requirements MOST securely?
 
@@ -1066,7 +1017,7 @@ To resolve DNS queries for on-premises domains from within a VPC, you must forwa
 
 </details>
 
-### 89. dt-256
+### 85. dt-256
 
 You have been setting up an Amazon Virtual Private Cloud (Amazon VPC) for your company, including setting up subnets. Security is a concern, and you are not sure which is the best security practice for securing subnets in your VPC. Which statement below is correct in describing the protection of AWS resources in each subnet?
 
@@ -1076,7 +1027,7 @@ You have been setting up an Amazon Virtual Private Cloud (Amazon VPC) for your c
 
 </details>
 
-### 90. q-258
+### 86. ce-258
 
 A website runs on Amazon EC2 behind an ALB with Amazon CloudFront in front. The site is receiving a high rate of unwanted requests from specific IP addresses. How should the solutions architect address this problem?
 
@@ -1088,7 +1039,7 @@ The most effective and efficient way to mitigate a high rate of unwanted request
 
 </details>
 
-### 91. dt-259
+### 87. dt-259
 
 After deploying a new website for a client on AWS, he asks if you can set it up so that if it fails it can be automatically redirected to a backup website that he has stored on a dedicated server elsewhere. You are wondering whether Amazon Route 53 can do this. Which statement below is correct in regards to Amazon Route 53?
 
@@ -1098,7 +1049,7 @@ After deploying a new website for a client on AWS, he asks if you can set it up 
 
 </details>
 
-### 92. q-263
+### 88. ce-263
 
 A company is creating a payment processing application that supports TLS connections from IPv4 clients. The application requires outbound access to the public internet. The application must allow users to access the application from a single entry point while maintaining the lowest possible attack surface. The company wants to use Amazon ECS tasks to deploy the application. The company wants to enable awsvpc network mode. Which solution will meet these requirements?
 
@@ -1110,7 +1061,7 @@ This solution provides the most secure and functional architecture. Placing ECS 
 
 </details>
 
-### 93. q-264
+### 89. et-264
 
 A company has a web application hosted over 10 Amazon EC2 instances with traffic directed by Amazon Route 53. The company occasionally experiences a timeout error when attempting to browse the application. The networking team finds that some DNS queries return IP addresses of unhealthy instances, resulting in the timeout error. What should a solutions architect implement to overcome these timeout errors?
 
@@ -1122,7 +1073,7 @@ By creating an ALB and configuring health checks, the architect ensures that onl
 
 </details>
 
-### 94. q-265 `availability` `security`
+### 90. et-265 `availability` `security`
 
 A solutions architect needs to design a highly available application consisting of web, application, and database tiers. HTTPS content delivery should be as close to the edge as possible, with the least delivery time. Which solution meets these requirements and is MOST secure?
 
@@ -1134,7 +1085,7 @@ CloudFront terminates HTTPS at edge locations close to users, which is what the 
 
 </details>
 
-### 95. dt-266
+### 91. dt-266
 
 Your company has an on-premises multi-tier PHP web application, which recently experienced downtime due to a large burst in web traffic due to a company announcement. Over the coming days, you are expecting similar announcements to drive similar unpredictable bursts, and are looking to find ways to quickly improve your infrastructure's ability to handle unexpected increases in traffic. The application currently consists of 2 tiers: a web tier which consists of a load balancer and several Linux Apache web servers, as well as a database tier which hosts a Linux server hosting a MySQL database. Which scenario below will provide full site functionality, while helping to improve the ability of your application in the short timeframe required?
 
@@ -1144,7 +1095,7 @@ Your company has an on-premises multi-tier PHP web application, which recently e
 
 </details>
 
-### 96. q-272
+### 92. ce-272
 
 A company hosts an application on Amazon EC2 instances behind an Application Load Balancer ALB. The company wants the application to be accessible only from inside the VPC that hosts the ALB. The company creates an alias record of example.com in Amazon Route 53. The DNS record for the application must be resolvable only in the VPC where the application runs. Which solution will meet these requirements?
 
@@ -1156,7 +1107,7 @@ To meet the requirements, both network access and DNS resolution must be restric
 
 </details>
 
-### 97. q-272
+### 93. et-272
 
 A company serves a dynamic website from a fleet of Amazon EC2 instances behind an Application Load Balancer (ALB). The website needs to support multiple languages to serve customers around the world. The website’s architecture is running in the us-west-1 Region and is exhibiting high request latency for users that are located in other parts of the world. The website needs to serve requests quickly and efficiently regardless of a user’s location. However, the company does not want to recreate the existing architecture across multiple Regions. What should a solutions architect do to meet these requirements?
 
@@ -1166,7 +1117,7 @@ A company serves a dynamic website from a fleet of Amazon EC2 instances behind a
 
 </details>
 
-### 98. q-282
+### 94. et-282
 
 A company runs a web application that is deployed on Amazon EC2 instances in the private subnet of a VPC. An Application Load Balancer (ALB) that extends across the public subnets directs web traffic to the EC2 instances. The company wants to implement new security measures to restrict inbound traffic from the ALB to the EC2 instances while preventing access from any other source inside or outside the private subnet of the EC2 instances. Which solution will meet these requirements?
 
@@ -1178,7 +1129,7 @@ Security groups act as virtual firewalls for EC2 instances. By configuring the s
 
 </details>
 
-### 99. dt-288
+### 95. dt-288
 
 Your company has multiple IT departments, each with their own VPC. Some VPCs are located within the same AWS account, and others in a different AWS account. You want to peer together all VPCs to enable the IT departments to have full access to each others' resources. There are certain limitations placed on VPC peering. Which of the following statements is incorrect in relation to VPC peering?
 
@@ -1188,7 +1139,7 @@ Your company has multiple IT departments, each with their own VPC. Some VPCs are
 
 </details>
 
-### 100. dt-290
+### 96. dt-290
 
 A/An [...] acts as a firewall that controls the traffic allowed to reach one or more instances.
 
@@ -1198,7 +1149,7 @@ A/An [...] acts as a firewall that controls the traffic allowed to reach one or 
 
 </details>
 
-### 101. dt-292
+### 97. dt-292
 
 You need to create a management network using network interfaces for a virtual private cloud (VPC) network. Which of the following statements is incorrect pertaining to Best Practices for ConfiguringNetwork Interfaces.
 
@@ -1208,7 +1159,7 @@ You need to create a management network using network interfaces for a virtual p
 
 </details>
 
-### 102. q-294
+### 98. et-294
 
 An application that is hosted on Amazon EC2 instances needs to access an Amazon S3 bucket. Traffic must not traverse the internet. How should a solutions architect configure access to meet these requirements?
 
@@ -1220,7 +1171,7 @@ A VPC endpoint for Amazon S3 allows you to connect your VPC directly to S3 witho
 
 </details>
 
-### 103. q-296
+### 99. et-296
 
 A development team has launched a new application that is hosted on Amazon EC2 instances inside a development VPC. A solutions architect needs to create a new VPC in the same account. The new VPC will be peered with the development VPC. The VPC CIDR block for the development VPC is 192.168.0.0/24. The solutions architect needs to create a CIDR block for the new VPC. The CIDR block must be valid for a VPC peering connection to the development VPC. What is the SMALLEST CIDR block that meets these requirements?
 
@@ -1232,7 +1183,7 @@ This is a valid CIDR block that does not overlap with the existing development V
 
 </details>
 
-### 104. dt-297
+### 100. dt-297
 
 Your manager has asked you to set up a public subnet with instances that can send and receive internet traffic, and a private subnet that can't receive traffic directly from the internet, but can initiate traffic to the internet (and receive responses) through a NAT instance in the public subnet. Hence, the following 3 rules need to be allowed: Inbound SSH traffic. Web servers in the public subnet to read and write to MS SQL servers in the private subnet. Inbound RDP traffic from the Microsoft Terminal Services gateway in the public private subnet. What are the respective ports that need to be opened for this?
 
@@ -1242,7 +1193,7 @@ Your manager has asked you to set up a public subnet with instances that can sen
 
 </details>
 
-### 105. dt-298
+### 101. dt-298
 
 An EC2 instance is connected to an ENI (Elastic Network Interface) in one subnet. What happens to the data on an instance if the instance reboots (intentionally or unintentionally)?
 
@@ -1252,7 +1203,7 @@ An EC2 instance is connected to an ENI (Elastic Network Interface) in one subnet
 
 </details>
 
-### 106. dt-301
+### 102. dt-301
 
 An EC2 instance is connected to an ENI (Elastic Network Interface) in one subnet. What happens when you attach an ENI of a different subnet to this EC2 instance?
 
@@ -1262,7 +1213,7 @@ An EC2 instance is connected to an ENI (Elastic Network Interface) in one subnet
 
 </details>
 
-### 107. dt-302
+### 103. dt-302
 
 You have deployed a three-tier web application in a VPC with a CIDR block of 10.0.0.0/28. You initially deploy two web servers, two application servers, two database servers and one NAT instance for a total of seven EC2 instances. The web, application and database servers are deployed across two Availability Zones (AZs). You also deploy an ELB in front of the two web servers, and use Route 53 for DNS. Web traffic gradually increases in the first few days following the deployment, so you attempt to double the number of instances in each tier of the application to handle the new load. Unfortunately some of these new instances fail to launch. Which of the following could be the root cause? (Choose 2 answers)
 
@@ -1272,7 +1223,7 @@ You have deployed a three-tier web application in a VPC with a CIDR block of 10.
 
 </details>
 
-### 108. dt-305
+### 104. dt-305
 
 You are tasked with moving a legacy application from a virtual machine running Inside your datacenter to an Amazon VPC Unfortunately this app requires access to a number of on-premises services and no one who configured the app still works for your company. Even worse there's no documentation for it. What will allow the application running inside the VPC to reach back and access its internal dependencies without being reconfigured? (Choose 3 answers)
 
@@ -1282,7 +1233,7 @@ You are tasked with moving a legacy application from a virtual machine running I
 
 </details>
 
-### 109. q-310
+### 105. ce-310
 
 A company that recently started using AWS establishes an AWS Site-to-Site VPN connection between its on-premises data center and AWS. The company's security mandate states that traffic originating from on premises must stay within the company's private IP address space when communicating with an Amazon ECS cluster that hosts a sample web application. Which solution meets this requirement?
 
@@ -1294,7 +1245,7 @@ The core requirement is to provide private connectivity from an on-premises netw
 
 </details>
 
-### 110. q-313 `least-ops`
+### 106. ce-313 `least-ops`
 
 A solutions architect is creating an AWS Lambda function that needs network access to private resources in a VPC. Which solution will provide this access with the LEAST operational overhead?
 
@@ -1306,7 +1257,7 @@ The standard and most direct method for an AWS Lambda function to access resourc
 
 </details>
 
-### 111. dt-313
+### 107. dt-313
 
 A company has an AWS account that contains three VPCs (Dev, Test, and Prod) in the same region. Test is peered to both Prod and Dev. All VPCs have non-overlapping CIDR blocks. The company wants to push minor code releases from Dev to Prod to speed up time to market. Which of the following options helps the company accomplish this?
 
@@ -1316,7 +1267,7 @@ A company has an AWS account that contains three VPCs (Dev, Test, and Prod) in t
 
 </details>
 
-### 112. q-313
+### 108. et-313
 
 A company is building a mobile app on AWS. The company wants to expand its reach to millions of users. The company needs to build a platform so that authorized users can watch the company’s content on their mobile devices. What should a solutions architect recommend to meet these requirements?
 
@@ -1328,7 +1279,7 @@ Amazon CloudFront: CloudFront is a content delivery network (CDN) service provid
 
 </details>
 
-### 113. dt-316
+### 109. dt-316
 
 You have set up an Elastic Load Balancer (ELB) with the usual default settings, which route each request independently to the application instance with the smallest load. However, someone has asked you to bind a user's session to a specific application instance so as to ensure that all requests coming from the user during the session will be sent to the same application instance. AWS has a feature to do this. What is it called?
 
@@ -1338,7 +1289,7 @@ You have set up an Elastic Load Balancer (ELB) with the usual default settings, 
 
 </details>
 
-### 114. dt-333
+### 110. dt-333
 
 Can you specify the security group that you created for a VPC when you launch an instance in EC2-Classic?
 
@@ -1348,7 +1299,7 @@ Can you specify the security group that you created for a VPC when you launch an
 
 </details>
 
-### 115. dt-334
+### 111. dt-334
 
 Which two methods increases the fault tolerance of the connection to VPC-1? (Choose 2 answers)
 
@@ -1358,7 +1309,7 @@ Which two methods increases the fault tolerance of the connection to VPC-1? (Cho
 
 </details>
 
-### 116. dt-340
+### 112. dt-340
 
 A US-based company is expanding their web presence into Europe. The company wants to extend their AWS infrastructure from Northern Virginia (us-east-1) into the Dublin (eu-west-1) region. Which of the following options would enable an equivalent experience for users on both continents?
 
@@ -1368,7 +1319,7 @@ A US-based company is expanding their web presence into Europe. The company want
 
 </details>
 
-### 117. dt-350
+### 113. dt-350
 
 True or False: When you add a rule to a DB security group, you do not need to specify port number or protocol.
 
@@ -1378,7 +1329,7 @@ True or False: When you add a rule to a DB security group, you do not need to sp
 
 </details>
 
-### 118. q-357 `availability`
+### 114. et-357 `availability`
 
 A gaming company is moving its public scoreboard from a data center to the AWS Cloud. The company uses Amazon EC2 Windows Server instances behind an Application Load Balancer to host its dynamic application. The company needs a highly available storage solution for the application. The application consists of static files and dynamic server-side code. Which combination of steps should a solutions architect take to meet these requirements? (Choose two.)
 
@@ -1390,7 +1341,7 @@ D. Store the server-side code on Amazon FSx for Windows File Server. Mount the F
 
 </details>
 
-### 119. dt-358
+### 115. dt-358
 
 Your company previously configured a heavily used, dynamically routed VPN connection between your on-premises data center and AWS. You recently provisioned a DirectConnect connection and would like to start using the new connection. After configuring DirectConnect settings in the AWS Console, which of the following options will provide the most seamless transition for your users?
 
@@ -1400,7 +1351,7 @@ Your company previously configured a heavily used, dynamically routed VPN connec
 
 </details>
 
-### 120. q-358 `least-ops`
+### 116. et-358 `least-ops`
 
 A social media company runs its application on Amazon EC2 instances behind an Application Load Balancer (ALB). The ALB is the origin for an Amazon CloudFront distribution. The application has more than a billion images stored in an Amazon S3 bucket and processes thousands of images each second. The company wants to resize the images dynamically and serve appropriate formats to clients. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -1412,7 +1363,7 @@ Lambda@Edge: Allows you to run code in response to CloudFront events without pro
 
 </details>
 
-### 121. q-360
+### 117. et-360
 
 A company uses Amazon API Gateway to run a private gateway with two REST APIs in the same VPC. The BuyStock RESTful web service calls the CheckFunds RESTful web service to ensure that enough funds are available before a stock can be purchased. The company has noticed in the VPC flow logs that the BuyStock RESTful web service calls the CheckFunds RESTful web service over the internet instead of through the VPC. A solutions architect must implement a solution so that the APIs communicate through the VPC. Which solution will meet these requirements with the FEWEST changes to the code?
 
@@ -1424,7 +1375,7 @@ Interface Endpoint (VPC Endpoint for API Gateway): An interface endpoint allows 
 
 </details>
 
-### 122. q-362
+### 118. ce-362
 
 A company has a three-tier web application. An Application Load Balancer (ALB) is in front of Amazon EC2 instances that are in the ALB target group. An Amazon S3 bucket stores documents. The company requires the application to meet a recovery time objective (RTO) of 60 seconds. Which solution will meet this requirement?
 
@@ -1436,7 +1387,7 @@ To meet a stringent Recovery Time Objective (RTO) of 60 seconds, a Warm Standby 
 
 </details>
 
-### 123. q-365
+### 119. ce-365
 
 A company runs a web application in a single AWS Region. A solutions architect wants to ensure that the web application can continue to operate if the application becomes unavailable in the Region. Which solution will meet this requirement?
 
@@ -1448,7 +1399,7 @@ The core requirement is to ensure the application remains operational even if an
 
 </details>
 
-### 124. dt-365
+### 120. dt-365
 
 You are designing an SSUTLS solution that requires HTTPS clients to be authenticated by the Web server using client certificate authentication. The solution must be resilient. Which of the following options would you consider for configuring the web server infrastructure? (Choose 2 answers)
 
@@ -1458,7 +1409,7 @@ You are designing an SSUTLS solution that requires HTTPS clients to be authentic
 
 </details>
 
-### 125. gh-366
+### 121. gh-366
 
 367] A company is using Amazon Route 53 latency-based routing to route requests to its UDP-based application for users around the world. The application is hosted on redundant servers in the company's on-premises data centers in the United States, Asia, and Europe. The company’s compliance requirements state that the application must be hosted on premises. The company wants to improve the performance and availability of the application.
 What should a solutions architect do to meet these requirements?
@@ -1471,7 +1422,7 @@ A Network Load Balancer supports UDP listeners and accepts IP addresses as targe
 
 </details>
 
-### 126. q-369
+### 122. ce-369
 
 A company needs to run its external website on Amazon EC2 instances and on-premises virtualized servers. The AWS environment has a 1 GB AWS Direct Connect connection to the data center. The application has IP addresses that will not change. The on-premises and AWS servers are able to restart themselves while maintaining the same IP address if a failure occurs. Some website users have to add their vendors to an allow list, so the solution must have a fixed IP address. The company needs a solution with the lowest operational overhead to handle this split traffic. What should a solutions architect do to meet these requirements?
 
@@ -1483,7 +1434,7 @@ The solution must load balance traffic to a hybrid environment (AWS and on-premi
 
 </details>
 
-### 127. q-370
+### 123. et-370
 
 A company runs a public three-tier web application in a VPC. The application runs on Amazon EC2 instances across multiple Availability Zones. The EC2 instances that run in private subnets need to communicate with a license server over the internet. The company needs a managed solution that minimizes operational maintenance. Which solution meets these requirements?
 
@@ -1495,7 +1446,7 @@ NAT Gateway: A NAT gateway is a managed service provided by AWS that allows EC2 
 
 </details>
 
-### 128. q-374
+### 124. et-374
 
 A company is running several business applications in three separate VPCs within the us-east-1 Region. The applications must be able to communicate between VPCs. The applications also must be able to consistently send hundreds of gigabytes of data each day to a latency- sensitive application that runs in a single on-premises data center. A solutions architect needs to design a network connectivity solution that maximizes cost-effectiveness. Which solution meets these requirements?
 
@@ -1507,7 +1458,7 @@ AWS Direct Connect: Using a single AWS Direct Connect connection from the data c
 
 </details>
 
-### 129. dt-375
+### 125. dt-375
 
 You are setting up your first Amazon Virtual Private Cloud (Amazon VPC) so you decide to use the VPC wizard in the AWS console to help make it easier for you. Which of the following statements is correct regarding instances that you launch into a default subnet via the VPC wizard?
 
@@ -1517,7 +1468,7 @@ You are setting up your first Amazon Virtual Private Cloud (Amazon VPC) so you d
 
 </details>
 
-### 130. dt-379
+### 126. dt-379
 
 What does Amazon ELB stand for?
 
@@ -1527,7 +1478,7 @@ What does Amazon ELB stand for?
 
 </details>
 
-### 131. q-383
+### 127. ce-383
 
 A solutions architect is designing a multi-Region disaster recovery (DR) strategy for a company. The company runs an application on Amazon EC2 instances in Auto Scaling groups that are behind an Application Load Balancer (ALB). The company hosts the application in the company's primary and secondary AWS Regions. The application must respond to DNS queries from the secondary Region if the primary Region fails. Only one Region must serve traffic at a time. Which solution will meet these requirements?
 
@@ -1539,7 +1490,7 @@ The scenario requires an active-passive disaster recovery (DR) strategy where tr
 
 </details>
 
-### 132. q-385
+### 128. et-385
 
 A solutions architect is creating a new VPC design. There are two public subnets for the load balancer, two private subnets for web servers, and two private subnets for MySQL. The web servers use only HTTPS. The solutions architect has already created a security group for the load balancer allowing port 443 from 0.0.0.0/0. Company policy requires that each resource has the least access required to still be able to perform its tasks. Which additional configuration strategy should the solutions architect use to meet these requirements?
 
@@ -1549,7 +1500,7 @@ A solutions architect is creating a new VPC design. There are two public subnets
 
 </details>
 
-### 133. q-395
+### 129. et-395
 
 An IAM user made several configuration changes to AWS resources in their company's account during a production deployment last week. A solutions architect learned that a couple of security group rules are not configured as desired. The solutions architect wants to confirm which IAM user was responsible for making changes. Which service should the solutions architect use to find the desired information?
 
@@ -1561,7 +1512,7 @@ AWS CloudTrail is a service provided by Amazon Web Services (AWS) that allows yo
 
 </details>
 
-### 134. q-396
+### 130. et-396
 
 A company has implemented a self-managed DNS service on AWS. The solution consists of the following: • Amazon EC2 instances in different AWS Regions • Endpoints of a standard accelerator in AWS Global Accelerator The company wants to protect the solution against DDoS attacks. What should a solutions architect do to meet this requirement?
 
@@ -1573,7 +1524,7 @@ AWS Shield Advanced is a managed Distributed Denial of Service (DDoS) protection
 
 </details>
 
-### 135. q-397 `availability`
+### 131. ce-397 `availability`
 
 A company runs an application on Amazon EC2 instances. The application is deployed in private subnets in three Availability Zones of the us-east-1 Region. The instances must be able to connect to the internet to download files. The company wants a design that is highly available across the Region. Which solution should be implemented to ensure that there are no disruptions to internet connectivity?
 
@@ -1585,7 +1536,7 @@ Instances in private subnets do not have public IP addresses and cannot access t
 
 </details>
 
-### 136. dt-398
+### 132. dt-398
 
 You've been brought in as solutions architect to assist an enterprise customer with their migration of an e-commerce platform to Amazon Virtual Private Cloud (VPC) The previous architect has already deployed a 3-tier VPC, The configuration is as follows. VPC: vpc-2f8bc447. IGW: igw-2d8bc445. NACL: ad-208bc448. 5ubnets and Route Tables: Web servers: subnet-258bc44d. Application servers: subnet-248bc44c. Database servers: subnet-9189c6f9. Route Tables: rrb-218bc449, rtb-238bc44b. Associations: subnet-258bc44d: rtb-218bc449, subnet-248bc44c: rtb-238bc44b, subnet-9189c6f9: rtb-238bc44b. You are now ready to begin deploying EC2 instances into the VPC Web servers must have direct access to the internet Application and database servers cannot have direct access to the internet. Which configuration below will allow you the ability to remotely administer your application and database servers, as well as allow these servers to retrieve updates from the Internet?
 
@@ -1595,7 +1546,7 @@ You've been brought in as solutions architect to assist an enterprise customer w
 
 </details>
 
-### 137. q-399
+### 133. ce-399
 
 A finance company hosts a data lake in Amazon S3. The company receives financial data records over SFTP each night from several third parties. The company runs its own SFTP server on an Amazon EC2 instance in a public subnet of a VPC. After the files are uploaded, they are moved to the data lake by a cron job that runs on the same instance. The SFTP server is reachable on DNS sftp.example.com through the use of Amazon Route 53. What should a solutions architect do to improve the reliability and scalability of the SFTP solution?
 
@@ -1607,7 +1558,7 @@ The most effective way to improve the reliability and scalability of the SFTP so
 
 </details>
 
-### 138. dt-406
+### 134. dt-406
 
 What does Amazon Route 53 provide?
 
@@ -1617,7 +1568,7 @@ What does Amazon Route 53 provide?
 
 </details>
 
-### 139. q-408
+### 135. ce-408
 
 A solutions architect is designing a system to be highly resilient. The system uses Amazon Route 53 with health checks and an Application Load Balancer (ALB). The system is critical and must have the highest availability possible.
 
@@ -1629,7 +1580,7 @@ Amazon Route 53 health checks are a fundamental component for building resilient
 
 </details>
 
-### 140. q-408
+### 136. et-408
 
 A company runs an application that receives data from thousands of geographically dispersed remote devices that use UDP. The application processes the data immediately and sends a message back to the device if necessary. No data is stored. The company needs a solution that minimizes latency for the data transmission from the devices. The solution also must provide rapid failover to another AWS Region. Which solution will meet these requirements?
 
@@ -1641,7 +1592,7 @@ AWS Global Accelerator: AWS Global Accelerator provides static IP addresses that
 
 </details>
 
-### 141. q-412
+### 137. ce-412
 
 The DNS provider that hosts a company's domain name records is experiencing outages that cause service disruption for a website running on AWS. The company needs to migrate to a more resilient managed DNS service and wants the service to run on AWS. What should a solutions architect do to rapidly migrate the DNS hosting service?
 
@@ -1653,7 +1604,7 @@ To rapidly migrate an existing public domain's DNS hosting to AWS, the correct s
 
 </details>
 
-### 142. dt-415
+### 138. dt-415
 
 You have just set up your first Elastic Load Balancer (ELB) but it does not seem to be configured properly. You discover that before you start using ELB, you have to configure the listeners for your load balancer. Which protocols does ELB use to support the load balancing of applications?
 
@@ -1663,7 +1614,7 @@ You have just set up your first Elastic Load Balancer (ELB) but it does not seem
 
 </details>
 
-### 143. dt-417
+### 139. dt-417
 
 A user has created a subnet in VPC and launched an EC2 instance within it. The user has not selected the option to assign the IP address while launching the instance. The user has 3 elastic IPs and is trying to assign one of the Elastic IPs to the VPC instance from the console. The console does not show any instance in the IP assignment screen. What is a possible reason that the instance is unavailable in the assigned IP console?
 
@@ -1673,7 +1624,7 @@ A user has created a subnet in VPC and launched an EC2 instance within it. The u
 
 </details>
 
-### 144. dt-427
+### 140. dt-427
 
 You need to set up security for your VPC and you know that Amazon VPC provides two features that you can use to increase security for your VPC: security groups and network access control lists (ACLs). You have already looked into security groups and you are now trying to understand ACLs. Which statement below is incorrect in relation to ACLs?
 
@@ -1683,7 +1634,7 @@ You need to set up security for your VPC and you know that Amazon VPC provides t
 
 </details>
 
-### 145. q-434
+### 141. ce-434
 
 A company runs an internet-facing web application on AWS and uses Amazon Route 53 with a public hosted zone. The company wants to log DNS response codes to support future root cause analysis. Which solution will meet these requirements?
 
@@ -1695,7 +1646,7 @@ Amazon Route 53 query logging records the DNS queries that Route 53 receives for
 
 </details>
 
-### 146. dt-437
+### 142. dt-437
 
 You must assign each server to at least [...] security group.
 
@@ -1705,7 +1656,7 @@ You must assign each server to at least [...] security group.
 
 </details>
 
-### 147. q-439 `least-ops`
+### 143. et-439 `least-ops`
 
 A solutions architect configured a VPC that has a small range of IP addresses. The number of Amazon EC2 instances that are in the VPC is increasing, and there is an insufficient number of IP addresses for future workloads. Which solution resolves this issue with the LEAST operational overhead?
 
@@ -1717,7 +1668,7 @@ By adding an additional IPv4 CIDR block to the existing VPC, you can effectively
 
 </details>
 
-### 148. dt-443
+### 144. dt-443
 
 A customer is hosting their company website on a cluster of web servers that are behind a public facing load balancer. The customer also uses Amazon Route 53 to manage their public DNS. How should the customer configure the DNS zone apex record to point to the load balancer?
 
@@ -1727,7 +1678,7 @@ A customer is hosting their company website on a cluster of web servers that are
 
 </details>
 
-### 149. q-444
+### 145. ce-444
 
 A company hosts an Amazon EC2 instance in a private subnet in a new VPC. The VPC also has a public subnet that has the default route set to an internet gateway. The private subnet does not have outbound internet access. The EC2 instance needs to have the ability to download monthly security updates from an outside vendor. However, the company must block any connections that are initiated from the internet. Which solution will meet these requirements?
 
@@ -1739,7 +1690,7 @@ To meet the requirements, the EC2 instance in the private subnet needs a way to 
 
 </details>
 
-### 150. q-448
+### 146. et-448
 
 A company has two VPCs named Management and Production. The Management VPC uses VPNs through a customer gateway to connect to a single device in the data center. The Production VPC uses a virtual private gateway with two attached AWS Direct Connect connections. The Management and Production VPCs both use a single VPC peering connection to allow communication between the applications. What should a solutions architect do to mitigate any single point of failure in this architecture?
 
@@ -1751,7 +1702,7 @@ Adding a second set of VPN connections from the Management VPC to a second custo
 
 </details>
 
-### 151. q-450
+### 147. et-450
 
 A company has a three-tier web application that is in a single server. The company wants to migrate the application to the AWS Cloud. The company also wants the application to align with the AWS Well-Architected Framework and to be consistent with AWS recommended best practices for security, scalability, and resiliency. Which combination of solutions will meet these requirements? (Choose three.)
 
@@ -1763,7 +1714,7 @@ This choice aligns with best practices by using separate subnets for each tier, 
 
 </details>
 
-### 152. dt-452
+### 148. dt-452
 
 A customer has established an AWS Direct Connect connection to AWS. The link is up and routes are being advertised from the customer's end, however the customer is unable to connect from EC2 instances inside its VPC to servers residing in its datacenter. Which of the following options provide a viable solution to remedy this situation? (Choose 2 answers)
 
@@ -1773,7 +1724,7 @@ A customer has established an AWS Direct Connect connection to AWS. The link is 
 
 </details>
 
-### 153. dt-453
+### 149. dt-453
 
 While creating a network in the VPC, which of the following is true of a NAT device?
 
@@ -1783,7 +1734,7 @@ While creating a network in the VPC, which of the following is true of a NAT dev
 
 </details>
 
-### 154. dt-454
+### 150. dt-454
 
 Which of the following statements is NOT true about using Elastic IP Address (EIP) in EC2-Classic and EC2-VPC platforms?
 
@@ -1793,7 +1744,7 @@ Which of the following statements is NOT true about using Elastic IP Address (EI
 
 </details>
 
-### 155. dt-457
+### 151. dt-457
 
 You are in the process of moving your friend's WordPress site onto AWS to try and save him some money, and you have told him that he should probably also move his domain name. He asks why he can't leave his domain name where it is and just have his infrastructure on AWS. What would be an incorrect response to his question?
 
@@ -1803,7 +1754,7 @@ You are in the process of moving your friend's WordPress site onto AWS to try an
 
 </details>
 
-### 156. dt-460
+### 152. dt-460
 
 You have an environment that consists of a public subnet using Amazon VPC and 3 instances that are running in this subnet. These three instances can successfully communicate with other hosts on the Internet. You launch a fourth instance in the same subnet, using the same AMI and security group configuration you used for the others, but find that this instance cannot be accessed from the internet. What should you do to enable Internet access?
 
@@ -1813,7 +1764,7 @@ You have an environment that consists of a public subnet using Amazon VPC and 3 
 
 </details>
 
-### 157. dt-465
+### 153. dt-465
 
 Doug has created a VPC with CIDR 10.201.0.0/16 in his AWS account. In this VPC he has created a public subnet with CIDR block 10.201.31.0/24. While launching a new EC2 from the console, he is not able to assign the private IP address 10.201.31.6 to this instance. Which is the most likely reason for this issue?
 
@@ -1823,7 +1774,7 @@ Doug has created a VPC with CIDR 10.201.0.0/16 in his AWS account. In this VPC h
 
 </details>
 
-### 158. q-471
+### 154. et-471
 
 A company is creating an application that runs on containers in a VPC. The application stores and accesses data in an Amazon S3 bucket. During the development phase, the application will store and access 1 TB of data in Amazon S3 each day. The company wants to minimize costs and wants to prevent traffic from traversing the internet whenever possible. Which solution will meet these requirements?
 
@@ -1833,7 +1784,7 @@ A company is creating an application that runs on containers in a VPC. The appli
 
 </details>
 
-### 159. q-473
+### 155. et-473
 
 A company hosts a website on Amazon EC2 instances behind an Application Load Balancer (ALB). The website serves static content. Website traffic is increasing, and the company is concerned about a potential increase in cost.
 
@@ -1845,7 +1796,7 @@ By creating a CloudFront distribution and configuring it to cache static files, 
 
 </details>
 
-### 160. q-474
+### 156. et-474
 
 A company has multiple VPCs across AWS Regions to support and run workloads that are isolated from workloads in other Regions. Because of a recent application launch requirement, the company’s VPCs must communicate with all other VPCs across all Regions. Which solution will meet these requirements with the LEAST amount of administrative effort?
 
@@ -1857,7 +1808,7 @@ AWS Transit Gateway is designed for simplifying the connectivity between multipl
 
 </details>
 
-### 161. dt-476
+### 157. dt-476
 
 After launching an instance that you intend to serve as a NAT (Network Address Translation) device in a public subnet you modify your route tables to have the NAT device be the target of internet bound traffic of your private subnet. When you try and make an outbound connection to the internet from an instance in the private subnet, you are not successful. Which of the following steps could resolve the issue?
 
@@ -1867,7 +1818,7 @@ After launching an instance that you intend to serve as a NAT (Network Address T
 
 </details>
 
-### 162. q-480
+### 158. et-480
 
 A business application is hosted on Amazon EC2 and uses Amazon S3 for encrypted object storage. The chief information security officer has directed that no application traffic between the two services should traverse the public internet. Which capability should the solutions architect use to meet the compliance requirements?
 
@@ -1879,7 +1830,7 @@ AWS provides VPC endpoints that allow you to privately connect your VPC to suppo
 
 </details>
 
-### 163. dt-481
+### 159. dt-481
 
 How many Elastic IP by default in Amazon Account?
 
@@ -1889,7 +1840,7 @@ How many Elastic IP by default in Amazon Account?
 
 </details>
 
-### 164. dt-484
+### 160. dt-484
 
 You are designing a connectivity solution between on-premises infrastructure and Amazon VPC. Your servers on-premises will be communicating with your VPC instances. You will be establishing IPSec tunnels over the internet. You will be using VPN gateways and terminating the IPsec tunnels on AWS supported customer gateways. Which of the following objectives would you achieve by implementing an IPSec tunnel as outlined above? (Choose 4 answers)
 
@@ -1899,7 +1850,7 @@ You are designing a connectivity solution between on-premises infrastructure and
 
 </details>
 
-### 165. q-487 `availability`
+### 161. et-487 `availability`
 
 A company seeks a storage solution for its application. The solution must be highly available and scalable. The solution also must function as a file system be mountable by multiple Linux instances in AWS and on premises through native protocols, and have no minimum size requirements. The company has set up a Site-to-Site VPN for access from its on-premises network to its VPC. Which storage solution meets these requirements?
 
@@ -1911,7 +1862,7 @@ Amazon EFS is a scalable file storage service that can be mounted by multiple Am
 
 </details>
 
-### 166. q-493
+### 162. ce-493
 
 A news company that has reporters all over the world is hosting its broadcast system on AWS. The reporters send live broadcasts to the broadcast system. The reporters use software on their phones to send live streams through the Real Time Messaging Protocol (RTMP). A solutions architect must design a solution that gives the reporters the ability to send the highest quality streams The solution must provide accelerated TCP connections back to the broadcast system. What should the solutions architect use to meet these requirements?
 
@@ -1923,7 +1874,7 @@ AWS Global Accelerator is a networking service designed to improve the availabil
 
 </details>
 
-### 167. q-499
+### 163. ce-499
 
 An online gaming company hosts its platform on Amazon EC2 instances behind Network Load Balancers (NLBs) across multiple AWS Regions. The NLBs can route requests to targets overthe internet. The company wants to improve the customer playing experience by reducing end-to-end load time for its global customer base. Which solution will meet these requirements?
 
@@ -1935,7 +1886,7 @@ AWS Global Accelerator is a networking service designed to improve the availabil
 
 </details>
 
-### 168. q-499
+### 164. et-499
 
 A company needs to minimize the cost of its 1 Gbps AWS Direct Connect connection. The company's average connection utilization is less than 10%. A solutions architect must recommend a solution that will reduce the cost without compromising security. Which solution will meet these requirements?
 
@@ -1945,19 +1896,19 @@ A company needs to minimize the cost of its 1 Gbps AWS Direct Connect connection
 
 </details>
 
-### 169. q-501
+### 165. ce-501
 
 A company is implementing a new application on AWS. The company will run the application on multiple Amazon EC2 instances across multiple Availability Zones within multiple AWS Regions. The application will be available through the internet. Users will access the application from around the world. The company wants to ensure that each user who accesses the application is sent to the EC2 instances that are closest to the user's location. Which solution will meet these requirements?
 
 <details><summary>Answer</summary>
 
-**Use Amazon Data Firehose (formerly Amazon Kinesis Data Firehose) to ingest the data. Use Amazon Managed Service for Apache Flink (formerly Amazon Kinesis Data Analytics) to analyze the data in real time.**
+**A. Implement an Amazon Route 53 geolocation routing policy. Use an internet-facing Application Load Balancer to distribute the traffic across all Availability Zones within the same Region.**
 
-Amazon Data Firehose is a fully managed delivery stream that buffers incoming records and writes them to Amazon S3 with no servers, shards or scaling to manage, which is what makes it the most operationally efficient way to land payment data in the data lake. Amazon Managed Service for Apache Flink reads the same stream and runs continuous queries over it, giving real-time analysis alongside delivery to S3. The alternatives - scheduled batch jobs, or custom consumers running on EC2 or in Lambda - add code and operational work for the same result.
+The requirement is to route users to the AWS Region geographically closest to them. Amazon Route 53 geolocation routing is the ideal policy for this scenario. It allows you to create DNS records that serve traffic based on the user's geographic origin (e.g., continent or country). For each geographic region defined, the DNS record would point to a regional endpoint. An internet-facing Application Load Balancer (ALB) is the appropriate service within each region to distribute incoming HTTP/HTTPS traffic across the EC2 instances running in multiple Availability Zones, ensuring high availability and scalability for the application. Why Incorrect Options are Wrong: B: Geoproximity routing routes traffic based on the distance between users and resources, often requiring Route 53 Traffic Flow for complex configurations; geolocation is simpler and more direct for this use case. C: Multivalue an
 
 </details>
 
-### 170. dt-503
+### 166. dt-503
 
 Does Amazon Route 53 support NS Records?
 
@@ -1967,7 +1918,7 @@ Does Amazon Route 53 support NS Records?
 
 </details>
 
-### 171. q-504
+### 167. et-504
 
 A company needs to connect several VPCs in the us-east-1 Region that span hundreds of AWS accounts. The company's networking team has its own AWS account to manage the cloud network. What is the MOST operationally efficient solution to connect the VPCs?
 
@@ -1979,7 +1930,7 @@ AWS Transit Gateway: It is designed to simplify the connectivity between multipl
 
 </details>
 
-### 172. q-506
+### 168. ce-506
 
 A company is building a new furniture inventory application. The company has deployed the application on a fleet of Amazon EC2 instances across multiple Availability Zones. The EC2 instances run behind an Application Load Balancer (ALB) in their VPC. A solutions architect has observed that incoming traffic seems to favor one EC2 instance, resulting in latency for some requests. What should the solutions architect do to resolve this issue?
 
@@ -1991,7 +1942,7 @@ The scenario describes traffic being unevenly distributed to a specific EC2 inst
 
 </details>
 
-### 173. dt-507
+### 169. dt-507
 
 Which of the following are characteristics of Amazon VPC subnets? (Choose 2 answers)
 
@@ -2001,7 +1952,7 @@ Which of the following are characteristics of Amazon VPC subnets? (Choose 2 answ
 
 </details>
 
-### 174. dt-509
+### 170. dt-509
 
 You are designing a data leak prevention solution for your VPC environment. You want your VPC Instances to be able to access software depots and distributions on the Internet for product updates. The depots and distributions are accessible via third party CONs by their URLs. You want to explicitly deny any other outbound connections from your VPC instances to hosts on the internet. Which of the following options would you consider?
 
@@ -2011,7 +1962,7 @@ You are designing a data leak prevention solution for your VPC environment. You 
 
 </details>
 
-### 175. q-509
+### 171. et-509
 
 A company operates a two-tier application for image processing. The application uses two Availability Zones, each with one public subnet and one private subnet. An Application Load Balancer (ALB) for the web tier uses the public subnets. Amazon EC2 instances for the application tier use the private subnets. Users report that the application is running more slowly than expected. A security audit of the web server log files shows that the application is receiving millions of illegitimate requests from a small number of IP addresses. A solutions architect needs to resolve the immediate performance problem while the company investigates a more permanent solution. What should the solutions architect recommend to meet this requirement?
 
@@ -2021,7 +1972,7 @@ A company operates a two-tier application for image processing. The application 
 
 </details>
 
-### 176. q-510 `security`
+### 172. et-510 `security`
 
 A global marketing company has applications that run in the ap-southeast-2 Region and the eu-west-1 Region. Applications that run in a VPC in eu- west-1 need to communicate securely with databases that run in a VPC in ap-southeast-2. Which network design will meet these requirements?
 
@@ -2033,7 +1984,7 @@ VPC peering connections can be established between VPCs in different AWS Regions
 
 </details>
 
-### 177. dt-513
+### 173. dt-513
 
 You would like to create a mirror image of your production environment in another region for disaster recovery purposes. Which of the following AWS resources do not need to be recreated in the second region? (Choose 2 answers)
 
@@ -2043,7 +1994,7 @@ You would like to create a mirror image of your production environment in anothe
 
 </details>
 
-### 178. q-514
+### 174. et-514
 
 A company is running a microservices application on Amazon EC2 instances. The company wants to migrate the application to an Amazon Elastic Kubernetes Service (Amazon EKS) cluster for scalability. The company must configure the Amazon EKS control plane with endpoint private access set to true and endpoint public access set to false to maintain security compliance. The company must also put the data plane in private subnets. However, the company has received error notifications because the node cannot join the cluster. Which solution will allow the node to join the cluster?
 
@@ -2055,7 +2006,7 @@ When the Amazon EKS control plane has private access, nodes need to communicate 
 
 </details>
 
-### 179. dt-519
+### 175. dt-519
 
 You are setting up your first Amazon Virtual Private Cloud (Amazon VPC) network so you decide you should probably use the AWS Management Console and the VPC Wizard. Which of the following is not an option for network architectures after launching the 'Start VPC Wizard' in Amazon VPC page on the AWS Management Console?
 
@@ -2065,7 +2016,7 @@ You are setting up your first Amazon Virtual Private Cloud (Amazon VPC) network 
 
 </details>
 
-### 180. q-520
+### 176. ce-520
 
 A finance company is migrating its trading platform to AWS. The trading platform processes a high volume of market data and processes stock trades. The company needs to establish a consistent, low- latency network connection from its on-premises data center to AWS. The company will host resources in a VPC. The solution must not use the public internet. Which solution will meet these requirements?
 
@@ -2077,7 +2028,7 @@ The scenario requires a consistent, low-latency network connection that does not
 
 </details>
 
-### 181. dt-520
+### 177. dt-520
 
 True or False: A VPC contains multiple subnets, where each subnet can span multiple Availability Zones.
 
@@ -2087,7 +2038,7 @@ True or False: A VPC contains multiple subnets, where each subnet can span multi
 
 </details>
 
-### 182. dt-527
+### 178. dt-527
 
 When will you incur costs with an Elastic IP address (EIP)?
 
@@ -2097,7 +2048,7 @@ When will you incur costs with an Elastic IP address (EIP)?
 
 </details>
 
-### 183. q-530
+### 179. et-530
 
 A company has an online gaming application that has TCP and UDP multiplayer gaming capabilities. The company uses Amazon Route 53 to point the application traffic to multiple Network Load Balancers (NLBs) in different AWS Regions. The company needs to improve application performance and decrease latency for the online game in preparation for user growth. Which solution will meet these requirements?
 
@@ -2109,7 +2060,7 @@ AWS Global Accelerator is a service that uses anycast IP addresses to route traf
 
 </details>
 
-### 184. dt-532
+### 180. dt-532
 
 Does Route 53 support MX Records?
 
@@ -2119,7 +2070,7 @@ Does Route 53 support MX Records?
 
 </details>
 
-### 185. q-532
+### 181. et-532
 
 A company has a workload in an AWS Region. Customers connect to and access the workload by using an Amazon API Gateway REST API. The company uses Amazon Route 53 as its DNS provider. The company wants to provide individual and secure URLs for all customers. Which combination of steps will meet these requirements with the MOST operational efficiency? (Choose three.)
 
@@ -2131,7 +2082,7 @@ D. Request a wildcard certificate that matches the custom domain name in AWS Cer
 
 </details>
 
-### 186. q-538
+### 182. et-538
 
 A global video streaming company uses Amazon CloudFront as a content distribution network (CDN). The company wants to roll out content in a phased manner across multiple countries. The company needs to ensure that viewers who are outside the countries to which the company rolls out content are not able to view the content. Which solution will meet these requirements?
 
@@ -2143,7 +2094,7 @@ CloudFront allows you to set up geographic restrictions by creating an allow lis
 
 </details>
 
-### 187. q-544
+### 183. et-544
 
 A retail company uses a regional Amazon API Gateway API for its public REST APIs. The API Gateway endpoint is a custom domain name that points to an Amazon Route 53 alias record. A solutions architect needs to create a solution that has minimal effects on customers and minimal data loss to release the new version of APIs. Which solution will meet these requirements?
 
@@ -2155,7 +2106,7 @@ A canary release deployment is a strategy in software development and release ma
 
 </details>
 
-### 188. q-545
+### 184. et-545
 
 A company wants to direct its users to a backup static error page if the company's primary website is unavailable. The primary website's DNS records are hosted in Amazon Route 53. The domain is pointing to an Application Load Balancer (ALB). The company needs a solution that minimizes changes and infrastructure overhead. Which solution will meet these requirements?
 
@@ -2167,7 +2118,7 @@ An active-passive failover configuration in Route 53 involves designating one en
 
 </details>
 
-### 189. dt-546
+### 185. dt-546
 
 True or False: in Amazon Route 53, you can create a hosted zone for a top-level domain (TLD).
 
@@ -2177,7 +2128,7 @@ True or False: in Amazon Route 53, you can create a hosted zone for a top-level 
 
 </details>
 
-### 190. q-549
+### 186. et-549
 
 A company has created a multi-tier application for its ecommerce website. The website uses an Application Load Balancer that resides in the public subnets, a web tier in the public subnets, and a MySQL cluster hosted on Amazon EC2 instances in the private subnets. The MySQL database needs to retrieve product catalog and pricing information that is hosted on the internet by a third-party provider. A solutions architect must devise a strategy that maximizes security without increasing operational overhead. What should the solutions architect do to meet these requirements?
 
@@ -2189,7 +2140,7 @@ A NAT gateway is a fully managed service provided by AWS that allows instances i
 
 </details>
 
-### 191. dt-555
+### 187. dt-555
 
 You are building a solution for a customer to extend their on-premises data center to AWS. The customer requires a 50-Mbps dedicated and private connection to their VPC. Which AWS product or feature satisfies this requirement?
 
@@ -2199,7 +2150,7 @@ You are building a solution for a customer to extend their on-premises data cent
 
 </details>
 
-### 192. q-555
+### 188. et-555
 
 A company runs an application in a VPC with public and private subnets. The VPC extends across multiple Availability Zones. The application runs on Amazon EC2 instances in private subnets. The application uses an Amazon Simple Queue Service (Amazon SQS) queue. A solutions architect needs to design a secure solution to establish a connection between the EC2 instances and the SQS queue. Which solution will meet these requirements?
 
@@ -2211,7 +2162,7 @@ Interface VPC endpoints are used for services that are accessed over the Interne
 
 </details>
 
-### 193. q-558 `cost`
+### 189. et-558 `cost`
 
 A company has two VPCs that are located in the us-west-2 Region within the same AWS account. The company needs to allow network traffic between these VPCs. Approximately 500 GB of data transfer will occur between the VPCs each month. What is the MOST cost-effective solution to connect these VPCs?
 
@@ -2223,7 +2174,7 @@ VPC peering allows communication between VPCs within the same AWS account. It is
 
 </details>
 
-### 194. dt-561
+### 190. dt-561
 
 Is there any way to own a direct connection to Amazon Web Services?
 
@@ -2233,7 +2184,7 @@ Is there any way to own a direct connection to Amazon Web Services?
 
 </details>
 
-### 195. dt-577
+### 191. dt-577
 
 Select the incorrect statement.
 
@@ -2243,7 +2194,7 @@ Select the incorrect statement.
 
 </details>
 
-### 196. q-577
+### 192. et-577
 
 A company uses an Amazon CloudFront distribution to serve content pages for its website. The company needs to ensure that clients use a TLS certificate when accessing the company's website. The company wants to automate the creation and renewal of the TLS certificates. Which solution will meet these requirements with the MOST operational efficiency?
 
@@ -2255,7 +2206,7 @@ AWS Certificate Manager (ACM): ACM is a fully managed service that allows you to
 
 </details>
 
-### 197. q-582
+### 193. et-582
 
 An ecommerce company uses Amazon Route 53 as its DNS provider. The company hosts its website on premises and in the AWS Cloud. The company's on-premises data center is near the us-west-1 Region. The company uses the eu-central-1 Region to host the website. The company wants to minimize load time for the website as much as possible. Which solution will meet these requirements?
 
@@ -2267,7 +2218,7 @@ The website runs in two places, an on-premises data center near us-west-1 and th
 
 </details>
 
-### 198. dt-589
+### 194. dt-589
 
 Which Amazon service can I use to define a virtual network that closely resembles a traditional data center?
 
@@ -2277,7 +2228,7 @@ Which Amazon service can I use to define a virtual network that closely resemble
 
 </details>
 
-### 199. dt-590
+### 195. dt-590
 
 Select the correct set of options. These are the initial settings for the default security group:
 
@@ -2287,7 +2238,7 @@ Select the correct set of options. These are the initial settings for the defaul
 
 </details>
 
-### 200. dt-596
+### 196. dt-596
 
 Your team has a tomcat-based Java application you need to deploy into development, test and production environments. After some research, you opt to use Elastic Beanstalk due to its tight integration with your developer tools and RDS due to its ease of management. Your QA team lead points out that you need to roll a sanitized set of production data into your environment on a nightly basis. Similarly, other software teams in your org want access to that same restored data via their EC2 instances in your VPC. The optimal setup for persistence and security that meets the above requirements would be the following:
 
@@ -2297,7 +2248,7 @@ Your team has a tomcat-based Java application you need to deploy into developmen
 
 </details>
 
-### 201. dt-600
+### 197. dt-600
 
 You are setting up a VPC and you need to set up a public subnet within that VPC. Which following requirement must be met for this subnet to be considered a public subnet?
 
@@ -2307,7 +2258,7 @@ You are setting up a VPC and you need to set up a public subnet within that VPC.
 
 </details>
 
-### 202. q-600
+### 198. et-600
 
 A company is planning to migrate a TCP-based application into the company's VPC. The application is publicly accessible on a nonstandard TCP port through a hardware appliance in the company's data center. This public endpoint can process up to 3 million requests per second with low latency. The company requires the same level of performance for the new public endpoint in AWS. What should a solutions architect recommend to meet this requirement?
 
@@ -2319,7 +2270,7 @@ Network Load Balancer (NLB): It operates at the connection level (Layer 4) and i
 
 </details>
 
-### 203. q-609
+### 199. ce-609
 
 A company needs to connect its on-premises data center network to a new VPC. The data center network has a 100 Mbps symmetrical internet connection. An application that is running on premises will transfer multiple gigabytes of data each day. The application will use an Amazon Data Firehose delivery stream for processing. What should a solutions architect recommend for maximum performance?
 
@@ -2331,7 +2282,7 @@ For maximum performance, a dedicated, private connection is superior to one that
 
 </details>
 
-### 204. dt-610
+### 200. dt-610
 
 A benefits enrollment company is hosting a 3-tier web application running in a VPC on AWS which includes a NAT (Network Address Translation) instance in the public Web tier. There is enough provisioned capacity for the expected workload for the new fiscal year benefit enrollment period plus some extra overhead. Enrollment proceeds nicely for two days and then the web tier becomes unresponsive. Upon investigation using CloudWatch and other monitoring tools it is discovered that there is an extremely large and unanticipated amount of inbound traffic coming from a set of 15 specific IP addresses over port 80 from a country where the benefits company has no customers. The web tier instances are so overloaded that benefit enrollment administrators cannot even SSH into them. Which activity would be useful in defending against this attack?
 
@@ -2341,7 +2292,7 @@ A benefits enrollment company is hosting a 3-tier web application running in a V
 
 </details>
 
-### 205. q-610
+### 201. et-610
 
 A company deploys Amazon EC2 instances that run in a VPC. The EC2 instances load source data into Amazon S3 buckets so that the data can be processed in the future. According to compliance laws, the data must not be transmitted over the public internet. Servers in the company's on- premises data center will consume the output from an application that runs on the EC2 instances. Which solution will meet these requirements?
 
@@ -2353,7 +2304,7 @@ A gateway VPC endpoint allows communication between resources in your VPC and Am
 
 </details>
 
-### 206. dt-612
+### 202. dt-612
 
 Does AWS Direct Connect allow you access to all Availability Zones within a Region?
 
@@ -2363,7 +2314,7 @@ Does AWS Direct Connect allow you access to all Availability Zones within a Regi
 
 </details>
 
-### 207. q-612
+### 203. et-612
 
 A company has an application that runs on Amazon EC2 instances in a private subnet. The application needs to process sensitive information from an Amazon S3 bucket. The application must not use the internet to connect to the S3 bucket. Which solution will meet these requirements?
 
@@ -2375,7 +2326,7 @@ VPC Endpoint for S3: A VPC endpoint allows you to privately connect your VPC to 
 
 </details>
 
-### 208. dt-615
+### 204. dt-615
 
 You need to create a load balancer in a VPC network that you are building. You can make your load balancer internal (private) or internet-facing (public). When you make your load balancer internal, a DNS name will be created, and it will contain the private IP address of the load balancer. An internal load balancer is not exposed to the internet. When you make your load balancer internet-facing, a DNS name will be created with the public IP address. If you want the Internet-facing load balancer to be connected to the Internet, where must this load balancer reside?
 
@@ -2385,7 +2336,7 @@ You need to create a load balancer in a VPC network that you are building. You c
 
 </details>
 
-### 209. q-620
+### 205. ce-620
 
 A company asks a solutions architect to review the architecture for its messaging application. The application uses TCP and UDP traffic. The company is planning to deploy a new VoIP feature, but its 10 test users in other countries are reporting poor call quality. The VoIP application runs on an Amazon EC2 instance with more than enough resources. The HTTP portion of the company's application behind an Application Load Balancer has no issues. What should the solutions architect recommend for the company to do to address the VoIP performance issues?
 
@@ -2397,7 +2348,7 @@ AWS Global Accelerator is the optimal solution because it is designed to improve
 
 </details>
 
-### 210. dt-622
+### 206. dt-622
 
 You manually launch a NAT AMI in a public subnet. The network is properly configured. Security groups and network access control lists are properly configured. Instances in a private subnet can access the NAT. The NAT can access the Internet. However, private instances cannot access the Internet. What additional step is required to allow access from the private instances?
 
@@ -2407,7 +2358,7 @@ You manually launch a NAT AMI in a public subnet. The network is properly config
 
 </details>
 
-### 211. q-623 `least-ops`
+### 207. ce-623 `least-ops`
 
 A company has set up hybrid connectivity between an on-premises data center and AWS by using AWS Site-to-Site VPN. The company is migrating a workload to AWS. The company sets up a VPC that has two public subnets and two private subnets. The company wants to monitor the total packet loss and round-trip-time (RTT) between the data center and AWS. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2419,7 +2370,7 @@ Amazon CloudWatch Network Monitor is a fully managed service designed specifical
 
 </details>
 
-### 212. q-625
+### 208. et-625
 
 A company is hosting a website behind multiple Application Load Balancers. The company has different distribution rights for its content around the world. A solutions architect needs to ensure that users are served the correct content without violating distribution rights. Which configuration should the solutions architect choose to meet these requirements?
 
@@ -2431,7 +2382,7 @@ Geolocation routing in Amazon Route 53 allows you to route traffic based on the 
 
 </details>
 
-### 213. q-627
+### 209. et-627
 
 A company wants to migrate two DNS servers to AWS. The servers host a total of approximately 200 zones and receive 1 million requests each day on average. The company wants to maximize availability while minimizing the operational overhead that is related to the management of the two servers. What should a solutions architect recommend to meet these requirements?
 
@@ -2443,7 +2394,7 @@ Amazon Route 53 is a highly available and scalable domain name system (DNS) web 
 
 </details>
 
-### 214. dt-629
+### 210. dt-629
 
 Regarding the attaching of ENI to an instance, what does 'warm attach' refer to?
 
@@ -2453,7 +2404,7 @@ Regarding the attaching of ENI to an instance, what does 'warm attach' refer to?
 
 </details>
 
-### 215. q-636
+### 211. ce-636
 
 A company runs an application in a VPC on AWS. The company's on-premises data center has a DNS server. The data center is connected to AWS through an AWS Direct Connect connection with a private virtual interface (VIF). The on-premises DNS server needs to resolve the DNS name of the application in the VPC.
 
@@ -2465,7 +2416,7 @@ The scenario requires DNS queries originating from an on-premises network to be 
 
 </details>
 
-### 216. dt-636
+### 212. dt-636
 
 In Route 53, what does a Hosted Zone refer to?
 
@@ -2475,7 +2426,7 @@ In Route 53, what does a Hosted Zone refer to?
 
 </details>
 
-### 217. q-639
+### 213. ce-639
 
 A company wants to use AWS Direct Connect to connect the company's on-premises networks to the AWS Cloud. The company runs several VPCs in a single AWS Region. The company plans to expand its VPC fleet to include hundreds of VPCs. A solutions architect needs to simplify and scale the company's network infrastructure to accommodate future VPCs. Which service or resource will meet these requirements?
 
@@ -2487,7 +2438,7 @@ AWS Transit Gateway acts as a network transit hub, or a cloud router, to simplif
 
 </details>
 
-### 218. q-640
+### 214. ce-640
 
 A company recently migrated its application to a VPC on AWS. An AWS Site-to-Site VPN connection connects the company's on-premises network to the VPC. The application retrieves customer data from another system that resides on premises. The application uses an on-premises DNS server to resolve domain records. After the migration, the application is not able to connect to the customer data because of name resolution errors. Which solution will give the application the ability to resolve the internal domain names?
 
@@ -2499,7 +2450,7 @@ The most effective and scalable solution is to use Amazon Route 53 Resolver. By 
 
 </details>
 
-### 219. dt-653 `availability`
+### 215. dt-653 `availability`
 
 A company has primary and secondary data centers that are 500 miles (804.7 km) apart and interconnected with high-speed fiber-optic cable. The company needs a highly available and secure network connection between its data centers and a VPC on AWS for a mission-critical workload. A solutions architect must choose a connection solution that provides maximum resiliency. Which solution meets these requirements?
 
@@ -2509,7 +2460,7 @@ A company has primary and secondary data centers that are 500 miles (804.7 km) a
 
 </details>
 
-### 220. dt-655
+### 216. dt-655
 
 A solutions architect is creating an application. The application will run on Amazon EC2 instances in private subnets across multiple Availability Zones in a VPC. The EC2 instances will frequently access large files that contain confidential information. These files are stored in Amazon S3 buckets for processing. The solutions architect must optimize the network architecture to minimize data transfer costs. What should the solutions architect do to meet these requirements?
 
@@ -2519,7 +2470,7 @@ A solutions architect is creating an application. The application will run on Am
 
 </details>
 
-### 221. gh-657 `cost`
+### 217. gh-657 `cost`
 
 A company has multiple AWS accounts in an organization in AWS Organizations that different business units use. The company has multiple
 o ces around the world. The company needs to update security group rules to allow new o ce CIDR ranges or to remove old CIDR ranges across
@@ -2536,7 +2487,7 @@ Firewall Manager (Option D) is overkill for CIDR updates.
 
 </details>
 
-### 222. dt-662
+### 218. dt-662
 
 A company runs a web application on multiple Amazon EC2 instances in a VPC. The application needs to write sensitive data to an Amazon S3 bucket. The data cannot be sent over the public internet. Which solution will meet these requirements?
 
@@ -2546,7 +2497,7 @@ A company runs a web application on multiple Amazon EC2 instances in a VPC. The 
 
 </details>
 
-### 223. gh-663
+### 219. gh-663
 
 A company is developing a new application on AWS. The application consists of an Amazon Elastic Container Service (Amazon ECS) cluster, an
 Amazon S3 bucket that contains assets for the application, and an Amazon RDS for MySQL database that contains the dataset for the application.
@@ -2563,7 +2514,7 @@ KMS (Options A/B) doesn’t restrict network access.
 
 </details>
 
-### 224. q-683
+### 220. ce-683
 
 A company is deploying an application in three AWS Regions using an Application Load Balancer. Amazon Route 53 will be used to distribute traffic between these Regions. Which Route 53 configuration should a solutions architect use to provide the MOST high-performing experience?
 
@@ -2575,7 +2526,7 @@ To provide the most high-performing experience for a multi-region application, t
 
 </details>
 
-### 225. dt-683 `least-ops`
+### 221. dt-683 `least-ops`
 
 A company has a three-tier web application that is deployed on AWS. The web servers are deployed in a public subnet in a VPC. The application servers and database servers are deployed in private subnets in the same VPC. The company has deployed a third-party virtual firewall appliance from AWS Marketplace in an inspection VPC. The appliance is configured with an IP interface that can accept IP packets. A solutions architect needs to integrate the web application with the appliance to inspect all traffic to the application before the traffic reaches the web server. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -2585,7 +2536,7 @@ A company has a three-tier web application that is deployed on AWS. The web serv
 
 </details>
 
-### 226. dt-693 `performance`
+### 222. dt-693 `performance`
 
 A company provides a Voice over Internet Protocol (VoIP) service that uses UDP connections. The service consists of Amazon EC2 instances that run in an Auto Scaling group. The company has deployments across multiple AWS Regions. The company needs to route users to the Region with the lowest latency. The company also needs automated failover between Regions. Which solution will meet these requirements?
 
@@ -2595,7 +2546,7 @@ A company provides a Voice over Internet Protocol (VoIP) service that uses UDP c
 
 </details>
 
-### 227. dt-697
+### 223. dt-697
 
 A company is preparing to launch a public-facing web application in the AWS Cloud. The architecture consists of Amazon EC2 instances within a VPC behind an Elastic Load Balancer (ELB). A third-party service is used for the DNS. The company's solutions architect must recommend a solution to detect and protect against large-scale DDoS attacks. Which solution meets these requirements?
 
@@ -2605,7 +2556,7 @@ A company is preparing to launch a public-facing web application in the AWS Clou
 
 </details>
 
-### 228. dt-706
+### 224. dt-706
 
 A solutions architect is designing a three-tier web application. The architecture consists of an internet-facing Application Load Balancer (ALB) and a web tier that is hosted on Amazon EC2 instances in private subnets. The application tier with the business logic runs on EC2 instances in private subnets. The database tier consists of Microsoft SQL Server that runs on EC2 instances in private subnets. Security is a high priority for the company. Which combination of security group configurations should the solutions architect use? (Choose three.)
 
@@ -2615,7 +2566,7 @@ A solutions architect is designing a three-tier web application. The architectur
 
 </details>
 
-### 229. q-707
+### 225. ce-707
 
 A company wants to use AWS Direct Connect to connect on-premises networks to AWS. The company runs many VPCs in a single Region and plans to scale to hundreds of VPCs. Which service will simplify and scale the network architecture?
 
@@ -2627,7 +2578,7 @@ AWS Transit Gateway is designed to simplify network connectivity at scale. It ac
 
 </details>
 
-### 230. q-717
+### 226. ce-717
 
 A solutions architect runs a web application on multiple Amazon EC2 instances that are in individual target groups behind an Application Load Balancer (ALB). Users can reach the application through a public website. The solutions architect wants to allow engineers to use a development version of the website to access one specific development EC2 instance to test new features for the application. The solutions architect wants to use an Amazon Route 53 hosted zone to give the engineers access to the development instance. The solution must automatically route to the development instance even if the development instance is replaced. Which solution will meet these requirements?
 
@@ -2639,7 +2590,7 @@ The most effective solution is to use the Application Load Balancer's (ALB) host
 
 </details>
 
-### 231. dt-721
+### 227. dt-721
 
 A company wants to build an immutable infrastructure for its software applications. The company wants to test the software applications before sending traffic to them. The company seeks an efficient solution that limits the effects of application bugs. Which combination of steps should a solutions architect recommend? (Select TWO.)
 
@@ -2649,7 +2600,7 @@ A company wants to build an immutable infrastructure for its software applicatio
 
 </details>
 
-### 232. dt-723
+### 228. dt-723
 
 An application running in a private subnet accesses an Amazon DynamoDB table. The data cannot leave the AWS network to meet security requirements. How should this requirement be met?
 
@@ -2659,7 +2610,7 @@ An application running in a private subnet accesses an Amazon DynamoDB table. Th
 
 </details>
 
-### 233. q-729 `performance`
+### 229. ce-729 `performance`
 
 A global company hosts its web application on Amazon EC2 instances behind an Application Load Balancer ALB. The web application has static data and dynamic data. The company stores its static data in an Amazon S3 bucket. The company wants to improve performance and reduce latency for the static data and dynamic data. The company is using its own domain name registered with Amazon Route 53. What should a solutions architect do to meet these requirements?
 
@@ -2671,7 +2622,7 @@ Amazon CloudFront is designed to accelerate the delivery of both static and dyna
 
 </details>
 
-### 234. dt-733
+### 230. dt-733
 
 A company that recently started using AWS establishes a Site-to-Site VPN between its on-premises datacenter and AWS. The company's security mandate states that traffic originating from on premises should stay within the company's private IP space when communicating with an Amazon Elastic Container Service (Amazon ECS) cluster that is hosting a sample web application. Which solution meets this requirement?
 
@@ -2681,7 +2632,7 @@ A company that recently started using AWS establishes a Site-to-Site VPN between
 
 </details>
 
-### 235. dt-740
+### 231. dt-740
 
 A company has applications hosted on Amazon EC2 instances with IPv6 addresses. The applications must initiate communications with other external applications using the internet. However, the company's security policy states that any external service cannot initiate a connection to the EC2 instances. What should a solutions architect recommend to resolve this issue?
 
@@ -2691,7 +2642,7 @@ A company has applications hosted on Amazon EC2 instances with IPv6 addresses. T
 
 </details>
 
-### 236. q-749
+### 232. ce-749
 
 A company is designing the network for an online multi-player game. The game uses the UDP networking protocol and will be deployed in eight AWS Regions. The network architecture needs to minimize latency and packet loss to give end users a high-quality gaming experience. Which solution will meet these requirements?
 
@@ -2703,7 +2654,7 @@ The key requirements are minimizing latency and packet loss for a global, multi-
 
 </details>
 
-### 237. q-750
+### 233. ce-750
 
 A company is planning to migrate to AWS. The network layout will include more than 1,000 VPCs in a single AWS Region. The resources in the VPCs need to communicate with each other. What should a solutions architect recommend to meet these requirements?
 
@@ -2715,7 +2666,7 @@ AWS Transit Gateway is designed to simplify network connectivity at scale. It ac
 
 </details>
 
-### 238. dt-758
+### 234. dt-758
 
 A company previously migrated its data warehouse solution to AWS. The company also has an AWS Direct Connect connection. Corporate office users query the data warehouse using a visualization tool. The average size of a query returned by the data warehouse is 50 MB and each webpage sent by the visualization tool is approximately 500 KB. Result sets returned by the data warehouse are not cached. Which solution provides the LOWEST data transfer egress cost for the company?
 
@@ -2725,7 +2676,7 @@ A company previously migrated its data warehouse solution to AWS. The company al
 
 </details>
 
-### 239. dt-760
+### 235. dt-760
 
 A company has an application that runs on Amazon EC2 instances within a private subnet in a VPC. The instances access data in an Amazon S3 bucket in the same AWS Region. The VPC contains a NAT gateway in a public subnet to access the S3 bucket. The company wants to reduce costs by replacing the NAT gateway without compromising security or redundancy. Which solution meets these requirements?
 
@@ -2735,7 +2686,7 @@ A company has an application that runs on Amazon EC2 instances within a private 
 
 </details>
 
-### 240. dt-761
+### 236. dt-761
 
 A company hosts a website on premises and wants to migrate it to the AWS Cloud. The website exposes a single hostname to the internet but it routes its functions to different on-premises server groups based on the path of the URL. The server groups are scaled independently depending on the needs of the functions they support. The company has an AWS Direct Connect connection configured to its on-premises network. What should a solutions architect do to provide path-based routing to send the traffic to the correct group of servers?
 
@@ -2745,7 +2696,7 @@ A company hosts a website on premises and wants to migrate it to the AWS Cloud. 
 
 </details>
 
-### 241. q-768
+### 237. ce-768
 
 A company hosts an application on an Amazon EC2 instance in a single AWS Region. The application requires support for non-HTTP TCP traffic and HTTP traffic. The company wants to deliver content with low latency by using the AWS network. The company also wants to implement an Auto Scaling group with an Elastic Load Balancing (ELB) load balancer. How should a solutions architect meet these requirements?
 
@@ -2757,7 +2708,7 @@ The requirement to support both non-HTTP TCP and HTTP traffic necessitates a loa
 
 </details>
 
-### 242. dt-768
+### 238. dt-768
 
 A company has an application hosted on Amazon EC2 instances in two VPCs across different AWS Regions. To communicate with each other, the instances use the internet for connectivity. The security team wants to ensure that no communication between the instances happens over the internet. What should a solutions architect do to accomplish this?
 
@@ -2767,7 +2718,7 @@ A company has an application hosted on Amazon EC2 instances in two VPCs across d
 
 </details>
 
-### 243. dt-771
+### 239. dt-771
 
 A company is designing a web application with an internet-facing Application Load Balancer (ALB). The company needs the ALB to receive HTTPS web traffic from the public internet. The ALB must send only HTTPS traffic to the web application servers hosted on the Amazon EC2 instances on port 443. The ALB must perform a health check of the web application servers over HTTPS on port 8443. Which combination of configurations of the security group that is associated with the ALB will meet these requirements? (Choose three.)
 
@@ -2777,7 +2728,7 @@ A company is designing a web application with an internet-facing Application Loa
 
 </details>
 
-### 244. q-801
+### 240. ce-801
 
 A company recently migrated a data warehouse to AWS. The company has an AWS Direct Connect connection to AWS. Company users query the data warehouse by using a visualization tool. The average size of the queries that the data warehouse returns is 50 MB. The average visualization that the visualization tool produces is 500 KB in size. The result sets that the data warehouse returns are not cached. The company wants to optimize costs for data transfers between the data warehouse and the company. Which solution will meet this requirement?
 
@@ -2789,7 +2740,7 @@ The primary goal is to minimize data transfer costs, which are mainly incurred f
 
 </details>
 
-### 245. q-809 `cost`
+### 241. ce-809 `cost`
 
 A company hosts its applications in multiple private and public subnets in a VPC. The applications in the private subnets need to access an API. The API is available on the internet and is hosted in the company's on-premises data center. A solutions architect needs to establish connectivity for applications in the private subnets. Which solution will meet these requirements MOST cost-effectively?
 
@@ -2801,7 +2752,7 @@ The most cost-effective solution to establish secure, private connectivity betwe
 
 </details>
 
-### 246. q-837
+### 242. ce-837
 
 A company hosts a website on Amazon EC2 instances behind an Application Load Balancer (ALB). The website serves static content. Website traffic is increasing. The company wants to minimize the website hosting costs. Which solution will meet these requirements?
 
@@ -2813,7 +2764,7 @@ The most cost-effective and scalable solution for hosting a static website on AW
 
 </details>
 
-### 247. q-839 `availability`
+### 243. ce-839 `availability`
 
 A company runs multiple workloads in separate AWS environments. The company wants to optimize its AWS costs but must maintain the same level of performance for the environments. The company's production environment requires resources to be highly available. The other environments do not require highly available resources. Each environment has the same set of networking components, including the following: • 1 VPC • 1 Application Load Balancer • 4 subnets distributed across 2 Availability Zones (2 public subnets and 2 private subnets) • 2 NAT gateways (1 in each public subnet) • 1 internet gateway Which solution will meet these requirements?
 
@@ -2825,7 +2776,7 @@ The goal is to optimize costs for non-production environments while maintaining 
 
 </details>
 
-### 248. q-893
+### 244. ce-893
 
 A company is running a web-based game in two Availability Zones in the us-west-2 Region. The web servers use an Application Load Balancer (ALB) in public subnets. The ALB has an SSL certificate from AWS Certificate Manager (ACM) with a custom domain name. The game is written in JavaScript and runs entirely in a user's web browser. The game is increasing in popularity in many countries around the world. The company wants to update the application architecture and optimize costs without compromising performance. What should a solutions architect do to meet these requirements?
 
@@ -2837,7 +2788,7 @@ The game consists of static JavaScript and HTML files, which are ideal for hosti
 
 </details>
 
-### 249. q-946
+### 245. ce-946
 
 A company manages separate AWS environments for multiple customers. Each customer has its own dedicated VPC, internet gateway, NAT gateway, network infrastructure, and some common management services. The company wants to avoid increasing infrastructure costs as the company onboards new customers. The company wants to optimize network architecture costs while maintaining strict customer data isolation requirements. Which solution will meet these requirements?
 
@@ -2849,7 +2800,7 @@ This solution describes a scalable and cost-effective hub-and-spoke network arch
 
 </details>
 
-### 250. q-949
+### 246. ce-949
 
 A company is designing an advertisement distribution application to run on AWS. The company wants to deploy the application as a container to Amazon Elastic Container Service (Amazon ECS). Advertisements must be displayed to users around the world with low latency. The company needs to optimize data transfer costs. Which solution will meet these requirements?
 
@@ -2861,7 +2812,7 @@ This solution correctly uses Amazon CloudFront, a Content Delivery Network (CDN)
 
 </details>
 
-### 251. q-956 `availability`
+### 247. ce-956 `availability`
 
 An ecommerce company hosts an application on AWS across multiple Availability Zones. The application experiences uniform load throughout most days. The company hosts some components of the application in private subnets. The components need to access the internet to install and update patches. A solutions architect needs to design a cost-effective solution that provides secure outbound internet connectivity for private subnets across multiple Availability Zones. The solution must maintain high availability.
 
@@ -2873,7 +2824,7 @@ The most effective solution to provide highly available and secure outbound inte
 
 </details>
 
-### 252. q-957 `cost`
+### 248. ce-957 `cost`
 
 A company needs to create an AWS Lambda function that will run in a VPC in the company's primary AWS account. The Lambda function needs to access files that the company stores in an Amazon Elastic File System (Amazon EFS) file system. The EFS file system is located in a secondary AWS account. As the company adds files to the file system, the solution must scale to meet the demand. Which solution will meet these requirements MOST cost-effectively?
 

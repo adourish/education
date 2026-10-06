@@ -1,6 +1,6 @@
 # Analytics — query, ETL, big data, search, BI
 
-27 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
+26 questions. Answers are hidden behind a toggle — read the question, commit to an answer out loud, then open it.
 
 ---
 
@@ -14,7 +14,7 @@ Your department creates regular analytics reports from your company's log files 
 
 </details>
 
-### 2. q-134
+### 2. ce-134
 
 A healthcare company uses an Amazon EMR cluster to process patient dat a. The data must be encrypted in transit and at rest. Local volumes in the cluster also need to be encrypted. Which solution will meet these requirements? Options:
 
@@ -26,7 +26,7 @@ An Amazon EMR security configuration is a reusable set of options that simplifie
 
 </details>
 
-### 3. q-204
+### 3. et-204
 
 An online retail company has more than 50 million active customers and receives more than 25,000 orders each day. The company collects purchase data for customers and stores this data in Amazon S3. Additional customer data is stored in Amazon RDS. The company wants to make all the data available to various teams so that the teams can perform analytics. The solution must provide the ability to manage fine-grained permissions for the data and must minimize operational overhead. Which solution will meet these requirements?
 
@@ -38,7 +38,7 @@ AWS Lake Formation is designed to create a secure and scalable data lake in Amaz
 
 </details>
 
-### 4. q-220 `least-ops`
+### 4. ce-220 `least-ops`
 
 A company uses AWS Lake Formation to govern its S3 data lake. It wants to visualize data in QuickSight by joining S3 data with Aurora MySQL operational data. The marketing team must see only specific columns. Which solution provides column-level authorization with the least operational overhead?
 
@@ -50,7 +50,7 @@ This solution leverages AWS Lake Formation, which the company already uses, for 
 
 </details>
 
-### 5. q-226 `least-ops`
+### 5. ce-226 `least-ops`
 
 A company has an Amazon S3 data lake that is governed by AWS Lake Formation. The company wants to create a visualization in Amazon QuickSight by joining the data in the data lake with operational data that is stored in an Amazon Aurora MySQL database. The company wants to enforce column-level authorization so that the company's marketing team can access only a subset of columns in the database. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -62,7 +62,7 @@ This solution leverages AWS Lake Formation, which is already in use for governin
 
 </details>
 
-### 6. q-258 `least-ops`
+### 6. et-258 `least-ops`
 
 A company has an application that places hundreds of .csv files into an Amazon S3 bucket every hour. The files are 1 GB in size. Each time a file is uploaded, the company needs to convert the file to Apache Parquet format and place the output file into an S3 bucket. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -74,7 +74,7 @@ AWS Glue ETL Job:  AWS Glue is a fully managed extract, transform, and load (ETL
 
 </details>
 
-### 7. q-317 `least-ops`
+### 7. et-317 `least-ops`
 
 A company uses a legacy application to produce data in CSV format. The legacy application stores the output data in Amazon S3. The company is deploying a new commercial off-the-shelf (COTS) application that can perform complex SQL queries to analyze data that is stored in Amazon Redshift and Amazon S3 only. However, the COTS application cannot process the .csv files that the legacy application produces. The company cannot update the legacy application to produce data in another format. The company needs to implement a solution so that the COTS application can use the data that the legacy application produces. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -94,7 +94,7 @@ You have just finished setting up an advertisement server in which one of the ob
 
 </details>
 
-### 9. q-432 `least-ops`
+### 9. et-432 `least-ops`
 
 An ecommerce company wants to use machine learning (ML) algorithms to build and train models. The company will use the models to visualize complex scenarios and to detect trends in customer data. The architecture team wants to integrate its ML models with a reporting platform to analyze the augmented data and use the data directly in its business intelligence dashboards. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -106,7 +106,7 @@ Amazon SageMaker: It is a fully managed service for building, training, and depl
 
 </details>
 
-### 10. q-442 `least-ops` `security`
+### 10. et-442 `least-ops` `security`
 
 A company stores several petabytes of data across multiple AWS accounts. The company uses AWS Lake Formation to manage its data lake. The company's data science team wants to securely share selective data from its accounts with the company's engineering team for analytical purposes. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -128,7 +128,7 @@ A major finance organisation has engaged your company to set up a large data min
 
 </details>
 
-### 12. q-488 `least-ops`
+### 12. ce-488 `least-ops`
 
 A marketing company receives a large amount of new clickstream data in Amazon S3 from a marketing campaign The company needs to analyze the clickstream data in Amazon S3 quickly. Then the company needs to determine whether to process the data further in the data pipeline. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -140,7 +140,7 @@ This solution provides the quickest analysis with the least operational overhead
 
 </details>
 
-### 13. q-551
+### 13. ce-551
 
 A company's reporting system delivers hundreds of .csv files to an Amazon S3 bucket each day. The company must convert these files to Apache Parquet format and must store the files in a transformed data bucket. Which solution will meet these requirements with the LEAST development effort?
 
@@ -152,7 +152,7 @@ AWS Glue is a fully managed extract, transform, and load (ETL) service designed 
 
 </details>
 
-### 14. q-577
+### 14. ce-577
 
 A telemarketing company is designing its customer call center functionality on AWS. The company needs a solution that provides multiple speaker recognition and generates transcript files. The company wants to query the transcript files to analyze the business patterns. Which solution will meet these requirements?
 
@@ -164,7 +164,7 @@ Amazon Transcribe is the appropriate AWS service for converting speech to text a
 
 </details>
 
-### 15. q-590 `least-ops`
+### 15. ce-590 `least-ops`
 
 An ecommerce company wants to use machine learning (ML) algorithms to build and train models. The company will use the models to visualize complex scenarios and detect trends in customer data. The architecture team wants to integrate its ML models with a reporting platform to analyze the augmented data and use the data directly in its business intelligence dashboards. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -176,7 +176,7 @@ Amazon SageMaker is a fully managed service specifically designed to build, trai
 
 </details>
 
-### 16. q-594
+### 16. ce-594
 
 A finance company collects streaming data for a real-time search and visualization system. They want to migrate to AWS using a native solution for ingest, search, and visualization. Options:
 
@@ -198,7 +198,7 @@ You are in the process of building an online gaming site for a client and one of
 
 </details>
 
-### 18. q-634
+### 18. ce-634
 
 A finance company uses an on-premises search application to collect streaming data from various producers. The application provides real-time updates to search and visualization features. The company is planning to migrate to AWS and wants to use an AWS native solution. Which solution will meet these requirements?
 
@@ -210,7 +210,7 @@ This solution correctly maps the requirements to the most suitable AWS native se
 
 </details>
 
-### 19. q-637
+### 19. ce-637
 
 A mining company is using Amazon S3 as its data lake. The company wants to analyze the data collected by the sensors in its mines. A data pipeline is being built to capture data from the sensors, ingest the data into an S3 bucket, and convert the data to Apache Parquet format. The data pipeline must be processed in near-real time. The data will be used for on-demand queries with Amazon Athena. Which solution will meet these requirements?
 
@@ -222,7 +222,7 @@ Amazon Data Firehose is a fully managed service designed to capture, transform, 
 
 </details>
 
-### 20. q-638
+### 20. ce-638
 
 A company uses Amazon Redshift to store structured data and Amazon S3 to store unstructured dat a. The company wants to analyze the stored data and create business intelligence reports. The company needs a data visualization solution that is compatible with Amazon Redshift and Amazon S3. Which solution will meet these requirements?
 
@@ -234,7 +234,7 @@ This solution presents a standard and effective AWS architecture for business in
 
 </details>
 
-### 21. q-649
+### 21. ce-649
 
 A company operates a data lake in Amazon S3 that stores large datasets in multiple formats. The company has an application that retrieves and processes subsets of data from multiple objects in the data lake based on filtering criteri a. For each data query, the application currently downloads the entire S3 object and performs transformations. The current process requires a large amount of transformation time. The company wants a solution that will give the application the ability to query and filter directly on S3 objects without downloading the objects. Which solution will meet these requirements?
 
@@ -246,7 +246,7 @@ Amazon Athena is an interactive, serverless query service designed to analyze da
 
 </details>
 
-### 22. q-654 `least-ops`
+### 22. ce-654 `least-ops`
 
 A company is developing a platform to process large volumes of data for complex analytics and machine learning (ML) tasks. The platform must handle compute-intensive workloads. The workloads currently require 20 to 30 minutes for each data processing step. The company wants a solution to accelerate data processing. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -258,7 +258,7 @@ Amazon EMR (Elastic MapReduce) is a managed cloud big data platform designed for
 
 </details>
 
-### 23. q-695
+### 23. ce-695
 
 A company operates a data lake in Amazon S3. The company wants to query and filter data directly in S3 without downloading objects. Which solution will meet these requirements?
 
@@ -280,7 +280,7 @@ A company stores 200 GB of data each month in Amazon S3. The company needs to pe
 
 </details>
 
-### 25. q-823
+### 25. ce-823
 
 A company wants to visualize its AWS spend and resource usage. The company wants to use an AWS managed service to provide visual dashboards. Which solution will meet these requirements?
 
@@ -292,19 +292,7 @@ The most effective solution is to use AWS Data Exports to create a detailed Cost
 
 </details>
 
-### 26. q-890
-
-A company is designing a data pipeline that ingests 50 GB of semi-structured JSON data daily from thousands of IoT devices. The data must be immediately queryable and stored for compliance archival. The company wants to minimize storage costs while maintaining query performance. Which architecture best balances these requirements?
-
-<details><summary>Answer</summary>
-
-**B. Stream data to Kinesis Data Firehose, transform to Parquet format, store in S3, and query with Athena. Load all data into DynamoDB with an on-demand pricing model for immediate queryability.**
-
-Option B is the optimal architecture. Amazon Kinesis Data Firehose natively ingests streaming data from thousands of IoT devices and can automatically convert semi-structured JSON into Apache Parquet, a columnar storage format. Storing Parquet in Amazon S3 significantly reduces storage costs and improves query performance because it compresses data and minimizes the amount of data scanned during queries. Amazon Athena can immediately query this S3 data using standard SQL without requiring infrastructure provisioning. Furthermore, S3 provides native lifecycle policies to seamlessly transition older data to cost-effective archival storage classes like S3 Glacier for compliance, fulfilling all requirements while minimizing both storage and analytical compute costs. Why Incorrect Options are Wrong: A: S3 Select is designed to filter data from a single object, not to perform complex analytica
-
-</details>
-
-### 27. q-952 `least-ops`
+### 26. ce-952 `least-ops`
 
 A company wants to use automatic machine learning (ML) to create and visualize forecasts of complex scenarios and trends. Which solution will meet these requirements with the LEAST management overhead?
 
