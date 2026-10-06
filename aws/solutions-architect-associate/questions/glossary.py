@@ -141,7 +141,7 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "RDS Proxy": (r"RDS Proxy",
         "Pools and reuses database connections, so many short-lived clients such as Lambda functions do not exhaust the database. It does not add read capacity."),
 
-    "AWS Schema Conversion Tool": (r"Schema Conversion Tool|SCT",
+    "AWS Schema Conversion Tool": (r"Schema Conversion Tool|\bSCT\b",
         "Rewrites a database's schema and stored code for a different engine. Paired with DMS when the migration changes engine, not just location."),
 
     # ---------------- networking ----------------
@@ -232,7 +232,13 @@ GLOSSARY: dict[str, tuple[str, str]] = {
 
     # ---------------- integration ----------------
     "Amazon SQS": (r"\bSQS\b|Simple Queue Service",
-        "A queue holding messages until a worker takes them, so a busy front end cannot swamp the back end. Standard may duplicate and reorder; FIFO does neither."),
+        "A queue holding messages until a worker takes them, so a busy front end cannot swamp the back end. A standard queue may deliver a message more than once and in any order; a FIFO queue does neither."),
+    "SQS FIFO queue": (r"\bFIFO\b",
+        "A queue that keeps messages in order and delivers each one once. Its name must end in .fifo. The trade is speed: 300 messages a second, 3,000 if you send them ten to a call, and more only in high-throughput mode. A standard queue has no such ceiling."),
+    "SQS message deduplication": (r"deduplicat|dedupe|duplicate message",
+        "How a FIFO queue drops a repeat. Every message carries a deduplication ID, either one you set or, with content-based deduplication switched on, a hash of the message body. A second message with the same ID inside a five-minute window is accepted and quietly thrown away. Past five minutes it counts as new, so a retry that slow is processed twice."),
+    "SQS message group ID": (r"message group",
+        "The label saying which messages must stay in order relative to each other. A FIFO queue orders within one group, not across the whole queue, so different groups are handled side by side. One group for everything gives strict order but no work in parallel."),
     "SQS visibility timeout": (r"visibility timeout",
         "How long a message stays hidden after a worker takes it. Shorter than the processing time and the message gets handled twice."),
     "Dead-letter queue": (r"dead-letter|dead letter",
@@ -254,7 +260,7 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS AppSync": (r"AppSync",
         "A managed GraphQL API, with offline syncing for mobile applications."),
 
-    "Amazon SES": (r"SES|Simple Email Service",
+    "Amazon SES": (r"\bSES\b|Simple Email Service",
         "Sends and receives email at volume: transactional messages, newsletters, and the deliverability reporting that goes with them."),
 
     # ---------------- analytics ----------------

@@ -68,7 +68,7 @@ CONCEPTS: dict[str, str] = {
     "Redshift": r"Redshift",
     "DMS / SCT migration": r"\bDMS\b|Database Migration Service|Schema Conversion",
     # --- integration
-    "SQS": r"\bSQS\b|Simple Queue Service",
+    "SQS": r"\bSQS\b|Simple Queue Service|\bFIFO\b|dead-letter|visibility timeout",
     "SQS visibility timeout / DLQ": r"visibility timeout|dead-letter|dead letter",
     "SNS": r"\bSNS\b|Simple Notification Service",
     "EventBridge": r"EventBridge|CloudWatch Events",
