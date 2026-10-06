@@ -35,7 +35,7 @@ DATA = HERE / "app-data.json"
 OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 
 # The wrapper the Artifact publisher would otherwise supply. Mirrors it closely:
 # same charset, same viewport with viewport-fit=cover, same safe-area padding on
@@ -105,6 +105,17 @@ def main() -> None:
     for needed in ("<!doctype html>", '<meta charset="utf-8">'):
         if needed not in sa:
             raise SystemExit(f"standalone build is missing {needed}")
+
+    # A stray NUL renders as U+FFFD and, inside script code, breaks the whole
+    # page. One got in once via a CSS escape that a build step read as octal,
+    # so check the bytes rather than trusting the source.
+    for f in (OUT, OUT_STANDALONE):
+        raw = f.read_bytes()
+        if b"\x00" in raw:
+            at = raw.index(b"\x00")
+            raise SystemExit(
+                f"{f.name} contains a NUL byte at line {raw[:at].count(chr(10).encode()) + 1}"
+            )
 
 
 if __name__ == "__main__":

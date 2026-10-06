@@ -28,6 +28,7 @@ POSTER = HERE.parent / "poster" / "poster.html"
 BANK = HERE.parent / "questions" / "bank.json"
 YIELD = HERE.parent / "questions" / "yield.json"
 CONCEPTS_SRC = HERE.parent / "questions" / "yield-report.py"
+FLAGS = HERE.parent / "questions" / "review" / "flags.json"
 OUT = HERE / "app-data.json"
 
 VERSION = "1.0.0"
@@ -74,6 +75,11 @@ def main() -> None:
                 continue
             ym = re.search(r'class="yq y(\d)"', raw_q)
             rows.append({
+                # Stable id so a row's own score survives a rebuild. Derived from
+                # the cue text rather than its position, because inserting a row
+                # above would otherwise shift every score below it onto the wrong
+                # line.
+                "id": key + ":" + re.sub(r"[^a-z0-9]+", "-", cue.lower())[:46].strip("-"),
                 "cue": cue,
                 "ans": ans,
                 "tier": int(ym.group(1)) if ym else 0,
@@ -90,6 +96,12 @@ def main() -> None:
                              "rows": rows, "traps": traps, "notes": notes})
 
     # ---- questions ----------------------------------------------------------
+    # Review findings: questions the fact-checkers judged wrong, stale, or
+    # carrying an explanation that cannot be trusted.
+    flags = {}
+    if FLAGS.exists():
+        flags = json.loads(FLAGS.read_text(encoding="utf-8"))
+
     bank = json.loads(BANK.read_text(encoding="utf-8"))
     questions = []
     for r in bank:
@@ -104,6 +116,7 @@ def main() -> None:
             "area": r["area"],
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
+            "flag": flags.get(r["id"]),
         })
 
     data = {
@@ -130,6 +143,7 @@ def main() -> None:
     print(f"version {VERSION} built {data['built']}")
     print(f"  {len(sections)} poster sections, {rows} rows")
     print(f"  {len(questions)} questions ({sum(1 for q in questions if q['opts'])} with options)")
+    print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
     print(f"  {len(concepts)} concepts")
     print(f"  app-data.json {kb} KB")
 

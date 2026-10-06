@@ -1,5 +1,5 @@
 <title>SAA-C03 Recall Board</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ===========================================================================
    SAA-C03 Recall Board
@@ -9,9 +9,9 @@
    =========================================================================== */
 
 :root {
-  --ground:      #f2f6f7;
-  --surface:     #ffffff;
-  --surface-2:   #e9eff1;
+  --ground:      #eef3f4;
+  --surface:     #fbfcfc;
+  --surface-2:   #e3ebed;
   --ink:         #10181b;
   --ink-2:       #46545a;
   --ink-3:       #7b888d;
@@ -29,7 +29,9 @@
   --shadow:      0 1px 2px rgba(16,24,27,.06), 0 4px 14px rgba(16,24,27,.05);
   --radius:      10px;
 
-  --ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Atkinson Hyperlegible was drawn by the Braille Institute to keep letters
+     apart from one another: b and d, I and l and 1 are all distinct. */
+  --ui: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
@@ -86,7 +88,10 @@ body {
   color: var(--ink);
   font-family: var(--ui);
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: .01em;
+  word-spacing: .04em;
+  text-align: left;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -167,7 +172,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 
 /* ---------------- shared bits ---------------- */
 
-.lede { color: var(--ink-2); font-size: 0.92rem; max-width: 70ch; margin: 0 0 16px; }
+.lede { color: var(--ink-2); font-size: 0.95rem; line-height: 1.65; max-width: 62ch; margin: 0 0 16px; }
 
 .pill {
   display: inline-flex; align-items: center; gap: 5px;
@@ -210,16 +215,16 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
 }
 .sec > header h3 {
-  margin: 0; font-size: 0.9rem; font-weight: 700;
-  letter-spacing: .5px; text-transform: uppercase; color: var(--cyan);
+  margin: 0; font-size: 0.95rem; font-weight: 700;
+  letter-spacing: .01em; color: var(--cyan);
 }
 .sec > header .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
 
 .row {
   display: grid;
-  grid-template-columns: 18px minmax(0,1fr);
-  gap: 9px;
-  padding: 8px 12px;
+  grid-template-columns: 18px minmax(0,1fr) auto;
+  gap: 10px;
+  padding: 10px 12px;
   border-top: 1px solid var(--rule-2);
   align-items: start;
 }
@@ -227,9 +232,68 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .row .pair { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: 10px; }
 @media (max-width: 520px) { .row .pair { grid-template-columns: 1fr; gap: 2px; } }
 
-.row .cue { font-size: 0.95rem; color: var(--ink); display: flex; gap: 5px; align-items: baseline; flex-wrap: wrap; }
-.row .ans { font-size: 0.95rem; font-weight: 600; color: var(--cyan); }
+.row .cue { font-size: 0.95rem; line-height: 1.5; color: var(--ink); display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.row .ans { font-size: 0.95rem; line-height: 1.5; font-weight: 700; color: var(--cyan); }
 .row.mono .ans { font-family: var(--mono); font-size: 0.9rem; }
+
+/* a line is a button: tap it to drill just that topic */
+.row { cursor: pointer; border-left: 3px solid transparent; }
+.row:hover { background: var(--surface-2); }
+.row:focus-visible { outline: 2px solid var(--cyan); outline-offset: -2px; }
+.row .cue::after {
+  content: " ▸";
+  color: var(--ink-3); font-size: 0.8em; opacity: 0;
+}
+.row:hover .cue::after, .row:focus-visible .cue::after { opacity: 1; }
+
+/* Heat: the more a line has been missed, the louder it gets. The left edge
+   thickens and the cross count grows, so it is weight and size carrying the
+   signal as well as colour. */
+.row.bad  { border-left-color: var(--magenta); }
+.row.hot  { border-left-width: 6px; }
+.row.hot .rowtally .r { font-size: 1.05rem; }
+.row.hot .cue { font-weight: 600; }
+.needs {
+  display: inline-block; margin-left: 6px;
+  font: 700 0.74rem var(--ui); letter-spacing: .01em;
+  color: var(--magenta); background: var(--magenta-soft);
+  border: 1px solid var(--magenta); border-radius: 99px; padding: 1px 7px;
+  vertical-align: 1px;
+}
+
+/* a question the reviewers found fault with. Amber, bordered and labelled in
+   words, so it does not rely on noticing a colour. */
+.flag {
+  border: 1px solid var(--amber);
+  border-left: 5px solid var(--amber);
+  background: var(--amber-soft);
+  border-radius: 8px; padding: 10px 13px; margin-bottom: 14px;
+  font-size: 0.92rem; line-height: 1.6;
+}
+.flag .what { font-weight: 700; color: var(--amber); display: block; margin-bottom: 3px; }
+.flag.sev-wrong { border-left-width: 7px; }
+
+/* banner naming the topic being drilled */
+.drill {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  background: var(--cyan-soft); border: 1px solid var(--cyan);
+  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px;
+}
+.drill .what { font-weight: 600; font-size: 0.95rem; }
+.drill .count { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-2); }
+.drill .btn { margin-left: auto; }
+
+/* per-line score: how many questions on this line you have had right and wrong */
+.rowtally {
+  align-self: start;
+  display: flex; gap: 6px;
+  font-family: var(--mono); font-size: 0.76rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap; padding-top: 1px;
+}
+.rowtally .g { color: var(--cyan); }
+.rowtally .r { color: var(--magenta); }
+.rowtally .z { color: var(--ink-3); font-weight: 400; }
 
 /* right / wrong marks: glyph + colour + edge, so hue is never the only cue */
 .state {
@@ -251,9 +315,9 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   border-top: 1px solid var(--rule-2);
   background: var(--amber-soft);
   border-left: 3px solid var(--amber);
-  font-size: 12px; color: var(--ink);
+  font-size: 0.9rem; line-height: 1.6; color: var(--ink);
 }
-.note { padding: 7px 12px; border-top: 1px solid var(--rule-2); font-size: 0.88rem; }
+.note { padding: 8px 12px; border-top: 1px solid var(--rule-2); font-size: 0.92rem; line-height: 1.6; }
 
 /* ---------------- practice ---------------- */
 
@@ -273,12 +337,12 @@ select {
 }
 .qmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.78rem; color: var(--ink-3); }
 .qmeta .count { font-family: var(--mono); font-weight: 600; color: var(--ink-2); }
-.qtext { font-size: 1.05rem; line-height: 1.6; white-space: pre-wrap; margin: 0 0 16px; }
+.qtext { font-size: 1.05rem; line-height: 1.75; max-width: 62ch; white-space: pre-wrap; margin: 0 0 16px; }
 
 .opts { display: grid; gap: 7px; margin-bottom: 14px; }
 .opt {
   text-align: left; cursor: pointer;
-  font: 400 0.97rem var(--ui); color: var(--ink);
+  font: 400 0.97rem/1.6 var(--ui); color: var(--ink);
   background: var(--surface); border: 1px solid var(--rule);
   border-radius: 8px; padding: 12px 14px;
 }
@@ -288,9 +352,9 @@ select {
 .opt.pick-bad { border-color: var(--magenta); border-width: 2px; background: var(--magenta-soft); }
 
 .reveal { border-top: 1px solid var(--rule); margin-top: 14px; padding-top: 14px; }
-.reveal h4 { margin: 0 0 6px; font-size: 0.74rem; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-3); }
+.reveal h4 { margin: 0 0 6px; font-size: 0.8rem; font-weight: 700; color: var(--ink-3); }
 .reveal .ansbox { font-size: 1rem; font-weight: 600; color: var(--cyan); margin-bottom: 10px; }
-.reveal .why { font-size: 0.92rem; color: var(--ink-2); white-space: pre-wrap; }
+.reveal .why { font-size: 0.95rem; line-height: 1.7; max-width: 62ch; color: var(--ink-2); white-space: pre-wrap; }
 
 .selfmark { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 
@@ -379,9 +443,9 @@ h2.sub:first-child { margin-top: 0; }
   background: var(--surface); color: var(--ink-2); cursor: pointer;
 }
 .modal .x:hover { border-color: var(--magenta); color: var(--magenta); }
-.modal p { margin: 0 0 12px; font-size: 0.94rem; color: var(--ink-2); }
+.modal p { margin: 0 0 12px; font-size: 0.96rem; line-height: 1.65; color: var(--ink-2); }
 .modal p.tight { margin-bottom: 7px; }
-.modal ul { margin: 0 0 14px; padding-left: 20px; font-size: 0.92rem; color: var(--ink-2); }
+.modal ul { margin: 0 0 14px; padding-left: 22px; font-size: 0.95rem; line-height: 1.7; color: var(--ink-2); }
 .modal li { margin-bottom: 4px; }
 .modal .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 .modal textarea { min-height: 96px; margin-top: 12px; }
@@ -422,9 +486,13 @@ footer .v { font-family: var(--mono); }
       about that concept &mdash; <span class="yq y3"><i></i><i></i><i></i></span> a lot,
       <span class="yq y1"><i></i><i></i><i></i></span> thinly. <span class="mk trap">&dagger;</span> marks a trap,
       <span class="mk alt">&asymp;</span> marks something the exam likes to reword.
-      Once you have answered practice questions, rows you got right show
-      <b style="color:var(--cyan)">&check;</b> and rows you missed show
-      <b style="color:var(--magenta)">&times;</b>.
+      The figures on the right of each line are <b>your own score on that topic</b>
+      &mdash; <b style="color:var(--cyan)">&check;</b> questions right and
+      <b style="color:var(--magenta)">&times;</b> wrong &mdash; and they build up every
+      time you answer a question that touches it. A line with more crosses than ticks
+      is tinted, and each block header carries the same count for the whole block.
+      <b>Tap any line to drill just that topic.</b> Lines marked
+      <span class="needs">needs work</span> are the ones to go at first.
     </p>
     <div class="picker">
       <button class="btn" id="posterFilterAll">Show all rows</button>
@@ -443,6 +511,7 @@ footer .v { font-family: var(--mono); }
         <button class="btn primary" id="startBtn">Start</button>
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
       </div>
+      <div id="drillBanner" hidden></div>
       <div class="scorebar" id="practiceScore" style="margin-bottom:14px"></div>
       <div id="qhost"></div>
     </div>
@@ -527,8 +596,13 @@ footer .v { font-family: var(--mono); }
     } catch (e) { return false; }
   })();
 
+  function blankState() {
+    return { concepts: {}, rows: {}, sections: {}, questions: {},
+             seen: 0, right: 0, wrong: 0, started: null };
+  }
+
   function loadState() {
-    var base = { concepts: {}, questions: {}, seen: 0, right: 0, wrong: 0, started: null };
+    var base = blankState();
     if (!storageOK) return base;
     try {
       var raw = localStorage.getItem(STORE_KEY);
@@ -536,6 +610,8 @@ footer .v { font-family: var(--mono); }
       var p = JSON.parse(raw);
       return {
         concepts:  p.concepts  || {},
+        rows:      p.rows      || {},   // added in 1.2: per-line scores
+        sections:  p.sections  || {},
         questions: p.questions || {},
         seen:  p.seen  || 0,
         right: p.right || 0,
@@ -614,14 +690,34 @@ footer .v { font-family: var(--mono); }
     if (!c || (!c.r && !c.w)) return "";
     return c.r > c.w ? "ok" : "bad";
   }
+
+  // Which rows and which blocks a question touches. Built once: a question and
+  // a row are related when they share a concept. A row is counted once per
+  // question even when several concepts connect them.
+  var CONCEPT_ROWS = {};   // concept -> [rowId]
+  var CONCEPT_SECS = {};   // concept -> [sectionKey]
+  DATA.sections.forEach(function (sec) {
+    sec.rows.forEach(function (r) {
+      r.c.forEach(function (k) {
+        (CONCEPT_ROWS[k] || (CONCEPT_ROWS[k] = [])).push(r.id);
+        var list = CONCEPT_SECS[k] || (CONCEPT_SECS[k] = []);
+        if (list.indexOf(sec.key) < 0) list.push(sec.key);
+      });
+    });
+  });
+
+  function score(bucket, key) {
+    var s = bucket[key];
+    return s ? s : { r: 0, w: 0 };
+  }
+  function rowScore(row) { return score(S.rows, row.id); }
+
+  // A line is solid once right beats wrong, shaky as soon as it has been
+  // missed more often than not.
   function rowState(row) {
-    var ok = false, bad = false;
-    for (var i = 0; i < row.c.length; i++) {
-      var st = conceptState(row.c[i]);
-      if (st === "bad") bad = true;
-      else if (st === "ok") ok = true;
-    }
-    return bad ? "bad" : (ok ? "ok" : "");
+    var s = rowScore(row);
+    if (!s.r && !s.w) return "";
+    return s.r > s.w ? "ok" : "bad";
   }
 
   // ---------- poster ----------
@@ -632,7 +728,25 @@ footer .v { font-family: var(--mono); }
     board.textContent = "";
     var shown = 0, okN = 0, badN = 0;
 
-    DATA.sections.forEach(function (sec) {
+    // When hunting gaps, float the weakest blocks to the top as well as the
+    // weakest lines inside them, so the worst thing on the board is the first
+    // thing read. Normal view keeps the teaching order.
+    var ordered = DATA.sections;
+    if (onlyMissed) {
+      ordered = DATA.sections.slice().sort(function (a, b) {
+        function worst(sec) {
+          var d = 0;
+          sec.rows.forEach(function (r) {
+            var s = rowScore(r);
+            if (s.w > s.r) d = Math.max(d, s.w - s.r);
+          });
+          return d;
+        }
+        return worst(b) - worst(a);
+      });
+    }
+
+    ordered.forEach(function (sec) {
       var secOk = 0, secBad = 0;
       var rows = sec.rows.filter(function (r) {
         var st = rowState(r);
@@ -646,15 +760,36 @@ footer .v { font-family: var(--mono); }
       var box = el("div", "sec");
       var head = el("header");
       head.appendChild(el("h3", null, sec.title));
-      // Per-block score, so you can see at a glance which area is weakest.
-      if (secOk || secBad) head.appendChild(tally(secOk, secBad, false));
+      // Questions answered on this block, counted once each however many lines
+      // in the block they touched.
+      var ss = score(S.sections, sec.key);
+      if (ss.r || ss.w) head.appendChild(tally(ss.r, ss.w, false));
       if (sec.tagline) head.appendChild(el("span", "tagline", sec.tagline));
       box.appendChild(head);
+
+      // Worst first when filtering to misses, so the biggest holes come first.
+      if (onlyMissed) {
+        rows = rows.slice().sort(function (a, b) {
+          var sa = rowScore(a), sb = rowScore(b);
+          return (sb.w - sb.r) - (sa.w - sa.r);
+        });
+      }
 
       rows.forEach(function (r) {
         shown++;
         var st = rowState(r);
-        var row = el("div", "row" + (st ? " " + st : ""));
+        var sc0 = rowScore(r);
+        // "Needs work" once a line has been missed at least three times and is
+        // still being missed more often than not.
+        var hot = st === "bad" && sc0.w >= 3;
+        var row = el("div", "row" + (st ? " " + st : "") + (hot ? " hot" : ""));
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-label", "Practise: " + r.cue);
+        row.addEventListener("click", function () { drillRow(r); });
+        row.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drillRow(r); }
+        });
         var mark = el("div", "state", st === "ok" ? "✓" : (st === "bad" ? "✕" : ""));
         row.appendChild(mark);
 
@@ -664,9 +799,24 @@ footer .v { font-family: var(--mono); }
         cue.appendChild(el("span", null, r.cue));
         if (r.trap) cue.appendChild(el("span", "mk trap", "†"));
         if (r.alt)  cue.appendChild(el("span", "mk alt", "≈"));
+        if (hot)    cue.appendChild(el("span", "needs", "needs work"));
         pair.appendChild(cue);
         pair.appendChild(el("div", "ans", r.ans));
         row.appendChild(pair);
+
+        // How this one line has gone: questions on this topic, right and wrong.
+        var sc = rowScore(r);
+        var rt = el("div", "rowtally");
+        if (sc.r || sc.w) {
+          rt.appendChild(el("span", "g", "✓" + sc.r));
+          rt.appendChild(el("span", "r", "✕" + sc.w));
+          rt.title = sc.r + " right, " + sc.w + " missed on this topic";
+        } else {
+          rt.appendChild(el("span", "z", "–"));
+          rt.title = "No questions answered on this topic yet";
+        }
+        row.appendChild(rt);
+
         box.appendChild(row);
       });
 
@@ -743,7 +893,57 @@ footer .v { font-family: var(--mono); }
     return a;
   }
 
+  // When set, the queue is the questions for one poster line rather than a
+  // whole category. Cleared by Start, Shuffle, or the banner's own button.
+  var drilling = null;
+  var drillBanner = document.getElementById("drillBanner");
+
+  function questionsForRow(row) {
+    return DATA.questions.filter(function (q) {
+      return q.c.some(function (k) { return row.c.indexOf(k) >= 0; });
+    });
+  }
+
+  function renderDrillBanner() {
+    drillBanner.textContent = "";
+    if (!drilling) { drillBanner.hidden = true; return; }
+    drillBanner.hidden = false;
+    var box = el("div", "drill");
+    var what = el("div", "what", drilling.cue);
+    box.appendChild(what);
+    var sc = rowScore(drilling);
+    box.appendChild(el("span", "count",
+      queue.length + (queue.length === 1 ? " question" : " questions") +
+      " · so far ✓" + sc.r + " ✕" + sc.w));
+    var back = el("button", "btn", "Drill everything instead");
+    back.addEventListener("click", function () {
+      drilling = null; buildQueue(); renderDrillBanner(); renderQuestion();
+    });
+    box.appendChild(back);
+    drillBanner.appendChild(box);
+  }
+
+  function drillRow(row) {
+    var list = questionsForRow(row);
+    if (!list.length) {
+      drilling = null;
+      renderDrillBanner();
+      window.alert("No questions in the bank touch “" + row.cue +
+        "” yet. It is still on the exam guide, so learn the line itself — " +
+        "the bank is thin here, not the exam.");
+      return;
+    }
+    drilling = row;
+    queue = shuffle(list);
+    qi = 0;
+    document.getElementById("tab-practice").click();
+    renderDrillBanner();
+    renderQuestion();
+    window.scrollTo(0, 0);
+  }
+
   function buildQueue() {
+    drilling = null;
     var pick = areaSel.value;
     var list;
     if (pick === "__all") {
@@ -758,17 +958,40 @@ footer .v { font-family: var(--mono); }
     }
     queue = shuffle(list);
     qi = 0;
+    renderDrillBanner();
   }
 
   function record(q, ok) {
+    // A question the reviewers found wrong teaches nothing, so it is shown but
+    // never scored: counting it would put a cross on a line you actually know.
+    if (q.flag && q.flag.kind === "wrong") { updateScore(); return; }
     S.seen++;
     if (ok) S.right++; else S.wrong++;
     S.questions[q.id] = ok ? 1 : 0;
+
+    var rowsHit = {}, secsHit = {};
     q.c.forEach(function (k) {
       var c = S.concepts[k] || { r: 0, w: 0 };
       if (ok) c.r++; else c.w++;
       S.concepts[k] = c;
+
+      (CONCEPT_ROWS[k] || []).forEach(function (id) { rowsHit[id] = 1; });
+      (CONCEPT_SECS[k] || []).forEach(function (key) { secsHit[key] = 1; });
     });
+
+    // One question moves each related line and each related block by one, not
+    // by the number of concepts that happened to connect them.
+    Object.keys(rowsHit).forEach(function (id) {
+      var s = S.rows[id] || { r: 0, w: 0 };
+      if (ok) s.r++; else s.w++;
+      S.rows[id] = s;
+    });
+    Object.keys(secsHit).forEach(function (key) {
+      var s = S.sections[key] || { r: 0, w: 0 };
+      if (ok) s.r++; else s.w++;
+      S.sections[key] = s;
+    });
+
     saveState();
     maybeRepromptStorage();
     updateScore();
@@ -798,11 +1021,31 @@ footer .v { font-family: var(--mono); }
     if (qi >= queue.length) {
       var done = el("div", "card");
       done.appendChild(el("h2", "sub", "Set finished"));
-      done.appendChild(el("p", "lede",
-        "You worked through " + queue.length + " questions. The Poster tab now shows a cross against everything you missed."));
-      var again = el("button", "btn primary", "Go again");
-      again.addEventListener("click", function () { buildQueue(); renderQuestion(); });
+      if (drilling) {
+        var sc = rowScore(drilling);
+        done.appendChild(el("p", "lede",
+          "That is every question in the bank touching “" + drilling.cue +
+          "”. You are now ✓" + sc.r + " ✕" + sc.w + " on it."));
+      } else {
+        done.appendChild(el("p", "lede",
+          "You worked through " + queue.length +
+          " questions. The Poster tab now shows your score against every line you touched."));
+      }
+      var again = el("button", "btn primary", drilling ? "Go round again" : "Go again");
+      again.addEventListener("click", function () {
+        if (drilling) { queue = shuffle(queue); qi = 0; renderDrillBanner(); }
+        else { buildQueue(); }
+        renderQuestion();
+      });
       done.appendChild(again);
+      if (drilling) {
+        var all = el("button", "btn", "Drill everything instead");
+        all.style.marginLeft = "8px";
+        all.addEventListener("click", function () {
+          drilling = null; buildQueue(); renderDrillBanner(); renderQuestion();
+        });
+        done.appendChild(all);
+      }
       qhost.appendChild(done);
       return;
     }
@@ -815,6 +1058,16 @@ footer .v { font-family: var(--mono); }
     meta.appendChild(el("span", "pill", DATA.areaTitles[q.area] || q.area));
     if (q.dom) meta.appendChild(el("span", "pill", q.dom));
     card.appendChild(meta);
+
+    if (q.flag) {
+      var fl = el("div", "flag sev-" + q.flag.kind);
+      fl.appendChild(el("b", "what",
+        q.flag.kind === "wrong" ? "Heads up — the answer below is wrong"
+        : q.flag.kind === "stale" ? "Heads up — the answer below is out of date"
+        : "Heads up — the explanation below is unreliable"));
+      fl.appendChild(el("span", null, q.flag.note));
+      card.appendChild(fl);
+    }
 
     card.appendChild(el("p", "qtext", q.q));
 
@@ -880,7 +1133,10 @@ footer .v { font-family: var(--mono); }
     var nextBtn = el("button", "btn primary", "Next question");
     nextBtn.hidden = true;
     nextBtn.style.marginTop = "14px";
-    nextBtn.addEventListener("click", function () { qi++; renderQuestion(); renderBoard(); });
+    nextBtn.addEventListener("click", function () {
+      qi++; renderQuestion(); renderBoard();
+      if (drilling) renderDrillBanner();
+    });
     card.appendChild(nextBtn);
 
     qhost.appendChild(card);
