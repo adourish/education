@@ -31,7 +31,8 @@ CONCEPTS_SRC = HERE.parent / "questions" / "yield-report.py"
 FLAGS = HERE.parent / "questions" / "review" / "flags.json"
 OUT = HERE / "app-data.json"
 
-VERSION = "1.0.0"
+# Bumped when the question set itself changes, separately from the app.
+VERSION = "1.1.0"
 
 
 def load_concepts() -> dict[str, str]:

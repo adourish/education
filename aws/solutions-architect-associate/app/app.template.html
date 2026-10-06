@@ -1468,12 +1468,16 @@ footer .v { font-family: var(--mono); }
   });
 
   // ---------- boot ----------
-  document.getElementById("examTag").textContent = DATA.exam + " · " + DATA.guide;
+  // One version in the header, and it is this app's own: a number sitting next
+  // to a product name gets read as that product's version. AWS's exam-guide
+  // version is a different thing and belongs in the footer, labelled as theirs.
+  document.getElementById("examTag").textContent = DATA.exam + " · v" + APP_VERSION;
   document.getElementById("buildInfo").textContent =
-    "v" + APP_VERSION + " · built " + BUILD_DATE;
+    "App v" + APP_VERSION + " · built " + BUILD_DATE + " · questions v" + DATA.version;
   document.getElementById("dataInfo").textContent =
     DATA.questions.length + " questions · " +
-    DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0) + " recall rows · data " + DATA.version;
+    DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0) +
+    " recall rows · built against " + DATA.guide.replace(/^Exam guide/, "AWS exam guide");
 
   renderBoard();
   updateScore();
