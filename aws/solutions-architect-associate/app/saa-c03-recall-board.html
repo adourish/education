@@ -163,14 +163,14 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 
 .view[hidden] { display: none !important; }
 
-/* text size control */
+/* an answer option, with its own read-aloud button beside it */
 .optline { display: flex; align-items: stretch; gap: 8px; }
 .optline .opt { flex: 1; }
 .optspeak {
-  flex: 0 0 auto; align-self: center;
-  width: 34px; min-height: 34px; padding: 0;
-  font-size: 0.72rem; line-height: 1;
-  color: var(--ink-2);
+  flex: 0 0 auto; align-self: stretch;
+  width: 40px; min-height: 40px; padding: 0;
+  font-size: 0.8rem; line-height: 1;
+  background: var(--ground); color: var(--ink-2);
 }
 .optspeak[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
 .lookback {
@@ -184,7 +184,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 }
 .lookback.narrowed select { border-color: var(--cyan); color: var(--cyan); }
 @media (max-width: 700px) { .lookback span { display: none; } }
-.tsize {
+.tsize { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
 .tsize button {
   appearance: none; border: 0; background: none; cursor: pointer;
   color: var(--ink-2); font-family: var(--ui); font-weight: 700;
@@ -531,12 +531,16 @@ select {
 .reveal .src { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); margin-top: 8px; }
 .qtext { font-size: 1.05rem; line-height: 1.75; max-width: 62ch; white-space: pre-wrap; margin: 0 0 16px; }
 
-.opts { display: grid; gap: 7px; margin-bottom: 14px; }
+.opts { display: grid; gap: 10px; margin-bottom: 14px; }
 .opt {
+  /* Same size and spacing as the question itself. An option is as much to be
+     read as the question is, and dropping a size between the two makes the
+     eye work for no reason. On the page's own ground rather than a lifted
+     panel, so the contrast against the text is the strongest the board has. */
   text-align: left; cursor: pointer;
-  font: 400 0.97rem/1.6 var(--ui); color: var(--ink);
-  background: var(--surface); border: 1px solid var(--rule);
-  border-radius: 8px; padding: 12px 14px;
+  font: 400 1.05rem/1.75 var(--ui); color: var(--ink);
+  background: var(--ground); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 13px 15px;
 }
 .opt:hover:not(:disabled) { border-color: var(--cyan); }
 .opt:disabled { cursor: default; }
@@ -795,7 +799,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.11.0";
+  var APP_VERSION = "1.11.1";
   var BUILD_DATE  = "2026-10-06";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
