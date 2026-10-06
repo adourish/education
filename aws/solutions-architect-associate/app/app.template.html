@@ -688,12 +688,14 @@ footer .v { font-family: var(--mono); }
 
     <h2 class="sub">Your progress file</h2>
     <p class="lede">
-      Progress is kept in this browser only. Export it to move to another device or to keep a
-      snapshot before a reset.
+      Progress is kept in this browser only &mdash; each browser, each device and each address
+      keeps its own. To work across two machines: <b>Export</b> on one, <b>Merge</b> on the other.
+      Merging adds the two together rather than replacing, so neither machine loses what it did,
+      and a question either of them got wrong stays on your revisit list.
     </p>
     <div class="picker">
       <button class="btn primary" id="exportBtn">Export progress</button>
-      <button class="btn" id="importBtn">Import from box below</button>
+      <button class="btn" id="importBtn">Merge in the box below</button>
       <button class="btn bad" id="resetBtn">Reset all progress</button>
     </div>
     <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Paste a progress file in and press Import."></textarea>
@@ -703,7 +705,7 @@ footer .v { font-family: var(--mono); }
 <footer>
   <span class="v" id="buildInfo"></span>
   <span id="dataInfo"></span>
-  <span>Progress stored in this browser only.</span>
+  <span>Progress stored in this browser only. Export and merge to move between machines.</span>
 </footer>
 
 <div class="gate" id="gate" hidden>
@@ -1635,7 +1637,13 @@ footer .v { font-family: var(--mono); }
   async function exportProgress(box) {
     var payload = buildExport();
     if (box) { box.hidden = false; box.value = payload; }
-    var name = "saa-c03-progress-" + new Date().toISOString().slice(0, 10) + ".json";
+    // Local date and 24-hour time in the name, so two exports on the same day
+    // do not overwrite each other and the newer one is obvious at a glance.
+    var now = new Date();
+    function two(n) { return String(n).padStart(2, "0"); }
+    var stamp = now.getFullYear() + "-" + two(now.getMonth() + 1) + "-" + two(now.getDate()) +
+                "-" + two(now.getHours()) + two(now.getMinutes());
+    var name = "saa-c03-progress-" + stamp + ".json";
 
     // Two ways to hand over a file, tried in order. Inside the claude.ai viewer
     // the sandbox blocks a plain download link, so the runtime has to do it;
@@ -1684,14 +1692,42 @@ footer .v { font-family: var(--mono); }
       var p = JSON.parse(raw);
       var prog = p.progress || p;
       if (!prog || typeof prog !== "object" || !prog.concepts) throw new Error("not a progress file");
-      S = {
-        concepts: prog.concepts || {},
-        questions: prog.questions || {},
-        seen: prog.seen || 0, right: prog.right || 0, wrong: prog.wrong || 0,
-        started: prog.started || new Date().toISOString().slice(0, 10)
-      };
-      saveState(); renderBoard(); renderProgress(); updateScore();
-      ioBox.value = "Imported. " + S.seen + " answers restored.";
+
+      // Merge rather than replace. Importing one laptop into the other used to
+      // overwrite, so whichever machine you imported into lost everything it
+      // had done. Counts add up; a question either machine marked wrong stays
+      // on the revisit list, because a miss you have not yet put right is the
+      // thing worth keeping.
+      function mergeCounts(into, from) {
+        Object.keys(from || {}).forEach(function (k) {
+          var a = into[k] || { r: 0, w: 0 };
+          var b = from[k] || { r: 0, w: 0 };
+          into[k] = { r: (a.r || 0) + (b.r || 0), w: (a.w || 0) + (b.w || 0) };
+        });
+      }
+
+      var before = S.seen;
+      mergeCounts(S.concepts, prog.concepts);
+      mergeCounts(S.rows = S.rows || {}, prog.rows);
+      mergeCounts(S.sections = S.sections || {}, prog.sections);
+
+      var added = 0, stillWrong = 0;
+      Object.keys(prog.questions || {}).forEach(function (qid) {
+        var mine = S.questions[qid];
+        var theirs = prog.questions[qid];
+        if (mine === undefined) { S.questions[qid] = theirs; added++; }
+        else if (mine !== theirs) { S.questions[qid] = 0; stillWrong++; }
+      });
+
+      S.seen = (S.seen || 0) + (prog.seen || 0);
+      S.right = (S.right || 0) + (prog.right || 0);
+      S.wrong = (S.wrong || 0) + (prog.wrong || 0);
+      if (prog.started && prog.started < (S.started || "9999")) S.started = prog.started;
+
+      saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
+      ioBox.value = "Merged. " + (S.seen - before) + " answers added, " + added +
+        " questions this machine had not seen, and " + stillWrong +
+        " where the two disagreed are kept on the revisit list.";
     } catch (e) {
       ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
     }
@@ -1699,8 +1735,12 @@ footer .v { font-family: var(--mono); }
 
   document.getElementById("resetBtn").addEventListener("click", function () {
     if (!window.confirm("Clear every answer and start again? Export first if you want a copy.")) return;
-    S = { concepts: {}, questions: {}, seen: 0, right: 0, wrong: 0, started: new Date().toISOString().slice(0, 10) };
-    saveState(); renderBoard(); renderProgress(); updateScore();
+    // Use the one definition of an empty state. Spelling the fields out here
+    // meant rows and sections were left undefined when they were added later,
+    // and the next render threw reading them.
+    S = blankState();
+    S.started = new Date().toISOString().slice(0, 10);
+    saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
     ioBox.value = "";
   });
 
