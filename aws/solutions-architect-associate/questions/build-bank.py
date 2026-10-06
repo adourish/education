@@ -27,11 +27,28 @@ HERE = Path(__file__).parent
 SOURCES = HERE / "sources"
 BANK = HERE / "bank"
 CORRECTIONS = HERE / "corrections.json"
+AUDIT_DROP = HERE / "audit-drop.json"
 
 # Sources whose questions carry a star: a human has checked them, so they are
 # worth more than a scraped set. Also sources that must never be published,
 # because the file they came from is a watermarked paid product.
 REVIEWED_SOURCES = {"certempire"}
+
+# Every source needs its own id prefix. Two sources parsed by the same function
+# both numbered from 1, so 327 ids collided and 260 questions in the bank shared
+# an id with a different question. A correction aimed at one then landed on the
+# other.
+ID_PREFIX = {
+    "certempire": "ce",
+    "saa-c03-optioned": "et",
+    "ditectrev-saa-c03": "dt",
+    "iamrushabhshahh-saa-c03": "gh",
+    "whizlabs-25": "wl",
+}
+
+
+def prefix_for(source: str) -> str:
+    return ID_PREFIX.get(source, re.sub(r"[^a-z0-9]", "", source.lower())[:3] or "x")
 PRIVATE_SOURCES: set[str] = set()   # nothing is held back from the build
 
 # --------------------------------------------------------------------------
@@ -355,7 +372,7 @@ def parse_optioned(raw: str, source: str) -> list[dict]:
         full = f"{question}\n{answer}"
         area, scores = classify(full)
         records.append({
-            "id": f"q-{number}",
+            "id": f"{prefix_for(source)}-{number}",
             "source": source,
             "number": number,
             "question": question,
@@ -465,14 +482,17 @@ PARSERS = {
 
 
 def id_aliases(qid: str) -> list[str]:
-    """The same question can appear under either prefix.
+    """The same question under the two ids it can carry.
 
-    The option-less dump numbered questions gh-N; the optioned source numbers
-    the same questions q-N, because both come from the same numbered set. A
-    correction recorded against one must find the other.
+    gh-N and et-N are the same question: the option-less dump and the optioned
+    PDF come from one numbered set, so a correction against either must find
+    both. This pairing holds ONLY for those two. It must never be widened to
+    any id ending in the same number: Cert Empire numbers its own questions
+    from 1 as well, and a looser rule put a DynamoDB correction onto an
+    unrelated API Gateway question.
     """
     out = [qid]
-    for a, b in (("gh-", "q-"), ("q-", "gh-")):
+    for a, b in (("gh-", "et-"), ("et-", "gh-")):
         if qid.startswith(a):
             out.append(b + qid[len(a):])
     return out
@@ -503,6 +523,16 @@ def main() -> None:
     if not records:
         print("No records parsed — is sources/ empty?")
         return
+
+    # Questions audit-source.py found structurally broken: an option letter
+    # missing, an answer naming nothing on offer, two identical options. They
+    # render fine and cannot be answered, so they go before anything else.
+    if AUDIT_DROP.exists():
+        broken = set(json.loads(AUDIT_DROP.read_text(encoding="utf-8")))
+        before = len(records)
+        records = [r for r in records if r["id"] not in broken]
+        if before != len(records):
+            print(f"audit: dropped {before - len(records)} structurally broken questions")
 
     # Stamp provenance once, centrally, rather than inside every parser.
     for r in records:

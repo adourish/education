@@ -54,7 +54,7 @@ You are responsible for a legacy web application whose server environment is app
 
 </details>
 
-### 6. q-230 `availability`
+### 6. et-230 `availability`
 
 A company is concerned that two NAT instances in use will no longer be able to support the traffic needed for the company’s application. A solutions architect wants to implement a solution that is highly available, fault tolerant, and automatically scalable. What should the solutions architect recommend?
 
@@ -96,7 +96,7 @@ Your manager has just given you access to multiple VPN connections that someone 
 
 </details>
 
-### 10. q-326 `availability`
+### 10. et-326 `availability`
 
 An image hosting company uploads its large assets to Amazon S3 Standard buckets. The company uses multipart upload in parallel by using S3 APIs and overwrites if the same object is uploaded again. For the first 30 days after upload, the objects will be accessed frequently. The objects will be used less frequently after 30 days, but the access patterns for each object will be inconsistent. The company must optimize its S3 storage costs while maintaining high availability and resiliency of stored assets. Which combination of actions should a solutions architect recommend to meet these requirements? (Choose two.)
 
@@ -108,7 +108,7 @@ B. Configure an S3 Lifecycle policy to clean up incomplete multipart uploads.  M
 
 </details>
 
-### 11. q-353
+### 11. ce-353
 
 A company runs a critical three-tier web application that consists of multiple virtual machines (VMs) and virtual databases in an on-premises environment. The company wants to set up a disaster recovery (DR) environment in AWS. The company requires a 15-minute recovery time objective (RTO). The company must be able to test the failover solution to validate the recovery. The solution must provide an automated failover mechanism. Which solution will meet these requirements?
 
@@ -130,7 +130,7 @@ Your company currently has a 2-tier web application running in an on-premises da
 
 </details>
 
-### 13. q-356 `availability`
+### 13. et-356 `availability`
 
 A company stores its data objects in Amazon S3 Standard storage. A solutions architect has found that 75% of the data is rarely accessed after 30 days. The company needs all the data to remain immediately accessible with the same high availability and resiliency, but the company wants to minimize storage costs. Which storage solution will meet these requirements?
 
@@ -142,7 +142,7 @@ S3 Standard-Infrequent Access (S3 Standard-IA): This storage class is designed f
 
 </details>
 
-### 14. q-380
+### 14. ce-380
 
 A company is using Amazon DocumentDB global clusters to support an ecommerce application. The application serves customers across multiple AWS Regions. To ensure business continuity, the company needs a solution to minimize downtime during maintenance windows or other disruptions. Which solution will meet these requirements?
 
@@ -154,7 +154,7 @@ Amazon DocumentDB global clusters are designed for disaster recovery and high av
 
 </details>
 
-### 15. q-396 `availability`
+### 15. ce-396 `availability`
 
 A global company runs a data lake application in the us-east-1 Region and the eu-west-1 Region in an active-passive configuration. Application data is stored locally in Amazon S3 buckets in each AWS Region. The bucket in us-east-1 is the primary active bucket that handles all writes. The company needs to ensure that the application has Regional fault tolerance. The company also needs the storage layer to provide a highly available active-active capability for reads across Regions. The storage layer must provide low latency access through a single global endpoint.
 
@@ -166,7 +166,7 @@ Amazon S3 Multi-Region Access Points provide a single global endpoint to access 
 
 </details>
 
-### 16. q-401 `least-ops`
+### 16. ce-401 `least-ops`
 
 A large financial services company uses Amazon ElastiCache (Redis OSS) for its new application that has a global user base. A solutions architect must develop a caching solution that will be available across AWS Regions and include low-latency replication and failover capabilities for disaster recovery (DR). The company's security team requires the encryption of cross-Region data transfers. Which solution meets these requirements with the LEAST amount of operational effort?
 
@@ -188,7 +188,7 @@ Having set up a website to automatically be redirected to a backup website if it
 
 </details>
 
-### 18. q-440 `availability`
+### 18. ce-440 `availability`
 
 A gaming company is building an application with Voice over IP capabilities. The application will serve traffic to users across the world. The application needs to be highly available with automated failover across AWS Regions. The company wants to minimize the latency of users without relying on IP address caching on user devices. What should a solutions architect do to meet these requirements?
 
@@ -200,7 +200,7 @@ AWS Global Accelerator is the ideal service for this use case. It provides stati
 
 </details>
 
-### 19. q-445
+### 19. ce-445
 
 A company runs applications and stores data in multiple AWS accounts. The company uses AWS Organizations to manage all its accounts. The company needs a solution to efficiently and centrally manage data backups for the AWS services that the company uses. The solution must improve the company's disaster recovery posture. The solution must also protect data backups against accidental deletion or a malicious attack on an AWS account. Which solution will meet these requirements?
 
@@ -212,7 +212,7 @@ This solution addresses all requirements. Using AWS Backup policies within AWS O
 
 </details>
 
-### 20. q-447
+### 20. et-447
 
 A company has a stateless web application that runs on AWS Lambda functions that are invoked by Amazon API Gateway. The company wants to deploy the application across multiple AWS Regions to provide Regional failover capabilities. What should a solutions architect do to route traffic to multiple Regions?
 
@@ -224,7 +224,7 @@ By creating Amazon Route 53 health checks for each Region and configuring an act
 
 </details>
 
-### 21. q-461
+### 21. ce-461
 
 A company runs an application on Amazon EC2 instances. The company needs to implement a disaster recovery DR solution for the application. The DR solution needs to have a recovery time objective RTO of less than 4 hours. The DR solution also needs to use the fewest possible AWS resources during normal operations. Which solution will meet these requirements in the MOST operationally efficient way?
 
@@ -266,7 +266,7 @@ Prior to the introduction of this function, the HA feature provided redundancy a
 
 </details>
 
-### 25. q-585
+### 25. et-585
 
 A solutions architect is designing a disaster recovery (DR) strategy to provide Amazon EC2 capacity in a failover AWS Region. Business requirements state that the DR strategy must meet capacity in the failover Region. Which solution will meet these requirements?
 

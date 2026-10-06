@@ -26,7 +26,7 @@ https://aws.amazon.com/premiumsupport/trustedadvisor/
 
 </details>
 
-### 3. q-34
+### 3. et-34
 
 A company hosts its multi-tier applications on AWS. For compliance, governance, auditing, and security, the company must track configuration changes on its AWS resources and record a history of API calls made to these resources. What should a solutions architect do to meet these requirements?
 
@@ -48,7 +48,7 @@ A user is observing the EC2 CPU utilization metric on CloudWatch. The user has o
 
 </details>
 
-### 5. q-55 `least-ops`
+### 5. ce-55 `least-ops`
 
 A company needs to set up a centralized solution to audit API calls to AWS for workloads that run on AWS services and non AWS services. The company must store logs of the audits for 7 years. Which solution will meet these requirements with the LEAST operational overhead?
 
@@ -60,7 +60,7 @@ AWS CloudTrail Lake is a managed data lake specifically designed to aggregate, i
 
 </details>
 
-### 6. q-62
+### 6. ce-62
 
 A company has customers located across the world. The company wants to use automation to secure its systems and network infrastructure The company's security team must be able to track and audit all incremental changes to the infrastructure. Which solution will meet these requirements?
 
@@ -122,7 +122,7 @@ It is advised that you watch the Amazon CloudWatch [...] metric (available via t
 
 </details>
 
-### 12. q-153
+### 12. ce-153
 
 A company runs production workloads in its AWS account. Multiple teams create and maintain the workloads. The company needs to be able to detect changes in resource configurations. The company needs to capture changes as configuration items without changing or modifying the existing resources. Which solution will meet these requirements?
 
@@ -174,7 +174,7 @@ The Trusted Advisor service provides insight regarding which four categories of 
 
 </details>
 
-### 17. q-241
+### 17. ce-241
 
 A security audit reveals that Amazon EC2 instances are not being patched regularly. A solutions architect needs to provide a solution that will run regular security scans across a large fleet of EC2 instances. The solution should also patch the EC2 instances on a regular schedule and provide a report of each instance's patch status. Which solution will meet these requirements?
 
@@ -196,7 +196,7 @@ You are architecting a highly-scalable and reliable web application which will h
 
 </details>
 
-### 19. q-277
+### 19. ce-277
 
 An image-hosting company stores images as objects in Amazon S3 buckets. The company must prevent accidental exposure of the objects to the public. All S3 objects in the company's entire AWS account must remain private. Which solution will meet these requirements?
 
@@ -208,7 +208,7 @@ The requirement is to enforce a private-only policy for all S3 objects across an
 
 </details>
 
-### 20. q-319
+### 20. et-319
 
 A company has hundreds of Amazon EC2 Linux-based instances in the AWS Cloud. Systems administrators have used shared SSH keys to manage the instances. After a recent audit, the company’s security team is mandating the removal of all shared keys. A solutions architect must design a solution that provides secure access to the EC2 instances. Which solution will meet this requirement with the LEAST amount of administrative overhead?
 
@@ -250,7 +250,7 @@ You are working with a customer who is using Chef configuration management in th
 
 </details>
 
-### 24. q-473 `least-ops`
+### 24. ce-473 `least-ops`
 
 A company runs a non-production application on an Amazon EC2 instance that has the Amazon CloudWatch agent installed. The CloudWatch agent monitors application processes and sends custom metrics to CloudWatch. The application has a critical bug that causes crashes that require an instance reboot. The company does not currently have the resources to address the bug, but the server needs to remain as operational as possible. The company manually reboots the instance several times each day. The company needs a solution to automate the instance reboots until the company can address the root cause of the bug. Which solution will meet this requirement with the LEAST amount of operational overhead?
 
@@ -302,7 +302,7 @@ You need to set up a complex network infrastructure for your organization that w
 
 </details>
 
-### 29. q-613
+### 29. ce-613
 
 A solutions architect creates an Auto Scaling group for a memory-intensive application. The solutions architect wants to scale up and scale down based on memory usage. Which solution will meet this requirement?
 
@@ -354,7 +354,7 @@ A company has migrated a fleet of hundreds of on-premises virtual machines (VMs)
 
 </details>
 
-### 34. q-679
+### 34. ce-679
 
 A company is using a loosely coupled serverless architecture on AWS. The architecture consists of multiple web applications and APIs distributed across multiple teams. The company uses AWS Control Tower to provision AWS accounts. The company's development teams use AWS CloudFormation. The company wants to improve trace monitoring and gain insight into how individual services in application stacks are performing. Which solution will meet these requirements?
 
@@ -386,7 +386,7 @@ A company has a production workload that runs on 1,000 Amazon EC2 Linux instance
 
 </details>
 
-### 37. q-879 `cost`
+### 37. ce-879 `cost`
 
 A company hosts a web application on Amazon EC2 instances that are part of an Auto Scaling group behind an Application Load Balancer (ALB). The application experiences spikes in requests that come through the ALB throughout each day. The traffic spikes last between 15 and 20 minutes. The company needs a solution that uses a standard or custom metric to scale the EC2 instances based on the number of requests that come from the ALB. Which solution will meet these requirements MOST cost-effectively?
 
@@ -398,7 +398,7 @@ The ALB RequestCount metric is a standard CloudWatch metric that directly measur
 
 </details>
 
-### 38. q-955
+### 38. ce-955
 
 A consulting company provides professional services to customers worldwide. The company provides solutions and tools for customers to expedite gathering and analyzing data on AWS. The company needs to centrally manage and deploy a common set of solutions and tools for customers to use for self-service purposes. Which solution will meet these requirements?
 
