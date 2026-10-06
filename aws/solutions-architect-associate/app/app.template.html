@@ -146,6 +146,28 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .view[hidden] { display: none !important; }
 
 /* an answer option, with its own read-aloud button beside it */
+/* every answer, newest first, with the date and time it was given */
+.seenbefore {
+  margin: 0 0 10px; font-size: 0.86rem; color: var(--ink-2);
+  border-left: 3px solid var(--rule); padding-left: 10px;
+}
+.answerlog { display: grid; gap: 2px; margin-bottom: 8px; }
+.logrow {
+  display: grid; grid-template-columns: auto auto 1fr; gap: 12px;
+  align-items: baseline; padding: 7px 10px; border-radius: 6px;
+  font-size: 0.9rem;
+}
+.logrow:nth-child(odd) { background: var(--surface); }
+.logrow time { font-family: var(--mono); font-size: 0.84rem; color: var(--ink-2); white-space: nowrap; }
+.logrow .qid { font-family: var(--mono); font-size: 0.84rem; color: var(--ink-3); }
+.logrow .verdict { font-weight: 700; }
+.logrow .verdict.ok  { color: var(--cyan); }
+.logrow .verdict.no  { color: var(--magenta); }
+.logmore { margin-top: 10px; }
+@media (max-width: 560px) {
+  .logrow { grid-template-columns: 1fr auto; row-gap: 2px; }
+  .logrow .qid { grid-column: 1; }
+}
 .optline { display: flex; align-items: stretch; gap: 8px; }
 .optline .opt { flex: 1; }
 .optspeak {
@@ -713,6 +735,10 @@ footer .v { font-family: var(--mono); }
     <h2 class="sub">Questions you got wrong</h2>
     <p class="lede">Tap one to drill it again. It leaves this list once you get it right.</p>
     <div id="missList"></div>
+
+    <h2 class="sub">Every answer, with its time</h2>
+    <p class="lede" id="logLede"></p>
+    <div class="answerlog" id="answerLog"></div>
 
     <h2 class="sub">Weakest concepts</h2>
     <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
@@ -1727,6 +1753,20 @@ footer .v { font-family: var(--mono); }
       card.appendChild(fl);
     }
 
+    // When this question was last answered, and how many times. Every answer
+    // is kept, not just the latest, so answering it again adds to the count
+    // rather than replacing what came before.
+    var past = (S.log || []).filter(function (e) { return e && e[1] === q.id; });
+    if (past.length) {
+      var last = past[past.length - 1];
+      var when = new Date(stampSeconds(last[0]) * 1000);
+      card.appendChild(el("p", "seenbefore",
+        "Answered " + past.length + (past.length === 1 ? " time" : " times") +
+        " before. Last on " + when.toLocaleString(undefined, {
+          month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false
+        }) + ", " + (last[2] ? "and got it right." : "and missed it.")));
+    }
+
     card.appendChild(el("p", "qtext", q.q));
 
     var tools = el("div", "qtools");
@@ -2022,6 +2062,55 @@ footer .v { font-family: var(--mono); }
         ml.appendChild(el("p", "lede",
           "Showing 40 of " + missed.length + ". Drill my misses works through them all."));
       }
+    }
+
+    // ---- every answer, newest first ----------------------------------
+    // One line per answer, not per question: answering the same question
+    // again adds another line rather than replacing the old one, so the whole
+    // history is there.
+    var logHost = document.getElementById("answerLog");
+    var lede = document.getElementById("logLede");
+    logHost.textContent = "";
+    var entries = (S.log || []).slice().sort(function (a, b) {
+      return stampSeconds(b[0]) - stampSeconds(a[0]);
+    });
+    var lump = (S.base && S.base.seen) || 0;
+
+    lede.textContent = entries.length
+      ? "Every answer given since this browser started keeping times, newest first. " +
+        (lump ? "A further " + lump + " answered before then share the date " +
+                (S.baseAt || "") + ", because nothing recorded when each of them was given." : "")
+      : (lump
+          ? "No answer has been given since this browser started keeping times. The " +
+            lump + " answered before then share the date " + (S.baseAt || "") +
+            ", because nothing recorded when each of them was given. Answer one now and it " +
+            "will appear here with its own date and time."
+          : "Nothing answered yet. Every answer will appear here with the date and time it " +
+            "was given.");
+
+    var LOG_SHOWN = 60;
+    entries.slice(0, LOG_SHOWN).forEach(function (e) {
+      var row = el("div", "logrow");
+      var when = new Date(stampSeconds(e[0]) * 1000);
+      var t = document.createElement("time");
+      t.dateTime = typeof e[0] === "string" ? e[0] : when.toISOString();
+      // Shown in this machine's own time, which is what a person recognises,
+      // while the file keeps the universal one so two machines agree.
+      t.textContent = when.toLocaleString(undefined, {
+        year: "numeric", month: "short", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", hour12: false
+      });
+      row.appendChild(t);
+      row.appendChild(el("span", "verdict " + (e[2] ? "ok" : "no"), e[2] ? "right" : "missed"));
+      var q = QBYID[e[1]];
+      var what = el("span", "qid", e[1] + (q ? "  " + q.q.slice(0, 70) : ""));
+      row.appendChild(what);
+      logHost.appendChild(row);
+    });
+    if (entries.length > LOG_SHOWN) {
+      logHost.appendChild(el("p", "lede logmore",
+        "Showing the most recent " + LOG_SHOWN + " of " + entries.length +
+        ". The export carries every one."));
     }
 
     var weak = document.getElementById("weakList");

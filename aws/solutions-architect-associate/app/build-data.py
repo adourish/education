@@ -37,7 +37,7 @@ sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
-VERSION = "1.3.0"
+VERSION = "1.3.1"
 
 # Where each question came from. The short code travels with every question so
 # the app can filter by provider; the name and note are for the picker and the
