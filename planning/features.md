@@ -39,10 +39,25 @@ server and nothing sent anywhere.
 
 ## Keeping your place
 
-- **One half-finished set is kept.** Close the tab, come back, and it offers to
-  carry on where you were
-- It shows when the set was begun, when you last picked it up, how many times,
-  and when you last worked on it
+- **Several half-finished sets are kept**, up to twelve. Starting a new one
+  puts the old one aside rather than destroying it
+- Coming back offers every one of them, newest worked on first, each with when
+  it was begun, when you last picked it up, how many times, and when you last
+  worked on it. **Put this aside** drops one for good
+- A set only counts once you have answered something in it, so changing the
+  area filter does not leave a trail of sets nobody touched
+- A resumed mock says how much time is left, and marks itself as it stands if
+  the clock ran out while you were away
+
+## More than one exam
+
+- **Two exams**, each its own page: the AWS board, and a stub for the Claude
+  Certified Architect exam
+- Each keeps its own answers and its own half-finished sets, under its own name
+  in the browser's storage. Neither can disturb the other
+- Reading settings — theme, font, size, spacing, ruler — are shared, because
+  they are about you rather than about an exam
+- The footer of each page links the other one
 
 ## Settings
 
@@ -62,19 +77,28 @@ Built for reading comfort first, because that is the constraint that matters.
 
 ## Moving between devices
 
-- **Export** writes a single block of text: every answer with the date it was
-  given, the totals, and the set you are partway through
-- **Import** merges it in rather than overwriting. Answers add up. Where the
-  two devices disagree about a question, it goes on the revisit list
-- The half-finished set comes across too, but if this device is already partway
-  through one, it asks before replacing it
+- **Export** writes a single block of text covering **every exam** this browser
+  has work for: each one's answers with the date each was given, the totals,
+  and every half-finished set
+- **Import** merges rather than overwriting, exam by exam. Answers add up, and
+  where two devices disagree about a question it goes on the revisit list
+- **Half-finished sets merge by identity, so nothing is replaced.** This
+  device's own set survives, the file's sets arrive alongside it, and only the
+  same set carried on in both places is reconciled, the later copy winning
+- An exam this device has no page for keeps its answers anyway, and the report
+  says so
+- Files written by the one-exam version still import
 
 ## What it does not do yet
 
-- **Only one exam.** The storage key, the mock exam's domain mix and the export
-  file are all specific to AWS SAA-C03
-- **Only one half-finished set.** Starting a second one throws the first away
-- **Import replaces a set rather than keeping both**
+- **No home page.** The second exam is reachable from a footer link, not from a
+  screen that lists what there is
+- **The second exam is a stub** — twelve questions from the official guide's
+  samples. Enough to prove two exams stay apart, nowhere near enough to study
+- **No mock exam for the second exam.** The real paper's length, time and pass
+  mark are not something we have, and a made-up pass mark would teach the wrong
+  target, so no mock is offered there
+- **Export always covers everything.** There is no "just this exam" option yet
 - **Half the explanations are cut off.** There is a 900-character cap in the
   parser and 518 of 1,020 explanations hit it, nearly all of them stopping
   mid-sentence. The part that gets cut is usually the section on why the other

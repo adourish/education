@@ -231,8 +231,21 @@ def main() -> None:
     data = {
         "version": VERSION,
         "built": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        # Short, stable, and never shown: it is what names this exam's own
+        # corner of the browser's storage, so two exams on the same site
+        # cannot read or overwrite each other. Changing it would orphan
+        # everything a person has answered, so it does not change.
+        "examId": "saa-c03",
         "exam": "SAA-C03",
+        "examName": "AWS Solutions Architect Associate (SAA-C03)",
         "guide": "Exam guide version 1.1",
+        # The other exams published alongside this one, linked in the
+        # footer. Each keeps its own answers under its own name, and one
+        # exported file covers every one of them.
+        "otherExams": [
+            {"id": "cca-f", "name": "Claude Certified Architect",
+             "href": "cca-f/"},
+        ],
         "sections": sections,
         "questions": questions,
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
