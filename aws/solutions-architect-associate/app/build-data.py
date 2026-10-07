@@ -39,7 +39,7 @@ from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
 from diagrams import DIAGRAMS, diagrams_for  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
-VERSION = "1.6.0"
+VERSION = "1.7.0"
 
 # Where each question came from. The short code travels with every question so
 # the app can filter by provider; the name and note are for the picker and the
