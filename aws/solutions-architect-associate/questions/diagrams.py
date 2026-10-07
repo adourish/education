@@ -79,6 +79,7 @@ SERVICES = {
     "Outposts": r"Outposts",
     "Snow": r"Snowball|Snowcone",
     "Backup": r"AWS Backup",
+    "SCP": r"service control polic|\bSCP\b|Organizations",
     "MultiAZ": r"Multi-AZ",
     "ReadReplica": r"read replica",
     "Replication": r"Cross-Region Replication|\bCRR\b|replicat",
@@ -383,6 +384,172 @@ DIAGRAMS = [
         "edges": [["site", "snow", "runs locally"], ["snow", "aws", "when a connection returns"]],
         "note": "The compute kind runs EC2 instances and Kubernetes on the device itself. More "
                 "than one device side by side is how local users get high availability.",
+    },
+    {
+        "id": "kms-envelope",
+        "title": "Data encrypted with a key that is itself encrypted",
+        "when": ["KMS"],
+        "nodes": [["svc", "S3, EBS, RDS", "store"], ["dk", "Data key", "net"],
+                  ["kms", "KMS key", "store"]],
+        "edges": [["svc", "dk", "encrypts the data"], ["dk", "kms", "and is itself encrypted by"]],
+        "note": "The key that encrypts your data is kept beside it, encrypted by a key that "
+                "never leaves KMS. Rotation changes the outer key, so nothing has to be "
+                "written again.",
+    },
+    {
+        "id": "route53-failover",
+        "title": "Sending people somewhere else when a Region is unwell",
+        "when": ["Route53"],
+        "nodes": [["u", "Users", "actor"], ["r53", "Route 53", "edge"],
+                  ["a", "Primary Region", "compute"], ["b", "Standby Region", "compute"]],
+        "edges": [["u", "r53", "looks up the name"], ["r53", "a", "while healthy"],
+                  ["r53", "b", "when the health check fails"]],
+        "note": "Failover routing needs a health check to know. Latency routing sends each "
+                "person to the quickest Region; geolocation sends them by where they are.",
+    },
+    {
+        "id": "asg-across-zones",
+        "title": "Instances replaced and spread across zones",
+        "when": ["ASG"],
+        "nodes": [["asg", "Auto Scaling group", "compute"], ["a", "Zone A", "compute"],
+                  ["b", "Zone B", "compute"]],
+        "edges": [["asg", "a", "keeps the count up"], ["asg", "b", "keeps the count up"]],
+        "note": "A launch template says what an instance is; the group says how many and "
+                "where. Target tracking is the policy to reach for unless told otherwise.",
+    },
+    {
+        "id": "ec2-rds",
+        "title": "An application and its database, in separate subnets",
+        "when": ["EC2", "RDS"],
+        "nodes": [["app", "EC2, private subnet", "compute"], ["db", "RDS, private subnet", "store"]],
+        "edges": [["app", "db", "security group to security group"]],
+        "note": "The database security group allows the application's security group, not an "
+                "address range. Neither subnet needs a route to the internet.",
+    },
+    {
+        "id": "ec2-s3-role",
+        "title": "An instance reaching a bucket without any keys",
+        "when": ["EC2", "S3"],
+        "nodes": [["ec2", "EC2 instance", "compute"], ["role", "Instance role", "net"],
+                  ["s3", "S3 bucket", "store"]],
+        "edges": [["ec2", "role", "temporary credentials"], ["role", "s3", "allows the call"]],
+        "note": "A role attached to the instance is the answer whenever a question mentions "
+                "access keys on a server. Nothing is stored, and the credentials rotate "
+                "on their own.",
+    },
+    {
+        "id": "ddb-stream-s3",
+        "title": "Every change to a table, sent somewhere else",
+        "when": ["DynamoDB", "S3"],
+        "nodes": [["d", "DynamoDB table", "store"], ["st", "DynamoDB Streams", "queue"],
+                  ["fn", "Lambda", "compute"], ["s3", "S3 bucket", "store"]],
+        "edges": [["d", "st", "every item change"], ["st", "fn", "reads in order"], ["fn", "s3", "writes"]],
+        "note": "Streams carry the before and after of every change for 24 hours. Time to "
+                "live removes old items at no charge and shows the deletion in the stream.",
+    },
+    {
+        "id": "rds-snapshot-s3",
+        "title": "A database copied somewhere it can be kept",
+        "when": ["RDS", "S3"],
+        "nodes": [["db", "RDS instance", "store"], ["snap", "Snapshot", "store"],
+                  ["s3", "S3, another Region", "store"]],
+        "edges": [["db", "snap", "automated or on demand"], ["snap", "s3", "copied across"]],
+        "note": "Automated snapshots go when the instance does; a snapshot taken by hand "
+                "stays until deleted. Copying one to another Region is what survives losing "
+                "this one.",
+    },
+    {
+        "id": "alb-route53",
+        "title": "A name pointing at a load balancer",
+        "when": ["ALB", "Route53"],
+        "nodes": [["u", "Users", "actor"], ["r53", "Route 53", "edge"],
+                  ["alb", "Load balancer", "edge"], ["app", "Targets", "compute"]],
+        "edges": [["u", "r53", "looks up the name"], ["r53", "alb", "alias record"], ["alb", "app", ""]],
+        "note": "An alias record points at an AWS resource, costs nothing to resolve, and can "
+                "sit at the root of a domain where a CNAME cannot.",
+    },
+    {
+        "id": "elasticache-reads",
+        "title": "A cache in front of a database",
+        "when": ["ElastiCache"],
+        "nodes": [["app", "Application", "compute"], ["c", "ElastiCache", "store"],
+                  ["db", "Database", "store"]],
+        "edges": [["app", "c", "reads"], ["c", "db", "on a miss"], ["app", "db", "writes"]],
+        "note": "Redis keeps its data and can fail over; Memcached is plain and simply "
+                "scales out. Reads for the same thing over and over are what it is for.",
+    },
+    {
+        "id": "redshift-s3",
+        "title": "A warehouse loaded from, and reading, a bucket",
+        "when": ["Redshift", "S3"],
+        "nodes": [["s3", "S3 bucket", "store"], ["rs", "Redshift", "compute"],
+                  ["u", "Reports", "actor"]],
+        "edges": [["s3", "rs", "COPY, or Spectrum reads in place"], ["rs", "u", "queries"]],
+        "note": "Redshift is for queries across a great deal of structured data. Spectrum "
+                "reads straight from the bucket without loading it first.",
+    },
+    {
+        "id": "ecs-efs",
+        "title": "Containers sharing one file system",
+        "when": ["ECS", "EFS"],
+        "nodes": [["t1", "Task", "compute"], ["t2", "Task", "compute"],
+                  ["efs", "EFS file system", "store"]],
+        "edges": [["t1", "efs", "mounted"], ["t2", "efs", "mounted"]],
+        "note": "A container's own storage goes when the task does. EFS is what keeps "
+                "anything that has to outlive it, and lets tasks share it.",
+    },
+    {
+        "id": "lambda-vpc-rds",
+        "title": "A function reaching a private database",
+        "when": ["Lambda", "RDS"],
+        "nodes": [["fn", "Lambda in the VPC", "compute"], ["px", "RDS Proxy", "net"],
+                  ["db", "RDS, private subnet", "store"]],
+        "edges": [["fn", "px", "pooled connections"], ["px", "db", ""]],
+        "note": "Many functions at once would open many connections and exhaust the database. "
+                "The proxy holds a pool between them. A function in a VPC also loses its "
+                "route to the internet unless a NAT gateway gives it one.",
+    },
+    {
+        "id": "fsx-windows",
+        "title": "A Windows file share, managed",
+        "when": ["FSx"],
+        "nodes": [["u", "Windows machines", "actor"], ["ad", "Active Directory", "net"],
+                  ["fsx", "FSx for Windows", "store"]],
+        "edges": [["u", "fsx", "SMB"], ["fsx", "ad", "joined to the domain"]],
+        "note": "FSx for Windows is SMB and domain logins. FSx for Lustre is the other one: "
+                "speed for modelling and training, able to read from a bucket.",
+    },
+    {
+        "id": "s3-encrypt",
+        "title": "Objects encrypted where they sit",
+        "when": ["S3", "KMS"],
+        "nodes": [["u", "Upload", "actor"], ["s3", "S3 bucket", "store"], ["k", "KMS key", "store"]],
+        "edges": [["u", "s3", "puts an object"], ["s3", "k", "encrypts with a key from"]],
+        "note": "SSE-S3 uses a key AWS manages. SSE-KMS uses one you control, so you can say "
+                "who may use it and see every use in CloudTrail, which is what audit "
+                "questions are asking for.",
+    },
+    {
+        "id": "dms-migrate",
+        "title": "Moving a database with the old one still running",
+        "when": ["DMS"],
+        "nodes": [["src", "Source database", "store"], ["dms", "DMS", "compute"],
+                  ["dst", "Target in AWS", "store"]],
+        "edges": [["src", "dms", "full load, then changes"], ["dms", "dst", "writes"]],
+        "note": "Change data capture keeps the two together until the moment you switch, so "
+                "the old one stays in use throughout. Schema Conversion Tool is the one "
+                "that comes first when the engines differ.",
+    },
+    {
+        "id": "org-scp",
+        "title": "A rule across every account",
+        "when": ["SCP"],
+        "nodes": [["root", "Organization root", "net"], ["ou", "Organizational unit", "net"],
+                  ["acc", "Member accounts", "compute"]],
+        "edges": [["root", "ou", "service control policy"], ["ou", "acc", "applies to all below"]],
+        "note": "A policy here sets the most anything in those accounts may do, including "
+                "their administrators. It never grants anything, and it does not apply to "
+                "the management account.",
     },
 ]
 
