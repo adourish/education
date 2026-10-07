@@ -36,7 +36,7 @@ OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 SEED = HERE / "progress-seed.json"
 
-APP_VERSION = "1.13.1"
+APP_VERSION = "1.14.0"
 
 # SHA-256 of the board's password. The hash rather than the word, so the
 # password is not sitting in the published file in plain text. This is a
@@ -127,16 +127,19 @@ def main() -> None:
         if needed not in sa:
             raise SystemExit(f"standalone build is missing {needed}")
 
-    # A stray NUL renders as U+FFFD and, inside script code, breaks the whole
-    # page. One got in once via a CSS escape that a build step read as octal,
-    # so check the bytes rather than trusting the source.
+    # A stray control character renders as a replacement glyph and, inside
+    # script code, breaks the whole page. Two have got in this way, both from a
+    # backslash escape that a build step read as a number: once as NUL, once as
+    # U+0015 from a CSS escape that began with a backslash and two digits. So
+    # check for every control character rather than only the one that bit first.
     for f in (OUT, OUT_STANDALONE):
-        raw = f.read_bytes()
-        if b"\x00" in raw:
-            at = raw.index(b"\x00")
-            raise SystemExit(
-                f"{f.name} contains a NUL byte at line {raw[:at].count(chr(10).encode()) + 1}"
-            )
+        for n, line in enumerate(f.read_text(encoding='utf-8').split(chr(10)), 1):
+            for ch in line:
+                if ord(ch) < 32 and ch not in (chr(13), chr(9)):
+                    raise SystemExit(
+                        f'{f.name} line {n} holds U+{ord(ch):04X}, a control character. '
+                        f'It is almost certainly a backslash escape read as a number on '
+                        f'the way in. Write the character itself instead.')
 
 
 if __name__ == "__main__":
