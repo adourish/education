@@ -1236,7 +1236,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.20.1";
+  var APP_VERSION = "1.21.0";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -3326,6 +3326,10 @@ footer .v { font-family: var(--mono); }
       questionsAnswered: Object.keys(perQuestion).length,
       questionsWithTimes: dated,
 
+      // The set you are partway through travels too, so stopping on one
+      // machine and carrying on at another is the same as carrying on here.
+      session: readSession(),
+
       progress: S
     }, null, 1);
   }
@@ -3394,9 +3398,32 @@ footer .v { font-family: var(--mono); }
 
       var r = mergeProgress(prog);
       saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
+
+      // A half-finished set comes across as well, unless this machine is in the
+      // middle of one of its own. Taking that away without asking would be
+      // worse than not having the other one.
+      var brought = "";
+      if (p.session && p.session.ids && p.session.ids.length) {
+        var here = readSession();
+        var take = !here;
+        if (here) {
+          take = window.confirm(
+            "That file has a set in progress: " + (p.session.qi + 1) + " of " +
+            p.session.ids.length + ", last worked on " + whenText(p.session.at) + "." +
+            "\n\n" +
+            "This machine is " + (here.qi + 1) + " of " + here.ids.length + " through one " +
+            "of its own. Replace it with the one from the file?");
+        }
+        if (take) {
+          try { localStorage.setItem(SESSION_KEY, JSON.stringify(p.session)); } catch (e) { /* fine */ }
+          offerResume();
+          brought = " The set it was partway through came too, and is offered on the practice page.";
+        }
+      }
+
       ioBox.value = "Merged. " + r.answers + " answers added, " + r.added +
         " questions this machine had not seen, and " + r.disagreed +
-        " where the two disagreed are kept on the revisit list.";
+        " where the two disagreed are kept on the revisit list." + brought;
     } catch (e) {
       ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
     }
