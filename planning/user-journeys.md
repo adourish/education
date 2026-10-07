@@ -1,8 +1,7 @@
 # User journeys
 
-What a person actually does, start to finish. Journeys 1 to 4 work today.
-Journeys 5 to 8 are what several exams and several sets would add, and are the
-thing to build against.
+What a person actually does, start to finish. Journeys 1 to 7 work today.
+Journey 8 is the one still to build.
 
 ---
 
@@ -65,19 +64,19 @@ Works today.
 **What matters:** merging, not overwriting. The laptop may have answers the
 phone never saw, and they must survive.
 
-**Where it falls down today:** if the laptop is also partway through a set, it
-asks you to pick one and throws the other away.
+Sets merge by identity, so the laptop's own half-finished set survives and the
+file's arrive beside it. Nothing is replaced.
 
 ---
 
 ## 5. Studying for a second exam
 
-Does not work yet. See [design-multiple-exams.md](design-multiple-exams.md).
+Works today, with the second exam stubbed at twelve questions.
 
-1. Open the page. A home screen lists the exams you have material for, each
-   with how far through you are
-2. Pick AWS Solutions Architect Associate. Practise for twenty minutes
-3. Go back to the home screen. Pick the Claude Certified Architect exam
+1. Open the page. The footer links the other exam. (A home screen listing them
+   is still to come.)
+2. Practise the AWS exam for twenty minutes
+3. Follow the footer link to the Claude Certified Architect exam
 4. Practise that. The theme, font and reading ruler are as you set them, because
    those are about you and not about the exam
 5. Your AWS progress is untouched. Neither exam can affect the other's answers
@@ -89,7 +88,7 @@ reading settings carry across.
 
 ## 6. Two half-finished sets at once
 
-Does not work yet.
+Works today.
 
 1. You are 8 of 71 through a networking set
 2. You want a quick ten on storage, without losing the networking one
@@ -123,7 +122,7 @@ rather than pretending.
 
 ## 7. Bringing in several runs from another device
 
-Does not work yet. This is the journey the question was about.
+Works today. This is the journey the question was about.
 
 You have been working on the phone. The laptop has its own history and is
 itself partway through a mock. You want everything in one place, losing nothing.
@@ -163,7 +162,7 @@ Claude Certified Architect
 
 ## 8. Exporting one exam on its own
 
-Does not work yet.
+Not built yet. Export covers every exam, which is the right default.
 
 Sometimes you only want to move the AWS work, for instance to hand it to
 someone else studying the same exam without passing on everything else.

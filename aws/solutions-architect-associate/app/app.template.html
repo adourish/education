@@ -293,6 +293,8 @@ body {
 }
 .resume .what { margin-bottom: 10px; line-height: 1.6; }
 .resume .when { margin-bottom: 12px; font-size: 0.88rem; color: var(--ink-2); line-height: 1.7; }
+.resumehead { margin: 0 0 10px; font-size: 0.95rem; font-weight: 500; color: var(--ink-2); }
+#resumeBar .resume + .resume { margin-top: 10px; }
 /* how long this set has been going, kept quiet so it never competes with
    the question itself */
 .sessionline {
@@ -1097,6 +1099,7 @@ footer .v { font-family: var(--mono); }
   <span class="v" id="buildInfo"></span>
   <span id="dataInfo"></span>
   <span>Progress stored in this browser only. Export and merge to move between machines.</span>
+  <span id="otherExams"></span>
 </footer>
 
 <div class="gate" id="gate" hidden>
@@ -1260,12 +1263,37 @@ footer .v { font-family: var(--mono); }
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
   var APP_VERSION = "__APP_VERSION__";
   var BUILD_DATE  = "__BUILD_DATE__";
-  var STORE_KEY   = "saa-c03-recall-board/v1";
+  // ---------- where this exam's work is kept ----------
+  //
+  // Everything a person has answered lives in the browser's own storage, and
+  // every exam on this site shares that storage. So each exam gets its own
+  // corner of it, named by an id that is never shown and never changes:
+  //
+  //   recall/v2/<exam>/progress    the answers
+  //   recall/v2/<exam>/sessions    the sets left half finished
+  //   recall/v2/index              which exams this browser knows about
+  //   recall/v2/settings           theme, font, size: about the person, so
+  //                                shared by every exam rather than set twice
+  //
+  // The first version kept one exam's work under one key with the exam's name
+  // in it. That key is read once, copied across, and then left alone: it costs
+  // a little room and buys a way back if any of this is wrong.
+  var EXAM        = DATA.examId || "saa-c03";
+  var ROOT        = "recall/v2";
+  var STORE_KEY   = ROOT + "/" + EXAM + "/progress";
+  var SESSIONS_KEY = ROOT + "/" + EXAM + "/sessions";
+  var INDEX_KEY   = ROOT + "/index";
+  var SET_KEY     = ROOT + "/settings";
+  var BULLET_KEY  = ROOT + "/bullets";
+  var TS_KEY      = ROOT + "/textsize";
   var PASS_SHA    = "__PASS_SHA__";
-  var PASS_KEY    = STORE_KEY + "/unlocked";
-  var SEED_KEY    = STORE_KEY + "/seed";
-  var SEED_HAD    = STORE_KEY + "/seed-applied";
+  var PASS_KEY    = ROOT + "/" + EXAM + "/unlocked";
+  var SEED_KEY    = ROOT + "/" + EXAM + "/seed";
+  var SEED_HAD    = ROOT + "/" + EXAM + "/seed-applied";
+  var LOOKBACK_KEY = ROOT + "/" + EXAM + "/lookback";
   var SEED        = __SEED__;
+
+  var OLD_ROOT = "saa-c03-recall-board/v1";
 
   // ---------- storage (always guarded: can throw or return empty) ----------
   // Probe before trusting it. A private window, blocked site data or a full
@@ -1273,13 +1301,87 @@ footer .v { font-family: var(--mono); }
   // back nothing, so the probe reads its own value back.
   var storageOK = (function () {
     try {
-      var k = STORE_KEY + "/probe";
+      var k = ROOT + "/probe";
       localStorage.setItem(k, "1");
       var v = localStorage.getItem(k);
       localStorage.removeItem(k);
       return v === "1";
     } catch (e) { return false; }
   })();
+
+  // Short, random, and only ever compared with another one of its kind. It is
+  // what lets two half-finished sets sit side by side instead of one of them
+  // having to replace the other, and what lets the same set come back from
+  // another device without arriving twice.
+  function newId() {
+    return Math.random().toString(36).slice(2, 8) +
+           Math.random().toString(36).slice(2, 6);
+  }
+
+  // Move the first version's work into this exam's corner, once. Only ever
+  // runs for the exam the old key belonged to, and only when the new corner is
+  // empty, so it can be left in place safely and cannot run twice.
+  (function migrate() {
+    if (!storageOK || EXAM !== "saa-c03") return;
+    try {
+      if (localStorage.getItem(STORE_KEY) !== null) return;
+      var old = localStorage.getItem(OLD_ROOT);
+      if (old === null) return;
+
+      localStorage.setItem(STORE_KEY, old);
+
+      // The one set it could hold becomes a list of one, and is given an id.
+      var s = JSON.parse(localStorage.getItem(OLD_ROOT + "/session") || "null");
+      if (s && s.ids && s.ids.length) {
+        s.id = s.id || newId();
+        s.exam = EXAM;
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify([s]));
+      }
+
+      // These two stop the progress baked into the build being counted a
+      // second time. Carrying them over matters more than the rest: without
+      // them the seed is applied again and every total goes up by it.
+      ["/seed", "/seed-applied", "/unlocked", "/lookback"].forEach(function (part) {
+        var v = localStorage.getItem(OLD_ROOT + part);
+        if (v !== null) localStorage.setItem(ROOT + "/" + EXAM + part, v);
+      });
+
+      // Reading settings are about the person, not the exam, so they come out
+      // from under the exam and are shared from here on.
+      [["/settings", SET_KEY], ["/bullets", BULLET_KEY],
+       ["/textsize", TS_KEY]].forEach(function (pair) {
+        var v = localStorage.getItem(OLD_ROOT + pair[0]);
+        if (v !== null && localStorage.getItem(pair[1]) === null) {
+          localStorage.setItem(pair[1], v);
+        }
+      });
+    } catch (e) { /* nothing moved: the exam simply starts empty */ }
+  })();
+
+  // A note of which exams this browser has work for, so a page that is not
+  // this exam can still say what else is here. Written on every save, which is
+  // cheap, rather than kept in step by hand.
+  function noteExam() {
+    if (!storageOK) return;
+    try {
+      var ix = JSON.parse(localStorage.getItem(INDEX_KEY) || "null") || { exams: {} };
+      if (!ix.exams) ix.exams = {};
+      ix.exams[EXAM] = {
+        name: DATA.examName || DATA.exam || EXAM,
+        dataVersion: DATA.version || null,
+        at: stampNow()
+      };
+      ix.at = stampNow();
+      localStorage.setItem(INDEX_KEY, JSON.stringify(ix));
+    } catch (e) { /* fine: the index is a convenience, not a record */ }
+  }
+
+  function knownExams() {
+    try {
+      var ix = JSON.parse(localStorage.getItem(INDEX_KEY) || "null");
+      return (ix && ix.exams) || {};
+    } catch (e) { return {}; }
+  }
 
   var CONCEPT_ROWS = {};   // concept -> [rowId]
   var CONCEPT_SECS = {};   // concept -> [sectionKey]
@@ -1374,6 +1476,7 @@ footer .v { font-family: var(--mono); }
     if (!storageOK) return false;
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(S));
+      noteExam();
       return true;
     } catch (e) {
       storageOK = false;      // quota can fill up mid-session
@@ -1438,7 +1541,6 @@ footer .v { font-family: var(--mono); }
     { days: 14, label: "14 days" },
     { days: 30, label: "30 days" }
   ];
-  var LOOKBACK_KEY = STORE_KEY + "/lookback";
   var lookback = 0;                    // days, 0 meaning all time
   try {
     var savedLb = localStorage.getItem(LOOKBACK_KEY);
@@ -1603,7 +1705,6 @@ footer .v { font-family: var(--mono); }
   // Nothing is added and nothing is taken away: every line is a slice of the
   // original words, so what is read is exactly what was written.
 
-  var BULLET_KEY = STORE_KEY + "/bullets";
   var bulletMode = false;
   try { bulletMode = localStorage.getItem(BULLET_KEY) === "1"; } catch (e) { /* off */ }
 
@@ -1696,7 +1797,6 @@ footer .v { font-family: var(--mono); }
   }
 
   // ---------- text size ----------
-  var TS_KEY = STORE_KEY + "/textsize";
   var TS_STEPS = [0.9, 1, 1.15, 1.3, 1.5];
   var tsIdx = 1;
   try {
@@ -2325,10 +2425,14 @@ footer .v { font-family: var(--mono); }
   //
   // Only the question ids are kept, not the questions, so the record stays
   // small and can never disagree with the question bank.
-  var SESSION_KEY = STORE_KEY + "/session";
   var resumeBar = document.getElementById("resumeBar");
   var sessionLine = document.getElementById("sessionLine");
   var sessionReady = false;        // nothing is written until the page is up
+
+  // At most this many half-finished sets are kept. Past that the one left
+  // longest is dropped, so storage cannot grow without limit and the list
+  // stays short enough to read.
+  var SESSION_MAX = 12;
 
   // When this set was begun, when it was last picked back up, and how many
   // times. Kept alongside the place in the set so that coming back to it says
@@ -2336,11 +2440,77 @@ footer .v { font-family: var(--mono); }
   var sessionStarted = null;
   var sessionResumed = null;
   var sessionResumes = 0;
+  var sessionId = null;            // which of the kept sets this one is
 
   function newSession() {
     sessionStarted = stampNow();
     sessionResumed = null;
     sessionResumes = 0;
+    sessionId = newId();
+  }
+
+  // Newest worked on first, which is the order they are offered in, and the
+  // order a person thinks about them in.
+  function readSessions() {
+    var list;
+    try {
+      list = JSON.parse(localStorage.getItem(SESSIONS_KEY) || "null");
+    } catch (e) { return []; }
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (s) {
+      return s && s.ids && s.ids.length && s.qi >= 0 && s.qi < s.ids.length;
+    }).map(function (s) {
+      // A set written before sets had ids still has to be usable.
+      if (!s.id) s.id = newId();
+      return s;
+    }).sort(function (a, b) {
+      return stampSeconds(b.at) - stampSeconds(a.at);
+    });
+  }
+
+  function writeSessions(list) {
+    if (!storageOK) return;
+    try {
+      localStorage.setItem(SESSIONS_KEY,
+        JSON.stringify(list.slice(0, SESSION_MAX)));
+    } catch (e) { /* no room: the sets simply will not be kept */ }
+  }
+
+  // The set in progress is written in place of its earlier self, found by id.
+  // Finishing it takes it off the list, because there is nothing left to
+  // resume.
+  function saveSession() {
+    if (!sessionReady || !storageOK) return;
+    var list = readSessions().filter(function (s) { return s.id !== sessionId; });
+
+    // A set is only worth keeping once it has been worked on. Changing the
+    // area or the publisher builds a fresh set each time, and before this
+    // every one of those was written down, so the list filled with sets
+    // sitting at question one that nobody had answered anything in. A mock is
+    // the exception: its clock starts immediately, so it counts from the off.
+    var touched = qi > 0 || mock.on ||
+      (alreadyDone && Object.keys(alreadyDone).length > 0);
+
+    if (!queue.length || qi >= queue.length || !sessionId || !touched) {
+      writeSessions(list);
+      return;
+    }
+    list.unshift({
+      id: sessionId,
+      exam: EXAM,
+      at: stampNow(),                      // last worked on
+      started: sessionStarted,             // when this set was begun
+      resumed: sessionResumed,             // when it was last picked back up
+      resumes: sessionResumes,
+      ids: queue.map(function (q) { return q.id; }),
+      qi: qi,
+      done: alreadyDone,
+      area: areaSel.value,
+      src: srcSel.value,
+      drill: drilling ? drilling.id : null,
+      mock: mock.on ? { ends: mock.ends, given: mock.given } : null
+    });
+    writeSessions(list);
   }
 
   // "today at 19:04", "yesterday at 22:10", "3 Oct at 08:15". The day in words
@@ -2360,37 +2530,7 @@ footer .v { font-family: var(--mono); }
     return d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) + " at " + clock;
   }
 
-  function saveSession() {
-    if (!sessionReady || !storageOK) return;
-    try {
-      if (!queue.length || qi >= queue.length) {
-        localStorage.removeItem(SESSION_KEY);
-        return;
-      }
-      localStorage.setItem(SESSION_KEY, JSON.stringify({
-        at: stampNow(),                      // last worked on
-        started: sessionStarted,             // when this set was begun
-        resumed: sessionResumed,             // when it was last picked back up
-        resumes: sessionResumes,
-        ids: queue.map(function (q) { return q.id; }),
-        qi: qi,
-        done: alreadyDone,
-        area: areaSel.value,
-        src: srcSel.value,
-        drill: drilling ? drilling.id : null,
-        mock: mock.on ? { ends: mock.ends, given: mock.given } : null
-      }));
-    } catch (e) { /* no room, or no storage: the set simply will not be kept */ }
-  }
 
-  function readSession() {
-    try {
-      var s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-      if (!s || !s.ids || !s.ids.length) return null;
-      if (!(s.qi >= 0) || s.qi >= s.ids.length) return null;
-      return s;
-    } catch (e) { return null; }
-  }
 
   function howLongAgo(when) {
     var mins = (Date.now() - stampSeconds(when) * 1000) / 60000;
@@ -2420,7 +2560,7 @@ footer .v { font-family: var(--mono); }
     var byId = {};
     DATA.questions.forEach(function (q) { byId[q.id] = q; });
     var list = s.ids.map(function (id) { return byId[id]; }).filter(Boolean);
-    if (!list.length) { forgetSession(); return; }
+    if (!list.length) { putAside(s.id); return; }
 
     // Rebuilt from ids, so a question dropped from the bank since simply is not
     // there any more. Staying on the same question means counting how many of
@@ -2435,6 +2575,7 @@ footer .v { font-family: var(--mono); }
     sessionStarted = s.started || s.at;
     sessionResumed = stampNow();
     sessionResumes = (s.resumes || 0) + 1;
+    sessionId = s.id || newId();
 
     drilling = null;
     if (s.drill) {
@@ -2490,9 +2631,13 @@ footer .v { font-family: var(--mono); }
     sessionLine.hidden = false;
   }
 
-  function forgetSession() {
-    try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* fine */ }
-    hideResume();
+  // Take one set off the list for good. Used when a set is finished, when a
+  // question bank no longer holds any of it, and when a person says they are
+  // done with it.
+  function putAside(id) {
+    writeSessions(readSessions().filter(function (s) { return s.id !== id; }));
+    if (id === sessionId) sessionId = null;
+    offerResume();
   }
 
   function hideResume() {
@@ -2500,48 +2645,61 @@ footer .v { font-family: var(--mono); }
     resumeBar.textContent = "";
   }
 
+  // How much of a mock is left, in words, or that it has run out.
+  function mockClockText(s) {
+    var secs = Math.max(0, Math.round((s.mock.ends - Date.now()) / 1000));
+    if (!secs) return "The clock has run out, so it will be marked as it stands.";
+    return "There " + (secs < 120 ? "is" : "are") + " " +
+      (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") +
+      " left on the clock.";
+  }
+
+  // Every set left half finished, newest worked on first. One of them is
+  // usually the one from five minutes ago and the rest are older; the dates
+  // are there so that is obvious at a glance, because resuming something from
+  // last month is rarely what anyone wants.
   function offerResume() {
-    var s = readSession();
-    if (!s) { hideResume(); return; }
-
-    var box = el("div", "resume");
-    var left = s.ids.length - s.qi;
-    var what = describeSession(s);
-    var line = "You were " + (s.qi + 1) + " of " + s.ids.length + " through " + what +
-      ", " + howLongAgo(s.at) + ".";
-
-    if (s.mock) {
-      var secs = Math.max(0, Math.round((s.mock.ends - Date.now()) / 1000));
-      line += secs > 0
-        ? " There " + (secs < 120 ? "is" : "are") + " " +
-          (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") + " left on the clock."
-        : " The clock has run out, so it will be marked as it stands.";
-    }
-
-    box.appendChild(el("div", "what", line));
-
-    var history = el("div", "when");
-    history.appendChild(el("div", null, "Started " + whenText(s.started || s.at)));
-    if (s.resumed) {
-      history.appendChild(el("div", null, "Picked up again " + whenText(s.resumed) +
-        (s.resumes > 1 ? ", " + s.resumes + " times in all" : "")));
-    }
-    history.appendChild(el("div", null, "Last worked on " + whenText(s.at)));
-    box.appendChild(history);
-    var go = el("button", "btn primary", "Carry on");
-    go.addEventListener("click", function () { resumeSession(s); });
-    box.appendChild(go);
-    var drop = el("button", "btn", "Start something else");
-    drop.style.marginLeft = "8px";
-    drop.addEventListener("click", forgetSession);
-    box.appendChild(drop);
+    var all = readSessions().filter(function (s) { return s.id !== sessionId; });
+    if (!all.length) { hideResume(); return; }
 
     resumeBar.textContent = "";
-    resumeBar.appendChild(box);
+
+    if (all.length > 1) {
+      resumeBar.appendChild(el("h4", "resumehead",
+        all.length + " sets left part way through"));
+    }
+
+    all.forEach(function (s) {
+      var box = el("div", "resume");
+      var line = "You were " + (s.qi + 1) + " of " + s.ids.length + " through " +
+        describeSession(s) + ", " + howLongAgo(s.at) + ".";
+      if (s.mock) line += " " + mockClockText(s);
+      box.appendChild(el("div", "what", line));
+
+      var history = el("div", "when");
+      history.appendChild(el("div", null, "Started " + whenText(s.started || s.at)));
+      if (s.resumed) {
+        history.appendChild(el("div", null, "Picked up again " + whenText(s.resumed) +
+          (s.resumes > 1 ? ", " + s.resumes + " times in all" : "")));
+      }
+      history.appendChild(el("div", null, "Last worked on " + whenText(s.at)));
+      box.appendChild(history);
+
+      var go = el("button", "btn primary", "Carry on");
+      go.addEventListener("click", function () { resumeSession(s); });
+      box.appendChild(go);
+
+      var drop = el("button", "btn", "Put this aside");
+      drop.style.marginLeft = "8px";
+      drop.addEventListener("click", function () { putAside(s.id); });
+      box.appendChild(drop);
+
+      resumeBar.appendChild(box);
+    });
+
     resumeBar.hidden = false;
-    // Only the questions left count as unanswered; nothing is scored by this.
-    void left;
   }
+
   // ---------- a mock exam ----------
   // Sixty-five questions in a hundred and thirty minutes, drawn in the same
   // proportions the real paper uses, with nothing marked until the end. The
@@ -2638,7 +2796,7 @@ footer .v { font-family: var(--mono); }
     }
     mock.on = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
-    forgetSession();
+    if (sessionId) putAside(sessionId);
     renderMockBar();
     renderMockResult(ranOut);
   }
@@ -2710,7 +2868,14 @@ footer .v { font-family: var(--mono); }
     refreshMissChip();
   }
 
-  document.getElementById("mockBtn").addEventListener("click", startMock);
+  // An exam only offers a mock when we actually know the shape of its paper.
+  // Guessing at a length or a pass mark would teach someone the wrong target,
+  // which is worse than not offering one, so the button simply is not there.
+  if (DATA.paper && DATA.paper.questions) {
+    document.getElementById("mockBtn").addEventListener("click", startMock);
+  } else {
+    document.getElementById("mockBtn").hidden = true;
+  }
   function drillMisses() {
     var list = dueQuestions();
     if (!list.length) {
@@ -3545,7 +3710,9 @@ footer .v { font-family: var(--mono); }
     var undated = (S.base && S.base.seen) || 0;
 
     return JSON.stringify({
-      app: "SAA-C03 Recall Board",
+      app: "Recall Board",
+      format: 2,
+      examId: EXAM,
       appVersion: APP_VERSION,
       dataVersion: DATA.version,
       exported: new Date().toISOString(),
@@ -3572,12 +3739,142 @@ footer .v { font-family: var(--mono); }
       questionsAnswered: Object.keys(perQuestion).length,
       questionsWithTimes: dated,
 
-      // The set you are partway through travels too, so stopping on one
-      // machine and carrying on at another is the same as carrying on here.
-      session: readSession(),
+      // Every exam this browser has work for, not only the one being looked
+      // at, because a person studying two of them wants one file rather than
+      // one each. Each exam carries its own answers and its own half-finished
+      // sets, so nothing can be merged into the wrong exam at the other end.
+      exams: allExams(),
 
+      // Kept so a file written here can still be read by a version that only
+      // knows about one exam. Dropped once there is no such version left.
+      session: (readSessions()[0] || null),
       progress: S
     }, null, 1);
+  }
+
+  // This exam from memory, every other one straight out of storage. A page for
+  // one exam has no question bank for another, but it does not need one: the
+  // record is a lump of counts and a log of dated answers, and both travel
+  // without anything to interpret them.
+  function allExams() {
+    var out = {};
+    out[EXAM] = {
+      name: DATA.examName || DATA.exam || EXAM,
+      dataVersion: DATA.version || null,
+      progress: S,
+      sessions: readSessions()
+    };
+    var known = knownExams();
+    Object.keys(known).forEach(function (id) {
+      if (id === EXAM) return;
+      try {
+        var prog = JSON.parse(
+          localStorage.getItem(ROOT + "/" + id + "/progress") || "null");
+        if (!prog) return;
+        var sess = JSON.parse(
+          localStorage.getItem(ROOT + "/" + id + "/sessions") || "null");
+        out[id] = {
+          name: known[id].name || id,
+          dataVersion: known[id].dataVersion || null,
+          progress: prog,
+          sessions: Array.isArray(sess) ? sess : []
+        };
+      } catch (e) { /* that exam is simply left out */ }
+    });
+    return out;
+  }
+
+  // Any progress file, old or new, read as the same shape: exam id to what is
+  // held for it. A file from before exams had ids can only be the one exam
+  // that version knew about, so that is what it becomes.
+  function readPayload(p) {
+    if (!p || typeof p !== "object") return null;
+    if (p.exams && typeof p.exams === "object") return p.exams;
+    var prog = p.progress || p;
+    if (!prog || typeof prog !== "object" || !prog.concepts) return null;
+    var one = {};
+    one[p.examId || "saa-c03"] = {
+      name: p.app || null,
+      dataVersion: p.dataVersion || null,
+      progress: prog,
+      sessions: (p.session && p.session.ids && p.session.ids.length)
+        ? [p.session] : []
+    };
+    return one;
+  }
+
+  // Join two lists of half-finished sets. A set is known by its id, so the
+  // same set carried on in two places is one set and the copy worked on later
+  // wins. Two different sets are two sets, and both are kept. Nothing is
+  // replaced, which is the whole point: the set this machine is part way
+  // through used to be thrown away to make room for the one in the file.
+  function mergeSessions(mine, theirs, exam) {
+    var byId = {};
+    var order = [];
+    (mine || []).concat(theirs || []).forEach(function (s) {
+      if (!s || !s.ids || !s.ids.length) return;
+      if (!(s.qi >= 0) || s.qi >= s.ids.length) return;
+      if (!s.id) s.id = newId();
+      if (!s.exam) s.exam = exam;
+      var had = byId[s.id];
+      if (!had) { byId[s.id] = s; order.push(s.id); return; }
+      if (stampSeconds(s.at) > stampSeconds(had.at)) byId[s.id] = s;
+    });
+    var list = order.map(function (id) { return byId[id]; });
+    list.sort(function (a, b) { return stampSeconds(b.at) - stampSeconds(a.at); });
+    return { list: list.slice(0, SESSION_MAX), count: list.length };
+  }
+
+  // Merge one exam's answers without needing its question bank. Used for every
+  // exam except the one being looked at, which goes through mergeProgress so
+  // that the scores on screen are rebuilt as well.
+  function mergeStored(exam, prog) {
+    var key = ROOT + "/" + exam + "/progress";
+    var mine = null;
+    try { mine = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { mine = null; }
+    if (!mine) {
+      try { localStorage.setItem(key, JSON.stringify(prog)); } catch (e) { return 0; }
+      return (prog.log || []).length;
+    }
+    var seen = {};
+    (mine.log || []).forEach(function (e) { if (e) seen[e[0] + "|" + e[1]] = 1; });
+    var added = 0;
+    (prog.log || []).forEach(function (e) {
+      if (!e || seen[e[0] + "|" + e[1]]) return;
+      seen[e[0] + "|" + e[1]] = 1;
+      (mine.log || (mine.log = [])).push(e);
+      added++;
+    });
+    (mine.log || []).sort(function (a, b) {
+      return stampSeconds(a[0]) - stampSeconds(b[0]);
+    });
+
+    // The lumps of undated answers add, and a question either side got wrong
+    // stays wrong, because a miss not yet put right is the one worth seeing
+    // again. Same rule as the exam on screen, applied by hand here because
+    // there is no bank to replay against.
+    var a = mine.base || (mine.base = { concepts: {}, rows: {}, sections: {},
+                                        questions: {}, seen: 0, right: 0, wrong: 0 });
+    var b = prog.base || {};
+    ["concepts", "rows", "sections"].forEach(function (part) {
+      a[part] = a[part] || {};
+      Object.keys(b[part] || {}).forEach(function (k) {
+        var x = a[part][k] || { r: 0, w: 0 }, y = b[part][k] || { r: 0, w: 0 };
+        a[part][k] = { r: (x.r || 0) + (y.r || 0), w: (x.w || 0) + (y.w || 0) };
+      });
+    });
+    a.questions = a.questions || {};
+    Object.keys(b.questions || {}).forEach(function (qid) {
+      if (a.questions[qid] === undefined) a.questions[qid] = b.questions[qid];
+      else if (a.questions[qid] !== b.questions[qid]) a.questions[qid] = 0;
+    });
+    a.seen = (a.seen || 0) + (b.seen || 0);
+    a.right = (a.right || 0) + (b.right || 0);
+    a.wrong = (a.wrong || 0) + (b.wrong || 0);
+    if (prog.started && prog.started < (mine.started || "9999")) mine.started = prog.started;
+
+    try { localStorage.setItem(key, JSON.stringify(mine)); } catch (e) { /* no room */ }
+    return added;
   }
 
   // Fills the given box with the progress file, and additionally offers a real
@@ -3638,42 +3935,83 @@ footer .v { font-family: var(--mono); }
     var raw = ioBox.value.trim();
     if (!raw) { ioBox.placeholder = "Paste an exported progress file here first."; return; }
     try {
-      var p = JSON.parse(raw);
-      var prog = p.progress || p;
-      if (!prog || typeof prog !== "object" || !prog.concepts) throw new Error("not a progress file");
+      var payload = readPayload(JSON.parse(raw));
+      if (!payload) throw new Error("not a progress file");
 
-      var r = mergeProgress(prog);
-      saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
+      var report = [];
+      var examIds = Object.keys(payload);
 
-      // A half-finished set comes across as well, unless this machine is in the
-      // middle of one of its own. Taking that away without asking would be
-      // worse than not having the other one.
-      var brought = "";
-      if (p.session && p.session.ids && p.session.ids.length) {
-        var here = readSession();
-        var take = !here;
-        if (here) {
-          take = window.confirm(
-            "That file has a set in progress: " + (p.session.qi + 1) + " of " +
-            p.session.ids.length + ", last worked on " + whenText(p.session.at) + "." +
-            "\n\n" +
-            "This machine is " + (here.qi + 1) + " of " + here.ids.length + " through one " +
-            "of its own. Replace it with the one from the file?");
+      examIds.forEach(function (id) {
+        var part = payload[id] || {};
+        if (!part.progress) return;
+        var name = (id === EXAM)
+          ? (DATA.examName || DATA.exam || id)
+          : (part.name || (knownExams()[id] || {}).name || id);
+        var lines = [];
+
+        if (id === EXAM) {
+          // The exam on screen, so the scores are rebuilt as well.
+          var r = mergeProgress(part.progress);
+          saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
+          lines.push(r.answers + " answers added");
+          if (r.added) lines.push(r.added + " questions this device had not seen");
+          if (r.disagreed) {
+            lines.push(r.disagreed + " where the two disagreed, now on the revisit list");
+          }
+        } else {
+          // Another exam. Its answers are kept whether or not this device has
+          // a page for it, because it may well be opened tomorrow, and
+          // throwing them away would be the wrong call.
+          var n = mergeStored(id, part.progress);
+          lines.push(n + " answers added");
+          if (!knownExams()[id]) {
+            lines.push("no page for this exam on this device yet, so these are "
+              + "kept and will show up when there is one");
+          }
         }
-        if (take) {
-          try { localStorage.setItem(SESSION_KEY, JSON.stringify(p.session)); } catch (e) { /* fine */ }
-          offerResume();
-          brought = " The set it was partway through came too, and is offered on the practice page.";
-        }
-      }
 
-      ioBox.value = "Merged. " + r.answers + " answers added, " + r.added +
-        " questions this machine had not seen, and " + r.disagreed +
-        " where the two disagreed are kept on the revisit list." + brought;
+        // Half-finished sets join by id, so this device keeps its own and the
+        // file's as well. Only the same set, carried on in both places, is
+        // reconciled, and then the later one wins.
+        var skey = ROOT + "/" + id + "/sessions";
+        var mine;
+        if (id === EXAM) mine = readSessions();
+        else {
+          try { mine = JSON.parse(localStorage.getItem(skey) || "null") || []; }
+          catch (e) { mine = []; }
+        }
+        var before = mine.length;
+        var merged = mergeSessions(mine, part.sessions, id);
+        if (merged.count !== before || (part.sessions || []).length) {
+          try { localStorage.setItem(skey, JSON.stringify(merged.list)); }
+          catch (e) { /* no room */ }
+        }
+        var gained = merged.count - before;
+        if (gained > 0) {
+          lines.push(gained + (gained === 1 ? " set" : " sets") +
+            " in progress came across, so there " +
+            (merged.count === 1 ? "is now 1" : "are now " + merged.count));
+        }
+
+        report.push(name + nlJoin(lines));
+      });
+
+      if (!report.length) throw new Error("nothing to merge");
+      offerResume();
+
+      ioBox.value = (examIds.length > 1
+        ? "Merged " + examIds.length + " exams.\n\n"
+        : "Merged.\n\n") + report.join("\n\n");
     } catch (e) {
       ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
     }
   });
+
+  // One exam's lines, indented under its name, so a report covering two exams
+  // can be read without working out which number belongs to which.
+  function nlJoin(lines) {
+    return lines.length ? "\n  " + lines.join(".\n  ") + "." : "";
+  }
 
   document.getElementById("resetBtn").addEventListener("click", function () {
     if (!window.confirm("Clear every answer and start again? Export first if you want a copy.")) return;
@@ -3839,7 +4177,6 @@ footer .v { font-family: var(--mono); }
     confirm: { attr: null,          fallback: "confirm" },
     bullets: { attr: null,          fallback: "off" }
   };
-  var SET_KEY = STORE_KEY + "/settings";
   var settings = {};
 
   function loadSettings() {
@@ -3950,6 +4287,26 @@ footer .v { font-family: var(--mono); }
     DATA.questions.length + " questions · " +
     DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0) +
     " recall rows · built against " + DATA.guide.replace(/^Exam guide/, "AWS exam guide");
+
+  // The other exams on this site. Each one keeps its own answers and its own
+  // half-finished sets, under its own name in this browser's storage, so
+  // moving between them cannot disturb either. An exported file covers all of
+  // them at once, whichever page it was written from.
+  (function () {
+    var host = document.getElementById("otherExams");
+    var others = (DATA.otherExams || []).filter(function (x) {
+      return x && x.href && x.id !== DATA.examId;
+    });
+    if (!host || !others.length) return;
+    host.appendChild(document.createTextNode("Also here: "));
+    others.forEach(function (x, i) {
+      if (i) host.appendChild(document.createTextNode(", "));
+      var a = document.createElement("a");
+      a.href = x.href;
+      a.textContent = x.name;
+      host.appendChild(a);
+    });
+  })();
 
   // ---------- password gate ----------
   // This keeps the board off a passing stranger's screen. It is not security:

@@ -28,6 +28,17 @@ SUBJECT = ROOT / "aws" / "solutions-architect-associate"
 DOCS = ROOT / "docs"
 
 APP = SUBJECT / "app" / "saa-c03-recall-board.html"
+
+# Other exams published alongside the main one, each at its own path with
+# its own page. One page per exam rather than one page holding them all:
+# the AWS board is nearly 3 MB and the stub is a fifth of a megabyte, so
+# putting both in one file would make everyone download an exam they are
+# not studying. They still share one record of progress, because the
+# browser keeps storage per site rather than per page.
+OTHER_EXAMS = [
+    ("cca-f", ROOT / "anthropic" / "claude-certified-architect" / "app"
+              / "cca-f-recall-board.html"),
+]
 POSTER_HTML = SUBJECT / "poster" / "poster.html"
 POSTER_PDFS = [
     ("aws-saa-c03-poster.pdf", "18 x 24 in, three columns"),
@@ -110,6 +121,18 @@ def main() -> None:
     app = app.replace("</head>", HEAD_EXTRAS + "</head>", 1)
     (DOCS / "index.html").write_text(app, encoding="utf-8")
 
+    for slug, src in OTHER_EXAMS:
+        if not src.exists():
+            print(f"  {slug:24} SKIPPED, {src.name} has not been built")
+            continue
+        sub = DOCS / slug
+        sub.mkdir(parents=True, exist_ok=True)
+        page = src.read_text(encoding="utf-8")
+        page = page.replace("</head>", HEAD_EXTRAS.replace('"icon.svg"', '"../icon.svg"')
+                            .replace('"manifest.webmanifest"', '"../manifest.webmanifest"')
+                            + "</head>", 1)
+        (sub / "index.html").write_text(page, encoding="utf-8")
+
     (DOCS / "icon.svg").write_text(ICON_SVG, encoding="utf-8")
     (DOCS / "manifest.webmanifest").write_text(MANIFEST, encoding="utf-8")
     (DOCS / "404.html").write_text(NOT_FOUND, encoding="utf-8")
@@ -137,6 +160,11 @@ def main() -> None:
     print(f"site built {built}  app v{version.group(1) if version else '?'}")
     print(f"  docs/index.html          the app, {(DOCS / 'index.html').stat().st_size // 1024} KB")
     print(f"  docs/poster.html         {'yes' if (DOCS / 'poster.html').exists() else 'MISSING'}")
+    for slug, _ in OTHER_EXAMS:
+        f = DOCS / slug / 'index.html'
+        if f.exists():
+            print(f"  docs/{slug}/index.html   a second exam, "
+                  f"{f.stat().st_size // 1024} KB")
     print(f"  printable sheets         {len(copied)}")
     print(f"  icon, manifest, 404      added")
     print(f"  total                    {total // 1024} KB")
