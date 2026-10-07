@@ -245,6 +245,31 @@ body {
 :root[data-letter="wide"] body { letter-spacing: 0.055em; word-spacing: 0.16em; }
 :root[data-letter="wider"] body { letter-spacing: 0.1em; word-spacing: 0.26em; }
 
+:root[data-ruler="on"] .qtext,
+:root[data-ruler="on"] .opt,
+:root[data-ruler="on"] .why,
+:root[data-ruler="on"] .ansbox { position: relative; }
+
+/* The line under the pointer is lifted out of the block. On a touch screen
+   there is no pointer, so the whole block lifts when it is touched, which is
+   still better than nothing and never gets in the way. */
+:root[data-ruler="on"] .bul li,
+:root[data-ruler="on"] .qtext,
+:root[data-ruler="on"] .opt,
+:root[data-ruler="on"] .why { transition: background-color .08s linear; }
+:root[data-ruler="on"] .bul li:hover,
+:root[data-ruler="on"] .qtext:hover,
+:root[data-ruler="on"] .why:hover,
+:root[data-ruler="on"] .opt:hover:not(:disabled) {
+  background: var(--amber-soft);
+  box-shadow: 0 0 0 1px var(--amber);
+  border-radius: 4px;
+}
+@media (hover: none) {
+  :root[data-ruler="on"] .bul li:active,
+  :root[data-ruler="on"] .qtext:active { background: var(--amber-soft); }
+}
+
 :root[data-weight="light"] .btn,
 :root[data-weight="light"] .tabs button,
 :root[data-weight="light"] .setrow > .lab,
@@ -261,6 +286,26 @@ body {
 :root[data-width="narrow"] .bul { max-width: 46ch; }
 
 /* a row of choices, one of which is on */
+/* a mock exam in progress: the clock, and how far through you are */
+.mockbar {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  border: 2px solid var(--cyan); border-radius: var(--radius);
+  background: var(--cyan-soft); padding: 12px 14px; margin-bottom: 14px;
+}
+.mockbar .clock { font: 700 1.25rem var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.mockbar .clock.low { color: var(--magenta); }
+.mockbar .said { font-size: 0.9rem; color: var(--ink-2); margin-right: auto; }
+.result { border: 2px solid var(--rule); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+.result .score { font: 700 2.6rem var(--mono); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.result .verdict { font-size: 1.1rem; margin: 4px 0 14px; }
+.result .verdict.pass { color: var(--cyan); }
+.result .verdict.fail { color: var(--magenta); }
+.bydom { display: grid; gap: 9px; margin-top: 8px; }
+.bydom .d { display: grid; grid-template-columns: minmax(120px, 1fr) 2fr auto; gap: 10px; align-items: center; font-size: 0.9rem; }
+.bydom .track { background: var(--surface-2); border-radius: 4px; height: 10px; overflow: hidden; }
+.bydom .fill { height: 100%; background: var(--cyan); }
+.bydom .fill.weak { background: var(--magenta); }
+@media (max-width: 560px) { .bydom .d { grid-template-columns: 1fr auto; } .bydom .track { grid-column: 1 / -1; } }
 .setrow { margin-bottom: 20px; }
 .setrow > .lab { display: block; font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
 .setrow > .hint { display: block; font-size: 0.84rem; color: var(--ink-2); margin-bottom: 9px; }
@@ -949,8 +994,10 @@ footer .v { font-family: var(--mono); }
         <button class="btn primary" id="startBtn">Start</button>
         <button class="btn bad" id="missBtn">Drill my misses</button>
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
+        <button class="btn" id="mockBtn">Sit a mock exam</button>
       </div>
       <div id="drillBanner" hidden></div>
+      <div id="mockBar" hidden></div>
       <div class="scorebar" id="practiceScore" style="margin-bottom:14px"></div>
       <div id="qhost"></div>
     </div>
@@ -1072,6 +1119,25 @@ footer .v { font-family: var(--mono); }
     <div class="pick" role="group" data-setting="width">
       <button type="button" data-value="normal">Normal</button>
       <button type="button" data-value="narrow">Short</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Reading ruler</span>
+    <span class="hint">Lifts the line you are pointing at out of the block, the way a ruler
+      under a line of print stops the eye dropping to the wrong one.</span>
+    <div class="pick" role="group" data-setting="ruler">
+      <button type="button" data-value="off">Off</button>
+      <button type="button" data-value="on">On</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Spacing out what you got wrong</span>
+    <span class="hint">A question you put right comes back after a day, then three, then a
+      week, then a fortnight, then a month. Get it wrong and the wait starts over. Answering
+      something again an hour later teaches far less than answering it again next week.</span>
+    <div class="pick" role="group" data-setting="spacing">
+      <button type="button" data-value="on">On</button>
+      <button type="button" data-value="off">Off, show them all</button>
     </div>
   </div>
   <div class="setrow">
@@ -1967,14 +2033,234 @@ footer .v { font-family: var(--mono); }
   // Every question answered wrong and not since put right. This is the list
   // worth going back to, so it gets a one-tap route from the header, the
   // practice picker and the progress page rather than being three taps deep.
+  // ---------- when a missed question is worth seeing again ----------
+  // Answering something correctly a second time, an hour after the first,
+  // teaches far less than answering it again next week. So a question you
+  // have put right waits, and waits longer each time you keep putting it
+  // right. Get it wrong and the wait goes back to the start.
+  //
+  // The waits are in days. The first is used after the first correct answer
+  // following a miss, the second after the next, and so on.
+  var WAITS = [1, 3, 7, 14, 30];
+
+  // Everything known about one question from the log, newest answer last.
+  function historyFor(qid) {
+    return (S.log || []).filter(function (e) { return e && e[1] === qid; });
+  }
+
+  // null when it is not waiting: either never missed, or due now.
+  function dueIn(qid) {
+    var past = historyFor(qid);
+    if (!past.length) return null;
+    if (!past[past.length - 1][2]) return null;    // last answer was wrong: due now
+
+    // How many times it has been right in a row, counting back.
+    var run = 0;
+    for (var i = past.length - 1; i >= 0 && past[i][2]; i--) run++;
+    if (run === past.length) return null;          // never missed, so not on the list
+
+    var wait = WAITS[Math.min(run, WAITS.length) - 1];
+    var since = (Math.floor(Date.now() / 1000) - stampSeconds(past[past.length - 1][0])) / 86400;
+    var left = wait - since;
+    return left > 0 ? left : null;
+  }
+
   function missedQuestions() {
     return DATA.questions.filter(function (q) { return V.questions[q.id] === 0; });
   }
 
+  // The revisit list proper: everything missed that is not resting, plus
+  // anything put right once but not yet often enough to be considered learnt,
+  // once its wait is up.
+  function dueQuestions() {
+    if (settings.spacing === "off") return missedQuestions();
+    return DATA.questions.filter(function (q) {
+      var past = historyFor(q.id);
+      var everMissed = past.some(function (e) { return !e[2]; }) || V.questions[q.id] === 0;
+      if (!everMissed) return false;
+      var run = 0;
+      for (var i = past.length - 1; i >= 0 && past[i][2]; i--) run++;
+      if (run >= WAITS.length) return false;        // right that many times running: learnt
+      return dueIn(q.id) === null;
+    });
+  }
+
+  // ---------- a mock exam ----------
+  // Sixty-five questions in a hundred and thirty minutes, drawn in the same
+  // proportions the real paper uses, with nothing marked until the end. The
+  // point is to find out where you stand, which you cannot do while being told
+  // the answer after every question.
+  var mock = { on: false, ends: 0, given: {}, tick: null, plan: null };
+  var mockBar = document.getElementById("mockBar");
+
+  function mockPlan() {
+    var paper = DATA.paper;
+    var usable = DATA.questions.filter(function (q) {
+      return q.opts && q.opts.length >= 2 && !(q.flag && q.flag.kind === "wrong");
+    });
+    var byDom = {};
+    usable.forEach(function (q) { (byDom[q.dom] = byDom[q.dom] || []).push(q); });
+
+    var want = {}, running = 0;
+    var names = Object.keys(paper.weights);
+    names.forEach(function (d, n) {
+      // The last domain takes whatever is left, so rounding never leaves the
+      // paper a question short or a question over.
+      want[d] = (n === names.length - 1)
+        ? paper.questions - running
+        : Math.round(paper.questions * paper.weights[d] / 100);
+      running += want[d];
+    });
+
+    var picked = [], short = {};
+    names.forEach(function (d) {
+      var pool = shuffle((byDom[d] || []).slice());
+      if (pool.length < want[d]) short[d] = want[d] - pool.length;
+      picked = picked.concat(pool.slice(0, want[d]));
+    });
+    // If a domain cannot fill its share, make the paper up to length from
+    // anything else rather than handing over a short exam.
+    if (picked.length < paper.questions) {
+      var seen = {};
+      picked.forEach(function (q) { seen[q.id] = 1; });
+      var rest = shuffle(usable.filter(function (q) { return !seen[q.id]; }));
+      picked = picked.concat(rest.slice(0, paper.questions - picked.length));
+    }
+    return { questions: shuffle(picked), want: want, short: short };
+  }
+
+  function startMock() {
+    var paper = DATA.paper;
+    var ask = "Sit a mock exam?\n\n" + paper.questions + " questions in " + paper.minutes +
+      " minutes, drawn in the same proportions as the real paper. Nothing is marked " +
+      "until the end. Your answers still count towards your progress.";
+    if (!window.confirm(ask)) return;
+
+    mock.plan = mockPlan();
+    mock.on = true;
+    mock.given = {};
+    mock.ends = Date.now() + paper.minutes * 60000;
+    drilling = null;
+    queue = mock.plan.questions;
+    qi = 0;
+    alreadyDone = {};
+    renderDrillBanner();
+    renderQuestion();
+    renderMockBar();
+    if (mock.tick) clearInterval(mock.tick);
+    mock.tick = setInterval(renderMockBar, 1000);
+  }
+
+  function renderMockBar() {
+    if (!mock.on) { mockBar.hidden = true; mockBar.textContent = ""; return; }
+    var left = Math.max(0, mock.ends - Date.now());
+    if (left === 0) { finishMock(true); return; }
+    var mins = Math.floor(left / 60000), secs = Math.floor((left % 60000) / 1000);
+    mockBar.hidden = false;
+    mockBar.textContent = "";
+    var box = el("div", "mockbar");
+    box.appendChild(el("span", "clock" + (left < 600000 ? " low" : ""),
+      mins + ":" + (secs < 10 ? "0" : "") + secs));
+    var done = Object.keys(mock.given).length;
+    box.appendChild(el("span", "said",
+      "Mock exam · " + done + " of " + queue.length + " answered"));
+    var stop = el("button", "btn", "Finish now");
+    stop.addEventListener("click", function () { finishMock(false); });
+    box.appendChild(stop);
+    mockBar.appendChild(box);
+  }
+
+  function finishMock(ranOut) {
+    if (!mock.on) return;
+    var left = queue.length - Object.keys(mock.given).length;
+    if (!ranOut && left > 0) {
+      if (!window.confirm("Finish and mark it? " + left +
+          " question" + (left === 1 ? " is" : "s are") +
+          " still unanswered and will be marked wrong.")) return;
+    }
+    mock.on = false;
+    if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+    renderMockBar();
+    renderMockResult(ranOut);
+  }
+
+  function renderMockResult(ranOut) {
+    var paper = DATA.paper;
+    var sat = queue.slice();
+    var right = 0, byDom = {};
+    sat.forEach(function (q) {
+      var ok = mock.given[q.id] === true;
+      if (ok) right++;
+      var d = byDom[q.dom] || (byDom[q.dom] = { r: 0, n: 0 });
+      d.n++;
+      if (ok) d.r++;
+    });
+
+    // AWS reports a scaled score from 100 to 1000 and passes at 720. How they
+    // scale it is theirs and not published, so this is the straight proportion
+    // laid across that range: near enough to tell you where you stand, and not
+    // to be read as the score you would be given on the day.
+    var fraction = sat.length ? right / sat.length : 0;
+    var scaled = Math.round(100 + 900 * fraction);
+    var passed = scaled >= paper.pass;
+
+    qhost.textContent = "";
+    var card = el("div", "card result");
+    card.appendChild(el("h2", "sub", ranOut ? "Time is up" : "Mock exam marked"));
+    card.appendChild(el("div", "score", String(scaled)));
+    card.appendChild(el("p", "verdict " + (passed ? "pass" : "fail"),
+      (passed ? "Above" : "Below") + " the " + paper.pass + " needed to pass · " +
+      right + " of " + sat.length + " right"));
+    card.appendChild(el("p", "lede",
+      "Scored as a straight proportion across the 100 to 1000 range AWS uses. Their own " +
+      "scaling is not published, so read this as roughly where you stand rather than as " +
+      "the number you would be given on the day."));
+
+    card.appendChild(el("h3", "sub", "By domain"));
+    var list = el("div", "bydom");
+    Object.keys(paper.weights).concat(["unassigned"]).forEach(function (d) {
+      var s = byDom[d];
+      if (!s || !s.n) return;
+      var pct = Math.round(100 * s.r / s.n);
+      var row = el("div", "d");
+      row.appendChild(el("span", null,
+        (paper.domainNames[d] || d).replace(/^Design /, "")));
+      var track = el("div", "track");
+      var fill = el("div", "fill" + (pct < 70 ? " weak" : ""));
+      fill.style.width = pct + "%";
+      track.appendChild(fill);
+      row.appendChild(track);
+      row.appendChild(el("span", null, s.r + "/" + s.n + "  " + pct + "%"));
+      list.appendChild(row);
+    });
+    card.appendChild(list);
+
+    var again = el("button", "btn primary", "Sit another");
+    again.style.marginTop = "16px";
+    again.addEventListener("click", startMock);
+    card.appendChild(again);
+    var back = el("button", "btn", "Back to practice");
+    back.style.marginTop = "16px";
+    back.style.marginLeft = "8px";
+    back.addEventListener("click", function () { buildQueue(); renderQuestion(); });
+    card.appendChild(back);
+
+    qhost.appendChild(card);
+    renderBoard();
+    renderProgress();
+    refreshMissChip();
+  }
+
+  document.getElementById("mockBtn").addEventListener("click", startMock);
   function drillMisses() {
-    var list = missedQuestions();
+    var list = dueQuestions();
     if (!list.length) {
-      window.alert("Nothing to go back to: you have not got anything wrong yet.");
+      var resting = missedQuestions().length;
+      window.alert(resting
+        ? "Nothing is due. " + resting + " question" + (resting === 1 ? " is" : "s are") +
+          " resting: you have put them right, and they come back later so that getting " +
+          "them right again actually means something."
+        : "Nothing to go back to: you have not got anything wrong yet.");
       return;
     }
     drilling = null;
@@ -1989,14 +2275,16 @@ footer .v { font-family: var(--mono); }
 
   function refreshMissChip() {
     var chip = document.getElementById("missChip");
-    var n = missedQuestions().length;
+    var n = dueQuestions().length;
     chip.hidden = n === 0;
     if (n) {
       chip.textContent = "";
       chip.appendChild(el("span", null, "✕"));
       chip.appendChild(el("b", null, String(n)));
       chip.appendChild(el("span", "word", "to revisit"));
-      chip.title = "Drill the " + n + " question" + (n === 1 ? "" : "s") + " you got wrong";
+      var resting = missedQuestions().length - n;
+      chip.title = "Drill the " + n + " question" + (n === 1 ? "" : "s") + " due now" +
+        (resting > 0 ? ", with " + resting + " more resting until their turn comes round" : "");
     }
   }
 
@@ -2315,6 +2603,7 @@ footer .v { font-family: var(--mono); }
 
     var reveal = el("div", "reveal");
     reveal.hidden = true;
+    if (mock.on) reveal.style.display = "none";
     reveal.appendChild(el("h4", null, "Answer"));
     var ansbox = textBlock(q.a, "ansbox", "div");
     reveal.appendChild(ansbox);
@@ -2408,8 +2697,19 @@ footer .v { font-family: var(--mono); }
               if (pool[k] === right) optBtns[k].classList.add("pick-ok");
             }
           }
-          reveal.hidden = false;
           record(q, ok);
+          if (mock.on) {
+            // Under exam conditions you answer and move on. Nothing is
+            // marked, nothing is revealed, and the last answer ends the
+            // paper rather than leaving it waiting to be told to stop.
+            mock.given[q.id] = ok;
+            qi++;
+            if (qi >= queue.length) { finishMock(false); return; }
+            renderMockBar();
+            renderQuestion();
+            return;
+          }
+          reveal.hidden = false;
           nextBtn.hidden = false;
         });
         optBtns.push(b);
@@ -2952,6 +3252,8 @@ footer .v { font-family: var(--mono); }
     letter:  { attr: "data-letter", fallback: "normal" },
     width:   { attr: "data-width",  fallback: "normal" },
     weight:  { attr: "data-weight", fallback: "normal" },
+    spacing: { attr: null,          fallback: "on" },
+    ruler:   { attr: "data-ruler",  fallback: "off" },
     bullets: { attr: null,          fallback: "off" }
   };
   var SET_KEY = STORE_KEY + "/settings";
@@ -2990,6 +3292,7 @@ footer .v { font-family: var(--mono); }
     applyTextSize();
 
     bulletMode = settings.bullets === "on";
+    if (typeof refreshMissChip === "function") refreshMissChip();
     bulletBtn.setAttribute("aria-pressed", String(bulletMode));
 
     document.querySelectorAll(".pick[data-setting]").forEach(function (group) {

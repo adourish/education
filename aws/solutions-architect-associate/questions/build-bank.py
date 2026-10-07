@@ -180,32 +180,10 @@ def classify(text: str) -> tuple[str, dict[str, int]]:
     return best, scores
 
 
-# The four scored exam domains. A question usually belongs to one of them
-# regardless of which service it names, and the domain is what the exam is
-# actually weighting, so it is worth tagging separately from the service area.
-DOMAINS = [
-    ("secure", r"\bIAM\b|\bKMS\b|encrypt|\bWAF\b|Shield|GuardDuty|Macie|Inspector|\bSCP\b|"
-               r"Organizations|Secrets Manager|credential|least privilege|\bMFA\b|"
-               r"authenticat|authoriz|MOST secure|securely|private subnet|bucket policy"),
-    ("resilient", r"highly available|high availability|Multi-AZ|disaster recovery|\bRTO\b|\bRPO\b|"
-                  r"fault toler|\bfailover\b|\bbackup\b|multi-region|resilien|redundan|"
-                  r"survive|outage|business continuity|durab"),
-    ("high-performing", r"LOWEST latency|low latency|performance|throughput|\bIOPS\b|"
-                        r"\bcach|scale|scaling|faster|speed up|bottleneck|\bDAX\b|"
-                        r"ElastiCache|read replica|CloudFront|Global Accelerator"),
-    ("cost-optimized", r"MOST cost-effective|cost-effective|lowest cost|reduce cost|minimize cost|"
-                       r"LEAST expensive|Savings Plan|Spot|Reserved Instance|budget|"
-                       r"cheape|cost optimiz|pricing"),
-]
-
-
-def domain(text: str) -> str:
-    best, score = "", 0
-    for name, pat in DOMAINS:
-        n = len({h.lower() for h in re.findall(pat, text, re.I)})
-        if n > score:
-            best, score = name, n
-    return best or "unassigned"
+# Which of the four scored exam domains a question belongs to. The rules live
+# in domains.py so that retag-domains.py can apply exactly the same ones to
+# questions already in the bank.
+from domains import domain, EXAM_WEIGHTS  # noqa: E402,F401
 
 
 def qualifiers(text: str) -> list[str]:

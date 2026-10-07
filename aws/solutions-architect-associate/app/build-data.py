@@ -35,9 +35,10 @@ OUT = HERE / "app-data.json"
 # The glossary lives with the questions, so import it from there.
 sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
+from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
-VERSION = "1.3.1"
+VERSION = "1.4.0"
 
 # Where each question came from. The short code travels with every question so
 # the app can filter by provider; the name and note are for the picker and the
@@ -228,6 +229,16 @@ def main() -> None:
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
         "glossary": {name: what for name, (_, what) in GLOSSARY.items()},
         "sources": dict(SOURCES.values()),
+        # What the real paper is made of, so a mock can be drawn in the same
+        # proportions rather than in whatever proportions the question sets
+        # happen to hold. Kept apart from "exam", which is the exam's name.
+        "paper": {
+            "questions": 65,
+            "minutes": 130,
+            "pass": 720,          # out of 1000, as AWS scores it
+            "weights": EXAM_WEIGHTS,
+            "domainNames": DOMAIN_NAMES,
+        },
         "areaTitles": {
             "compute": "Compute", "storage": "Storage", "database": "Databases",
             "networking": "Networking", "security": "Security & identity",
