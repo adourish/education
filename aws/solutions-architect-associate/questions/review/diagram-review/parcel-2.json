@@ -1,0 +1,706 @@
+[
+ {
+  "diagram": {
+   "id": "apigw-lambda",
+   "title": "A front door with no servers behind it",
+   "when": [
+    "APIGW",
+    "Lambda"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "api",
+     "API Gateway",
+     "edge"
+    ],
+    [
+     "fn",
+     "Lambda",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "api",
+     "requests"
+    ],
+    [
+     "api",
+     "fn",
+     "invokes"
+    ]
+   ],
+   "note": "Nothing to keep running between requests, and nothing to patch."
+  },
+  "matches_in_total": 23,
+  "sample": [
+   {
+    "id": "ce-557",
+    "question": "A company wants to design a microservices architecture for an application. Each microservice must perform operations that can be completed within 30 seconds. The microservices need to expose RESTful APIs and must automatically scale in response to varying loads. The APIs must also provide client access control and rate limiting to maintain equitable usage and service availability. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Deploy each microservice as a set of AWS Lambda functions. Use Amazon API Gateway to manage the RESTful API requests."
+   },
+   {
+    "id": "dt-673",
+    "question": "A company hosts its static website by using Amazon S3. The company wants to add a contact form to its webpage. The contact form will have dynamic server-side components for users to input their name, email address, phone number, and user message. The company anticipates that there will be fewer than 100 site visits each month. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "B. Create an Amazon API Gateway endpoint that returns the contact form from an AWS Lambda function. Configure another Lambda function on the API Gateway to publish a message to an Amazon Simple Notification Service (Amazon SNS) topic."
+   },
+   {
+    "id": "et-323",
+    "question": "A company’s facility has badge readers at every entrance throughout the building. When badges are scanned, the readers send a message over HTTPS to indicate who attempted to access that particular entrance. A solutions architect must design a system to process these messages from the sensors. The solution must be highly available, and the results must be made available for the company’s security team to analyze. Which system architecture should the solutions architect recommend?",
+    "answer": "B. Create an HTTPS endpoint in Amazon API Gateway. Configure the API Gateway endpoint to invoke an AWS Lambda function to process the messages and save the results to an Amazon DynamoDB table."
+   },
+   {
+    "id": "ce-657",
+    "question": "A company is building a serverless web application that will serve customers globally by using REST API endpoints. The application must minimize latency regardless of the application us-er's geographic location. The initial amount of traffic that the application will handle is un-known.",
+    "answer": "A. Deploy an Amazon API Gateway REST API with edge-optimized API endpoints for all cus-tomers. Create AWS Lambda functions. Optimize Lambda performance by adjusting the memory settings and configuring provisioned concurrency."
+   },
+   {
+    "id": "ce-326",
+    "question": "A company has developed a non-production application that is composed of multiple microservices for each of the company's business units. A single development team maintains all the microservices. The current architecture uses a static web frontend and a Java-based backend that contains the application logic. The architecture also uses a MySQL database that the company hosts on an Amazon EC2 instance. The company needs to ensure that the application is secure and available globally. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Use Amazon CloudFront and Amazon S3 to host the static web frontend. Refactor the microservices to use AWS Lambda functions that the microservices access by using Amazon API Gateway. Migrate the MySQL database to Amazon RDS for MySQL."
+   },
+   {
+    "id": "ce-547",
+    "question": "A company is using microservices to build an ecommerce application on AWS. The company wants to preserve customer transaction information after customers submit orders. The company wants to store transaction data in an Amazon Aurora database. The company expects sales volumes to vary throughout each year.",
+    "answer": "A. Use an Amazon API Gateway REST API to invoke an AWS Lambda function to send transaction data to the Aurora database. Send transaction data to an Amazon Simple Queue Service (Amazon SQS) queue that has a dead-letter queue. Use a second Lambda function to read from the SQS queue and to update the Aurora database."
+   },
+   {
+    "id": "ce-825",
+    "question": "A company uses Amazon S3 to host its static website. The company wants to add a contact form to the webpage. The contact form will have dynamic server-side components for users to input their name, email address, phone number, and user message. The company expects fewer than 100 site visits each month. The contact form must notify the company by email when a customer fills out the form. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "B. Create an Amazon API Gateway endpoint that returns the contact form from an AWS Lambda function. Configure another Lambda function on the API Gateway to publish a message to an Amazon Simple Notification Service (Amazon SNS) topic."
+   },
+   {
+    "id": "ce-711",
+    "question": "An insurance company wants to migrate an application that calculates insurance premiums to AWS. The company must run calculations immediately when a customer submits information through the application. The application usually takes 10 seconds to process a calculation. Which solution will meet this requirement?",
+    "answer": "A. Set up an Amazon API Gateway HTTP API to receive the data. Use an AWS Lambda function to process the data immediately."
+   },
+   {
+    "id": "ce-511",
+    "question": "A company tracks customer satisfaction by using surveys that the company hosts on its website. The surveys sometimes reach thousands of customers every hour. Survey results are currently sent in email messages to the company so company employees can manually review results and assess customer sentiment. The company wants to automate the customer survey process. Survey results must be available for the previous 12 months. Which solution will meet these requirements in the MOST scalable way?",
+    "answer": "A. Send the survey results data to an Amazon API Gateway endpoint that is connected to an Amazon Simple Queue Service (Amazon SQS) queue. Create an AWS Lambda function to poll the SQS queue, call Amazon Comprehend for sentiment analysis, and save the results to an Amazon DynamoDB table. Set the TTL for all records to 365 days in the future."
+   },
+   {
+    "id": "ce-339",
+    "question": "A company has an ecommerce application that users access through multiple mobile apps and web applications. The company needs a solution that will receive requests from the mobile apps and web applications through an API. Request traffic volume varies significantly throughout each day. Traffic spikes during sales events. The solution must be loosely coupled and ensure that no requests are lost.",
+    "answer": "B. Set up an Amazon API Gateway REST API with an integration to an Amazon Simple Queue Service (Amazon SQS) queue. Configure a dead-letter queue. Create an AWS Lambda function to poll the queue to process the requests."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "athena-s3",
+   "title": "Asking questions of what is already in the bucket",
+   "when": [
+    "Athena",
+    "S3"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ],
+    [
+     "a",
+     "Athena",
+     "compute"
+    ],
+    [
+     "u",
+     "Analyst",
+     "actor"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "a",
+     "SQL"
+    ],
+    [
+     "a",
+     "s3",
+     "reads in place"
+    ]
+   ],
+   "note": "Nothing is loaded anywhere first. Charged by data scanned, so Parquet, compression and partitions are what make it cheap."
+  },
+  "matches_in_total": 18,
+  "sample": [
+   {
+    "id": "ce-782",
+    "question": "A weather forecasting company collects temperature readings from various sensors on a continuous basis. An existing data ingestion process collects the readings and aggregates the readings into larger Apache Parquet files. Then the process encrypts the files by using client-side encryption with KMS managed keys (CSE-KMS). Finally, the process writes the files to an Amazon S3 bucket with separate prefixes for each calendar day. The company wants to run occasional SQL queries on the data to take sample moving averages for a specific calendar day. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "A. Configure Amazon Athena to read the encrypted files. Run SQL queries on the data directly in Amazon S3."
+   },
+   {
+    "id": "ce-649",
+    "question": "A company operates a data lake in Amazon S3 that stores large datasets in multiple formats. The company has an application that retrieves and processes subsets of data from multiple objects in the data lake based on filtering criteri a. For each data query, the application currently downloads the entire S3 object and performs transformations. The current process requires a large amount of transformation time. The company wants a solution that will give the application the ability to query and filter directly on S3 objects without downloading the objects. Which solution will meet these requirements?",
+    "answer": "A. Use Amazon Athena to query and filter the objects in Amazon S3."
+   },
+   {
+    "id": "et-292",
+    "question": "A company is preparing a new data platform that will ingest real-time streaming data from multiple sources. The company needs to transform the data before writing the data to Amazon S3. The company needs the ability to use SQL to query the transformed data. Which solutions will meet these requirements? (Choose two.)",
+    "answer": "A. Use Amazon Kinesis Data Streams to stream the data. Use Amazon Managed Service for Apache Flink (formerly Amazon Kinesis Data Analytics) to transform the data. Use Amazon Data Firehose to write the data to Amazon S3. Use Amazon Athena to query the transformed data from Amazon S3. AND B. Use Amazon Managed Streaming for Apache Kafka (Amazon MSK) to stream the data. Use AWS Glue to transform the "
+   },
+   {
+    "id": "ce-220",
+    "question": "A company uses AWS Lake Formation to govern its S3 data lake. It wants to visualize data in QuickSight by joining S3 data with Aurora MySQL operational data. The marketing team must see only specific columns. Which solution provides column-level authorization with the least operational overhead?",
+    "answer": "D. Use a Lake Formation blueprint to ingest database data to S3. Use Lake Formation for column- level access control. Use Athena as the QuickSight data source."
+   },
+   {
+    "id": "dt-730",
+    "question": "A company stores 200 GB of data each month in Amazon S3. The company needs to perform analytics on this data at the end of each month to determine the number of items sold in each sales region for the previous month. Which analytics strategy is MOST cost-effective for the company to use?",
+    "answer": "B. Create a table in the AWS Glue Data Catalog. Query the data in Amazon S3 by using Amazon Athena. Visualize the data in Amazon QuickSight."
+   },
+   {
+    "id": "ce-211",
+    "question": "A healthcare company is designing a system to store and manage logs in the AWS Cloud. The system ingests and stores logs in JSON format that contain sensitive patient information. The company must identify any sensitive data and must be able to search the log data by using SQL queries. Which solution will meet these requirements?",
+    "answer": "A. Store the logs in an Amazon S3 bucket. Configure Amazon Macie to discover sensitive data. Use Amazon Athena to query the logs."
+   },
+   {
+    "id": "et-49",
+    "question": "A company stores call transcript files on a monthly basis. Users access the files randomly within 1 year of the call, but users access the files infrequently after 1 year. The company wants to optimize its solution by giving users the ability to query and retrieve files that are less than 1-year- old as quickly as possible. A delay in retrieving older files is acceptable. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "Store individual files in Amazon S3 Intelligent-Tiering. Use S3 Lifecycle policies to move the files to S3 Glacier Flexible Retrieval after 1 year. Query and retrieve the files that are in Amazon S3 by using Amazon Athena."
+   },
+   {
+    "id": "ce-226",
+    "question": "A company has an Amazon S3 data lake that is governed by AWS Lake Formation. The company wants to create a visualization in Amazon QuickSight by joining the data in the data lake with operational data that is stored in an Amazon Aurora MySQL database. The company wants to enforce column-level authorization so that the company's marketing team can access only a subset of columns in the database. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "D. Use a Lake Formation blueprint to ingest the data from the database to the S3 data lake. Use Lake Formation to enforce column-level access control for the QuickSight users. Use Amazon Athena as the data source in QuickSight."
+   },
+   {
+    "id": "ce-855",
+    "question": "A company needs to archive an on-premises relational database. The company wants to retain the dat a. The company needs to be able to run SQL queries on the archived data to create annual reports. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "D. Use AWS Database Migration Service (AWS DMS) to migrate the on-premises databases to Amazon S3 in Apache Parquet format. Store the data in S3 Glacier Flexible Retrieval. Use Amazon Athena to run reports."
+   },
+   {
+    "id": "ce-726",
+    "question": "A company is using Amazon CloudFront with its website. The company has enabled logging on the CloudFront distribution, and logs are saved in one of the company's Amazon S3 buckets. The company needs to perform advanced analyses on the logs and build visualizations. What should a solutions architect do to meet these requirements?",
+    "answer": "B. Use standard SQL queries in Amazon Athena to analyze the CloudFront logs in the S3 bucket. Visualize the results with Amazon QuickSight."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "global-accelerator",
+   "title": "Two fixed addresses, traffic sent to the nearest healthy Region",
+   "when": [
+    "GlobalAccelerator"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "ga",
+     "Global Accelerator",
+     "edge"
+    ],
+    [
+     "r1",
+     "Region A",
+     "compute"
+    ],
+    [
+     "r2",
+     "Region B",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "ga",
+     "two anycast IPs"
+    ],
+    [
+     "ga",
+     "r1",
+     ""
+    ],
+    [
+     "ga",
+     "r2",
+     "if A is unwell"
+    ]
+   ],
+   "note": "For TCP and UDP, and for a firewall that needs a fixed address to allow. CloudFront is the one that caches, and only for HTTP."
+  },
+  "matches_in_total": 14,
+  "sample": [
+   {
+    "id": "wl-1",
+    "question": "You are an AWS Solutions Architect. Your company has a successful web application deployed in an AWS Auto Scaling group. The application attracts more and more global customers. However, the application’s performance is impacted. Your manager asks you how to improve the performance and availability of the application. Which of the following AWS services would you recommend?",
+    "answer": "D. AWS Global Accelerator"
+   },
+   {
+    "id": "dt-719",
+    "question": "A company has a well-architected application that streams audio data by using UDP in the AWS Cloud. The company hosts the application in the eu-central-1 Region. The company plans to offer services to North American users. A solutions architect must improve application network performance for the North American users. Which of the following is the MOST cost-effective solution?",
+    "answer": "A. Create an AWS Global Accelerator standard accelerator with an endpoint group in eu-central-1."
+   },
+   {
+    "id": "dt-693",
+    "question": "A company provides a Voice over Internet Protocol (VoIP) service that uses UDP connections. The service consists of Amazon EC2 instances that run in an Auto Scaling group. The company has deployments across multiple AWS Regions. The company needs to route users to the Region with the lowest latency. The company also needs automated failover between Regions. Which solution will meet these requirements?",
+    "answer": "A. Deploy a Network Load Balancer (NLB) and an associated target group. Associate the target group with the Auto Scaling group. Use the NLB as an AWS Global Accelerator endpoint in each Region."
+   },
+   {
+    "id": "ce-620",
+    "question": "A company asks a solutions architect to review the architecture for its messaging application. The application uses TCP and UDP traffic. The company is planning to deploy a new VoIP feature, but its 10 test users in other countries are reporting poor call quality. The VoIP application runs on an Amazon EC2 instance with more than enough resources. The HTTP portion of the company's application behind an Application Load Balancer has no issues. What should the solutions architect recommend for the company to do to address the VoIP performance issues?",
+    "answer": "A. Use AWS Global Accelerator."
+   },
+   {
+    "id": "ce-493",
+    "question": "A news company that has reporters all over the world is hosting its broadcast system on AWS. The reporters send live broadcasts to the broadcast system. The reporters use software on their phones to send live streams through the Real Time Messaging Protocol (RTMP). A solutions architect must design a solution that gives the reporters the ability to send the highest quality streams The solution must provide accelerated TCP connections back to the broadcast system. What should the solutions architect use to meet these requirements?",
+    "answer": "B. AWS Global Accelerator"
+   },
+   {
+    "id": "et-408",
+    "question": "A company runs an application that receives data from thousands of geographically dispersed remote devices that use UDP. The application processes the data immediately and sends a message back to the device if necessary. No data is stored. The company needs a solution that minimizes latency for the data transmission from the devices. The solution also must provide rapid failover to another AWS Region. Which solution will meet these requirements?",
+    "answer": "B. Use AWS Global Accelerator. Create a Network Load Balancer (NLB) in each of the two Regions as an endpoint. Create an Amazon Elastic Container Service (Amazon ECS) cluster with the Fargate launch type. Create an ECS service on the cluster. Set the ECS service as the target for the NLProcess the data in Amazon ECS."
+   },
+   {
+    "id": "et-530",
+    "question": "A company has an online gaming application that has TCP and UDP multiplayer gaming capabilities. The company uses Amazon Route 53 to point the application traffic to multiple Network Load Balancers (NLBs) in different AWS Regions. The company needs to improve application performance and decrease latency for the online game in preparation for user growth. Which solution will meet these requirements?",
+    "answer": "C. Add AWS Global Accelerator in front of the NLBs. Configure a Global Accelerator endpoint to use the correct listener ports."
+   },
+   {
+    "id": "ce-499",
+    "question": "An online gaming company hosts its platform on Amazon EC2 instances behind Network Load Balancers (NLBs) across multiple AWS Regions. The NLBs can route requests to targets overthe internet. The company wants to improve the customer playing experience by reducing end-to-end load time for its global customer base. Which solution will meet these requirements?",
+    "answer": "D. Create a standard accelerator in AWS Global Accelerator. Configure the existing NLBs as target endpoints."
+   },
+   {
+    "id": "et-461",
+    "question": "A company is developing a mobile gaming app in a single AWS Region. The app runs on multiple Amazon EC2 instances in an Auto Scaling group. The company stores the app data in Amazon DynamoDB. The app communicates by using TCP traffic and UDP traffic between the users and the servers. The application will be used globally. The company wants to ensure the lowest possible latency for all users. Which solution will meet these requirements?",
+    "answer": "B. Use AWS Global Accelerator to create an accelerator. Create a Network Load Balancer (NLB) behind an accelerator endpoint that uses Global Accelerator integration and listening on the TCP and UDP ports. Update the Auto Scaling group to register instances on the NLB."
+   },
+   {
+    "id": "ce-768",
+    "question": "A company hosts an application on an Amazon EC2 instance in a single AWS Region. The application requires support for non-HTTP TCP traffic and HTTP traffic. The company wants to deliver content with low latency by using the AWS network. The company also wants to implement an Auto Scaling group with an Elastic Load Balancing (ELB) load balancer. How should a solutions architect meet these requirements?",
+    "answer": "D. Create an Auto Scaling group with a Network Load Balancer (NLB). Add an accelerator with AWS Global Accelerator with the NLB as an endpoint."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "fsx-windows",
+   "title": "A Windows file share, managed",
+   "when": [
+    "FSx"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Windows machines",
+     "actor"
+    ],
+    [
+     "ad",
+     "Active Directory",
+     "net"
+    ],
+    [
+     "fsx",
+     "FSx for Windows",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "fsx",
+     "SMB"
+    ],
+    [
+     "fsx",
+     "ad",
+     "joined to the domain"
+    ]
+   ],
+   "note": "FSx for Windows is SMB and domain logins. FSx for Lustre is the other one: speed for modelling and training, able to read from a bucket."
+  },
+  "matches_in_total": 24,
+  "sample": [
+   {
+    "id": "et-287",
+    "question": "A company wants to migrate a Windows-based application from on premises to the AWS Cloud. The application has three tiers: an application tier, a business tier, and a database tier with Microsoft SQL Server. The company wants to use specific features of SQL Server such as native backups and Data Quality Services. The company also needs to share files for processing between the tiers. How should a solutions architect design the architecture to meet these requirements?",
+    "answer": "B. Host all three tiers on Amazon EC2 instances. Use Amazon FSx for Windows File Server for file sharing between the tiers."
+   },
+   {
+    "id": "ce-752",
+    "question": "A company wants to build a generative AI (GenAI) model for a medical use case. The company has 50 TB of medical image data that is stored in an Amazon S3 bucket. The company plans to train the GenAI model by using Amazon SageMaker AI with multiple GPU-powered instances. The company needs a storage solution that helps ensure that the data can be loaded from storage fast enough to avoid GPU instance idle time. The storage solution needs to achieve tens of gigabits per second (Gbps) of throughput. Which solution will meet these requirements?",
+    "answer": "B. Create an Amazon FSx for Lustre file system. Move the data from Amazon S3 to Lustre by using data repository association. Mount the file system on the instances."
+   },
+   {
+    "id": "ce-674",
+    "question": "A company runs an HPC workload that uses a 200-TB file system on premises. The company needs to migrate this data to Amazon FSx for Lustre. Internet capacity is 10 Mbps, and all data must be migrated within 30 days. Which solution will meet this requirement?",
+    "answer": "D. Use an AWS Snowball Edge storage-optimized device to transfer data into S3 and link FSx for Lustre to the bucket."
+   },
+   {
+    "id": "et-332",
+    "question": "A company needs to provide its employees with secure access to confidential and sensitive files. The company wants to ensure that the files can be accessed only by authorized users. The files must be downloaded securely to the employees’ devices. The files are stored in an on-premises Windows file server. However, due to an increase in remote usage, the file server is running out of capacity. . Which solution will meet these requirements?",
+    "answer": "B. Migrate the files to an Amazon FSx for Windows File Server file system. Integrate the Amazon FSx file system with the on-premises Active Directory. Configure AWS Client VPN."
+   },
+   {
+    "id": "et-500",
+    "question": "A company has multiple Windows file servers on premises. The company wants to migrate and consolidate its files into an Amazon FSx for Windows File Server file system. File permissions must be preserved to ensure that access rights do not change. Which solutions will meet these requirements? (Choose two.)",
+    "answer": "A. Deploy AWS DataSync agents on premises. Schedule DataSync tasks to transfer the data to the FSx for Windows File Server file system."
+   },
+   {
+    "id": "gh-249",
+    "question": "249Topic 1 A company is implementing a shared storage solution for a media application that is hosted in the AWS Cloud. The company needs the ability to use SMB clients to access data. The solution must be fully managed. Which AWS solution meets these requirements?",
+    "answer": "D. Create an Amazon FSx for Windows File Server file system. Attach the file system to the origin server. Connect the application server to the file system."
+   },
+   {
+    "id": "et-409",
+    "question": "A solutions architect must migrate a Windows Internet Information Services (IIS) web application to AWS. The application currently relies on a file share hosted in the user's on-premises network-attached storage (NAS). The solutions architect has proposed migrating the IIS web servers to Amazon EC2 instances in multiple Availability Zones that are connected to the storage solution, and configuring an Elastic Load Balancer attached to the instances. Which replacement to the on-premises file share is MOST resilient and durable?",
+    "answer": "C. Migrate the file share to Amazon FSx for Windows File Server."
+   },
+   {
+    "id": "ce-441",
+    "question": "A media company is migrating a Microsoft Windows-based application to the AWS Cloud. The company uses the application to analyze media files. The company requires a resilient shared storage solution that the company can access by using the SMB protocol. Which storage solution will meet these requirements?",
+    "answer": "B. Use Amazon FSx for Windows File Server in a Multi-AZ deployment as shared storage for the application servers."
+   },
+   {
+    "id": "et-618",
+    "question": "A company wants to use Amazon FSx for Windows File Server for its Amazon EC2 instances that have an SMB file share mounted as a volume in the us-east-1 Region. The company has a recovery point objective (RPO) of 5 minutes for planned system maintenance or unplanned service disruptions. The company needs to replicate the file system to the us-west-2 Region. The replicated data must not be deleted by any user for 5 years. Which solution will meet these requirements?",
+    "answer": "C. Create an FSx for Windows File Server file system in us-east-1 that has a Multi-AZ deployment type. Use AWS Backup to create a daily backup plan that includes a backup rule that copies the backup to us-west-2. Configure AWS Backup Vault Lock in compliance mode for a target vault in us-west-2. Configure a minimum duration of 5 years."
+   },
+   {
+    "id": "et-646",
+    "question": "A solutions architect needs to host a high performance computing (HPC) workload in the AWS Cloud. The workload will run on hundreds of Amazon EC2 instances and will require parallel access to a shared file system to enable distributed processing of large datasets. Datasets will be accessed across multiple instances simultaneously. The workload requires access latency within 1 ms. After processing has completed, engineers will need access to the dataset for manual postprocessing. Which solution will meet these requirements?",
+    "answer": "C. Use Amazon FSx for Lustre as a shared file system. Link the file system to an Amazon S3 bucket for postprocessing."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "backup-vault",
+   "title": "Backups made and kept to a plan",
+   "when": null,
+   "words": "AWS Backup|backup plan|backup vault|point-in-time",
+   "nodes": [
+    [
+     "res",
+     "EBS, RDS, EFS, DynamoDB",
+     "store"
+    ],
+    [
+     "plan",
+     "Backup plan",
+     "net"
+    ],
+    [
+     "vault",
+     "Vault, with a lock",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "plan",
+     "res",
+     "on a schedule"
+    ],
+    [
+     "res",
+     "vault",
+     "copies kept"
+    ]
+   ],
+   "note": "One plan across several services, and a vault lock nobody can delete from, including an administrator. That is what regulator questions are after."
+  },
+  "matches_in_total": 23,
+  "sample": [
+   {
+    "id": "ce-200",
+    "question": "A company runs several custom applications on Amazon EC2 instances. Each team within the company manages its own set of applications and backups. To comply with regulations, the company must be able to report on the status of backups and ensure that backups are encrypted. Which solution will meet these requirements with the LEAST effort?",
+    "answer": "D. Use AWS Config and AWS Backup Audit Manager to ensure compliance. Review generated reports daily."
+   },
+   {
+    "id": "et-512",
+    "question": "A company uses AWS Organizations with resources tagged by account. The company also uses AWS Backup to back up its AWS infrastructure resources. The company needs to back up all AWS resources. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use AWS Config to identify all untagged resources. Tag the identified resources programmatically. Use tags in the backup plan."
+   },
+   {
+    "id": "ce-371",
+    "question": "A company needs a solution to back up and protect critical AWS resources. The company needs to regularly take backups of several Amazon EC2 instances and Amazon RDS for PostgreSQL databases. To ensure high resiliency, the company must have the ability to validate and restore backups. Which solution meets the requirement with LEAST operational overhead?",
+    "answer": "A. Use AWS Backup to create a backup schedule for the resources. Use AWS Backup to create a restoration testing plan for the required resources."
+   },
+   {
+    "id": "dt-342",
+    "question": "One of the criteria for a new deployment is that the customer wants to use AWS Storage Gateway. However you are not sure whether you should use gateway-cached volumes or gateway-stored volumes or even what the differences are. Which statement below best describes those differences?",
+    "answer": "A. Gateway-cached lets you store your data in Amazon Simple Storage Service (Amazon S3) and retain a copy of frequently accessed data subsets locally. Gateway-stored enables you to configure your on-premises gateway to store all your data locally and then asynchronously back up point-in-time snapshots of this data to Amazon S3."
+   },
+   {
+    "id": "ce-447",
+    "question": "A company wants to use a cloud storage service to store text and media files that are associated with active global marketing campaigns. The storage solution must be highly available. The company must protect the solution with a backup system that reduces the possibility of data loss as much as possible. Which solution will meet these requirements?",
+    "answer": "B. Store the text and media files in an Amazon S3 bucket. Set the S3 bucket as the origin for an Amazon CloudFront distribution. Use AWS Backup to take continuous backups of the S3 bucket."
+   },
+   {
+    "id": "ce-384",
+    "question": "A company runs an application on several Amazon EC2 instances. Multiple Amazon Elastic Block Store (Amazon EBS) volumes are attached to each EC2 instance. The company needs to back up the configurations and the data of the EC2 instances every night. The application must be recoverable in a secondary AWS Region. Which solution will meet these requirements in the MOST operationally efficient way?",
+    "answer": "B. Create a backup plan in AWS Backup to take nightly backups. Copy the backups to a secondary Region. Add the EC2 instances to a resource assignment as part of the backup plan."
+   },
+   {
+    "id": "ce-321",
+    "question": "A company is migrating its on-premises Oracle database to an Amazon RDS for Oracle database. The company needs to retain data for 90 days to meet regulatory requirements. The company must also be able to restore the database to a specific point in time for up to 14 days. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "D. Create a backup plan that has a retention period of 90 days by using AWS Backup for Amazon RDS."
+   },
+   {
+    "id": "et-391",
+    "question": "A company needs a backup strategy for its three-tier stateless web application. The web application runs on Amazon EC2 instances in an Auto Scaling group with a dynamic scaling policy that is configured to respond to scaling events. The database tier runs on Amazon RDS for PostgreSQL. The web application does not require temporary local storage on the EC2 instances. The company’s recovery point objective (RPO) is 2 hours. The backup strategy must maximize scalability and optimize resource utilization for this environment. Which solution will meet these requirements?",
+    "answer": "C. Retain the latest Amazon Machine Images (AMIs) of the web and application tiers. Enable automated backups in Amazon RDS and use point-in-time recovery to meet the RPO."
+   },
+   {
+    "id": "ce-366",
+    "question": "A company runs a mobile game app that stores session data (up to 256 KB) for up to 48 hours. The data updates frequently and must be deleted automatically after expiration. Restorability is also required. Options:",
+    "answer": "A. Use an Amazon DynamoDB table to store the session data. Enable point-in-time recovery (PITR) and TTL."
+   },
+   {
+    "id": "et-453",
+    "question": "A company wants to implement a backup strategy for Amazon EC2 data and multiple Amazon S3 buckets. Because of regulatory requirements, the company must retain backup files for a specific time period. The company must not alter the files for the duration of the retention period. Which solution will meet these requirements?",
+    "answer": "D. Use AWS Backup to create a backup vault that has a vault lock in compliance mode. Create the required backup plan."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "sns-fanout",
+   "title": "One message, several places",
+   "when": [
+    "SNS",
+    "SQS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "p",
+     "Publisher",
+     "compute"
+    ],
+    [
+     "t",
+     "SNS topic",
+     "queue"
+    ],
+    [
+     "q1",
+     "Queue A",
+     "queue"
+    ],
+    [
+     "q2",
+     "Queue B",
+     "queue"
+    ]
+   ],
+   "edges": [
+    [
+     "p",
+     "t",
+     "publishes once"
+    ],
+    [
+     "t",
+     "q1",
+     "subscribes"
+    ],
+    [
+     "t",
+     "q2",
+     "subscribes"
+    ]
+   ],
+   "note": "Each subscriber gets its own copy and its own queue, so a slow one never holds up the others. Filter policies decide who gets what."
+  },
+  "matches_in_total": 9,
+  "sample": [
+   {
+    "id": "dt-534",
+    "question": "AWS Identity and Access Management is a web service that enables Amazon Web Services (AWS) customers to manage users and user permissions in AWS. In addition to supporting IAM user policies, some services support resource-based permissions. Which of the following services are supported by resource-based permissions?",
+    "answer": "C. Amazon S3, Amazon SNS, Amazon SQS, Amazon Glacier and Amazon EB"
+   },
+   {
+    "id": "ce-446",
+    "question": "A company is developing an ecommerce application that uses an Amazon API Gateway HTTP API. When a customer creates an order in the application, three downstream consumers must process the order event. The downstream consumers include a billing service that uses AWS Lambda functions, an email messaging service that uses AWS Lambda functions, and an inventory service that uses Amazon EC2 instances. Each consumer must receive every event. The service must absorb traffic bursts with durable buffering for each consumer. The company must be able to add new consumers without changing the producer or existing consumers. Which solution will meet these requirements?",
+    "answer": "A. Publish order events to an Amazon SNS topic. Subscribe one Amazon SQS queue to the SNS topic for each consumer. Configure each consumer to process events from its own SQS queue."
+   },
+   {
+    "id": "et-636",
+    "question": "A development team is creating an event-based application that uses AWS Lambda functions. Events will be generated when files are added to an Amazon S3 bucket. The development team currently has Amazon Simple Notification Service (Amazon SNS) configured as the event target from Amazon S3. What should a solutions architect do to process the events from Amazon S3 in a scalable way?",
+    "answer": "C. Create an SNS subscription that sends the event to Amazon Simple Queue Service (Amazon SQS). Configure the SOS queue to trigger a Lambda function."
+   },
+   {
+    "id": "dt-681",
+    "question": "A company has an application that ingests incoming messages. Dozens of other applications and microservices then quickly consume these messages. The number of messages varies drastically and sometimes increases suddenly to 100,000 each second. The company wants to decouple the solution and increase scalability. Which solution meets these requirements?",
+    "answer": "D. Publish the messages to an Amazon Simple Notification Service (Amazon SNS) topic with multiple Amazon Simple Queue Service (Amazon SOS) subscriptions. Configure the consumer applications to process the messages from the queues."
+   },
+   {
+    "id": "et-489",
+    "question": "An ecommerce company runs an application in the AWS Cloud that is integrated with an on-premises warehouse solution. The company uses Amazon Simple Notification Service (Amazon SNS) to send order messages to an on-premises HTTPS endpoint so the warehouse application can process the orders. The local data center team has detected that some of the order messages were not received. A solutions architect needs to retain messages that are not delivered and analyze the messages for up to 14 days. Which solution will meet these requirements with the LEAST development effort?",
+    "answer": "C. Configure an Amazon SNS dead letter queue that has an Amazon Simple Queue Service (Amazon SQS) target with a retention period of 14 days."
+   },
+   {
+    "id": "et-45",
+    "question": "A company has a data ingestion workflow that consists of the following: • An Amazon Simple Notification Service (Amazon SNS) topic for notifications about new data deliveries • An AWS Lambda function to process the data and record metadata The company observes that the ingestion workflow fails occasionally because of network connectivity issues. When such a failure occurs, the Lambda function does not ingest the corresponding data unless the company manually reruns the job. Which combination of actions should a solutions architect take to ensure that the Lambda function ingests all data in the future? (Choose two.)",
+    "answer": "B. Create an Amazon Simple Queue Service (Amazon SQS) queue, and subscribe it to the SNS topic."
+   },
+   {
+    "id": "ce-54",
+    "question": "A logistics company is creating a data exchange platform to share shipment status information with shippers. The logistics company can see all shipment information and metadat a. The company distributes shipment data updates to shippers. Each shipper should see only shipment updates that are relevant to their company. Shippers should not see the full detail that is visible to the logistics company. The company creates an Amazon Simple Notification Service (Amazon SNS) topic for each shipper to share data. Some shippers use a mobile app to submit shipment status updates. The company needs to create a data exchange platform that provides each shipper specific access to the data that is relevan",
+    "answer": "B. Ingest the shipment updates from the mobile app into Amazon Simple Queue Service (Amazon SQS). Use an AWS Lambda function to consume the updates from Amazon SQS and rewrite the body of each message. Publish the updates to the SNS topic."
+   },
+   {
+    "id": "ce-753",
+    "question": "A solutions architect is migrating an on-premises application to AWS. The application currently runs on containers. The components of the application are loosely coupled. The application consumes messages from a message queue. The solutions architect needs to design a new architecture for the application on AWS. The solutions architect wants to use fully managed AWS services for the new architecture. The new architecture must provide unlimited scalability for the message queue's throughput. Which solution will meet these requirements?",
+    "answer": "D. Use Amazon SQS to create a new message queue. Subscribe the SQS queue to an Amazon SNS topic. Use Amazon ECS containers on AWS Fargate to consume messages from the message queue."
+   },
+   {
+    "id": "ce-556",
+    "question": "A company is building a new application that uses multiple serverless architecture components. The application architecture includes an Amazon API Gateway REST API and AWS Lambda functions to manage incoming requests. The company needs a service to send messages that the REST API receives to multiple target Lambda functions for processing. The service must filter messages so each target Lambda function receives only the messages the function needs. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Send the requests from the REST API to an Amazon Simple Notification Service (Amazon SNS) topic. Subscribe multiple Amazon Simple Queue Service (Amazon SQS) queues to the SNS topic. Configure the target Lambda functions to poll the SQS queues."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "sgw-s3",
+   "title": "A file share on your premises, backed by a bucket",
+   "when": [
+    "SGW",
+    "S3"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "app",
+     "On-premises application",
+     "actor"
+    ],
+    [
+     "gw",
+     "S3 File Gateway",
+     "net"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "gw",
+     "NFS or SMB"
+    ],
+    [
+     "gw",
+     "s3",
+     "one file, one object"
+    ]
+   ],
+   "note": "Each file becomes an object anything in AWS can read. A Volume Gateway would put a disk snapshot there instead, which nothing else can read as files."
+  },
+  "matches_in_total": 5,
+  "sample": [
+   {
+    "id": "et-598",
+    "question": "A research company uses on-premises devices to generate data for analysis. The company wants to use the AWS Cloud to analyze the data. The devices generate .csv files and support writing the data to an SMB file share. Company analysts must be able to use SQL commands to query the data. The analysts will run queries periodically throughout the day. Which combination of steps will meet these requirements MOST cost-effectively? (Choose three.)",
+    "answer": "A. Deploy an AWS Storage Gateway on premises in Amazon S3 File Gateway mode."
+   },
+   {
+    "id": "ce-908",
+    "question": "A company stores 5 PB of archived data on physical tapes in an on-premises data center. The company needs to retain the data for 10 years. The company does not want to change an existing backup workflow. The data center that stores the tapes has a 10 Gbps AWS Direct Connect connection to an AWS Region. The company wants to migrate the data to AWS as soon as possible. Which solution will meet these requirements in the MOST cost-effective way?",
+    "answer": "D. Configure an on-premises AWS Storage Gateway Tape Gateway. Create virtual tapes on AWS. Use backup software to copy the physical tapes to the virtual tapes. Move the virtual tapes to Amazon S3 Glacier Deep Archive storage."
+   },
+   {
+    "id": "ce-906",
+    "question": "A company wants to use Amazon S3 to back up its on-premises file storage solution. The company's on-premises file storage solution supports NFS, and the company wants its new solution to support NFS. The company wants to archive the backup files after 5 days. If the company needs archived files for disaster recovery, the company is willing to wait a few days for the retrieval of those files. Which solution meets these requirements MOST cost-effectively?",
+    "answer": "D. Deploy an AWS Storage Gateway file gateway that is associated with an S3 bucket. Move the files from the on-premises file storage solution to the file gateway. Create an S3 Lifecycle rule to move the files to S3 Glacier Deep Archive after 5 days."
+   },
+   {
+    "id": "ce-897",
+    "question": "A company wants to use Amazon S3 to back up its on-premises file storage solution. The company's on-premises file storage solution uses NFS, and the company wants its new solution to support NFS. The company wants to archive the backup files after 5 days. If the company needs archived files for disaster recovery, the company is willing to wait a few days for the retrieval of those files. Which solution meets these requirements MOST cost-effectively?",
+    "answer": "D. Deploy an AWS Storage Gateway file gateway that is associated with an S3 bucket. Move the files from the on-premises file storage solution to the file gateway. Create an S3 Lifecycle rule to move the files to S3 Glacier Deep Archive after 5 days."
+   },
+   {
+    "id": "ce-545",
+    "question": "A company stores 5 PB of archived data on physical tapes. The company needs to preserve the data for another 10 years. The data center that stores the tapes has a 10 Gbps Direct Connect connection to an AWS Region. The company wants to migrate the data to AWS within the next 6 months.",
+    "answer": "D. Configure an on-premises AWS Storage Gateway Tape Gateway. Create virtual tapes in the AWS Cloud. Use backup software to copy the physical tapes to the virtual tapes. Move the virtual tapes to Amazon S3 Glacier Deep Archive storage."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "interface-endpoint",
+   "title": "Reaching a service privately from inside a VPC",
+   "when": null,
+   "words": "interface endpoint|PrivateLink",
+   "nodes": [
+    [
+     "ec2",
+     "Private subnet",
+     "compute"
+    ],
+    [
+     "eni",
+     "Interface endpoint",
+     "net"
+    ],
+    [
+     "svc",
+     "The service",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "ec2",
+     "eni",
+     "a private address in your subnet"
+    ],
+    [
+     "eni",
+     "svc",
+     "never leaves AWS"
+    ]
+   ],
+   "note": "An interface endpoint is a network card in your own subnet, and is charged by the hour and by the traffic. The free gateway kind exists only for S3 and DynamoDB."
+  },
+  "matches_in_total": 4,
+  "sample": [
+   {
+    "id": "ce-310",
+    "question": "A company that recently started using AWS establishes an AWS Site-to-Site VPN connection between its on-premises data center and AWS. The company's security mandate states that traffic originating from on premises must stay within the company's private IP address space when communicating with an Amazon ECS cluster that hosts a sample web application. Which solution meets this requirement?",
+    "answer": "B. Create a Network Load Balancer and an AWS PrivateLink endpoint service in the same VPC that hosts the ECS cluster."
+   },
+   {
+    "id": "dt-733",
+    "question": "A company that recently started using AWS establishes a Site-to-Site VPN between its on-premises datacenter and AWS. The company's security mandate states that traffic originating from on premises should stay within the company's private IP space when communicating with an Amazon Elastic Container Service (Amazon ECS) cluster that is hosting a sample web application. Which solution meets this requirement?",
+    "answer": "B. Create a Network Load Balancer and AWS PrivateLink endpoint for Amazon ECS in the same VPC that is hosting the ECS cluster."
+   },
+   {
+    "id": "ce-120",
+    "question": "A company has a multi-tier web application. The application's internal service components are deployed on Amazon EC2 instances. The internal service components need to access third-party software as a service (SaaS) APIs that are hosted on AWS. The company needs to provide secure and private connectivity from the application's internal services to the third-party SaaS application. The company needs to ensure that there is minimal public internet exposure. Which solution will meet these requirements?",
+    "answer": "D. Use AWS PrivateLink to create a private connection between the application's VPC and the third- party SaaS provider."
+   },
+   {
+    "id": "ce-609",
+    "question": "A company needs to connect its on-premises data center network to a new VPC. The data center network has a 100 Mbps symmetrical internet connection. An application that is running on premises will transfer multiple gigabytes of data each day. The application will use an Amazon Data Firehose delivery stream for processing. What should a solutions architect recommend for maximum performance?",
+    "answer": "D. Use AWS PrivateLink to create an interface VPC endpoint for Firehose in the VPC. Set up a 1 Gbps AWS Direct Connect connection between the on-premises network and AWS. Use the PrivateLink endpoint to send the data from on premises to Firehose."
+   }
+  ]
+ }
+]

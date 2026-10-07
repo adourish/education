@@ -36,7 +36,7 @@ OUT = HERE / "app-data.json"
 sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
 from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
-from diagrams import DIAGRAMS, diagrams_for  # noqa: E402
+from diagrams import DIAGRAMS, diagrams_for, as_is_for  # noqa: E402, as_is_for
 
 # Bumped when the question set itself changes, separately from the app.
 VERSION = "1.8.0"
@@ -211,6 +211,11 @@ def main() -> None:
             # Which shared pictures fit this answer. Matched on the answer so a
             # diagram can never show an architecture the question rejects.
             "dg": diagrams_for(a) or None,
+            # What the question says they have already, which is a different
+            # arrangement from the one the answer proposes. Kept apart from the
+            # answer's picture so it can be looked at without being told the
+            # answer, and left out when the two are the same.
+            "dgnow": as_is_for(q, diagrams_for(a)),
         })
 
     # How many questions touch each poster line. A line nothing covers is a gap
@@ -269,7 +274,9 @@ def main() -> None:
     print(f"  {sum(1 for q in questions if q['agree'] > 1)} carried by two or more publishers")
     print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
     withdg = sum(1 for q in questions if q["dg"])
+    withnow = sum(1 for q in questions if q["dgnow"])
     print(f"  {withdg} questions have a diagram, from {len(DIAGRAMS)} shared pictures")
+    print(f"  {withnow} of those also show what the question says they have now")
     withterms = sum(1 for q in questions if q["t"])
     avg = sum(len(q["t"]) for q in questions) / max(len(questions), 1)
     print(f"  {withterms} questions have glossary terms, {avg:.1f} on average")
