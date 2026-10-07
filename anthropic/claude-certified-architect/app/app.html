@@ -951,6 +951,23 @@ select {
 
 #ioBox.dropping { border-color: var(--cyan); background: var(--cyan-soft); }
 
+/* A new version is ready. It waits to be taken rather than reloading on its
+   own, because being thrown out of a question you are halfway through reading
+   is worse than running a version that is ten minutes old. */
+.newver {
+  position: fixed; left: 12px; right: 12px; z-index: 40;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  padding: 12px 14px; border-radius: 10px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--cyan); border-left: 4px solid var(--cyan);
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
+  font-size: 0.95rem;
+}
+.newver .btn { margin-bottom: 0; }
+.newver .later { background: none; border-color: transparent; color: var(--ink-3); }
+@media (min-width: 620px) { .newver { left: auto; right: 18px; max-width: 26rem; } }
+
 .weak { display: grid; gap: 6px; }
 .weakrow {
   display: flex; gap: 10px; align-items: baseline; justify-content: space-between;
@@ -1186,6 +1203,8 @@ footer .v { font-family: var(--mono); }
   <span id="otherExams"></span>
 </footer>
 
+<div class="newver" id="newVersion" hidden></div>
+
 <div class="gate" id="gate" hidden>
   <form class="gate-card" id="gateForm">
     <h2>CCA-F Recall Board</h2>
@@ -1356,7 +1375,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.30.0";
+  var APP_VERSION = "1.31.0";
   var BUILD_DATE  = "2026-10-07";
   // ---------- where this exam's work is kept ----------
   //
@@ -4823,6 +4842,85 @@ footer .v { font-family: var(--mono); }
 
   loadSettings();
   applySettings();
+
+  // ---------- keeping the page itself ----------
+  //
+  // A service worker is what makes this installable and what makes it open on
+  // a train with no signal. Without one, whether the page is there offline is
+  // down to whatever the browser happened to keep, which is not something to
+  // rely on the morning of an exam.
+  //
+  // The worker answers from its cache at once and fetches a fresh copy behind
+  // that, so the page is always quick and the next version arrives on its own.
+  // Taking it is left to you: swapping the page out mid-question would lose
+  // your place in a set for the sake of a change that can wait a minute.
+  (function keepThePage() {
+    if (!("serviceWorker" in navigator)) return;
+    // Saved to disk and opened from a file there is no origin to register
+    // against, and nothing to update from either.
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
+
+    var bar = document.getElementById("newVersion");
+    var offered = false;
+
+    function offer(takeIt) {
+      if (!bar || offered) return;
+      offered = true;
+      bar.textContent = "";
+      bar.appendChild(el("span", null, "A new version is ready."));
+      var go = el("button", "btn primary", "Update now");
+      go.addEventListener("click", function () {
+        go.disabled = true;
+        go.textContent = "Updating\u2026";
+        takeIt();
+      });
+      bar.appendChild(go);
+      var later = el("button", "btn later", "Not now");
+      later.addEventListener("click", function () { bar.hidden = true; });
+      bar.appendChild(later);
+      bar.hidden = false;
+    }
+
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      // A worker already waiting means a version was fetched on an earlier
+      // visit and never taken.
+      if (reg.waiting) {
+        offer(function () { reg.waiting.postMessage({ type: "skipWaiting" }); });
+      }
+      reg.addEventListener("updatefound", function () {
+        var fresh = reg.installing;
+        if (!fresh) return;
+        fresh.addEventListener("statechange", function () {
+          // Installed with something already in charge means this is a new
+          // version rather than the first one.
+          if (fresh.state === "installed" && navigator.serviceWorker.controller) {
+            offer(function () { fresh.postMessage({ type: "skipWaiting" }); });
+          }
+        });
+      });
+      // Look again when the tab is brought back, so a version that landed
+      // while it sat in the background is noticed.
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) { try { reg.update(); } catch (e) { /* fine */ } }
+      });
+    }).catch(function () { /* no worker: the page still works, just not offline */ });
+
+    // The worker says when the copy it fetched differs from the one it served.
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      if (e.data && e.data.type === "updated") {
+        offer(function () { location.reload(); });
+      }
+    });
+
+    // Reload once the new worker takes charge, so the page being shown and the
+    // worker behind it are the same version.
+    var reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (reloading) return;
+      reloading = true;
+      location.reload();
+    });
+  })();
 
   // ---------- boot ----------
   // One version in the header, and it is this app's own: a number sitting next

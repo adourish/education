@@ -1,7 +1,7 @@
 {
-  "name": "SAA-C03 Recall Board",
-  "short_name": "SAA-C03",
-  "description": "Recall poster, practice questions and progress for the AWS Solutions Architect Associate exam.",
+  "name": "Claude Certified Architect",
+  "short_name": "CCA",
+  "description": "Practice questions and progress for the Claude Certified Architect.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
