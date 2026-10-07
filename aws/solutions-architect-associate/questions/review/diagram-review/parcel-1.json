@@ -1,0 +1,656 @@
+[
+ {
+  "diagram": {
+   "id": "cf-s3",
+   "title": "A private bucket served at the edge",
+   "when": [
+    "CloudFront",
+    "S3"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "cf",
+     "CloudFront",
+     "edge"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "cf",
+     "requests"
+    ],
+    [
+     "cf",
+     "s3",
+     "origin, read by OAC only"
+    ]
+   ],
+   "note": "CloudFront holds a copy near the user. The bucket is never public: origin access control is what lets CloudFront, and only CloudFront, read it."
+  },
+  "matches_in_total": 38,
+  "sample": [
+   {
+    "id": "ce-837",
+    "question": "A company hosts a website on Amazon EC2 instances behind an Application Load Balancer (ALB). The website serves static content. Website traffic is increasing. The company wants to minimize the website hosting costs. Which solution will meet these requirements?",
+    "answer": "A. Move the website to an Amazon S3 bucket. Configure an Amazon CloudFront distribution for the S3 bucket."
+   },
+   {
+    "id": "ce-799",
+    "question": "A solutions architect is designing the architecture for a company website that is composed of static content. The company's target customers are located in the United States and Europe. Which architecture should the solutions architect recommend to MINIMIZE cost?",
+    "answer": "A. Store the website files on Amazon S3 in the us-east-2 Region. Use an Amazon CloudFront distribution with the price class configured to limit the edge locations in use."
+   },
+   {
+    "id": "ce-729",
+    "question": "A global company hosts its web application on Amazon EC2 instances behind an Application Load Balancer ALB. The web application has static data and dynamic data. The company stores its static data in an Amazon S3 bucket. The company wants to improve performance and reduce latency for the static data and dynamic data. The company is using its own domain name registered with Amazon Route 53. What should a solutions architect do to meet these requirements?",
+    "answer": "A. Create an Amazon CloudFront distribution that has the S3 bucket and the ALB as origins. Configure Route 53 to route traffic to the CloudFront distribution."
+   },
+   {
+    "id": "ce-562",
+    "question": "A solutions architect is designing the storage architecture for a new web application used for storing and viewing engineering drawings. All application components will be deployed on the AWS infrastructure. The application design must support caching to minimize the amount of time that users wait for the engineering drawings to load. The application must be able to store petabytes of data. Which combination of storage and caching should the solutions architect use?",
+    "answer": "A. Amazon S3 with Amazon CloudFront"
+   },
+   {
+    "id": "ce-447",
+    "question": "A company wants to use a cloud storage service to store text and media files that are associated with active global marketing campaigns. The storage solution must be highly available. The company must protect the solution with a backup system that reduces the possibility of data loss as much as possible. Which solution will meet these requirements?",
+    "answer": "B. Store the text and media files in an Amazon S3 bucket. Set the S3 bucket as the origin for an Amazon CloudFront distribution. Use AWS Backup to take continuous backups of the S3 bucket."
+   },
+   {
+    "id": "ce-326",
+    "question": "A company has developed a non-production application that is composed of multiple microservices for each of the company's business units. A single development team maintains all the microservices. The current architecture uses a static web frontend and a Java-based backend that contains the application logic. The architecture also uses a MySQL database that the company hosts on an Amazon EC2 instance. The company needs to ensure that the application is secure and available globally. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Use Amazon CloudFront and Amazon S3 to host the static web frontend. Refactor the microservices to use AWS Lambda functions that the microservices access by using Amazon API Gateway. Migrate the MySQL database to Amazon RDS for MySQL."
+   },
+   {
+    "id": "dt-677",
+    "question": "A company is hosting a high-traffic static website on Amazon S3 with an Amazon CloudFront distribution that has a default TTL of 0 seconds. The company wants to implement caching to improve performance for the website. However, the company also wants to ensure that stale content is not served for more than a few minutes after a deployment. Which combination of caching methods should a solutions architect implement to meet these requirements? (Choose two.)",
+    "answer": "A. Set the CloudFront default TTL to 2 minutes.; E. Add a Cache-Control max-age directive of 24 hours to the objects in Amazon S3. On deployment, create a CloudFront invalidation to clear any changed files from edge caches."
+   },
+   {
+    "id": "ce-80",
+    "question": "A law firm needs to make hundreds of files readable for the general public. The law firm must prevent members of the public from modifying or deleting the files before a specified future date. Which solution will meet these requirements MOST securely?",
+    "answer": "B. Create a new Amazon S3 bucket. Enable S3 Versioning. Use S3 Object Lock and set a retention period based on the specified date. Create an Amazon CloudFront distribution to serve content from the bucket. Use an S3 bucket policy to restrict access to the CloudFront origin access control (OAC)."
+   },
+   {
+    "id": "ce-67",
+    "question": "How can a law firm make files publicly readable while preventing modifications or deletions until a specific future date?",
+    "answer": "B. Create an S3 bucket. Enable S3 Versioning. Use S3 Object Lock with a retention period. Create a CloudFront distribution. Use a bucket policy to restrict access."
+   },
+   {
+    "id": "ce-110",
+    "question": "A financial service company has a two-tier consumer banking application. The frontend serves static web content. The backend consists of APIs. The company needs to migrate the frontendcomponent to AWS. The backend of the application will remain on premises. The company must protect the application from common web vulnerabilities and attacks. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Deploy the frontend as an Amazon CloudFront distribution that has multiple origins. Configure one origin to be an Amazon S3 bucket that serves the static web content. Configure a second origin to route traffic to the on-premises APIs based on the URL pattern. Associate AWS WAF rules with the distribution."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "s3-glacier-lifecycle",
+   "title": "Objects moving to colder storage as they age",
+   "when": [
+    "S3",
+    "Glacier"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "s3",
+     "S3 Standard",
+     "store"
+    ],
+    [
+     "ia",
+     "Standard-IA",
+     "store"
+    ],
+    [
+     "g",
+     "Glacier",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "s3",
+     "ia",
+     "after 30 days"
+    ],
+    [
+     "ia",
+     "g",
+     "after 90 days"
+    ]
+   ],
+   "note": "A lifecycle rule moves everything on the same schedule. Where some old objects stay popular, Intelligent-Tiering decides per object instead."
+  },
+  "matches_in_total": 29,
+  "sample": [
+   {
+    "id": "gh-673",
+    "question": "A company runs an SMB le server in its data center. The le server stores large les that the company frequently accesses for up to 7 days after the le creation date. After 7 days, the company needs to be able to access the les with a maximum retrieval time of 24 hours. Which solution will meet these requirements?",
+    "answer": "Answer: B) Use S3 File Gateway + Lifecycle policy to Glacier Deep Archive."
+   },
+   {
+    "id": "et-49",
+    "question": "A company stores call transcript files on a monthly basis. Users access the files randomly within 1 year of the call, but users access the files infrequently after 1 year. The company wants to optimize its solution by giving users the ability to query and retrieve files that are less than 1-year- old as quickly as possible. A delay in retrieving older files is acceptable. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "Store individual files in Amazon S3 Intelligent-Tiering. Use S3 Lifecycle policies to move the files to S3 Glacier Flexible Retrieval after 1 year. Query and retrieve the files that are in Amazon S3 by using Amazon Athena."
+   },
+   {
+    "id": "dt-534",
+    "question": "AWS Identity and Access Management is a web service that enables Amazon Web Services (AWS) customers to manage users and user permissions in AWS. In addition to supporting IAM user policies, some services support resource-based permissions. Which of the following services are supported by resource-based permissions?",
+    "answer": "C. Amazon S3, Amazon SNS, Amazon SQS, Amazon Glacier and Amazon EB"
+   },
+   {
+    "id": "ce-855",
+    "question": "A company needs to archive an on-premises relational database. The company wants to retain the dat a. The company needs to be able to run SQL queries on the archived data to create annual reports. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "D. Use AWS Database Migration Service (AWS DMS) to migrate the on-premises databases to Amazon S3 in Apache Parquet format. Store the data in S3 Glacier Flexible Retrieval. Use Amazon Athena to run reports."
+   },
+   {
+    "id": "ce-906",
+    "question": "A company wants to use Amazon S3 to back up its on-premises file storage solution. The company's on-premises file storage solution supports NFS, and the company wants its new solution to support NFS. The company wants to archive the backup files after 5 days. If the company needs archived files for disaster recovery, the company is willing to wait a few days for the retrieval of those files. Which solution meets these requirements MOST cost-effectively?",
+    "answer": "D. Deploy an AWS Storage Gateway file gateway that is associated with an S3 bucket. Move the files from the on-premises file storage solution to the file gateway. Create an S3 Lifecycle rule to move the files to S3 Glacier Deep Archive after 5 days."
+   },
+   {
+    "id": "et-583",
+    "question": "A company has 5 PB of archived data on physical tapes. The company needs to preserve the data on the tapes for another 10 years for compliance purposes. The company wants to migrate to AWS in the next 6 months. The data center that stores the tapes has a 1 Gbps uplink internet connectivity. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "C. Order multiple AWS Snowball devices that have Tape Gateway. Copy the physical tapes to virtual tapes in Snowball. Ship the Snowball devices to AWS. Create a lifecycle policy to move the tapes to Amazon S3 Glacier Deep Archive."
+   },
+   {
+    "id": "ce-898",
+    "question": "A healthcare company needs a storage solution for electronic health records EHRs. The company must store the EHRs for at least 10 years to comply with regulations. The company rarely accesses the records. The records must be secure, immutable, and retrievable within a few hours when needed. Which solution will meet these requirements in the MOST cost-effective way?",
+    "answer": "B. Store the records in Amazon S3 Glacier Flexible Retrieval. Configure S3 Object Lock and set a retention period of 10 years."
+   },
+   {
+    "id": "dt-746",
+    "question": "A company stores call recordings on a monthly basis. Statistically, the recorded data may be referenced randomly within a year but accessed rarely after 1 year. Files that are newer than 1 year old must be queried and retrieved as quickly as possible. A delay in retrieving older files is acceptable. A solutions architect needs to store the recorded data at a minimal cost. Which solution is MOST cost-effective?",
+    "answer": "B. Store individual files in Amazon S3. Use lifecycle policies to move the files to Amazon S3 Glacier after 1 year. Query and retrieve the files from Amazon S3 or S3 Glacier."
+   },
+   {
+    "id": "et-215",
+    "question": "A company has 700 TB of backup data stored in network attached storage (NAS) in its data center. This backup data need to be accessible for infrequent regulatory requests and must be retained 7 years. The company has decided to migrate this backup data from its data center to AWS. The migration must be complete within 1 month. The company has 500 Mbps of dedicated bandwidth on its public internet connection available for data transfer. What should a solutions architect do to migrate and store the data at the LOWEST cost?",
+    "answer": "A. Order AWS Snowball devices to transfer the data. Use a lifecycle policy to transition the files to Amazon S3 Glacier Deep Archive."
+   },
+   {
+    "id": "et-551",
+    "question": "A company has a financial application that produces reports. The reports average 50 KB in size and are stored in Amazon S3. The reports are frequently accessed during the first week after production and must be stored for several years. The reports must be retrievable within 6 hours. Which solution meets these requirements MOST cost-effectively?",
+    "answer": "A. Use S3 Standard. Use an S3 Lifecycle rule to transition the reports to S3 Glacier after 7 days."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "nat-egress",
+   "title": "Private instances reaching out",
+   "when": [
+    "NAT"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "ec2",
+     "Private subnet",
+     "compute"
+    ],
+    [
+     "nat",
+     "NAT gateway",
+     "net"
+    ],
+    [
+     "igw",
+     "Internet gateway",
+     "net"
+    ],
+    [
+     "net",
+     "Internet",
+     "actor"
+    ]
+   ],
+   "edges": [
+    [
+     "ec2",
+     "nat",
+     "route to 0.0.0.0/0"
+    ],
+    [
+     "nat",
+     "igw",
+     ""
+    ],
+    [
+     "igw",
+     "net",
+     ""
+    ]
+   ],
+   "note": "Traffic goes out and answers come back; nothing can start a connection inwards. One per zone, or losing a zone takes the others with it."
+  },
+  "matches_in_total": 17,
+  "sample": [
+   {
+    "id": "ce-131",
+    "question": "A company wants to deploy an internal web application on AWS. The web application must be accessible only from the company's office. The company needs to download security patches for the web application from the internet. The company has created a VPC and has configured an AWS Site- to-Site VPN connection to the company's office. A solutions architect must design a secure architecture for the web application. Which solution will meet these requirements? Options:",
+    "answer": "B. Deploy the web application on Amazon EC2 instances in private subnets behind an internal Application Load Balancer (ALB). Deploy NAT gateways in public subnets. Attach an internet gateway to the VPC. Set the inbound source of the ALB's security group to the company's office network CIDR block."
+   },
+   {
+    "id": "ce-104",
+    "question": "A company is creating a low-latency payment processing application that supports TLS connections from IPv4 clients. The application requires outbound access to the public internet. Users must access the application from a single entry point. The bank wants to use Amazon Elastic Container Service (Amazon ECS) tasks to deploy the application. The company wants to enable AWSVPC network mode. Which solution will meet these requirements MOST securely?",
+    "answer": "A. Create a VPC that has an internet gateway, public subnets, and private subnets. Deploy a Network Load Balancer and a NAT gateway in the public subnets. Deploy the ECS tasks in the private subnets."
+   },
+   {
+    "id": "et-251",
+    "question": "An Amazon EC2 instance is located in a private subnet in a new VPC. This subnet does not have outbound internet access, but the EC2 instance needs the ability to download monthly security updates from an outside vendor. What should a solutions architect do to meet these requirements?",
+    "answer": "B. Create a NAT gateway, and place it in a public subnet. Configure the private subnet route table to use the NAT gateway as the default route."
+   },
+   {
+    "id": "ce-263",
+    "question": "A company is creating a payment processing application that supports TLS connections from IPv4 clients. The application requires outbound access to the public internet. The application must allow users to access the application from a single entry point while maintaining the lowest possible attack surface. The company wants to use Amazon ECS tasks to deploy the application. The company wants to enable awsvpc network mode. Which solution will meet these requirements?",
+    "answer": "A. Create a VPC that has an internet gateway, public subnets, and private subnets. Deploy a Network Load Balancer (NLB) and a NAT gateway in the public subnets. Deploy the ECS tasks in the private subnets."
+   },
+   {
+    "id": "et-549",
+    "question": "A company has created a multi-tier application for its ecommerce website. The website uses an Application Load Balancer that resides in the public subnets, a web tier in the public subnets, and a MySQL cluster hosted on Amazon EC2 instances in the private subnets. The MySQL database needs to retrieve product catalog and pricing information that is hosted on the internet by a third-party provider. A solutions architect must devise a strategy that maximizes security without increasing operational overhead. What should the solutions architect do to meet these requirements?",
+    "answer": "B. Deploy a NAT gateway in the public subnets. Modify the private subnet route table to direct all internet-bound traffic to the NAT gateway."
+   },
+   {
+    "id": "ce-839",
+    "question": "A company runs multiple workloads in separate AWS environments. The company wants to optimize its AWS costs but must maintain the same level of performance for the environments. The company's production environment requires resources to be highly available. The other environments do not require highly available resources. Each environment has the same set of networking components, including the following: • 1 VPC • 1 Application Load Balancer • 4 subnets distributed across 2 Availability Zones (2 public subnets and 2 private subnets) • 2 NAT gateways (1 in each public subnet) • 1 internet gateway Which solution will meet these requirements?",
+    "answer": "A. Do not change the production environment workload. For each non-production workload, remove one NAT gateway and update the route tables for private subnets to target the remaining NAT gateway for the destination 0.0.0.0/0."
+   },
+   {
+    "id": "ce-165",
+    "question": "A solutions architect is configuring a VPC that has public subnets and private subnets. The VPC and subnets use IPv4 CIDR blocks. There is one public subnet and one private subnet in each of three Availability Zones (AZs). An internet gateway is attached to the VPC. The private subnets require access to the internet to allow Amazon EC2 instances to download software updates. Which solution will meet this requirement?",
+    "answer": "A. Create a NAT gateway in one of the public subnets. Update the route tables that are attached to the private subnets to forward non-VPC traffic to the NAT gateway."
+   },
+   {
+    "id": "ce-175",
+    "question": "A company has deployed a multi-tier web application to support a website. The architecture includes an Application Load Balancer (ALB) in public subnets, two Amazon Elastic Container Service (Amazon ECS) tasks in the public subnets, and a PostgreSQL cluster that runs on Amazon EC2 instances in private subnets. The EC2 instances that host the PostgreSQL database run shell scripts that need to access an external API to retrieve product information. A solutions architect must design a solution to allow the EC2 instances to securely communicate with the external API without increasing operational overhead. Which solution will meet these requirements?",
+    "answer": "B. Configure a NAT gateway in the public subnets. Update the route table for the private subnets to route traffic to the NAT gateway."
+   },
+   {
+    "id": "ce-444",
+    "question": "A company hosts an Amazon EC2 instance in a private subnet in a new VPC. The VPC also has a public subnet that has the default route set to an internet gateway. The private subnet does not have outbound internet access. The EC2 instance needs to have the ability to download monthly security updates from an outside vendor. However, the company must block any connections that are initiated from the internet. Which solution will meet these requirements?",
+    "answer": "B. Create a NAT gateway in the public subnet. Configure the private subnet route table to use the NAT gateway as the default route."
+   },
+   {
+    "id": "ce-956",
+    "question": "An ecommerce company hosts an application on AWS across multiple Availability Zones. The application experiences uniform load throughout most days. The company hosts some components of the application in private subnets. The components need to access the internet to install and update patches. A solutions architect needs to design a cost-effective solution that provides secure outbound internet connectivity for private subnets across multiple Availability Zones. The solution must maintain high availability.",
+    "answer": "A. Deploy one NAT gateway in each Availability Zone. Configure the route table for each pri-vate subnet within an Availability Zone to route outbound traffic through the NAT gateway in the same Availability Zone."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "elasticache-reads",
+   "title": "A cache in front of a database",
+   "when": [
+    "ElastiCache"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "app",
+     "Application",
+     "compute"
+    ],
+    [
+     "c",
+     "ElastiCache",
+     "store"
+    ],
+    [
+     "db",
+     "Database",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "c",
+     "reads"
+    ],
+    [
+     "c",
+     "db",
+     "on a miss"
+    ],
+    [
+     "app",
+     "db",
+     "writes"
+    ]
+   ],
+   "note": "Redis keeps its data and can fail over; Memcached is plain and simply scales out. Reads for the same thing over and over are what it is for."
+  },
+  "matches_in_total": 19,
+  "sample": [
+   {
+    "id": "ce-675",
+    "question": "An application is experiencing performance issues based on increased demand. This increased demand is on read-only historical records pulled from an Amazon RDS-hosted database with custom views and queries. A solutions architect must improve performance without changing the database structure. Which approach will improve performance and MINIMIZE management overhead?",
+    "answer": "B. Deploy Amazon ElastiCache (Redis OSS) and cache the data for the application."
+   },
+   {
+    "id": "dt-380",
+    "question": "A read only news reporting site with a combined web and application tier and a database tier that receives large and unpredictable traffic demands must be able to respond to these traffic fluctuations automatically. What AWS services should be used meet these requirements?",
+    "answer": "A. Stateless instances for the web and application tier synchronized using Elasticache Memcached in an autoscaimg group monitored with CloudWatch. And RDSwith read replicas."
+   },
+   {
+    "id": "ce-702",
+    "question": "An ecommerce company runs a multi-tier application on AWS. The frontend and backend tiers run on Amazon EC2 instances. The database tier runs on an Amazon RDS for MySQL DB instance. The application makes frequent calls to return identical datasets from the database. These frequent calls cause performance slowdowns. A solutions architect must improve the performance of the application backend. Which solution will meet this requirement?",
+    "answer": "B. Configure an Amazon ElastiCache (Redis OSS) cache. Configure the backend EC2 instances to read from the cache."
+   },
+   {
+    "id": "ce-763",
+    "question": "A company is creating a prototype of an ecommerce website on AWS. The website consists of an Application Load Balancer, an Auto Scaling group of Amazon EC2 instances for web servers, and an Amazon RDS for MySQL DB instance that runs with a Single-AZ configuration. The website is slow to respond during searches of the product catalog. The product catalog is a group of tables in the MySQL database that the company does not update frequently. A solutions architect has determined that CPU utilization on the DB instance is high when product catalog searches occur. What should the solutions architect recommend to improve the performance of the website during searches of the product catalog?",
+    "answer": "B. Implement an Amazon ElastiCache for Redis OSS cluster to cache the product catalog. Use lazy loading to populate the cache."
+   },
+   {
+    "id": "gh-654",
+    "question": "A company recently migrated its web application to the AWS Cloud. The company uses an Amazon EC2 instance to run multiple processes to host the application. The processes include an Apache web server that serves static content. The Apache web server makes requests to a PHP application that uses a local Redis server for user sessions. The company wants to redesign the architecture to be highly available and to use AWS managed solutions. Which solution will meet these requirements?",
+    "answer": "Answer: D) Use CloudFront + S3 for static content, ALB + ECS Fargate for PHP, and Multi-AZ ElastiCache for Redis."
+   },
+   {
+    "id": "ce-550",
+    "question": "A company is migrating an online marketplace application from a mainframe system to an Auto Scaling group of Amazon EC2 instances. The EC2 instances access an Amazon Aurora cluster. The application requires a scalable, persistent caching solution to store the results of in-progress transactions and SQL queries.",
+    "answer": "A. Use an Amazon ElastiCache (Redis OSS) cluster to serve transaction and query results."
+   },
+   {
+    "id": "gh-268",
+    "question": "A gaming company has a web application that displays scores. The application runs on Amazon EC2 instances behind an Application Load Balancer. The application stores data in an Amazon RDS for MySQL database. Users are starting to experience long delays and interruptions that are caused by database read performance. The company wants to improve the user experience while minimizing changes to the application’s architecture. What should a solutions architect do to meet these requirements?",
+    "answer": "Put Amazon ElastiCache between the application and the Amazon RDS for MySQL database so repeated score reads are served from the cache instead of the database."
+   },
+   {
+    "id": "dt-770",
+    "question": "A company runs a web application on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer that has sticky sessions enabled. The web server currently hosts the user session state. The company wants to ensure high availability and avoid user session state loss in the event of a web server outage. Which solution will meet these requirements?",
+    "answer": "B. Use Amazon ElastiCache for Redis to store the session state. Update the application to use ElastiCache for Redis to store the session state."
+   },
+   {
+    "id": "ce-642",
+    "question": "A gaming company has a web application that displays game scores. The application runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The application stores data in an Amazon RDS for MySQL database. Users are experiencing long delays and interruptions caused by degraded database read performance. The company wants to improve the user experience. Which solution will meet this requirement?",
+    "answer": "A. Use an Amazon ElastiCache (Redis OSS) cache in front of the database."
+   },
+   {
+    "id": "et-431",
+    "question": "A company has developed a new video game as a web application. The application is in a three-tier architecture in a VPC with Amazon RDS for MySQL in the database layer. Several players will compete concurrently online. The game’s developers want to display a top-10 scoreboard in near- real time and offer the ability to stop and restore the game while preserving the current scores. What should a solutions architect do to meet these requirements?",
+    "answer": "B. Set up an Amazon ElastiCache for Redis cluster to compute and cache the scores for the web application to display."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "lifecycle-tiers",
+   "title": "Objects moved to cheaper storage as they age",
+   "when": null,
+   "words": "lifecycle|Intelligent-Tiering|Standard-IA|One Zone",
+   "nodes": [
+    [
+     "hot",
+     "S3 Standard",
+     "store"
+    ],
+    [
+     "warm",
+     "Infrequent access",
+     "store"
+    ],
+    [
+     "cold",
+     "Archive",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "hot",
+     "warm",
+     "after 30 days"
+    ],
+    [
+     "warm",
+     "cold",
+     "later"
+    ]
+   ],
+   "note": "A rule goes by age alone and moves everything on the same day. Where some old objects stay popular, Intelligent-Tiering decides for each object instead and charges no retrieval fee."
+  },
+  "matches_in_total": 41,
+  "sample": [
+   {
+    "id": "et-227",
+    "question": "A company needs to retain its AWS CloudTrail logs for 3 years. The company is enforcing CloudTrail across a set of AWS accounts by using AWS Organizations from the parent account. The CloudTrail target S3 bucket is configured with S3 Versioning enabled. An S3 Lifecycle policy is in place to delete current objects after 3 years. After the fourth year of use of the S3 bucket, the S3 bucket metrics show that the number of objects has continued to rise. However, the number of new CloudTrail logs that are delivered to the S3 bucket has remained consistent. Which solution will delete objects that are older than 3 years in the MOST cost-effective manner?",
+    "answer": "B. Configure the S3 Lifecycle policy to delete previous versions as well as current versions."
+   },
+   {
+    "id": "ce-746",
+    "question": "A company has a video editing application that requires consistent sub-millisecond latency and high throughput to access media objects that are updated frequently. The company currently has an Amazon S3 bucket that uses the S3 Standard storage class. The company needs to improve performance while maintaining Amazon S3 API compatibility. The company needs to access the media objects within a single Availability Zone. Which storage solution will meet these requirements?",
+    "answer": "B. Create an S3 directory bucket that uses the S3 Express One Zone storage class."
+   },
+   {
+    "id": "et-384",
+    "question": "A company runs an application on Amazon EC2 Linux instances across multiple Availability Zones. The application needs a storage layer that is highly available and Portable Operating System Interface (POSIX)-compliant. The storage layer must provide maximum data durability and must be shareable across the EC2 instances. The data in the storage layer will be accessed frequently for the first 30 days and will be accessed infrequently after that time. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "C. Use the Amazon Elastic File System (Amazon EFS) Standard storage class. Create a lifecycle management policy to move infrequently accessed data to EFS Standard-Infrequent Access (EFS Standard-IA)."
+   },
+   {
+    "id": "ce-928",
+    "question": "A company hosts a photo sharing web application on AWS. Users upload and share thousands of photos each hour. The company needs a durable storage solution that provides retrieval mechanisms for the photos. Most uploaded photos are not accessed often after 30 days, but the company does not want to delete older photos. Which solution will meet these requirements in the MOST cost-effective way?",
+    "answer": "B. Store the photos in an Amazon S3 bucket. Use Amazon S3 Lifecycle configurations to move photos that are older than 30 days to S3 Intelligent-Tiering."
+   },
+   {
+    "id": "ce-873",
+    "question": "A media company stores customer-uploaded videos in an Amazon S3 bucket with the Standard storage class. The company wants to create an S3 Lifecycle configuration. The company will set the maximum retention time to 7 days. However, the configuration must delete any video that is more than 1 TB in size after 48 hours.",
+    "answer": "A. Create a single S3 Lifecycle configuration that has two rules. Configure the first rule to expire objects after 48 hours with a filter of ObjectSizeGreaterThan and a value of 1 TB. Configure the second rule to expire objects after 7 days."
+   },
+   {
+    "id": "et-377",
+    "question": "A company recently deployed a new auditing system to centralize information about operating system versions, patching, and installed software for Amazon EC2 instances. A solutions architect must ensure all instances provisioned through EC2 Auto Scaling groups successfully send reports to the auditing system as soon as they are launched and terminated. Which solution achieves these goals MOST efficiently?",
+    "answer": "B. Use EC2 Auto Scaling lifecycle hooks to run a custom script to send data to the audit system when instances are launched and terminated."
+   },
+   {
+    "id": "dt-757",
+    "question": "A company has an application that generates a large number of files, each approximately 5 MB in size. The files are stored in Amazon S3. Company policy requires the files to be stored for 4 years before they can be deleted. Immediate accessibility is always required as the files contain critical business data that is not easy to reproduce. The files are frequently accessed in the first 30 days of the object creation but are rarely accessed after the first 30 days. Which storage solution is MOST cost-effective?",
+    "answer": "C. Create an S3 bucket lifecycle policy to move files from S3 Standard to S3 Standard-Infrequent Access (S3 Standard-IA) 30 days from object creation. Delete the files 4 years after object creation."
+   },
+   {
+    "id": "dt-705",
+    "question": "A solutions architect is designing an application that will allow business users to upload objects to Amazon S3. The solution needs to maximize object durability. Objects also must be readily available at any time and for any length of time. Users will access objects frequently within the first 30 days after the objects are uploaded, but users are much less likely to access objects that are older than 30 days. Which solution meets these requirements MOST cost-effectively?",
+    "answer": "B. Store all the objects in S3 Standard with an S3 Lifecycle rule to transition the objects to S3 Standard-Infrequent Access (S3 Standard-IA) after 30 days."
+   },
+   {
+    "id": "wl-15",
+    "question": "You will be launching and terminating EC2 instances on a need basis for your workloads. You need to run some shell scripts and perform certain checks connecting to the AWS S3 bucket when the instance is getting launched. Which of the following options will allow performing any tasks during launch? (choose multiple)",
+    "answer": "A. Use Instance user data for shell scripts.; C. Use AutoScaling Group lifecycle hooks and trigger AWS Lambda function"
+   },
+   {
+    "id": "et-469",
+    "question": "A company stores raw collected data in an Amazon S3 bucket. The data is used for several types of analytics on behalf of the company's customers. The type of analytics requested determines the access pattern on the S3 objects. The company cannot predict or control the access pattern. The company wants to reduce its S3 costs. Which solution will meet these requirements?",
+    "answer": "C. Use S3 Lifecycle rules to transition objects from S3 Standard to S3 Intelligent-Tiering"
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "multi-region-dr",
+   "title": "A second Region, ready to take over",
+   "when": null,
+   "words": "multi-Region|another Region|second Region|pilot light|warm standby|\\bRTO\\b|\\bRPO\\b",
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "r53",
+     "Route 53",
+     "edge"
+    ],
+    [
+     "a",
+     "Region A, live",
+     "compute"
+    ],
+    [
+     "b",
+     "Region B, waiting",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "r53",
+     ""
+    ],
+    [
+     "r53",
+     "a",
+     "while healthy"
+    ],
+    [
+     "a",
+     "b",
+     "data copied"
+    ],
+    [
+     "r53",
+     "b",
+     "on failure"
+    ]
+   ],
+   "note": "Backup and restore is cheapest and slowest. Pilot light keeps the data warm and the servers off. Warm standby runs a small copy. Active-active runs both and costs the most."
+  },
+  "matches_in_total": 15,
+  "sample": [
+   {
+    "id": "ce-396",
+    "question": "A global company runs a data lake application in the us-east-1 Region and the eu-west-1 Region in an active-passive configuration. Application data is stored locally in Amazon S3 buckets in each AWS Region. The bucket in us-east-1 is the primary active bucket that handles all writes. The company needs to ensure that the application has Regional fault tolerance. The company also needs the storage layer to provide a highly available active-active capability for reads across Regions. The storage layer must provide low latency access through a single global endpoint.",
+    "answer": "D. Create an S3 Multi-Region Access Point. Configure cross-Region replication."
+   },
+   {
+    "id": "ce-225",
+    "question": "A home security company is expanding its business globally. The company needs to encrypt customer data. The company does not want to manage its own keys. The company needs the keys to be usable in multiple AWS Regions and needs to control access to the keys. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use AWS Key Management Service (AWS KMS) to create multi-Region keys. Apply tags to identify each key. Use attribute-based access control (ABAC) condition keys to control access to the keys."
+   },
+   {
+    "id": "et-456",
+    "question": "A company runs applications on Amazon EC2 instances in one AWS Region. The company wants to back up the EC2 instances to a second Region. The company also wants to provision EC2 resources in the second Region and manage the EC2 instances centrally from one AWS account. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "C. Create a backup plan by using AWS Backup. Configure cross-Region backup to the second Region for the EC2 instances."
+   },
+   {
+    "id": "ce-385",
+    "question": "A company runs its critical storage application in the AWS Cloud. The application uses Amazon S3 in two AWS Regions. The company wants the application to send remote user data to the nearest S3 bucket with no public network congestion. The company also wants the application to fail over with the least amount of management of Amazon S3. Which solution will meet these requirements?",
+    "answer": "D. Set up Amazon S3 to use Multi-Region Access Points in an active-active configuration with a single global endpoint. Configure S3 Cross-Region Replication."
+   },
+   {
+    "id": "et-312",
+    "question": "A company has an application that runs on several Amazon EC2 instances. Each EC2 instance has multiple Amazon Elastic Block Store (Amazon EBS) data volumes attached to it. The application’s EC2 instance configuration and data need to be backed up nightly. The application also needs to be recoverable in a different AWS Region. Which solution will meet these requirements in the MOST operationally efficient way?",
+    "answer": "B. Create a backup plan by using AWS Backup to perform nightly backups. Copy the backups to another Region. Add the application’s EC2 instances as resources."
+   },
+   {
+    "id": "ce-395",
+    "question": "A company hosts an application on AWS that uses an Amazon S3 bucket and an Amazon Aurora database. The company wants to implement a multi-Region disaster recovery (DR) strategy that minimizes potential data loss. Which solution will meet these requirements?",
+    "answer": "D. Migrate the database to an Aurora global database. Create a second S3 bucket in a second Region. Configure Cross-Region Replication."
+   },
+   {
+    "id": "et-391",
+    "question": "A company needs a backup strategy for its three-tier stateless web application. The web application runs on Amazon EC2 instances in an Auto Scaling group with a dynamic scaling policy that is configured to respond to scaling events. The database tier runs on Amazon RDS for PostgreSQL. The web application does not require temporary local storage on the EC2 instances. The company’s recovery point objective (RPO) is 2 hours. The backup strategy must maximize scalability and optimize resource utilization for this environment. Which solution will meet these requirements?",
+    "answer": "C. Retain the latest Amazon Machine Images (AMIs) of the web and application tiers. Enable automated backups in Amazon RDS and use point-in-time recovery to meet the RPO."
+   },
+   {
+    "id": "et-13",
+    "question": "A company performs monthly maintenance on its AWS infrastructure. During these maintenance activities, the company needs to rotate the credentials for its Amazon RDS for MySQL databases across multiple AWS Regions. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Store the credentials as secrets in AWS Secrets Manager. Use multi-Region secret replication for the required Regions. Configure Secrets Manager to rotate the secrets on a schedule."
+   },
+   {
+    "id": "et-527",
+    "question": "A company has a regional subscription-based streaming service that runs in a single AWS Region. The architecture consists of web servers and application servers on Amazon EC2 instances. The EC2 instances are in Auto Scaling groups behind Elastic Load Balancers. The architecture includes an Amazon Aurora global database cluster that extends across multiple Availability Zones. The company wants to expand globally and to ensure that its application has minimal downtime. Which solution will provide the MOST fault tolerance?",
+    "answer": "D. Deploy the web tier and the application tier to a second Region. Use an Amazon Aurora global database to deploy the database in the primary Region and the second Region. Use Amazon Route 53 health checks with a failover routing policy to the second Region. Promote the secondary to primary as needed."
+   },
+   {
+    "id": "ce-221",
+    "question": "A home security company is expanding globally and needs to encrypt customer data. The company does not want to manage encryption keys. The keys must be usable in multiple AWS Regions, and access to the keys must be controlled. Which solution meets these requirements with the least operational overhead?",
+    "answer": "A. Use AWS KMS multi-Region keys. Apply tags and use ABAC condition keys for access control."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "dms-migrate",
+   "title": "Moving a database with the old one still running",
+   "when": [
+    "DMS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "src",
+     "Source database",
+     "store"
+    ],
+    [
+     "dms",
+     "DMS",
+     "compute"
+    ],
+    [
+     "dst",
+     "Target in AWS",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "src",
+     "dms",
+     "full load, then changes"
+    ],
+    [
+     "dms",
+     "dst",
+     "writes"
+    ]
+   ],
+   "note": "Change data capture keeps the two together until the moment you switch, so the old one stays in use throughout. Schema Conversion Tool is the one that comes first when the engines differ."
+  },
+  "matches_in_total": 5,
+  "sample": [
+   {
+    "id": "dt-708",
+    "question": "A company uses a Microsoft SQL Server database. The company's applications are connected to the database. The company wants to migrate to an Amazon Aurora PostgreSQL database with minimal changes to the application code. Which combination of steps will meet these requirements? (Choose two.)",
+    "answer": "B. Enable Babelfish on Aurora PostgreSQL to run the SQL queries from the applications.; C. Migrate the database schema and data by using the AWS Schema Conversion Tool (AWS SCT) and AWS Database Migration Service (AWS DMS)."
+   },
+   {
+    "id": "et-565",
+    "question": "A company has an on-premises MySQL database that handles transactional data. The company is migrating the database to the AWS Cloud. The migrated database must maintain compatibility with the company's applications that use the database. The migrated database also must scale automatically during periods of increased demand. Which migration solution will meet these requirements?",
+    "answer": "C. Use AWS Database Migration Service (AWS DMS) to migrate the database to Amazon Aurora. Turn on Aurora Auto Scaling."
+   },
+   {
+    "id": "et-435",
+    "question": "A company needs to migrate a MySQL database from its on-premises data center to AWS within 2 weeks. The database is 20 TB in size. The company wants to complete the migration with minimal downtime. Which solution will migrate the database MOST cost-effectively?",
+    "answer": "A. Order an AWS Snowball Edge Storage Optimized device. Use AWS Database Migration Service (AWS DMS) with AWS Schema Conversion Tool (AWS SCT) to migrate the database with replication of ongoing changes. Send the Snowball Edge device to AWS to finish the migration and continue the ongoing replication."
+   },
+   {
+    "id": "ce-478",
+    "question": "A company hosts a PostgreSQL database on an Amazon EC2 instance. Database usage has increased recently. Users are experiencing higher latency during queries on the database. The company needs to update the database to reduce latency for users. The new solution must achieve a recovery time objective (RTO) and a recovery point objective (RPO) of less than 5 minutes. The company also wants to deploy the database to multiple AWS Regions to meet new availability requirements. Which solution will meet these requirements?",
+    "answer": "B. Use AWS DMS to migrate the database to an Amazon Aurora PostgreSQL database. Configure the Aurora database as a global database. Set the Aurora parameter group RPO setting to 60 seconds. In the event of a database failure, promote a secondary database in a second Region automatically."
+   },
+   {
+    "id": "ce-512",
+    "question": "A company needs to migrate a MySQL database from an on-premises data center to AWS within 2 weeks. The database is 180 TB in size. The company cannot partition the database. The company wants to minimize downtime during the migration. The company's internet connection speed is 100 Mbps. Which solution will meet these requirements?",
+    "answer": "A. Order an AWS Snowball Edge Storage Optimized device. Use AWS Database Migration Service (AWS DMS) and the AWS Schema Conversion Tool (AWS SCT) to migrate the database to Amazon RDS for MySQL and replicate ongoing changes. Send the Snowball Edge device back to AWS to finish the migration. Continue to replicate ongoing changes."
+   }
+  ]
+ }
+]

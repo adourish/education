@@ -753,6 +753,9 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .diagrams h5 { margin: 0 0 4px; font-size: 0.9rem; }
 .diagrams .dgnote { margin: 8px 0 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; }
 .diagrams .one + .one { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 16px; }
+/* the arrangement the question starts from, marked apart from the one the
+   answer proposes so the two are never mistaken for each other */
+.diagrams.asis { border-left-color: var(--ink-3); }
 .dgsvg { width: 100%; max-width: 560px; height: auto; display: block; margin: 8px 0 0; }
 .dgnode { font: 500 11px var(--ui); fill: var(--ink); }
 .dgedge { font: 400 9px var(--ui); fill: var(--ink-3); }
@@ -3034,6 +3037,31 @@ footer .v { font-family: var(--mono); }
       tools.appendChild(speakBtn);
     }
 
+    // What the question says they have already. Its own button, because
+    // looking at the arrangement you have been given is not the same as being
+    // shown the one the answer proposes, and should not cost you the answer.
+    if (q.dgnow && DATA.diagrams && DATA.diagrams[q.dgnow]) {
+      var nowSpec = DATA.diagrams[q.dgnow];
+      var nowBox = el("div", "diagrams asis");
+      nowBox.hidden = true;
+      var nowOne = el("div", "one");
+      nowOne.appendChild(el("h5", null, "What they have now · " + nowSpec.title));
+      nowOne.appendChild(drawDiagram(nowSpec, Math.max(280, card.clientWidth - 70)));
+      if (nowSpec.note) nowOne.appendChild(el("p", "dgnote", nowSpec.note));
+      nowBox.appendChild(nowOne);
+
+      var nowBtn = el("button", "btn", "What they have now");
+      nowBtn.setAttribute("aria-expanded", "false");
+      nowBtn.addEventListener("click", function () {
+        var open = nowBox.hidden;
+        nowBox.hidden = !open;
+        nowBtn.setAttribute("aria-expanded", String(open));
+        nowBtn.textContent = open ? "Hide what they have now" : "What they have now";
+      });
+      tools.appendChild(nowBtn);
+      laterBoxes.push(nowBox);
+    }
+
     // The picture of the arrangement this answer describes, shared with every
     // other question that describes the same one. Shown on asking, like the
     // terms are, because it does give away the shape of the answer.
@@ -3051,7 +3079,8 @@ footer .v { font-family: var(--mono); }
       });
 
       var dgBtn = el("button", "btn dgbtn",
-        q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")" : "Show the diagram");
+        q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")"
+                        : (q.dgnow ? "What they should do" : "Show the diagram"));
       dgBtn.setAttribute("aria-expanded", "false");
       dgBtn.addEventListener("click", function () {
         var open = dgBox.hidden;
@@ -3059,7 +3088,8 @@ footer .v { font-family: var(--mono); }
         dgBtn.setAttribute("aria-expanded", String(open));
         dgBtn.textContent = open
           ? "Hide the diagram" + (q.dg.length > 1 ? "s" : "")
-          : (q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")" : "Show the diagram");
+          : (q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")"
+                             : (q.dgnow ? "What they should do" : "Show the diagram"));
       });
       tools.appendChild(dgBtn);
       laterBoxes.push(dgBox);

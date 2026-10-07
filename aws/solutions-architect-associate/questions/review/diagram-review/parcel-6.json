@@ -1,0 +1,707 @@
+[
+ {
+  "diagram": {
+   "id": "sqs-asg",
+   "title": "Workers that grow with the queue",
+   "when": [
+    "SQS",
+    "ASG"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "app",
+     "Front end",
+     "compute"
+    ],
+    [
+     "q",
+     "SQS queue",
+     "queue"
+    ],
+    [
+     "asg",
+     "Auto Scaling group",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "q",
+     "sends"
+    ],
+    [
+     "q",
+     "asg",
+     "polled"
+    ],
+    [
+     "q",
+     "asg",
+     "queue depth drives scaling"
+    ]
+   ],
+   "note": "Scaling on how deep the queue is, rather than on processor use, is what matches the number of workers to the work waiting."
+  },
+  "matches_in_total": 11,
+  "sample": [
+   {
+    "id": "ce-405",
+    "question": "A company is migrating a distributed application to AWS. The application serves variable workloads. The legacy platform consists of a primary server that coordinates jobs across multiple compute nodes. The company wants to modernize the application with a solution that maximizes resiliency and scalability. How should a solutions architect design the architecture to meet these requirements?",
+    "answer": "B. Configure an Amazon Simple Queue Service (Amazon SQS) queue as a destination for the jobs. Implement the compute nodes with Amazon EC2 instances that are managed in an Auto Scaling group. Configure EC2 Auto Scaling based on the size of the queue."
+   },
+   {
+    "id": "dt-675",
+    "question": "A company runs an ecommerce application on AWS. Amazon EC2 instances process purchases and store the purchase details in an Amazon Aurora PostgreSQL DB cluster. Customers are experiencing application timeouts during times of peak usage. A solutions architect needs to rearchitect the application so that the application can scale to meet peak usage demands. Which combination of actions will meet these requirements MOST cost-effectively? (Choose two.)",
+    "answer": "A. Configure an Auto Scaling group of new EC2 instances to retry the purchases until the processing is complete. Update the applications to connect to the DB cluster by using Amazon RDS Proxy.; C. Update the application to send the purchase requests to an Amazon Simple Queue Service (Amazon SQS) queue. Configure an Auto Scaling group of new EC2 instances that read from the SQS queue."
+   },
+   {
+    "id": "ce-728",
+    "question": "A company operates a food delivery service. Because of recent growth, the company's order processing system is experiencing scaling problems during peak traffic hours. The current architecture includes Amazon EC2 instances in an Auto Scaling group that collect orders from an application. A second group of EC2 instances in an Auto Scaling group fulfills the orders. The order collection process occurs quickly, but the order fulfillment process can take longer. Data must not be lost because of a scaling event. A solutions architect must ensure that the order collection process and the order fulfillment process can both scale adequately during peak traffic hours. Which solution will meet these r",
+    "answer": "D. Provision two Amazon SQS queues. Use one SQS queue for order collection. Use the second SQS queue for order fulfillment. Configure the EC2 instances to poll their respective queues. Scale the Auto Scaling groups based on the number of messages in each queue."
+   },
+   {
+    "id": "dt-747",
+    "question": "A company is developing a new machine learning model solution in AWS. The models are developed as independent microservices that fetch about 1 GB of model data from Amazon S3 at startup and load the data into memory. Users access the models through an asynchronous API. Users can send a request or a batch of requests and specify where the results should be sent. The company provides models to hundreds of users. The usage patterns for the models are irregular. Some models could be unused for days or weeks. Other models could receive batches of thousands of requests at a time. Which solution meets these requirements?",
+    "answer": "D. The requests from the API are sent to the model's Amazon Simple Queue Service (Amazon SQS) queue. Models are deployed as Amazon Elastic Container Service (Amazon ECS) services reading from the queue. AWS Auto Scaling is enabled on Amazon ECS for both the cluster and copies of the service based on the queue size."
+   },
+   {
+    "id": "dt-268",
+    "question": "You have a periodic Image analysis application that gets some files in input, analyzes them and for each file writes some data in output to a text file. The number of files in input per day is high and concentrated in a few hours of the day. Currently you have a server on EC2 with a large EBS volume that hosts the input data and the results. It takes almost 20 hours per day to complete the process. What services could be used to reduce the elaboration time and improve the availability of the solution?",
+    "answer": "D. EBS with Provisioned IOPS (PIOPS) to store I/O files. SQS to distribute elaboration commands to a group of hosts working in parallel. Auto Scaling to dynamically size the group of hosts depending on the length of the SQS queue."
+   },
+   {
+    "id": "ce-591",
+    "question": "An ecommerce company hosts an API that handles sales requests. The company hosts the API frontend on Amazon EC2 instances that run behind an Application Load Balancer (ALB). The company hosts the API backend on EC2 instances that perform the transactions. The backend tiers are loosely coupled by an Amazon Simple Queue Service (Amazon SQS) queue. The company anticipates a significant increase in request volume during a new product launch event. The company wants to ensure that the API can handle increased loads successfully. Options:",
+    "answer": "D. Place the frontend and backend EC2 instances into separate Auto Scaling groups. Create a policy for the frontend Auto Scaling group to launch instances based on incoming network traffic. Create a policy for the backend Auto Scaling group to launch instances based on the SQS queue backlog."
+   },
+   {
+    "id": "gh-248",
+    "question": "Users report that some submitted data is not being processed Amazon CloudWatch reveals that the EC2 instances have a consistent CPU utilization at or near 100%. The company wants to improve system performance and scale the system based on user load. What should a solutions architect do to meet these requirements?",
+    "answer": "D. Route incoming requests to Amazon Simple Queue Service (Amazon SQS). Configure an EC2 Auto Scaling group based on queue size. Update the software to read from the queue."
+   },
+   {
+    "id": "et-462",
+    "question": "A company has an application that processes customer orders. The company hosts the application on an Amazon EC2 instance that saves the orders to an Amazon Aurora database. Occasionally when traffic is high the workload does not process orders fast enough. What should a solutions architect do to write the orders reliably to the database as quickly as possible?",
+    "answer": "B. Write orders to an Amazon Simple Queue Service (Amazon SQS) queue. Use EC2 instances in an Auto Scaling group behind an Application Load Balancer to read from the SQS queue and process orders into the database."
+   },
+   {
+    "id": "et-422",
+    "question": "A company is developing a new machine learning (ML) model solution on AWS. The models are developed as independent microservices that fetch approximately 1 GB of model data from Amazon S3 at startup and load the data into memory. Users access the models through an asynchronous API. Users can send a request or a batch of requests and specify where the results should be sent. The company provides models to hundreds of users. The usage patterns for the models are irregular. Some models could be unused for days or weeks. Other models could receive batches of thousands of requests at a time. Which design should a solutions architect recommend to meet these requirements?",
+    "answer": "Direct the requests from the API into an Amazon Simple Queue Service (Amazon SQS) queue. Deploy the models as Amazon Elastic Container Service (Amazon ECS) services that read from the queue. Enable AWS Auto Scaling on Amazon ECS for both the cluster and copies of the service based on the queue size."
+   },
+   {
+    "id": "ce-363",
+    "question": "A company needs to design a resilient web application to process customer orders. The web application must automatically handle increases in web traffic and application usage without affecting the customer experience or losing customer orders. Which solution will meet these requirements?",
+    "answer": "D. Use an Application Load Balancer to manage web traffic. Use Amazon EC2 Auto Scaling groups to receive and process customer orders. Use Amazon Simple Queue Service (Amazon SQS) to store unprocessed orders. Use Amazon RDS with a Multi-AZ deployment to store processed customer orders."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "ecs-queue-db",
+   "title": "Containers working through a queue",
+   "when": [
+    "ECS",
+    "SQS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "q",
+     "SQS queue",
+     "queue"
+    ],
+    [
+     "ecs",
+     "ECS or Fargate tasks",
+     "compute"
+    ],
+    [
+     "db",
+     "Database",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "q",
+     "ecs",
+     "polled"
+    ],
+    [
+     "ecs",
+     "db",
+     "writes"
+    ]
+   ],
+   "note": "Fargate means no instances to manage. Scaling on queue depth matches the number of tasks to the work waiting."
+  },
+  "matches_in_total": 10,
+  "sample": [
+   {
+    "id": "ce-706",
+    "question": "A company is developing a social media application that must scale rapidly and handle long-running, ordered processes that store large amounts of relational data. Components must scale independently and evolve without downtime. Which combination of AWS services will meet these requirements?",
+    "answer": "A. Amazon ECS with Fargate, Amazon RDS, and Amazon SQS"
+   },
+   {
+    "id": "ce-573",
+    "question": "A solutions architect is designing the architecture for a web application that has a frontend and a backend. The backend services must receive data from the frontend services for processing. The frontend must manage access to the application by using API keys. The backend must scale without affecting the frontend. Which solution will meet these requirements?",
+    "answer": "B. Deploy an Amazon API Gateway REST API as the frontend to direct traffic to an Amazon Simple Queue Service (Amazon SQS) queue. Use Amazon Elastic Container Service (Amazon ECS) on AWS Fargate as the backend to read from the queue."
+   },
+   {
+    "id": "ce-452",
+    "question": "A company is developing a microservices-based application to manage the company's delivery operations. The application consists of microservices that process orders, manage a fleet of delivery vehicles, and optimize delivery routes. The microservices must be able to scale independently and must be able to handle bursts of traffic without any data loss. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Use Amazon SQS to establish communication between microservices. Deploy the application on Amazon ECS containers on AWS Fargate."
+   },
+   {
+    "id": "ce-524",
+    "question": "A company is developing a social media application that must scale to meet demand spikes and handle ordered processes. Which AWS services meet these requirements?",
+    "answer": "A. ECS with Fargate, RDS, and SQS for decoupling."
+   },
+   {
+    "id": "et-422",
+    "question": "A company is developing a new machine learning (ML) model solution on AWS. The models are developed as independent microservices that fetch approximately 1 GB of model data from Amazon S3 at startup and load the data into memory. Users access the models through an asynchronous API. Users can send a request or a batch of requests and specify where the results should be sent. The company provides models to hundreds of users. The usage patterns for the models are irregular. Some models could be unused for days or weeks. Other models could receive batches of thousands of requests at a time. Which design should a solutions architect recommend to meet these requirements?",
+    "answer": "Direct the requests from the API into an Amazon Simple Queue Service (Amazon SQS) queue. Deploy the models as Amazon Elastic Container Service (Amazon ECS) services that read from the queue. Enable AWS Auto Scaling on Amazon ECS for both the cluster and copies of the service based on the queue size."
+   },
+   {
+    "id": "ce-963",
+    "question": "A company wants to migrate an on-premises video processing application to AWS. Processing times range from 5-30 minutes. The application must run multiple jobs in parallel. The application processes videos that users upload to an Amazon S3 bucket. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Configure the S3 bucket to send S3 event notifications to an Amazon SQS standard queue. Deploy the application on an Amazon ECS cluster. Configure automatic scaling for AWS Fargate tasks based on the SQS queue size."
+   },
+   {
+    "id": "ce-724",
+    "question": "A company wants to migrate an on-premises video processing application to AWS. Processing times range from 5 to 30 minutes. The application must run multiple jobs in parallel. The application processes videos that users upload to an Amazon S3 bucket. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Configure the S3 bucket to send S3 event notifications to an Amazon SQS standard queue. Deploy the application on an Amazon ECS cluster. Configure automatic scaling for AWS Fargate tasks based on the SQS queue size."
+   },
+   {
+    "id": "ce-536",
+    "question": "A company is developing a social media application. The company anticipates rapid and unpredictable growth in users and data volume. The application needs to handle a continuous high volume of user requests. User requests include long-running processes that store large amounts of user-generated content and user profiles in a relational format. The processes must run in a specific order. The company requires an architecture that can scale resources to meet demand spikes without downtime or performance degradation. The company must ensure that the components of the application can evolve independently without affecting other parts of the system. Which combination of AWS services will meet thes",
+    "answer": "A. Deploy the application on Amazon Elastic Container Service (Amazon ECS) with the AWS Fargate launch type. Use Amazon RDS as the database. Use Amazon Simple Queue Service (Amazon SQS) to decouple message processing between components."
+   },
+   {
+    "id": "ce-753",
+    "question": "A solutions architect is migrating an on-premises application to AWS. The application currently runs on containers. The components of the application are loosely coupled. The application consumes messages from a message queue. The solutions architect needs to design a new architecture for the application on AWS. The solutions architect wants to use fully managed AWS services for the new architecture. The new architecture must provide unlimited scalability for the message queue's throughput. Which solution will meet these requirements?",
+    "answer": "D. Use Amazon SQS to create a new message queue. Subscribe the SQS queue to an Amazon SNS topic. Use Amazon ECS containers on AWS Fargate to consume messages from the message queue."
+   },
+   {
+    "id": "dt-747",
+    "question": "A company is developing a new machine learning model solution in AWS. The models are developed as independent microservices that fetch about 1 GB of model data from Amazon S3 at startup and load the data into memory. Users access the models through an asynchronous API. Users can send a request or a batch of requests and specify where the results should be sent. The company provides models to hundreds of users. The usage patterns for the models are irregular. Some models could be unused for days or weeks. Other models could receive batches of thousands of requests at a time. Which solution meets these requirements?",
+    "answer": "D. The requests from the API are sent to the model's Amazon Simple Queue Service (Amazon SQS) queue. Models are deployed as Amazon Elastic Container Service (Amazon ECS) services reading from the queue. AWS Auto Scaling is enabled on Amazon ECS for both the cluster and copies of the service based on the queue size."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "asg-across-zones",
+   "title": "Instances replaced and spread across zones",
+   "when": [
+    "ASG"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "asg",
+     "Auto Scaling group",
+     "compute"
+    ],
+    [
+     "a",
+     "Zone A",
+     "compute"
+    ],
+    [
+     "b",
+     "Zone B",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "asg",
+     "a",
+     "keeps the count up"
+    ],
+    [
+     "asg",
+     "b",
+     "keeps the count up"
+    ]
+   ],
+   "note": "A launch template says what an instance is; the group says how many and where. Target tracking is the policy to reach for unless told otherwise."
+  },
+  "matches_in_total": 87,
+  "sample": [
+   {
+    "id": "ce-630",
+    "question": "A company hosts an application in an Amazon EC2 Auto Scaling group. The company has observed that during periods of high demand, new instances take too long to join the Auto Scaling group and serve the increased demand. The company determines that the root cause of the issue is the long boot time of the instances in the Auto Scaling group. The company needs to reduce the time required to launch new instances to respond to demand. Which solution will meet this requirement?",
+    "answer": "B. Create a warm pool for the Auto Scaling group. Use the default specification for the warm pool size."
+   },
+   {
+    "id": "dt-675",
+    "question": "A company runs an ecommerce application on AWS. Amazon EC2 instances process purchases and store the purchase details in an Amazon Aurora PostgreSQL DB cluster. Customers are experiencing application timeouts during times of peak usage. A solutions architect needs to rearchitect the application so that the application can scale to meet peak usage demands. Which combination of actions will meet these requirements MOST cost-effectively? (Choose two.)",
+    "answer": "A. Configure an Auto Scaling group of new EC2 instances to retry the purchases until the processing is complete. Update the applications to connect to the DB cluster by using Amazon RDS Proxy.; C. Update the application to send the purchase requests to an Amazon Simple Queue Service (Amazon SQS) queue. Configure an Auto Scaling group of new EC2 instances that read from the SQS queue."
+   },
+   {
+    "id": "et-303",
+    "question": "A company is launching a new application deployed on an Amazon Elastic Container Service (Amazon ECS) cluster and is using the Fargate launch type for ECS tasks. The company is monitoring CPU and memory usage because it is expecting high traffic to the application upon its launch. However, the company wants to reduce costs when utilization decreases. What should a solutions architect recommend?",
+    "answer": "D. Use AWS Application Auto Scaling with target tracking policies to scale when ECS metric breaches trigger an Amazon CloudWatch alarm."
+   },
+   {
+    "id": "et-276",
+    "question": "A company has a multi-tier application deployed on several Amazon EC2 instances in an Auto Scaling group. An Amazon RDS for Oracle instance is the application’ s data layer that uses Oracle-specific PL/SQL functions. Traffic to the application has been steadily increasing. This is causing the EC2 instances to become overloaded and the RDS instance to run out of storage. The Auto Scaling group does not have any scaling metrics and defines the minimum healthy instance count only. The company predicts that traffic will continue to increase at a steady but unpredictable rate before leveling off. What should a solutions architect do to ensure the system can automatically scale for the increased t",
+    "answer": "A. Configure storage Auto Scaling on the RDS for Oracle instance."
+   },
+   {
+    "id": "ce-734",
+    "question": "A company runs a web application on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer ALB. The application is served at one hostname that has two dynamic paths. The first path is named /reports and performs CPU-intensive work that has unpredictable traffic. The second path is named /generateToken and must always respond in less than 1 second. All requests currently go to a single target group. The /generateToken path latency exceeds 1 second during periods when the /reports usage is high. The company must ensure that latency for /generateToken remains under 1 second. Which solution will meet this requirement?",
+    "answer": "B. Configure ALB path-based routing to send traffic for /reports and /generateToken to separate target groups. Link each target group to its own Auto Scaling group."
+   },
+   {
+    "id": "dt-672",
+    "question": "A company hosts an application on Amazon EC2 instances that run in a single Availability Zone. The application is accessible by using the transport layer of the Open Systems Interconnection (OSI) model. The company needs the application architecture to have high availability. Which combination of steps will meet these requirements MOST cost-effectively? (Choose two.)",
+    "answer": "B. Configure a Network Load Balancer in front of the EC2 instances.; D. Create an Auto Scaling group for the EC2 instances. Configure the Auto Scaling group to use multiple Availability Zones. Configure the Auto Scaling group to run application health checks on the instances."
+   },
+   {
+    "id": "ce-411",
+    "question": "An ecommerce company is preparing to deploy a web application on AWS to ensure continuous service for customers. The architecture includes a web application that the company hosts on Amazon EC2 instances, a relational database in Amazon RDS, and static assets that the company stores in Amazon S3. The company wants to design a robust and resilient architecture for the application.",
+    "answer": "B. Deploy Amazon EC2 instances in an Auto Scaling group across multiple Availability Zones. Deploy a Multi-AZ RDS DB instance. Use Amazon CloudFront to distribute static assets."
+   },
+   {
+    "id": "dt-483",
+    "question": "A company is building a two-tier web application to serve dynamic transaction-based content. The data tier is leveraging an Online Transactional Processing (OLTP) database. What services should you leverage to enable an elastic and scalable web tier?",
+    "answer": "A. Elastic Load Balancing, Amazon EC2, and Auto Scaling."
+   },
+   {
+    "id": "ce-12",
+    "question": "A company is designing a new multi-tier web application that consists of the following components: • Web and application servers that run on Amazon EC2 instances as part of Auto Scaling groups • An Amazon RDS DB instance for data storage A solutions architect needs to limit access to the application servers so that only the web servers can access them. Which solution will meet these requirements?",
+    "answer": "D. Deploy an Application Load Balancer with a target group that contains the application servers' Auto Scaling group. Configure the security group to allow only the web servers to access the application servers."
+   },
+   {
+    "id": "dt-659",
+    "question": "A company is running a multi-tier web application on AWS. The application runs its database tier on Amazon Aurora MySQL. The application and database tiers are in the us-east-1 Region. A database administrator who regularly monitors the Aurora DB cluster finds that an intermittent increase in read traffic is creating high CPU utilization on the read replica and causing increased read latency of the application. What should a solutions architect do to improve read scalability?",
+    "answer": "D. Configure Aurora Auto Scaling for the read replica."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "config-rules",
+   "title": "Settings checked against the rules",
+   "when": null,
+   "words": "AWS Config|Config rule|conformance pack",
+   "nodes": [
+    [
+     "res",
+     "Resources",
+     "compute"
+    ],
+    [
+     "cfg",
+     "AWS Config",
+     "net"
+    ],
+    [
+     "rule",
+     "Rules",
+     "net"
+    ],
+    [
+     "fix",
+     "Report or put right",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "res",
+     "cfg",
+     "settings recorded"
+    ],
+    [
+     "cfg",
+     "rule",
+     "checked"
+    ],
+    [
+     "rule",
+     "fix",
+     "when a rule is broken"
+    ]
+   ],
+   "note": "It keeps the history of how a thing was set up, so it can answer what changed and when, and can put some things back on its own."
+  },
+  "matches_in_total": 11,
+  "sample": [
+   {
+    "id": "et-34",
+    "question": "A company hosts its multi-tier applications on AWS. For compliance, governance, auditing, and security, the company must track configuration changes on its AWS resources and record a history of API calls made to these resources. What should a solutions architect do to meet these requirements?",
+    "answer": "B. Use AWS Config to track configuration changes and AWS CloudTrail to record API calls."
+   },
+   {
+    "id": "dt-695",
+    "question": "A company that hosts its web application on AWS wants to ensure all Amazon EC2 instances, Amazon RDS DB instances, and Amazon Redshift clusters are configured with tags. The company wants to minimize the effort of configuring and operating this check. What should a solutions architect do to accomplish this?",
+    "answer": "A. Use AWS Config rules to define and detect resources that are not properly tagged."
+   },
+   {
+    "id": "ce-62",
+    "question": "A company has customers located across the world. The company wants to use automation to secure its systems and network infrastructure The company's security team must be able to track and audit all incremental changes to the infrastructure. Which solution will meet these requirements?",
+    "answer": "B. Use AWS Cloud Formation to set up the infrastructure. Use AWS Config to track changes."
+   },
+   {
+    "id": "ce-200",
+    "question": "A company runs several custom applications on Amazon EC2 instances. Each team within the company manages its own set of applications and backups. To comply with regulations, the company must be able to report on the status of backups and ensure that backups are encrypted. Which solution will meet these requirements with the LEAST effort?",
+    "answer": "D. Use AWS Config and AWS Backup Audit Manager to ensure compliance. Review generated reports daily."
+   },
+   {
+    "id": "ce-57",
+    "question": "A company needs a solution to enforce data encryption at rest on Amazon EC2 instances. The solution must automatically identify noncompliant resources and enforce compliance policies on findings. Which solution will meet these requirements with the LEAST administrative overhead?",
+    "answer": "A. Use an IAM policy that allows users to create only encrypted Amazon Elastic Block Store (Amazon EBS) volumes. Use AWS Config and AWS Systems Manager to automate the detection and remediation of unencrypted EBS volumes."
+   },
+   {
+    "id": "ce-41",
+    "question": "A company wants to standardize its Amazon Elastic Block Store (Amazon EBS) volume encryption strategy. The company also wants to minimize the cost and configuration effort required to operate the volume encryption check. Which solution will meet these requirements?",
+    "answer": "D. Create an AWS Config rule for Amazon EBS to evaluate if a volume is encrypted and to flag the volume if it is not encrypted."
+   },
+   {
+    "id": "et-512",
+    "question": "A company uses AWS Organizations with resources tagged by account. The company also uses AWS Backup to back up its AWS infrastructure resources. The company needs to back up all AWS resources. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use AWS Config to identify all untagged resources. Tag the identified resources programmatically. Use tags in the backup plan."
+   },
+   {
+    "id": "ce-116",
+    "question": "An e-commerce company stores inventory, order, and user information in multiple Amazon Redshift clusters. The Redshift clusters must comply with the company's security policies. The company must receive notifications about any security configuration violations. Which solution will meet these requirements?",
+    "answer": "D. Create an AWS Lambda function to check the Redshift clusters for any violation of the security configurations. Create an AWS Config custom rule to invoke the Lambda function when Redshift cluster security configurations are modified. Provide the compliance state of each Redshift cluster to AWS Config. Configure AWS Config to notify the company of any violations of the security policies."
+   },
+   {
+    "id": "ce-153",
+    "question": "A company runs production workloads in its AWS account. Multiple teams create and maintain the workloads. The company needs to be able to detect changes in resource configurations. The company needs to capture changes as configuration items without changing or modifying the existing resources. Which solution will meet these requirements?",
+    "answer": "A. Use AWS Config. Start the configuration recorder for AWS resources to detect changes in resource configurations."
+   },
+   {
+    "id": "ce-277",
+    "question": "An image-hosting company stores images as objects in Amazon S3 buckets. The company must prevent accidental exposure of the objects to the public. All S3 objects in the company's entire AWS account must remain private. Which solution will meet these requirements?",
+    "answer": "D. Use the S3 Block Public Access feature at the account level. Deploy the AWS Config s3-account- level-public-access-blocks rule and an AWS Systems Manager document to take automatic remediation actions when the rule is in the non-compliant state."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "scaling-policy",
+   "title": "What decides how many are running",
+   "when": null,
+   "words": "target tracking|step scaling|scheduled scaling|scaling polic|warm pool",
+   "nodes": [
+    [
+     "m",
+     "A measurement",
+     "store"
+    ],
+    [
+     "pol",
+     "Scaling policy",
+     "net"
+    ],
+    [
+     "asg",
+     "Auto Scaling group",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "m",
+     "pol",
+     "watched"
+    ],
+    [
+     "pol",
+     "asg",
+     "adds or removes"
+    ]
+   ],
+   "note": "Target tracking keeps one number where you want it and is what to reach for. Scheduled is for a rush you can predict. A warm pool is for instances that take too long to start."
+  },
+  "matches_in_total": 19,
+  "sample": [
+   {
+    "id": "ce-715",
+    "question": "A company hosts an application on Amazon EC2 On-Demand Instances in an Auto Scaling group. Application peak hours occur at the same time each day. Application users experience slow application performance at the start of peak hours. The application performs normally 2-3 hours after peak hours begin. The company wants to ensure that the application works properly at the start of peak hours. Which solution will meet these requirements?",
+    "answer": "D. Configure a scheduled scaling policy for the Auto Scaling group to launch new instances before peak hours."
+   },
+   {
+    "id": "et-333",
+    "question": "A company’s application runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The instances run in an Amazon EC2 Auto Scaling group across multiple Availability Zones. On the first day of every month at midnight, the application becomes much slower when the month-end financial calculation batch runs. This causes the CPU utilization of the EC2 instances to immediately peak to 100%, which disrupts the application. What should a solutions architect recommend to ensure the application is able to handle the workload and avoid downtime?",
+    "answer": "C. Configure an EC2 Auto Scaling scheduled scaling policy based on the monthly schedule."
+   },
+   {
+    "id": "et-275",
+    "question": "A company runs an internal browser-based application. The application runs on Amazon EC2 instances behind an Application Load Balancer. The instances run in an Amazon EC2 Auto Scaling group across multiple Availability Zones. The Auto Scaling group scales up to 20 instances during work hours, but scales down to 2 instances overnight. Staff are complaining that the application is very slow when the day begins, although it runs well by mid-morning. How should the scaling be changed to address the staff complaints and keep costs to a minimum?",
+    "answer": "C. Implement a target tracking action triggered at a lower CPU threshold, and decrease the cooldown period."
+   },
+   {
+    "id": "ce-708",
+    "question": "A company hosts a public web application on AWS with a three-tier architecture: a frontend Auto Scaling group, an application Auto Scaling group, and an Amazon RDS database. During unexpected traffic spikes, the company notices long delays in startup time when the frontend and application tiers scale out. The company needs to improve scaling performance without negatively affecting user experience. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "B. Configure the maximum number of instances for both Auto Scaling groups to the number required for peak demand. Create a warm pool."
+   },
+   {
+    "id": "ce-879",
+    "question": "A company hosts a web application on Amazon EC2 instances that are part of an Auto Scaling group behind an Application Load Balancer (ALB). The application experiences spikes in requests that come through the ALB throughout each day. The traffic spikes last between 15 and 20 minutes. The company needs a solution that uses a standard or custom metric to scale the EC2 instances based on the number of requests that come from the ALB. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "A. Configure an Amazon CloudWatch alarm to monitor the ALB RequestCount metric. Configure a simple scaling policy to scale the EC2 instances in response to the metric."
+   },
+   {
+    "id": "et-342",
+    "question": "A transaction processing company has weekly scripted batch jobs that run on Amazon EC2 instances. The EC2 instances are in an Auto Scaling group. The number of transactions can vary, but the baseline CPU utilization that is noted on each run is at least 60%. The company needs to provision the capacity 30 minutes before the jobs run. Currently, engineers complete this task by manually modifying the Auto Scaling group parameters. The company does not have the resources to analyze the required capacity trends for the Auto Scaling group counts. The company needs an automated way to modify the Auto Scaling group’s desired capacity. Which solution will meet these requirements with the LEAST operat",
+    "answer": "C. Create a predictive scaling policy for the Auto Scaling group. Configure the policy to scale based on forecast. Set the scaling metric to CPU utilization. Set the target value for the metric to 60%. In the policy, set the instances to pre-launch 30 minutes before the jobs run."
+   },
+   {
+    "id": "ce-630",
+    "question": "A company hosts an application in an Amazon EC2 Auto Scaling group. The company has observed that during periods of high demand, new instances take too long to join the Auto Scaling group and serve the increased demand. The company determines that the root cause of the issue is the long boot time of the instances in the Auto Scaling group. The company needs to reduce the time required to launch new instances to respond to demand. Which solution will meet this requirement?",
+    "answer": "B. Create a warm pool for the Auto Scaling group. Use the default specification for the warm pool size."
+   },
+   {
+    "id": "et-660",
+    "question": "A company hosts an application on Amazon EC2 On-Demand Instances in an Auto Scaling group. Application peak hours occur at the same time each day. Application users report slow application performance at the start of peak hours. The application performs normally 2-3 hours after peak hours begin. The company wants to ensure that the application works properly at the start of peak hours. Which solution will meet these requirements?",
+    "answer": "D. Configure a scheduled scaling policy for the Auto Scaling group to launch new instances before peak hours."
+   },
+   {
+    "id": "ce-756",
+    "question": "A company has deployed an application that uses Amazon EC2 Auto Scaling. The Auto Scaling group is associated with a Network Load Balancer and has a minimum desired capacity of 1 and a maximum desired capacity of 6. The CPU utilization of the single running EC2 instance occasionally reaches 90%, which causes the application to become unstable. Which solution will resolve the stability issue with the LEAST operational overhead?",
+    "answer": "B. Create a target tracking scaling policy. Set the ASGAverageCPUUtilization target value to 75%."
+   },
+   {
+    "id": "ce-471",
+    "question": "A company wants to deploy its containerized application workloads to a VPC across three Availability Zones. The company needs a solution that is highly available across Availability Zones. The solution must require minimal changes to the application. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use Amazon ECS. Configure Amazon ECS Service Auto Scaling to use target tracking scaling. Set the minimum capacity to 3. Set the task placement strategy type to spread with an Availability Zone attribute."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "s3-encrypt",
+   "title": "Objects encrypted where they sit",
+   "when": [
+    "S3",
+    "KMS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Upload",
+     "actor"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ],
+    [
+     "k",
+     "KMS key",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "s3",
+     "puts an object"
+    ],
+    [
+     "s3",
+     "k",
+     "encrypts with a key from"
+    ]
+   ],
+   "note": "SSE-S3 uses a key AWS manages. SSE-KMS uses one you control, so you can say who may use it and see every use in CloudTrail, which is what audit questions are asking for."
+  },
+  "matches_in_total": 7,
+  "sample": [
+   {
+    "id": "et-202",
+    "question": "A company is planning to move its data to an Amazon S3 bucket. The data must be encrypted when it is stored in the S3 bucket. Additionally, the encryption key must be automatically rotated every year. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Create an AWS Key Management Service (AWS KMS) customer managed key. Enable automatic key rotation. Set the S3 bucket’s default encryption behavior to use the customer managed KMS key. Move the data to the S3 bucket."
+   },
+   {
+    "id": "ce-127",
+    "question": "A company is planning to migrate customer records to an Amazon S3 bucket. The company needs to ensure that customer records are protected against unauthorized access and are encrypted in transit and at rest. The company must monitor all access to the S3 bucket.",
+    "answer": "A. Use AWS Key Management Service (AWS KMS) to encrypt customer records at rest. Create an S3 bucket policy that includes the aws:SecureTransport condition. Use an IAM policy to control access to the records. Use AWS CloudTrail to monitor access to the records."
+   },
+   {
+    "id": "ce-172",
+    "question": "A company stores sensitive financial reports in an Amazon S3 bucket. To comply with auditing requirements, the company must encrypt the data at rest. Users must not have the ability to change the encryption method or remove encryption when the users upload dat a. The company must be able to audit all encryption and storage actions. Which solution will meet these requirements and provide the MOST granular control?",
+    "answer": "B. Configure server-side encryption with AWS KMS (SSE-KMS) keys. Use an S3 bucket policy to reject any data that is not encrypted by the designated key."
+   },
+   {
+    "id": "ce-783",
+    "question": "A company runs an environment where data is stored in an Amazon S3 bucket. The objects are accessed frequently throughout the day. The company has strict data encryption requirements fordata that is stored in the S3 bucket. The company currently uses AWS Key Management Service (AWS KMS) for encryption. The company wants to optimize costs associated with encrypting S3 objects without making additional calls to AWS KMS. Which solution will meet these requirements?",
+    "answer": "B. Use an S3 Bucket Key for server-side encryption with AWS KMS keys (SSE-KMS) on the new objects."
+   },
+   {
+    "id": "et-359",
+    "question": "A hospital needs to store patient records in an Amazon S3 bucket. The hospital’s compliance team must ensure that all protected health information (PHI) is encrypted in transit and at rest. The compliance team must administer the encryption key for data at rest. Which solution will meet these requirements?",
+    "answer": "C. Use the aws:SecureTransport condition on S3 bucket policies to allow only encrypted connections over HTTPS (TLS). Configure default encryption for each S3 bucket to use server-side encryption with AWS KMS keys (SSE-KMS). Assign the compliance team to manage the KMS keys."
+   },
+   {
+    "id": "ce-856",
+    "question": "A company needs a data encryption solution for a machine learning (ML) process. The solution must use an AWS managed service. The ML process currently reads a large number of objects in Amazon S3 that are encrypted by a customer managed AWS KMS key. The current process incurs significant costs because of excessive calls to AWS Key Management Service (AWS KMS) to decrypt S3 objects. The company wants to reduce the costs of API calls to decrypt S3 objects.",
+    "answer": "D. Use S3 Bucket Keys to perform server-side encryption with AWS KMS keys (SSE-KMS) to encrypt and decrypt objects from Amazon S3."
+   },
+   {
+    "id": "dt-657",
+    "question": "A company runs an application in the AWS Cloud that generates sensitive archival data files. The company wants to rearchitect the application's data storage. The company wants to encrypt the data files and to ensure that third parties do not have access to the data before the data is encrypted and sent to AWS. The company has already created an Amazon S3 bucket. Which solution will meet these requirements?",
+    "answer": "D. Configure the application to use client-side encryption with a key stored in AWS Key Management Service (AWS KMS). Configure the application to store the archival files in the S3 bucket."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "efs-shared",
+   "title": "One file system, many instances",
+   "when": [
+    "EFS",
+    "EC2"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "a",
+     "EC2, zone A",
+     "compute"
+    ],
+    [
+     "b",
+     "EC2, zone B",
+     "compute"
+    ],
+    [
+     "efs",
+     "EFS file system",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "a",
+     "efs",
+     "NFS"
+    ],
+    [
+     "b",
+     "efs",
+     "NFS"
+    ]
+   ],
+   "note": "Mounted by many instances at once, across zones. EBS can only be attached to one instance in one zone."
+  },
+  "matches_in_total": 6,
+  "sample": [
+   {
+    "id": "et-502",
+    "question": "A company runs a website that uses a content management system (CMS) on Amazon EC2. The CMS runs on a single EC2 instance and uses an Amazon Aurora MySQL Multi-AZ DB instance for the data tier. Website images are stored on an Amazon Elastic Block Store (Amazon EBS) volume that is mounted inside the EC2 instance. Which combination of actions should a solutions architect take to improve the performance and resilience of the website? (Choose two.)",
+    "answer": "C. Move the website images onto an Amazon Elastic File System (Amazon EFS) file system that is mounted on every EC2 instance."
+   },
+   {
+    "id": "ce-656",
+    "question": "A company is building a web application that serves a content management system. The content management system runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The EC2 instances run in an Auto Scaling group across multiple Availability Zones. Users are constantly adding and updating files, blogs, and other website assets in the content management system. A solutions architect must implement a solution in which all the EC2 instances share up-to-date website content with the least possible lag time.",
+    "answer": "B. Copy the website assets to an Amazon Elastic File System (Amazon EFS) file system. Configure each EC2 instance to mount the EFS file system locally. Configure the website hosting application to reference the website assets that are stored in the EFS file system."
+   },
+   {
+    "id": "et-566",
+    "question": "A company runs multiple Amazon EC2 Linux instances in a VPC across two Availability Zones. The instances host applications that use a hierarchical directory structure. The applications need to read and write rapidly and concurrently to shared storage. What should a solutions architect do to meet these requirements?",
+    "answer": "B. Create an Amazon Elastic File System (Amazon EFS) file system. Mount the EFS file system from each EC2 instance."
+   },
+   {
+    "id": "ce-771",
+    "question": "A company runs multiple applications in multiple AWS accounts within the same organization in AWS Organizations. A content management system (CMS) runs on Amazon EC2 instances in a VPC. The CMS needs to access shared files from an Amazon Elastic File System (Amazon EFS) file system that is deployed in a separate AWS account. The EFS account is in a separate VPC. Which solution will meet this requirement?",
+    "answer": "B. Enable VPC sharing between the two accounts. Use the EFS mount helper to mount the file system on the EC2 instances. Redeploy the EFS file system in a shared subnet."
+   },
+   {
+    "id": "ce-935",
+    "question": "A company is migrating a document management application to AWS. The application runs on Linux servers. The company will migrate the application to Amazon EC2 instances in an Auto Scaling group. The company stores 7 TiB of documents in a shared storage file system. An external relational database tracks the documents. Documents are stored once and can be retrieved multiple times for reference at any time. The company cannot modify the application during the migration. The storage solution must be highly available and must support scaling over time. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "D. Create an Amazon EFS file system with mount points in multiple Availability Zones. Use the EFS Standard-Infrequent Access (Standard-IA) storage class. Mount the NFS share on the EC2 instances in the Auto Scaling group."
+   },
+   {
+    "id": "ce-442",
+    "question": "A company runs an application on premises. The application stores files that the application servers process in a shared storage system. The company uses Linux file system permissions to control access to the files. The company plans to migrate the application servers to Amazon EC2 instances across multiple Availability Zones. The company does not want to change the application code. Which solution will meet these requirements?",
+    "answer": "D. Migrate the files to an Amazon EFS file system. Mount the EFS file system to the EC2 instances."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "kinesis-lambda",
+   "title": "A stream of records, read as it arrives",
+   "when": [
+    "Kinesis",
+    "Lambda"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "src",
+     "Producers",
+     "actor"
+    ],
+    [
+     "k",
+     "Kinesis Data Streams",
+     "queue"
+    ],
+    [
+     "fn",
+     "Lambda",
+     "compute"
+    ],
+    [
+     "s3",
+     "Store",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "src",
+     "k",
+     "put records"
+    ],
+    [
+     "k",
+     "fn",
+     "reads in order"
+    ],
+    [
+     "fn",
+     "s3",
+     "writes"
+    ]
+   ],
+   "note": "The stream keeps the records, so several applications can read the same ones and go back over them. A queue would hand each record to one reader and then forget it."
+  },
+  "matches_in_total": 4,
+  "sample": [
+   {
+    "id": "ce-96",
+    "question": "A solutions architect is building an Amazon S3 data lake for a company. The company uses Amazon Kinesis Data Firehose to ingest customer personally identifiable information (PII) and transactional data in near real-time to an S3 bucket. The company needs to mask all PII data before storing thedata in the data lake. Which solution will meet these requirements?",
+    "answer": "A. Create an AWS Lambda function to detect and mask PII. Invoke the function from Kinesis Data Firehose."
+   },
+   {
+    "id": "ce-585",
+    "question": "A company has an application with a REST-based interface that allows data to be received in near- real time from a third-party vendor. Once received, the application processes and stores the data for further analysis. The application is running on Amazon EC2 instances. The third-party vendor has received many 503 Service Unavailable Errors when sending data to the application. When the data volume spikes, the compute capacity reaches its maximum limit and the application is unable to process all requests. Which design should a solutions architect recommend to provide a more scalable solution?",
+    "answer": "A. Use Amazon Kinesis Data Streams to ingest the data. Process the data using AWS Lambda functions."
+   },
+   {
+    "id": "ce-602",
+    "question": "An ecommerce company wants to collect user clickstream data from the company's website for real- time analysis. The website experiences fluctuating traffic patterns throughout the day. The company needs a scalable solution that can adapt to varying levels of traffic. Which solution will meet these requirements?",
+    "answer": "A. Use a data stream in Amazon Kinesis Data Streams in on-demand mode to capture the clickstream data. Use AWS Lambda to process the data in real time."
+   },
+   {
+    "id": "dt-696",
+    "question": "A company runs an online marketplace web application on AWS. The application serves hundreds of thousands of users during peak hours. The company needs a scalable, near-real-time solution to share the details of millions of financial transactions with several other internal applications. Transactions also need to be processed to remove sensitive data before being stored in a document database for low-latency retrieval. What should a solutions architect recommend to meet these requirements?",
+    "answer": "C. Stream the transactions data into Amazon Kinesis Data Streams. Use AWS Lambda integration to remove sensitive data from every transaction and then store the transactions data in AmazonDynamoDB. Other applications can consume the transactions data off the Kinesis data stream."
+   }
+  ]
+ }
+]
