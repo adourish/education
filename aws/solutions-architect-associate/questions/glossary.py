@@ -301,6 +301,35 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Delivers a stream straight into S3, Redshift, OpenSearch or Splunk with no code. It buffers for about a minute, so it is near-real-time rather than instant."),
     "Amazon API Gateway": (r"API Gateway",
         "A managed front door for an API. It handles authentication, throttling and caching in front of Lambda or any other backend."),
+    "API Gateway HTTP API": (r"HTTP API",
+        "The newer, plainer kind of API Gateway API: cheaper, quicker, and the "
+        "only one that can check a JWT by itself. Point it at your identity "
+        "provider and it validates the signature and the claims with no code of "
+        "yours in the way. It gives up the extras to do it: no API keys or "
+        "usage plans, no request validation, no caching, no AWS WAF, no "
+        "resource policies and no private endpoint."),
+    "API Gateway REST API": (r"REST API",
+        "The full-featured kind of API Gateway API. API keys and usage plans, "
+        "request validation, caching, AWS WAF, resource policies and a private "
+        "endpoint inside a VPC all belong to this one. For tokens it has a "
+        "Cognito user pool authorizer or a Lambda authorizer, but no built-in "
+        "JWT check, so a token from somebody else's identity provider means "
+        "writing a Lambda authorizer."),
+    "JWT": (r"\bJWT\b|JSON Web Token|bearer token",
+        "A signed ticket the caller carries, saying who they are and what they "
+        "may do. Whatever receives it checks the signature and reads the claims "
+        "inside, rather than calling the identity provider on every request. An "
+        "HTTP API can do that check on its own; a REST API needs a Lambda "
+        "authorizer unless the token came from a Cognito user pool."),
+    "Lambda authorizer": (r"Lambda authorizer|custom authorizer",
+        "A function API Gateway calls to decide whether a request may go on. "
+        "The answer whenever the checking is yours to define, or the token is "
+        "of a kind the API cannot check for itself. The verdict is cached, so "
+        "it is not run on every single call."),
+    "API Gateway WebSocket API": (r"WebSocket API",
+        "A connection the client and the server both keep open, so the server "
+        "can push without being asked. For chat, live scores and anything else "
+        "where the news comes from the server's side."),
     "AWS AppSync": (r"AppSync",
         "A managed GraphQL API, with offline syncing for mobile applications."),
 
