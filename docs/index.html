@@ -469,6 +469,12 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   background: var(--ground); color: var(--ink-2);
 }
 .optspeak[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
+/* marked but not yet committed */
+.opt.picked {
+  border-color: var(--cyan); border-width: 2px; padding: 12px 14px;
+  background: var(--cyan-soft);
+}
+.confirmbtn { margin-bottom: 14px; }
 .lookback {
   display: flex; align-items: center; gap: 7px;
   font: 500 0.82rem var(--ui); color: var(--ink-2);
@@ -1146,9 +1152,20 @@ footer .v { font-family: var(--mono); }
     </div>
   </div>
   <div class="setrow">
+    <span class="lab">Choosing an answer</span>
+    <span class="hint">One tap answers straight away. Tap then confirm lets you rest on an
+      answer and read it before committing, which is what makes the reading ruler usable on
+      a touch screen, where there is no pointer to hover with.</span>
+    <div class="pick" role="group" data-setting="confirm">
+      <button type="button" data-value="tap">One tap</button>
+      <button type="button" data-value="confirm">Tap, then confirm</button>
+    </div>
+  </div>
+  <div class="setrow">
     <span class="lab">Reading ruler</span>
     <span class="hint">Lifts the line you are pointing at out of the block, the way a ruler
-      under a line of print stops the eye dropping to the wrong one.</span>
+      under a line of print stops the eye dropping to the wrong one. On a phone, set
+      "Choosing an answer" to tap then confirm, or a tap answers before you can read it.</span>
     <div class="pick" role="group" data-setting="ruler">
       <button type="button" data-value="off">Off</button>
       <button type="button" data-value="on">On</button>
@@ -1214,7 +1231,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.17.0";
+  var APP_VERSION = "1.18.0";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -2679,6 +2696,16 @@ footer .v { font-family: var(--mono); }
 
       var opts = el("div", "opts");
       var optBtns = [];
+      var chosen = null;
+      // Shown only once something is marked, and only when a confirming press
+      // is being asked for.
+      var confirmBtn = el("button", "btn primary confirmbtn", "Answer");
+      confirmBtn.hidden = true;
+      confirmBtn.addEventListener("click", function () {
+        if (!chosen || answered) return;
+        var n = pool.indexOf(chosen);
+        if (n >= 0) optBtns[n].click();
+      });
       pool.forEach(function (o) {
         var line = el("div", "optline");
         if (speech) {
@@ -2713,7 +2740,18 @@ footer .v { font-family: var(--mono); }
         }
         b.addEventListener("click", function () {
           if (answered) return;
+          if (settings.confirm === "confirm" && chosen !== o) {
+            // First press marks it and nothing else. Read it, change your mind
+            // as often as you like, and only then commit.
+            chosen = o;
+            optBtns.forEach(function (c) { c.classList.remove("picked"); });
+            b.classList.add("picked");
+            confirmBtn.hidden = false;
+            confirmBtn.textContent = "Answer " + o.shown;
+            return;
+          }
           answered = true;
+          confirmBtn.hidden = true;
           var ok = right ? o === right : false;
           b.classList.add(ok ? "pick-ok" : "pick-bad");
           optBtns.forEach(function (c) { c.disabled = true; });
@@ -2742,6 +2780,7 @@ footer .v { font-family: var(--mono); }
         opts.appendChild(line);
       });
       card.appendChild(opts);
+      card.appendChild(confirmBtn);
       card.appendChild(reveal);
     } else {
       // No distractors, or more than one right answer: an honest self-mark
@@ -3279,6 +3318,7 @@ footer .v { font-family: var(--mono); }
     weight:  { attr: "data-weight", fallback: "normal" },
     spacing: { attr: null,          fallback: "on" },
     ruler:   { attr: "data-ruler",  fallback: "off" },
+    confirm: { attr: null,          fallback: "tap" },
     bullets: { attr: null,          fallback: "off" }
   };
   var SET_KEY = STORE_KEY + "/settings";
