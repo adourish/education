@@ -922,6 +922,51 @@ select {
 .bar .bad { background: var(--magenta); }
 .barrow .num { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
+/* Every part of the progress page folds away, so the one being read is not
+   half a screen down past four others. The arrow and the heading are one
+   target, big enough for a thumb. */
+.fold { border-top: 1px solid var(--rule); margin: 0; }
+.fold > summary {
+  cursor: pointer; list-style: none; padding: 15px 2px 14px;
+  display: flex; align-items: baseline; gap: 9px;
+  font-size: 1.02rem; font-weight: 500;
+}
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before {
+  content: "\203a"; display: inline-block; width: 0.7em;
+  transition: transform .12s ease; color: var(--ink-3); font-weight: 700;
+}
+.fold[open] > summary::before { transform: rotate(90deg); }
+.fold > summary:hover { color: var(--cyan); }
+.fold > summary .count {
+  margin-left: auto; font-family: var(--mono); font-size: 0.8rem;
+  color: var(--ink-3); font-weight: 400;
+}
+.fold .inner { padding: 0 0 20px; }
+
+/* One go at a set of questions: when, what, and how it went. */
+.runlist { display: grid; gap: 8px; }
+.run {
+  border: 1px solid var(--rule); border-left: 3px solid var(--cyan);
+  border-radius: 7px; background: var(--surface);
+}
+.run.poor { border-left-color: var(--magenta); }
+.run > summary {
+  cursor: pointer; list-style: none; padding: 10px 12px;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 12px;
+  align-items: baseline;
+}
+.run > summary::-webkit-details-marker { display: none; }
+.run .what { font-size: 0.95rem; }
+.run .when { font-size: 0.82rem; color: var(--ink-3); grid-column: 1; }
+.run .score {
+  font-family: var(--mono); font-size: 0.9rem; font-weight: 500;
+  grid-row: 1 / span 2; align-self: center; white-space: nowrap;
+}
+.run .inner { padding: 2px 12px 12px; }
+.run .barrow { font-size: 0.86rem; }
+.runmore { margin-top: 10px; }
+
 .weak { display: grid; gap: 6px; }
 .weakrow {
   display: flex; gap: 10px; align-items: baseline; justify-content: space-between;
@@ -1087,34 +1132,64 @@ footer .v { font-family: var(--mono); }
   <section class="view" id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
     <div class="stats" id="statCards"></div>
 
-    <h2 class="sub">By category</h2>
-    <div class="barlist" id="areaBars"></div>
+    <details class="fold" id="fold-io" data-fold="io">
+      <summary>Your progress file<span class="count">export and merge</span></summary>
+      <div class="inner">
+        <p class="lede">
+          Progress is kept in this browser only &mdash; each browser, each device and each
+          address keeps its own. To work across two machines: <b>Export</b> on one,
+          <b>Merge</b> on the other. Merging adds the two together rather than replacing, so
+          neither machine loses what it did, and a question either of them got wrong stays on
+          your revisit list. One file carries every exam, and every set you are part way
+          through.
+        </p>
+        <div class="picker">
+          <button class="btn primary" id="exportBtn">Export progress</button>
+          <button class="btn" id="importBtn">Merge in the box below</button>
+          <button class="btn bad" id="resetBtn">Reset all progress</button>
+        </div>
+        <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Paste a progress file in and press Import."></textarea>
+      </div>
+    </details>
 
-    <h2 class="sub">Questions you got wrong</h2>
-    <p class="lede">Tap one to drill it again. It leaves this list once you get it right.</p>
-    <div id="missList"></div>
+    <details class="fold" id="fold-runs" data-fold="runs" open>
+      <summary>Recent runs<span class="count" id="runCount"></span></summary>
+      <div class="inner">
+        <p class="lede">Each go at a set of questions, newest first. Open one to see how it
+          fell across the categories. Runs are kept from the day this was added, so anything
+          answered before that is in the totals but not here.</p>
+        <div class="runlist" id="runList"></div>
+      </div>
+    </details>
 
-    <h2 class="sub">Every answer, with its time</h2>
-    <p class="lede" id="logLede"></p>
-    <div class="answerlog" id="answerLog"></div>
+    <details class="fold" id="fold-areas" data-fold="areas" open>
+      <summary>By category<span class="count">all time</span></summary>
+      <div class="inner"><div class="barlist" id="areaBars"></div></div>
+    </details>
 
-    <h2 class="sub">Weakest concepts</h2>
-    <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
-    <div class="weak" id="weakList"></div>
+    <details class="fold" id="fold-miss" data-fold="miss">
+      <summary>Questions you got wrong<span class="count" id="missCount"></span></summary>
+      <div class="inner">
+        <p class="lede">Tap one to drill it again. It leaves this list once you get it right.</p>
+        <div id="missList"></div>
+      </div>
+    </details>
 
-    <h2 class="sub">Your progress file</h2>
-    <p class="lede">
-      Progress is kept in this browser only &mdash; each browser, each device and each address
-      keeps its own. To work across two machines: <b>Export</b> on one, <b>Merge</b> on the other.
-      Merging adds the two together rather than replacing, so neither machine loses what it did,
-      and a question either of them got wrong stays on your revisit list.
-    </p>
-    <div class="picker">
-      <button class="btn primary" id="exportBtn">Export progress</button>
-      <button class="btn" id="importBtn">Merge in the box below</button>
-      <button class="btn bad" id="resetBtn">Reset all progress</button>
-    </div>
-    <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Paste a progress file in and press Import."></textarea>
+    <details class="fold" id="fold-weak" data-fold="weak">
+      <summary>Weakest concepts<span class="count">worst first</span></summary>
+      <div class="inner">
+        <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
+        <div class="weak" id="weakList"></div>
+      </div>
+    </details>
+
+    <details class="fold" id="fold-log" data-fold="log">
+      <summary>Every answer, with its time<span class="count" id="logCount"></span></summary>
+      <div class="inner">
+        <p class="lede" id="logLede"></p>
+        <div class="answerlog" id="answerLog"></div>
+      </div>
+    </details>
   </section>
 </main>
 
@@ -1295,7 +1370,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.27.0";
+  var APP_VERSION = "1.28.0";
   var BUILD_DATE  = "2026-10-07";
   // ---------- where this exam's work is kept ----------
   //
@@ -2571,6 +2646,16 @@ footer .v { font-family: var(--mono); }
     var touched = qi > 0 || mock.on ||
       (alreadyDone && Object.keys(alreadyDone).length > 0);
 
+    // The run is kept up to date from the first answer onwards, so the
+    // progress page can show how the set in hand is going rather than only
+    // what finished sets did. Reaching the end marks it finished.
+    if (touched && sessionId && queue.length) {
+      recordRun({ id: sessionId, ids: queue.map(function (q) { return q.id; }),
+                  started: sessionStarted, at: stampNow(), lastOn: deviceName(),
+                  mock: mock.on ? {} : null, drill: drilling ? drilling.id : null,
+                  area: areaSel.value }, qi >= queue.length);
+    }
+
     if (!queue.length || qi >= queue.length || !sessionId || !touched) {
       writeSessions(list);
       return;
@@ -2717,10 +2802,75 @@ footer .v { font-family: var(--mono); }
   // Take one set off the list for good. Used when a set is finished, when a
   // question bank no longer holds any of it, and when a person says they are
   // done with it.
-  function putAside(id) {
+  // ---------- what each set of questions achieved ----------
+  //
+  // A set disappears once it is finished, and used to take the record of how
+  // it went with it. What is kept here is the score: when it ran, what it was,
+  // how many were right, and how that fell across the categories. The answers
+  // themselves were always safe in the log; this is about being able to look
+  // back at a run as a run.
+  var RUNS_KEY = ROOT + "/" + EXAM + "/runs";
+  var RUN_MAX = 60;
+
+  function readRuns() {
+    try {
+      var list = JSON.parse(localStorage.getItem(RUNS_KEY) || "null");
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  }
+
+  function writeRuns(list) {
+    if (!storageOK) return;
+    list.sort(function (a, b) { return stampSeconds(b.ended) - stampSeconds(a.ended); });
+    try { localStorage.setItem(RUNS_KEY, JSON.stringify(list.slice(0, RUN_MAX))); }
+    catch (e) { /* no room: the run is simply not kept */ }
+  }
+
+  // Scored from the log rather than from a running tally, so it is right even
+  // when the set was begun yesterday, closed, and picked up this morning.
+  function recordRun(s, finished) {
+    if (!s || !s.id) return;
+    var marks = {}, asked = 0, right = 0;
+    (S.log || []).forEach(function (e) {
+      if (!e || e[3] !== s.id) return;
+      var q = QBYID[e[1]];
+      if (!q) return;
+      asked++;
+      if (e[2]) right++;
+      var a = q.area || "other";
+      var m = marks[a] || (marks[a] = { r: 0, w: 0 });
+      if (e[2]) m.r++; else m.w++;
+    });
+    if (!asked) return;                 // nothing happened in it, so nothing to show
+    var list = readRuns().filter(function (r) { return r.id !== s.id; });
+    list.unshift({
+      id: s.id,
+      exam: EXAM,
+      kind: s.mock ? "mock" : (s.drill ? "drill" : "practice"),
+      label: describeSession(s),
+      started: s.started || s.at,
+      ended: stampNow(),
+      device: s.lastOn || deviceName(),
+      finished: !!finished,
+      of: (s.ids || []).length,
+      reached: (s.qi >= 0 ? s.qi + 1 : asked),
+      asked: asked,
+      right: right,
+      marks: marks
+    });
+    writeRuns(list);
+  }
+
+  // Take a set off the list. The score is written down first, so what was
+  // answered still shows under recent runs: the only thing lost is the place
+  // in the set, and the answers were never in here to begin with.
+  function putAside(id, finished) {
+    var going = readSessions().filter(function (s) { return s.id === id; })[0];
+    if (going) recordRun(going, !!finished);
     writeSessions(readSessions().filter(function (s) { return s.id !== id; }));
     if (id === sessionId) sessionId = null;
     offerResume();
+    if (typeof renderRuns === "function") renderRuns();
   }
 
   function hideResume() {
@@ -2785,9 +2935,20 @@ footer .v { font-family: var(--mono); }
       go.addEventListener("click", function () { resumeSession(s); });
       box.appendChild(go);
 
-      var drop = el("button", "btn", "Put this aside");
+      // This used to say "Put this aside", which sounds like keeping it, and
+      // then threw it away. Starting another set is what puts one aside; this
+      // is the one that forgets it, so it says so and asks first.
+      var drop = el("button", "btn", "Forget this one");
       drop.style.marginLeft = "8px";
-      drop.addEventListener("click", function () { putAside(s.id); });
+      drop.addEventListener("click", function () {
+        if (!window.confirm(
+            "Forget this set?" + "\n\n" +
+            "You were " + (s.qi + 1) + " of " + s.ids.length + " through " +
+            describeSession(s) + ". Everything you answered in it is kept, and "
+            + "it will still show under recent runs. What goes is your place in "
+            + "the set, and that cannot be undone.")) return;
+        putAside(s.id, false);
+      });
       box.appendChild(drop);
 
       resumeBar.appendChild(box);
@@ -2892,7 +3053,7 @@ footer .v { font-family: var(--mono); }
     }
     mock.on = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
-    if (sessionId) putAside(sessionId);
+    if (sessionId) putAside(sessionId, true);
     renderMockBar();
     renderMockResult(ranOut);
   }
@@ -3047,7 +3208,13 @@ footer .v { font-family: var(--mono); }
     // well would only be a second copy waiting to disagree with the first.
     // The list travels in every export, so the time is written as a readable
     // date rather than a count of seconds.
-    S.log.push([stampNow(), q.id, ok ? 1 : 0]);
+    // The fourth field is which set of questions this answer was part of, so
+    // a run can be scored later, by category, even after the page has been
+    // closed and the set picked up again. Answers given before runs were
+    // recorded simply do not have it.
+    var entry = [stampNow(), q.id, ok ? 1 : 0];
+    if (sessionId) entry.push(sessionId);
+    S.log.push(entry);
     recompute();
 
     saveState();
@@ -3621,7 +3788,126 @@ footer .v { font-family: var(--mono); }
   });
 
   // ---------- progress ----------
+  // ---------- recent runs ----------
+  //
+  // A run is one go at a set of questions. The totals say how you are doing
+  // overall and never say whether this morning went better than last Tuesday,
+  // which is the thing you actually want to know while revising.
+  var RUNS_SHOWN = 5;          // before "show the rest"
+  var runsAllShown = false;
+
+  function pct(right, asked) {
+    return asked ? Math.round((right / asked) * 100) : 0;
+  }
+
+  function areaName(key) {
+    if (key === "__all") return "Every category";
+    if (key === "__weak") return "Your weak spots";
+    return (DATA.areaTitles && DATA.areaTitles[key]) || key;
+  }
+
+  // One bar per category inside a run, so a bad run says which part was bad.
+  function runBreakdown(run) {
+    var host = el("div", "barlist");
+    var keys = Object.keys(run.marks || {}).sort(function (a, b) {
+      var ma = run.marks[a], mb = run.marks[b];
+      return (mb.r + mb.w) - (ma.r + ma.w);
+    });
+    if (!keys.length) {
+      host.appendChild(el("p", "lede", "Nothing recorded against a category."));
+      return host;
+    }
+    keys.forEach(function (k) {
+      var m = run.marks[k];
+      var total = m.r + m.w;
+      var row = el("div", "barrow");
+      row.appendChild(el("div", null, areaName(k)));
+      var bar = el("div", "bar");
+      var ok = el("span", "ok");
+      ok.style.width = (total ? (m.r / total) * 100 : 0) + "%";
+      var bad = el("span", "bad");
+      bad.style.width = (total ? (m.w / total) * 100 : 0) + "%";
+      bar.appendChild(ok); bar.appendChild(bad);
+      row.appendChild(bar);
+      row.appendChild(el("div", "num", m.r + " of " + total));
+      host.appendChild(row);
+    });
+    return host;
+  }
+
+  function renderRuns() {
+    var host = document.getElementById("runList");
+    if (!host) return;
+    var runs = readRuns();
+    var tally = document.getElementById("runCount");
+    if (tally) tally.textContent = runs.length ? runs.length + " kept" : "none yet";
+
+    host.textContent = "";
+    if (!runs.length) {
+      host.appendChild(el("p", "lede",
+        "No runs yet. Finish a set of questions and it will appear here, with "
+        + "how it went by category."));
+      return;
+    }
+
+    var show = runsAllShown ? runs : runs.slice(0, RUNS_SHOWN);
+    show.forEach(function (run) {
+      var share = pct(run.right, run.asked);
+      var box = el("details", "run" + (share < 60 ? " poor" : ""));
+      var head = el("summary");
+
+      var what = run.label || "a set";
+      if (run.kind === "mock") what = "Mock exam";
+      else if (run.kind === "drill") what = "Drill: " + what;
+      if (!run.finished) what += ", left part way";
+      head.appendChild(el("div", "what", what));
+
+      var when = whenText(run.ended);
+      if (run.device) when += " \u00b7 " + run.device;
+      head.appendChild(el("div", "when", when));
+
+      head.appendChild(el("div", "score",
+        run.right + "/" + run.asked + "  " + share + "%"));
+      box.appendChild(head);
+
+      var inner = el("div", "inner");
+      inner.appendChild(runBreakdown(run));
+      box.appendChild(inner);
+      host.appendChild(box);
+    });
+
+    if (runs.length > RUNS_SHOWN) {
+      var more = el("button", "btn runmore",
+        runsAllShown ? "Show just the last " + RUNS_SHOWN
+                     : "Show all " + runs.length + " runs");
+      more.addEventListener("click", function () {
+        runsAllShown = !runsAllShown;
+        renderRuns();
+      });
+      host.appendChild(more);
+    }
+  }
+
+  // Which sections were left open, so the page comes back the way it was left.
+  (function rememberFolds() {
+    var KEY = ROOT + "/folds";
+    var open = {};
+    try { open = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; }
+    catch (e) { open = {}; }
+    Array.prototype.slice.call(document.querySelectorAll("details.fold"))
+      .forEach(function (d) {
+        var name = d.getAttribute("data-fold");
+        if (open[name] !== undefined) d.open = !!open[name];
+        d.addEventListener("toggle", function () {
+          open[name] = d.open;
+          try { localStorage.setItem(KEY, JSON.stringify(open)); }
+          catch (e) { /* it simply will not be remembered */ }
+        });
+      });
+  })();
+
   function renderProgress() {
+    renderRuns();
     var cards = document.getElementById("statCards");
     cards.textContent = "";
     var known = 0, shaky = 0;
@@ -3858,7 +4144,8 @@ footer .v { font-family: var(--mono); }
       name: DATA.examName || DATA.exam || EXAM,
       dataVersion: DATA.version || null,
       progress: S,
-      sessions: readSessions()
+      sessions: readSessions(),
+      runs: readRuns()
     };
     var known = knownExams();
     Object.keys(known).forEach(function (id) {
@@ -3869,11 +4156,14 @@ footer .v { font-family: var(--mono); }
         if (!prog) return;
         var sess = JSON.parse(
           localStorage.getItem(ROOT + "/" + id + "/sessions") || "null");
+        var rns = JSON.parse(
+          localStorage.getItem(ROOT + "/" + id + "/runs") || "null");
         out[id] = {
           name: known[id].name || id,
           dataVersion: known[id].dataVersion || null,
           progress: prog,
-          sessions: Array.isArray(sess) ? sess : []
+          sessions: Array.isArray(sess) ? sess : [],
+          runs: Array.isArray(rns) ? rns : []
         };
       } catch (e) { /* that exam is simply left out */ }
     });
@@ -4037,19 +4327,38 @@ footer .v { font-family: var(--mono); }
       var report = [];
       var examIds = Object.keys(payload);
 
+      // Which files have already been merged here. The log cannot double up,
+      // but the lump of undated answers is a plain total, so without this,
+      // merging the same export twice adds it twice.
+      var SEEN_KEY = ROOT + "/" + EXAM + "/merged";
+      var stamp = (JSON.parse(raw).exported) || null;
+      var mergedBefore = [];
+      try {
+        mergedBefore = JSON.parse(localStorage.getItem(SEEN_KEY) || "[]") || [];
+      } catch (e) { mergedBefore = []; }
+      var alreadyHad = !!(stamp && mergedBefore.indexOf(stamp) >= 0);
+
       examIds.forEach(function (id) {
         var part = payload[id] || {};
-        if (!part.progress) return;
+        var sessionsIn = (part.sessions || []).length;
+        if (!part.progress && !sessionsIn) return;
         var name = (id === EXAM)
           ? (DATA.examName || DATA.exam || id)
           : (part.name || (knownExams()[id] || {}).name || id);
         var lines = [];
 
-        if (id === EXAM) {
+        if (!part.progress) {
+          lines.push("no answers in the file for this exam");
+        } else if (id === EXAM) {
           // The exam on screen, so the scores are rebuilt as well.
-          var r = mergeProgress(part.progress);
+          // Second time around, only what carries its own date is taken.
+          var r = mergeProgress(alreadyHad
+            ? { log: part.progress.log, started: part.progress.started }
+            : part.progress);
           saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
-          lines.push(r.answers + " answers added");
+          lines.push(alreadyHad
+            ? "already merged once, so only the sets were looked at again"
+            : r.answers + " answers added");
           if (r.added) lines.push(r.added + " questions this device had not seen");
           if (r.disagreed) {
             lines.push(r.disagreed + " where the two disagreed, now on the revisit list");
@@ -4082,6 +4391,30 @@ footer .v { font-family: var(--mono); }
           try { localStorage.setItem(skey, JSON.stringify(merged.list)); }
           catch (e) { /* no room */ }
         }
+        // Runs join by id too, so a run from the phone sits beside the
+        // laptop's own rather than one of them winning.
+        var rkey = ROOT + "/" + id + "/runs";
+        var mineRuns = [];
+        try {
+          mineRuns = (id === EXAM) ? readRuns()
+            : (JSON.parse(localStorage.getItem(rkey) || "null") || []);
+        } catch (e) { mineRuns = []; }
+        var runSeen = {}, joined = [];
+        mineRuns.concat(part.runs || []).forEach(function (r) {
+          if (!r || !r.id || runSeen[r.id]) return;
+          runSeen[r.id] = 1;
+          joined.push(r);
+        });
+        joined.sort(function (a, b) {
+          return stampSeconds(b.ended) - stampSeconds(a.ended);
+        });
+        var newRuns = joined.length - mineRuns.length;
+        if (newRuns > 0) {
+          try { localStorage.setItem(rkey, JSON.stringify(joined.slice(0, 60))); }
+          catch (e) { /* no room */ }
+          lines.push(newRuns + (newRuns === 1 ? " run" : " runs") + " came across");
+        }
+
         var gained = merged.count - before;
         if (gained > 0) {
           lines.push(gained + (gained === 1 ? " set" : " sets") +
@@ -4093,7 +4426,15 @@ footer .v { font-family: var(--mono); }
       });
 
       if (!report.length) throw new Error("nothing to merge");
+      if (stamp && !alreadyHad) {
+        try {
+          mergedBefore.push(stamp);
+          localStorage.setItem(SEEN_KEY,
+            JSON.stringify(mergedBefore.slice(-40)));
+        } catch (e) { /* the guard is a convenience, not a record */ }
+      }
       offerResume();
+      if (typeof renderRuns === "function") renderRuns();
 
       ioBox.value = (examIds.length > 1
         ? "Merged " + examIds.length + " exams.\n\n"
