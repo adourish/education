@@ -230,7 +230,7 @@ DIAGRAMS = [
         "nodes": [["z", "Hosted zone", "edge"], ["w", "Weighted: a share each", "compute"],
                   ["l", "Latency: the quickest", "compute"],
                   ["g", "Geolocation: by country", "compute"],
-                  ["m", "Multivalue: several healthy answers", "compute"]],
+                  ["m", "Multivalue: several answers", "compute"]],
         "edges": [["z", "w", ""], ["z", "l", ""], ["z", "g", ""], ["z", "m", ""]],
         "note": "Weighted is for sending a measured slice somewhere, which is what a staged "
                 "release needs. Latency is for speed, geolocation for rules about where "
@@ -349,7 +349,7 @@ DIAGRAMS = [
         "title": "Letting people see some columns and not others",
         "words": r"Lake Formation",
         "nodes": [["lf", "Lake Formation", "net"],
-                  ["p", "Permissions, by table, column or row", "net"],
+                  ["p", "Permissions by column or row", "net"],
                   ["a", "Athena or Redshift", "compute"], ["u", "Analysts", "actor"]],
         "edges": [["lf", "p", "granted centrally"], ["p", "a", "applied as they query"],
                   ["a", "u", "only what they may see"]],
@@ -663,7 +663,7 @@ DIAGRAMS = [
         "when": ["S3", "Replication"],
         "words": r"replicat",
         "nodes": [["a", "Source bucket", "store"],
-                  ["b", "Destination bucket, another Region or the same one", "store"]],
+                  ["b", "Destination bucket", "store"]],
         "edges": [["a", "b", "replication rule"]],
         "note": "Both buckets need versioning on. Objects already there are not copied "
                 "until you run Batch Replication. Cross-Region is for distance and "
@@ -1102,7 +1102,7 @@ DIAGRAMS = [
         "id": "datasync-move",
         "title": "Moving files in, over the network",
         "words": r"DataSync|Transfer Family|\\bSFTP\\b",
-        "nodes": [["src", "On premises, or another AWS location", "actor"],
+        "nodes": [["src", "On premises, or in AWS", "actor"],
                   ["ag", "Agent, or an AWS endpoint", "net"],
                   ["dst", "S3, EFS or FSx", "store"]],
         "edges": [["src", "ag", "reads"], ["ag", "dst", "writes, and checks it arrived"]],
@@ -1302,3 +1302,41 @@ def as_is_for(question_text: str, after: list[str] | None = None) -> str | None:
         if did in AS_IS and did not in (after or []):
             return did
     return None
+
+# --------------------------------------------------------------------------
+# A label has to fit the box it is drawn in.
+#
+# The app wraps a label onto at most two lines and then draws it, so anything
+# that does not fit simply runs out past the edge of its box. Four did. This
+# mirrors the app's wrapping so the next one is caught here instead of being
+# noticed on a phone.
+#
+# Keep in step with wrapLabel and BOX_W in app.template.html.
+# --------------------------------------------------------------------------
+BOX_CHARS = 17          # what wrapLabel is given
+LINE_LIMIT = 17         # what actually fits a 136-wide box at 13px
+
+
+def _wrap(text: str, per: int = BOX_CHARS) -> list[str]:
+    lines = [""]
+    for word in str(text).split(" "):
+        if not lines[-1]:
+            lines[-1] = word
+        elif len(lines[-1] + " " + word) <= per:
+            lines[-1] = lines[-1] + " " + word
+        else:
+            lines.append(word)
+    if len(lines) > 2:
+        lines = [lines[0], " ".join(lines[1:])]
+    return lines
+
+
+_wide = [(d["id"], n[1], line)
+         for d in DIAGRAMS for n in d["nodes"]
+         for line in _wrap(n[1]) if len(line) > LINE_LIMIT]
+if _wide:
+    raise AssertionError(
+        "these labels wrap to a line too long for the box, so the words would "
+        "run out past its edge. Shorten them:" + "".join(
+            f"{chr(10)}    {i}: {lab!r} -> {line!r} ({len(line)} characters)"
+            for i, lab, line in _wide))
