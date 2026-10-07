@@ -119,6 +119,50 @@ body {
   color: var(--ink-3); letter-spacing: .4px;
 }
 
+/* On a phone the bar was taking three rows: the name, the controls, then the
+   tabs. Two of those rows were mostly empty. The name shortens to the exam
+   code and shares a row with the controls, which leaves the tabs a row of
+   their own and gives a screenful of question back. */
+.topline {
+  display: flex; align-items: center; gap: 12px;
+  flex: 1 1 auto; min-width: 0;
+}
+@media (max-width: 900px) {
+  .topbar-in { padding: 8px 12px; gap: 8px; row-gap: 8px; }
+  /* One line that will not wrap, so the name and the controls share a row and
+     the tabs get the next one. It was taking five rows on a phone, which is a
+     third of the screen before a single question. */
+  .topline { flex-wrap: nowrap; gap: 8px; width: 100%; }
+  /* The name gives up room before anything else does, and tails off rather
+     than being cut through the middle of a letter. */
+  .brand { margin-right: auto; min-width: 0; flex: 1 1 0; overflow: hidden; }
+  .brand h1 {
+    font-size: 0.95rem; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .brand h1 .long { display: none; }
+  .brand .exam { display: none; }          /* the version is in the footer */
+  .tabs { width: 100%; }
+  .tabs button { flex: 1; padding: 7px 4px; text-align: center; }
+  .misschip, .bulletbtn, .tsize { flex: 0 0 auto; }
+  .lookback { flex: 0 1 auto; min-width: 0; }
+  .lookback select { min-width: 0; }
+}
+@media (max-width: 560px) {
+  .topline { gap: 6px; }
+  .misschip .word { display: none; }       /* the cross and the number say it */
+  .lookback select { padding: 5px 4px; font-size: 0.78rem; }
+  .brand h1 { font-size: 0.85rem; }
+  .tsize button { padding: 5px 7px; }
+}
+@media (max-width: 380px) {
+  /* Below this the name cannot fit without being cut through a letter, and a
+     name cut in half is worse than none. The tabs underneath say where you
+     are, and the full name and version are in the footer. */
+  .brand { display: none; }
+  .topline { gap: 5px; }
+}
+
 .tabs { display: flex; gap: 2px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
 .tabs button {
   appearance: none; border: 0; background: none; cursor: pointer;
@@ -172,7 +216,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
    a time instead of as a block */
 .bulletbtn { padding: 6px 10px; font-size: 0.82rem; }
 .bulletbtn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
-@media (max-width: 760px) { .bulletbtn .word { display: none; } }
+@media (max-width: 900px) { .bulletbtn .word { display: none; } }
 .bul { margin: 0 0 16px; padding-left: 1.15em; list-style: none; }
 .bul li {
   position: relative; margin-bottom: 0.5em;
@@ -185,7 +229,12 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 }
 .qtext.bul { font-size: 1.05rem; }
 .opt .bul { margin: 0; font-size: inherit; }
-.optletter { display: block; font-weight: 700; margin-bottom: 6px; }
+.optbul { padding-left: 1.6em; }
+.optbul li.lead::before {
+  content: attr(data-letter);
+  font-weight: 700; color: var(--ink);
+  left: -1.6em;
+}
 .optline { display: flex; align-items: stretch; gap: 8px; }
 .optline .opt { flex: 1; }
 .optspeak {
@@ -680,22 +729,24 @@ footer .v { font-family: var(--mono); }
 
 <div class="topbar">
   <div class="topbar-in">
-    <div class="brand">
-      <h1>SAA-C03 Recall Board</h1>
-      <span class="exam" id="examTag"></span>
-    </div>
-    <button class="misschip" id="missChip" hidden></button>
-    <label class="lookback">
-      <span>Showing</span>
-      <select id="lookbackSel" aria-label="Stretch of time the scores cover"></select>
-    </label>
-    <button class="btn bulletbtn" id="bulletBtn" aria-pressed="false"
-            title="Break long sentences into separate lines">
-      <span aria-hidden="true">&bull;</span><span class="word"> Bullets</span>
-    </button>
-    <div class="tsize" role="group" aria-label="Text size">
-      <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
-      <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
+    <div class="topline">
+      <div class="brand">
+        <h1>SAA-C03<span class="long"> Recall Board</span></h1>
+        <span class="exam" id="examTag"></span>
+      </div>
+      <button class="misschip" id="missChip" hidden></button>
+      <label class="lookback">
+        <span>Showing</span>
+        <select id="lookbackSel" aria-label="Stretch of time the scores cover"></select>
+      </label>
+      <button class="btn bulletbtn" id="bulletBtn" aria-pressed="false"
+              title="Break long sentences into separate lines">
+        <span aria-hidden="true">&bull;</span><span class="word"> Bullets</span>
+      </button>
+      <div class="tsize" role="group" aria-label="Text size">
+        <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
+        <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
+      </div>
     </div>
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-poster"   aria-selected="true"  aria-controls="view-poster">Poster</button>
@@ -1003,11 +1054,11 @@ footer .v { font-family: var(--mono); }
 
   var LOOKBACKS = [
     { days: 0,  label: "All time" },
-    { days: 1,  label: "Last 24 hours" },
-    { days: 3,  label: "Last 3 days" },
-    { days: 7,  label: "Last 7 days" },
-    { days: 14, label: "Last 14 days" },
-    { days: 30, label: "Last 30 days" }
+    { days: 1,  label: "24 hours" },
+    { days: 3,  label: "3 days" },
+    { days: 7,  label: "7 days" },
+    { days: 14, label: "14 days" },
+    { days: 30, label: "30 days" }
   ];
   var LOOKBACK_KEY = STORE_KEY + "/lookback";
   var lookback = 0;                    // days, 0 meaning all time
@@ -1575,6 +1626,7 @@ footer .v { font-family: var(--mono); }
   }
   var qhost = document.getElementById("qhost");
   var queue = [], qi = 0, answered = false;
+  var alreadyDone = {};          // position in the queue -> answered in this run
 
   (function fillAreas() {
     var counts = {};
@@ -1659,6 +1711,7 @@ footer .v { font-family: var(--mono); }
     cameFromRow = row.id;
     queue = shuffle(list);
     qi = 0;
+    alreadyDone = {};
     // Practice starts at the top because it is a fresh question; the poster's
     // own position is kept and restored when you go back.
     scrollPos["view-practice"] = 0;
@@ -1683,6 +1736,7 @@ footer .v { font-family: var(--mono); }
     drilling = null;
     queue = shuffle(list);
     qi = 0;
+    alreadyDone = {};
     document.getElementById("tab-practice").click();
     renderDrillBanner();
     renderQuestion();
@@ -1697,7 +1751,7 @@ footer .v { font-family: var(--mono); }
       chip.textContent = "";
       chip.appendChild(el("span", null, "✕"));
       chip.appendChild(el("b", null, String(n)));
-      chip.appendChild(el("span", null, "to revisit"));
+      chip.appendChild(el("span", "word", "to revisit"));
       chip.title = "Drill the " + n + " question" + (n === 1 ? "" : "s") + " you got wrong";
     }
   }
@@ -1724,10 +1778,12 @@ footer .v { font-family: var(--mono); }
     }
     queue = shuffle(list);
     qi = 0;
+    alreadyDone = {};
     renderDrillBanner();
   }
 
   function record(q, ok) {
+    alreadyDone[qi] = true;
     // A question the reviewers found wrong teaches nothing, so it is shown but
     // never scored: counting it would put a cross on a line you actually know.
     if (q.flag && q.flag.kind === "wrong") { updateScore(); return; }
@@ -1851,7 +1907,9 @@ footer .v { font-family: var(--mono); }
 
   function renderQuestion() {
     qhost.textContent = "";
-    answered = false;
+    // A question already answered in this run is shown as it was left: the
+    // answer out, the options not pressable, and nothing scored again.
+    answered = !!alreadyDone[qi];
     if (speech) speech.stop();   // moving on stops the last question mid-word
     if (!queue.length) return;
     if (qi >= queue.length) {
@@ -2080,9 +2138,18 @@ footer .v { font-family: var(--mono); }
           line.appendChild(sp);
         }
         var b = el("button", "opt");
-        if (bulletMode && bulletsFor(o.text).length > 1) {
-          b.appendChild(el("span", "optletter", o.shown + "."));
-          b.appendChild(textBlock(o.text, null, "p"));
+        var points = bulletMode ? bulletsFor(o.text) : [];
+        if (points.length > 1) {
+          // The letter stands in for the marker on the first point rather than
+          // taking a line of its own. Four options each losing a line is most
+          // of a phone screen back.
+          var ul = el("ul", "bul optbul");
+          points.forEach(function (piece, n) {
+            var li = el("li", n === 0 ? "lead" : null, piece);
+            if (n === 0) li.setAttribute("data-letter", o.shown + ".");
+            ul.appendChild(li);
+          });
+          b.appendChild(ul);
         } else {
           b.textContent = o.shown + ". " + o.text;
         }
@@ -2135,8 +2202,38 @@ footer .v { font-family: var(--mono); }
       card.appendChild(marks);
     }
 
+    // Coming back to one already answered: show it as it was left, with the
+    // answer out and nothing pressable, so it cannot be scored a second time.
+    if (alreadyDone[qi]) {
+      reveal.hidden = false;
+      if (typeof optBtns !== "undefined" && optBtns) {
+        optBtns.forEach(function (c) { c.disabled = true; });
+        if (typeof right !== "undefined" && right && typeof pool !== "undefined") {
+          for (var z = 0; z < optBtns.length; z++) {
+            if (pool[z] === right) optBtns[z].classList.add("pick-ok");
+          }
+        }
+      }
+      if (typeof showBtn !== "undefined" && showBtn) showBtn.hidden = true;
+      if (typeof marks !== "undefined" && marks) marks.hidden = true;
+    }
+
+    // Going back over what you have just done, to read an answer again or to
+    // see why the one before it was wrong.
+    var backBtn = el("button", "btn", "Back");
+    backBtn.style.marginTop = "14px";
+    backBtn.style.marginRight = "8px";
+    backBtn.hidden = qi === 0;
+    backBtn.addEventListener("click", function () {
+      if (qi === 0) return;
+      qi--;
+      renderQuestion(); renderBoard();
+      if (drilling) renderDrillBanner();
+    });
+    card.appendChild(backBtn);
+
     var nextBtn = el("button", "btn primary", "Next question");
-    nextBtn.hidden = true;
+    nextBtn.hidden = !alreadyDone[qi];
     nextBtn.style.marginTop = "14px";
     nextBtn.addEventListener("click", function () {
       qi++; renderQuestion(); renderBoard();
