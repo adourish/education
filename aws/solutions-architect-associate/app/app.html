@@ -1208,7 +1208,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.18.1";
+  var APP_VERSION = "1.18.2";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -3299,7 +3299,10 @@ footer .v { font-family: var(--mono); }
     weight:  { attr: "data-weight", fallback: "normal" },
     spacing: { attr: null,          fallback: "on" },
     ruler:   { attr: "data-ruler",  fallback: "off" },
-    confirm: { attr: null,          fallback: "tap" },
+    // Marking an answer and then committing it is the gentler way round, and
+    // it is what makes the reading ruler usable on a phone, so it is what a
+    // browser starts with. One tap is a tap away in the settings.
+    confirm: { attr: null,          fallback: "confirm" },
     bullets: { attr: null,          fallback: "off" }
   };
   var SET_KEY = STORE_KEY + "/settings";

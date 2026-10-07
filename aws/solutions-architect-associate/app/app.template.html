@@ -3298,7 +3298,10 @@ footer .v { font-family: var(--mono); }
     weight:  { attr: "data-weight", fallback: "normal" },
     spacing: { attr: null,          fallback: "on" },
     ruler:   { attr: "data-ruler",  fallback: "off" },
-    confirm: { attr: null,          fallback: "tap" },
+    // Marking an answer and then committing it is the gentler way round, and
+    // it is what makes the reading ruler usable on a phone, so it is what a
+    // browser starts with. One tap is a tap away in the settings.
+    confirm: { attr: null,          fallback: "confirm" },
     bullets: { attr: null,          fallback: "off" }
   };
   var SET_KEY = STORE_KEY + "/settings";
