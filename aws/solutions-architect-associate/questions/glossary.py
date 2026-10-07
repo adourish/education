@@ -69,7 +69,40 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Amazon ECR": (r"\bECR\b|Elastic Container Registry",
         "A private store for your container images. Images live in one region, so using them elsewhere means copying them."),
     "AWS Elastic Beanstalk": (r"Elastic Beanstalk",
-        "You upload code and AWS builds the servers, load balancer and scaling around it. You still own the resources it creates."),
+        "You upload code and AWS builds the servers, load balancer and scaling "
+        "around it. You still own the resources it creates, and you still pay "
+        "for them. It also owns how a new version goes out, which is where the "
+        "marks are: pick the deployment policy that matches what the question "
+        "is willing to risk."),
+    "Beanstalk deployment policies": (r"Elastic Beanstalk",
+        "How a new version replaces the old, in rising order of care and cost. "
+        "All at once is quickest and drops the service while it happens. "
+        "Rolling goes in batches and runs short of capacity meanwhile. Rolling "
+        "with an additional batch adds a batch first so full capacity is kept. "
+        "Immutable builds a whole new set of instances and throws them away if "
+        "anything is wrong. Traffic splitting is immutable plus a trial on real "
+        "traffic. Pick the first one that meets what the question will not give "
+        "up."),
+    "Beanstalk traffic splitting": (r"traffic.split",
+        "The canary. A set percentage of live traffic goes to the new version "
+        "on new instances for a stated time, and if it stays healthy the rest "
+        "follows and the old instances go. The answer whenever a question wants "
+        "a new version tried on a slice of real users with the least work, "
+        "because it is a setting rather than something to wire up: shifting "
+        "traffic by hand with load balancer rules does the same job and is more "
+        "to manage."),
+    "Immutable deployment": (r"\bimmutable\b",
+        "A whole new set of instances is built alongside the old ones, and only "
+        "when they are healthy does traffic move. If anything is wrong they are "
+        "thrown away and nothing was ever changed, which is why it is the "
+        "safest and the easiest to undo. It is the slowest, and briefly pays "
+        "for twice the instances."),
+    "Blue/green deployment": (r"blue.?green",
+        "Two complete environments, one live and one new. You test the new one, "
+        "then send traffic to it, and go back by sending it to the old one "
+        "again. In Elastic Beanstalk that is a URL swap between two "
+        "environments. The answer when going back has to be quick, or when the "
+        "change is too big to make in place."),
     "AWS Batch": (r"AWS Batch",
         "Runs large numbers of batch jobs, working out how much compute to "
         "start and when. It queues them and runs them on Fargate or EC2 "

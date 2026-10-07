@@ -1356,7 +1356,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.29.1";
+  var APP_VERSION = "1.30.0";
   var BUILD_DATE  = "2026-10-07";
   // ---------- where this exam's work is kept ----------
   //
@@ -3813,9 +3813,10 @@ footer .v { font-family: var(--mono); }
       return (mb.r + mb.w) - (ma.r + ma.w);
     });
     if (!keys.length) {
-      host.appendChild(el("p", "lede", "Nothing recorded against a category."));
+      host.appendChild(el("p", "lede", "Nothing recorded against a category yet."));
       return host;
     }
+    host.appendChild(el("p", "lede", "Right and wrong in this run, by category:"));
     keys.forEach(function (k) {
       var m = run.marks[k];
       var total = m.r + m.w;
@@ -3850,7 +3851,7 @@ footer .v { font-family: var(--mono); }
     }
 
     var open = {};
-    readSessions().forEach(function (s) { open[s.id] = true; });
+    readSessions().forEach(function (s) { open[s.id] = s; });
 
     var show = runsAllShown ? runs : runs.slice(0, RUNS_SHOWN);
     show.forEach(function (run) {
@@ -3865,32 +3866,52 @@ footer .v { font-family: var(--mono); }
       // A run whose set is still on the resume list is one you can carry on
       // with. One that is not either finished, or was forgotten.
       var live = open[run.id];
-      if (live) what += ", in progress";
-      else if (!run.finished) what += ", not finished";
+      what += live ? " \u00b7 in progress"
+                   : (run.finished ? " \u00b7 finished" : " \u00b7 not finished");
       head.appendChild(el("div", "what", what));
 
-      // "Last worked on" rather than "last answered", because a set picked
-      // up and not yet answered in has still been worked on.
-      var when = (live ? "Last worked on " : "") + whenText(run.ended);
-      if (run.of) {
-        when += " \u00b7 " + (run.reached || run.asked) + " of " + run.of;
-      }
-      if (run.device) when += " \u00b7 " + run.device;
-      head.appendChild(el("div", "when", when));
+      // Where the set has got to comes from the set when there still is one,
+      // so it cannot go stale, and from the run only once the set has gone.
+      var reached = live ? (live.qi || 0) : (run.reached || run.asked);
+      var total = live ? (live.ids || []).length : run.of;
 
-      head.appendChild(el("div", "score", run.asked
-        ? run.right + "/" + run.asked + "  " + share + "%"
-        : "not scored"));
+      var when = [];
+      if (total) when.push("Question " + (reached + 1) + " of " + total);
+      when.push((live ? "last worked on " : "") + whenText(run.ended));
+      if (run.device) when.push(run.device);
+      head.appendChild(el("div", "when", when.join(" \u00b7 ")));
+
+      // One number in the corner, and the words for it underneath, rather
+      // than two pairs of numbers side by side meaning different things.
+      var chip = el("div", "score", run.asked ? share + "%" : "not scored");
+      if (run.asked) chip.title = run.right + " right of " + run.asked + " answered";
+      head.appendChild(chip);
       box.appendChild(head);
 
       var inner = el("div", "inner");
-      if (run.untracked) {
+      if (run.asked) {
         inner.appendChild(el("p", "lede",
-          run.untracked + (run.untracked === 1 ? " answer" : " answers")
+          run.right + " right of " + run.asked +
+          (run.asked === 1 ? " answered" : " answered") + " in this run."));
+      }
+
+      // Answers in this set given before runs were recorded. Worked out here
+      // rather than trusted from the run, for the same reason as the position.
+      var missing = Math.max(0, reached - run.asked);
+      if (missing) {
+        inner.appendChild(el("p", "lede",
+          missing + (missing === 1 ? " earlier answer" : " earlier answers")
           + " in this set came before runs were recorded, so "
-          + (run.untracked === 1 ? "it is" : "they are")
+          + (missing === 1 ? "it is" : "they are")
           + " in your totals but not in the figures here."));
       }
+
+      if (live) {
+        var go = el("button", "btn primary", "Carry on");
+        go.addEventListener("click", function () { resumeSession(live); });
+        inner.appendChild(go);
+      }
+
       inner.appendChild(runBreakdown(run));
       box.appendChild(inner);
       host.appendChild(box);
