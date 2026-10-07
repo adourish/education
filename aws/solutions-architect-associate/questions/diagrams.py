@@ -19,6 +19,10 @@ hundred bytes each and work in high contrast and on a phone.
     nodes:  [id, label, kind]   kind is one of the KINDS below
     edges:  [from, to, label]
     when:   every service named here must appear in the answer
+    words:  a phrase that must appear in the answer, for the arrangements that
+            are an idea rather than a set of services. Many answers name no
+            service at all and are still about something worth drawing: an
+            alarm that does something, a role borrowed across accounts.
     unless: no service named here may appear
 """
 
@@ -551,7 +555,208 @@ DIAGRAMS = [
                 "their administrators. It never grants anything, and it does not apply to "
                 "the management account.",
     },
+    {
+        "id": "cw-alarm-action",
+        "title": "A measurement that sets something off",
+        "words": "alarm|CloudWatch metric|custom metric",
+        "nodes": [["src", "What is being watched", "compute"],
+                  ["cw", "CloudWatch metric", "store"],
+                  ["al", "Alarm", "net"], ["act", "Notify or scale", "compute"]],
+        "edges": [["src", "cw", "sends the number"], ["cw", "al", "crosses the line"],
+                  ["al", "act", "does something"]],
+        "note": "Memory used and disk space left are not there until the agent is installed; "
+                "processor use and network are. An alarm can notify, scale a group, or stop "
+                "or restart an instance.",
+    },
+    {
+        "id": "cloudtrail-audit",
+        "title": "A record of who did what",
+        "words": "CloudTrail",
+        "nodes": [["api", "Every API call", "actor"], ["ct", "CloudTrail", "net"],
+                  ["s3", "S3 bucket", "store"], ["cw", "CloudWatch Logs", "store"]],
+        "edges": [["api", "ct", "recorded"], ["ct", "s3", "kept"], ["ct", "cw", "watched live"]],
+        "note": "CloudTrail is who called what and when. CloudWatch is how things are "
+                "performing. Config is what the settings were and whether they are allowed.",
+    },
+    {
+        "id": "config-rules",
+        "title": "Settings checked against the rules",
+        "words": "AWS Config|Config rule|conformance pack",
+        "nodes": [["res", "Resources", "compute"], ["cfg", "AWS Config", "net"],
+                  ["rule", "Rules", "net"], ["fix", "Report or put right", "compute"]],
+        "edges": [["res", "cfg", "settings recorded"], ["cfg", "rule", "checked"],
+                  ["rule", "fix", "when a rule is broken"]],
+        "note": "It keeps the history of how a thing was set up, so it can answer what changed "
+                "and when, and can put some things back on its own.",
+    },
+    {
+        "id": "cross-account-role",
+        "title": "Reaching into another account without a second login",
+        "words": "cross-account|another account|assume|AssumeRole|trust polic",
+        "nodes": [["u", "User in account A", "actor"], ["role", "Role in account B", "net"],
+                  ["res", "Resources in B", "store"]],
+        "edges": [["u", "role", "assumes it"], ["role", "res", "temporary credentials"]],
+        "note": "The role in B says who may assume it; the policy in A says its people may "
+                "ask. No keys are copied anywhere, and the credentials expire on their own.",
+    },
+    {
+        "id": "resource-policy",
+        "title": "A rule attached to the thing itself",
+        "words": "bucket policy|resource-based polic|resource polic|key polic",
+        "nodes": [["other", "Another account or service", "actor"],
+                  ["pol", "Policy on the resource", "net"], ["res", "Bucket, queue or key", "store"]],
+        "edges": [["other", "pol", "asks"], ["pol", "res", "allows or refuses"]],
+        "note": "A policy on the resource says who may use it and must name who. An identity "
+                "policy says what one person may do. Across accounts you need both ends.",
+    },
+    {
+        "id": "interface-endpoint",
+        "title": "Reaching a service privately from inside a VPC",
+        "words": "interface endpoint|PrivateLink",
+        "nodes": [["ec2", "Private subnet", "compute"],
+                  ["eni", "Interface endpoint", "net"], ["svc", "The service", "store"]],
+        "edges": [["ec2", "eni", "a private address in your subnet"], ["eni", "svc", "never leaves AWS"]],
+        "note": "An interface endpoint is a network card in your own subnet, and is charged "
+                "by the hour and by the traffic. The free gateway kind exists only for S3 "
+                "and DynamoDB.",
+    },
+    {
+        "id": "lifecycle-tiers",
+        "title": "Objects moved to cheaper storage as they age",
+        "words": "lifecycle|Intelligent-Tiering|Standard-IA|One Zone",
+        "nodes": [["hot", "S3 Standard", "store"], ["warm", "Infrequent access", "store"],
+                  ["cold", "Archive", "store"]],
+        "edges": [["hot", "warm", "after 30 days"], ["warm", "cold", "later"]],
+        "note": "A rule goes by age alone and moves everything on the same day. Where some "
+                "old objects stay popular, Intelligent-Tiering decides for each object "
+                "instead and charges no retrieval fee.",
+    },
+    {
+        "id": "backup-vault",
+        "title": "Backups made and kept to a plan",
+        "words": "AWS Backup|backup plan|backup vault|point-in-time",
+        "nodes": [["res", "EBS, RDS, EFS, DynamoDB", "store"], ["plan", "Backup plan", "net"],
+                  ["vault", "Vault, with a lock", "store"]],
+        "edges": [["plan", "res", "on a schedule"], ["res", "vault", "copies kept"]],
+        "note": "One plan across several services, and a vault lock nobody can delete from, "
+                "including an administrator. That is what regulator questions are after.",
+    },
+    {
+        "id": "cost-tools",
+        "title": "Seeing and holding down what is being spent",
+        "words": "Cost Explorer|Budgets|Cost and Usage|Trusted Advisor|cost allocation tag",
+        "nodes": [["use", "What is running", "compute"], ["ce", "Cost Explorer", "net"],
+                  ["bud", "Budgets", "net"], ["who", "An alert", "actor"]],
+        "edges": [["use", "ce", "where the money went"], ["ce", "bud", "a limit set"],
+                  ["bud", "who", "warns before it is passed"]],
+        "note": "Cost Explorer looks back, Budgets looks forward and warns, Trusted Advisor "
+                "points at waste. Tags are what let any of them answer by team or project.",
+    },
+    {
+        "id": "ecs-roles",
+        "title": "Two different roles on one container",
+        "words": "task role|execution role|task definition",
+        "nodes": [["task", "Task", "compute"], ["tr", "Task role", "net"],
+                  ["er", "Execution role", "net"]],
+        "edges": [["task", "tr", "what your code may call"],
+                  ["task", "er", "what pulls the image and writes the logs"]],
+        "note": "The execution role is for the agent that starts the container. The task role "
+                "is for the code inside it. Mixing them up is the point of the question.",
+    },
+    {
+        "id": "datasync-move",
+        "title": "Moving files in, over the network",
+        "words": "DataSync|Transfer Family|\\bSFTP\\b",
+        "nodes": [["src", "On-premises storage", "actor"], ["ag", "Agent or endpoint", "net"],
+                  ["dst", "S3, EFS or FSx", "store"]],
+        "edges": [["src", "ag", "reads"], ["ag", "dst", "writes, and checks it arrived"]],
+        "note": "DataSync is for moving a lot of files once or on a schedule. Transfer Family "
+                "is for carrying on speaking SFTP to something that is now a bucket.",
+    },
+    {
+        "id": "versioning-protection",
+        "title": "Keeping what was there before",
+        "words": "versioning|MFA delete|Object Lock",
+        "nodes": [["u", "Writer", "actor"], ["b", "Bucket with versioning", "store"],
+                  ["old", "Older versions", "store"]],
+        "edges": [["u", "b", "overwrites or deletes"], ["b", "old", "the previous one is kept"]],
+        "note": "A delete puts a marker on top; the object is still underneath. MFA delete "
+                "guards removing a version for good, and Object Lock stops anyone at all, "
+                "for a stated time.",
+    },
+    {
+        "id": "sg-vs-nacl",
+        "title": "Two places traffic is allowed or refused",
+        "words": "network ACL|\\bNACL\\b",
+        "nodes": [["net", "Traffic", "actor"], ["nacl", "Network ACL, on the subnet", "net"],
+                  ["sg", "Security group, on the instance", "net"], ["ec2", "Instance", "compute"]],
+        "edges": [["net", "nacl", "allow and deny, in order"],
+                  ["nacl", "sg", "allow only"], ["sg", "ec2", ""]],
+        "note": "A security group remembers the conversation, so a reply is always allowed "
+                "back. A network ACL does not, and is the only one of the two that can "
+                "refuse a single address.",
+    },
+    {
+        "id": "placement-groups",
+        "title": "Where instances sit in relation to each other",
+        "words": "placement group",
+        "nodes": [["c", "Cluster: packed, one zone", "compute"],
+                  ["s", "Spread: apart, several zones", "compute"],
+                  ["p", "Partition: in groups of racks", "compute"]],
+        "edges": [],
+        "note": "Cluster is for speed between them and is one zone, so it is wrong wherever "
+                "losing a zone matters. Spread allows seven per zone. Partition suits "
+                "systems that already cope with losing a part.",
+    },
+    {
+        "id": "scaling-policy",
+        "title": "What decides how many are running",
+        "words": "target tracking|step scaling|scheduled scaling|scaling polic|warm pool",
+        "nodes": [["m", "A measurement", "store"], ["pol", "Scaling policy", "net"],
+                  ["asg", "Auto Scaling group", "compute"]],
+        "edges": [["m", "pol", "watched"], ["pol", "asg", "adds or removes"]],
+        "note": "Target tracking keeps one number where you want it and is what to reach for. "
+                "Scheduled is for a rush you can predict. A warm pool is for instances that "
+                "take too long to start.",
+    },
+    {
+        "id": "read-scaling",
+        "title": "Taking reads off the main database",
+        "words": "read replica|reader endpoint|read traffic",
+        "nodes": [["app", "Application", "compute"], ["w", "Writer", "store"],
+                  ["r", "Readers", "store"]],
+        "edges": [["app", "w", "writes"], ["app", "r", "reads"], ["w", "r", "copied across"]],
+        "note": "For load, not for failure. Aurora has one endpoint for writing and another "
+                "that spreads reads across the replicas.",
+    },
+    {
+        "id": "sts-federation",
+        "title": "Signing in with a directory you already have",
+        "words": "federat|\\bSAML\\b|Identity Center|Single Sign-On|directory",
+        "nodes": [["u", "Staff", "actor"], ["idp", "Your directory", "net"],
+                  ["sts", "Temporary credentials", "net"], ["aws", "AWS accounts", "compute"]],
+        "edges": [["u", "idp", "signs in once"], ["idp", "sts", "vouches for them"],
+                  ["sts", "aws", "a role, for a while"]],
+        "note": "Nobody gets a user of their own in each account. The answer whenever a "
+                "question says people already have company logins and there are many "
+                "accounts.",
+    },
+    {
+        "id": "multi-region-dr",
+        "title": "A second Region, ready to take over",
+        "words": "multi-Region|another Region|second Region|pilot light|warm standby|\\bRTO\\b|\\bRPO\\b",
+        "nodes": [["u", "Users", "actor"], ["r53", "Route 53", "edge"],
+                  ["a", "Region A, live", "compute"], ["b", "Region B, waiting", "compute"]],
+        "edges": [["u", "r53", ""], ["r53", "a", "while healthy"], ["a", "b", "data copied"],
+                  ["r53", "b", "on failure"]],
+        "note": "Backup and restore is cheapest and slowest. Pilot light keeps the data warm "
+                "and the servers off. Warm standby runs a small copy. Active-active runs "
+                "both and costs the most.",
+    },
 ]
+
+
+_WORDS = {}
 
 
 def diagrams_for(answer_text: str, limit: int = 2) -> list[str]:
@@ -559,10 +764,19 @@ def diagrams_for(answer_text: str, limit: int = 2) -> list[str]:
     present = services_in(answer_text)
     hits = []
     for d in DIAGRAMS:
-        if not set(d["when"]) <= present:
+        if not set(d.get("when", [])) <= present:
             continue
         if any(s in present for s in d.get("unless", [])):
             continue
+        phrase = d.get("words")
+        if phrase:
+            if len(answer_text or "") < 70:
+                continue
+            rx = _WORDS.get(d["id"])
+            if rx is None:
+                rx = _WORDS[d["id"]] = re.compile(phrase, re.I)
+            if not rx.search(answer_text or ""):
+                continue
         hits.append(d["id"])
         if len(hits) >= limit:
             break
