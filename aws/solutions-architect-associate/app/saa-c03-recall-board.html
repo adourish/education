@@ -825,7 +825,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.12.1";
+  var APP_VERSION = "1.13.0";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -1400,20 +1400,25 @@ footer .v { font-family: var(--mono); }
   // Which set to draw from. Remembered, because it is a standing preference
   // rather than something to re-pick every session.
   var SRC_KEY = STORE_KEY + "/source";
+  // The name of each choice without its number. The number changes with what
+  // else is picked, so it is filled in afterwards rather than baked in here.
+  var SRC_LABELS = {}, AREA_LABELS = {};
+
   (function fillSources() {
     var counts = {};
     DATA.questions.forEach(function (q) { counts[q.src] = (counts[q.src] || 0) + 1; });
-    var opts = [["__all", "Every set (" + DATA.questions.length + ")"],
-                ["__star", "Reviewed only (" +
-                  DATA.questions.filter(function (q) { return q.star; }).length + ")"],
-                ["__agree", "In two or more sets (" +
-                  DATA.questions.filter(function (q) { return q.agree > 1; }).length + ")"]];
+    // The name only. The number beside it is filled in afterwards and changes
+    // with the category, so it cannot be baked into the name here.
+    var opts = [["__all", "Every set"],
+                ["__star", "Reviewed only"],
+                ["__agree", "In two or more sets"]];
     Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })
       .forEach(function (code) {
-        opts.push([code, ((DATA.sources || {})[code] || code) + " (" + counts[code] + ")"]);
+        opts.push([code, (DATA.sources || {})[code] || code]);
       });
     opts.forEach(function (o) {
       var n = el("option", null, o[1]); n.value = o[0]; srcSel.appendChild(n);
+      SRC_LABELS[o[0]] = o[1];
     });
     try {
       var saved = localStorage.getItem(SRC_KEY);
@@ -1422,6 +1427,51 @@ footer .v { font-family: var(--mono); }
     } catch (e) { /* no storage: the default stands */ }
   })();
 
+  // Each picker counts what the other one leaves, so the number beside a set
+  // is how many questions it has in the chosen category, not how many it has
+  // altogether. Picking Compute and then looking down the list of sets shows
+  // which of them actually covers compute, rather than how big each set is.
+  function relabel(sel, test, labels, other) {
+    Array.prototype.forEach.call(sel.options, function (o) {
+      var base = labels[o.value];
+      if (base === undefined) return;
+      var n = DATA.questions.filter(function (q) {
+        return other(q) && test(q, o.value);
+      }).length;
+      o.textContent = base + " (" + n + ")";
+      // A set with nothing in the chosen category cannot be drilled, so say so
+      // rather than letting it be picked and come back empty.
+      o.disabled = n === 0 && o.value !== "__weak";
+    });
+  }
+
+
+  function inPlay(q) {
+    if (drilling) {
+      return q.c.some(function (k) { return drilling.c.indexOf(k) >= 0; });
+    }
+    return inArea(q, areaSel.value);
+  }
+
+  function relabelAll() {
+    relabel(srcSel, fromSource, SRC_LABELS, inPlay);
+    relabel(areaSel, inArea, AREA_LABELS,
+            function (q) { return fromSource(q, srcSel.value); });
+
+    // If the pair that is now chosen has nothing in it, widen the set rather
+    // than leave a choice selected that cannot be drilled.
+    if (srcSel.selectedIndex >= 0 && srcSel.options[srcSel.selectedIndex].disabled) {
+      srcSel.value = "__all";
+      try { localStorage.setItem(SRC_KEY, srcSel.value); } catch (e) { /* fine */ }
+      relabel(areaSel, inArea, AREA_LABELS,
+              function (q) { return fromSource(q, srcSel.value); });
+    }
+  }
+
+  areaSel.addEventListener("change", function () {
+    buildQueue(); renderQuestion();
+  });
+
   srcSel.addEventListener("change", function () {
     try { localStorage.setItem(SRC_KEY, srcSel.value); } catch (e) { /* fine */ }
     buildQueue(); renderQuestion();
@@ -1429,12 +1479,20 @@ footer .v { font-family: var(--mono); }
 
   // The provider filter applies everywhere questions are drawn, including a
   // drill started from a poster line.
-  function inChosenSource(q) {
-    var pick = srcSel.value;
+  function fromSource(q, pick) {
     if (pick === "__all") return true;
     if (pick === "__star") return !!q.star;
     if (pick === "__agree") return q.agree > 1;
     return q.src === pick;
+  }
+  function inChosenSource(q) { return fromSource(q, srcSel.value); }
+
+  function inArea(q, pick) {
+    if (pick === "__all") return true;
+    if (pick === "__weak") {
+      return q.c.some(function (k) { return conceptState(k) === "bad"; });
+    }
+    return q.area === pick;
   }
   var qhost = document.getElementById("qhost");
   var queue = [], qi = 0, answered = false;
@@ -1442,16 +1500,20 @@ footer .v { font-family: var(--mono); }
   (function fillAreas() {
     var counts = {};
     DATA.questions.forEach(function (q) { counts[q.area] = (counts[q.area] || 0) + 1; });
-    var opts = [["__all", "Everything (" + DATA.questions.length + ")"]];
+    var opts = [["__all", "Everything"]];
     Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })
       .forEach(function (a) {
-        opts.push([a, (DATA.areaTitles[a] || a) + " (" + counts[a] + ")"]);
+        opts.push([a, DATA.areaTitles[a] || a]);
       });
     opts.push(["__weak", "Just my weak spots"]);
     opts.forEach(function (o) {
       var n = el("option", null, o[1]); n.value = o[0]; areaSel.appendChild(n);
+      AREA_LABELS[o[0]] = o[1];
     });
   })();
+
+  // Both pickers exist now, so the numbers can go on.
+  relabelAll();
 
   function shuffle(a) {
     for (var i = a.length - 1; i > 0; i--) {
@@ -1484,6 +1546,7 @@ footer .v { font-family: var(--mono); }
   }
 
   function renderDrillBanner() {
+    relabelAll();
     drillBanner.textContent = "";
     if (!drilling) { drillBanner.hidden = true; return; }
     drillBanner.hidden = false;
