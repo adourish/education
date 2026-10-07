@@ -304,6 +304,12 @@ body {
 
 /* a row of choices, one of which is on */
 /* a mock exam in progress: the clock, and how far through you are */
+/* the offer to pick a half-finished set back up */
+.resume {
+  border: 2px solid var(--amber); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 14px;
+}
+.resume .what { margin-bottom: 12px; line-height: 1.6; }
 .mockbar {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   border: 2px solid var(--cyan); border-radius: var(--radius);
@@ -1032,6 +1038,7 @@ footer .v { font-family: var(--mono); }
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
         <button class="btn" id="mockBtn">Sit a mock exam</button>
       </div>
+      <div id="resumeBar" hidden></div>
       <div id="drillBanner" hidden></div>
       <div id="mockBar" hidden></div>
       <div class="scorebar" id="practiceScore" style="margin-bottom:14px"></div>
@@ -1239,7 +1246,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.19.0";
+  var APP_VERSION = "1.20.0";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -2135,6 +2142,167 @@ footer .v { font-family: var(--mono); }
     });
   }
 
+  // ---------- picking up where you left off ----------
+  // Closing the tab in the middle of a set, or a phone deciding to drop the
+  // page while you answer the door, used to mean starting that set again. The
+  // set you were on is written down as you go: which questions, how far
+  // through, what you had already answered, and the clock if it was a mock.
+  //
+  // Only the question ids are kept, not the questions, so the record stays
+  // small and can never disagree with the question bank.
+  var SESSION_KEY = STORE_KEY + "/session";
+  var resumeBar = document.getElementById("resumeBar");
+  var sessionReady = false;        // nothing is written until the page is up
+
+  function saveSession() {
+    if (!sessionReady || !storageOK) return;
+    try {
+      if (!queue.length || qi >= queue.length) {
+        localStorage.removeItem(SESSION_KEY);
+        return;
+      }
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        at: stampNow(),
+        ids: queue.map(function (q) { return q.id; }),
+        qi: qi,
+        done: alreadyDone,
+        area: areaSel.value,
+        src: srcSel.value,
+        drill: drilling ? drilling.id : null,
+        mock: mock.on ? { ends: mock.ends, given: mock.given } : null
+      }));
+    } catch (e) { /* no room, or no storage: the set simply will not be kept */ }
+  }
+
+  function readSession() {
+    try {
+      var s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+      if (!s || !s.ids || !s.ids.length) return null;
+      if (!(s.qi >= 0) || s.qi >= s.ids.length) return null;
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function howLongAgo(when) {
+    var mins = (Date.now() - stampSeconds(when) * 1000) / 60000;
+    if (mins < 2) return "a moment ago";
+    if (mins < 60) return Math.round(mins) + " minutes ago";
+    var hours = mins / 60;
+    if (hours < 24) return Math.round(hours) + (Math.round(hours) === 1 ? " hour ago" : " hours ago");
+    var days = Math.round(hours / 24);
+    return days === 1 ? "yesterday" : days + " days ago";
+  }
+
+  function describeSession(s) {
+    if (s.mock) return "a mock exam";
+    if (s.drill) {
+      var row = null;
+      DATA.sections.forEach(function (sec) {
+        sec.rows.forEach(function (r) { if (r.id === s.drill) row = r; });
+      });
+      return row ? "“" + row.cue + "”" : "one poster line";
+    }
+    if (s.area === "__all") return "every category";
+    if (s.area === "__weak") return "your weak spots";
+    return DATA.areaTitles[s.area] || s.area;
+  }
+
+  function resumeSession(s) {
+    var byId = {};
+    DATA.questions.forEach(function (q) { byId[q.id] = q; });
+    var list = s.ids.map(function (id) { return byId[id]; }).filter(Boolean);
+    if (!list.length) { forgetSession(); return; }
+
+    // Rebuilt from ids, so a question dropped from the bank since simply is not
+    // there any more. Staying on the same question means counting how many of
+    // the ones before it survived.
+    var wanted = s.ids.slice(0, s.qi);
+    var stillThere = wanted.filter(function (id) { return byId[id]; }).length;
+
+    queue = list;
+    qi = Math.min(stillThere, queue.length - 1);
+    alreadyDone = s.done || {};
+
+    drilling = null;
+    if (s.drill) {
+      DATA.sections.forEach(function (sec) {
+        sec.rows.forEach(function (r) { if (r.id === s.drill) drilling = r; });
+      });
+    }
+
+    if (s.area) areaSel.value = s.area;
+    if (s.src) srcSel.value = s.src;
+
+    mock.on = false;
+    if (s.mock) {
+      mock.given = s.mock.given || {};
+      mock.ends = s.mock.ends;
+      if (Date.now() >= mock.ends) {
+        // The clock ran out while the tab was closed. The paper is marked as it
+        // stood, because pretending otherwise would hand back time that the
+        // real exam would not.
+        mock.on = true;
+        hideResume();
+        document.getElementById("tab-practice").click();
+        finishMock(true);
+        return;
+      }
+      mock.on = true;
+      if (mock.tick) clearInterval(mock.tick);
+      mock.tick = setInterval(renderMockBar, 1000);
+    }
+
+    hideResume();
+    document.getElementById("tab-practice").click();
+    renderDrillBanner();
+    renderQuestion();
+    renderMockBar();
+    updateScore();
+  }
+
+  function forgetSession() {
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* fine */ }
+    hideResume();
+  }
+
+  function hideResume() {
+    resumeBar.hidden = true;
+    resumeBar.textContent = "";
+  }
+
+  function offerResume() {
+    var s = readSession();
+    if (!s) { hideResume(); return; }
+
+    var box = el("div", "resume");
+    var left = s.ids.length - s.qi;
+    var what = describeSession(s);
+    var line = "You were " + (s.qi + 1) + " of " + s.ids.length + " through " + what +
+      ", " + howLongAgo(s.at) + ".";
+
+    if (s.mock) {
+      var secs = Math.max(0, Math.round((s.mock.ends - Date.now()) / 1000));
+      line += secs > 0
+        ? " There " + (secs < 120 ? "is" : "are") + " " +
+          (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") + " left on the clock."
+        : " The clock has run out, so it will be marked as it stands.";
+    }
+
+    box.appendChild(el("div", "what", line));
+    var go = el("button", "btn primary", "Carry on");
+    go.addEventListener("click", function () { resumeSession(s); });
+    box.appendChild(go);
+    var drop = el("button", "btn", "Start something else");
+    drop.style.marginLeft = "8px";
+    drop.addEventListener("click", forgetSession);
+    box.appendChild(drop);
+
+    resumeBar.textContent = "";
+    resumeBar.appendChild(box);
+    resumeBar.hidden = false;
+    // Only the questions left count as unanswered; nothing is scored by this.
+    void left;
+  }
   // ---------- a mock exam ----------
   // Sixty-five questions in a hundred and thirty minutes, drawn in the same
   // proportions the real paper uses, with nothing marked until the end. The
@@ -2230,6 +2398,7 @@ footer .v { font-family: var(--mono); }
     }
     mock.on = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+    forgetSession();
     renderMockBar();
     renderMockResult(ranOut);
   }
@@ -2379,6 +2548,7 @@ footer .v { font-family: var(--mono); }
     recompute();
 
     saveState();
+    saveSession();
     maybeRepromptStorage();
     refreshMissChip();
     updateScore();
@@ -2874,10 +3044,11 @@ footer .v { font-family: var(--mono); }
 
     qhost.appendChild(card);
     updateScore();
+    saveSession();
   }
 
   document.getElementById("startBtn").addEventListener("click", function () {
-    buildQueue(); renderQuestion();
+    hideResume(); buildQueue(); renderQuestion();
   });
   document.getElementById("shuffleBtn").addEventListener("click", function () {
     buildQueue(); renderQuestion();
@@ -3495,6 +3666,12 @@ footer .v { font-family: var(--mono); }
   renderBoard();
   refreshMissChip();
   updateScore();
+
+  // Everything is drawn and every control is wired, so from here the set being
+  // worked through can be written down, and a set left half finished last time
+  // can be offered back.
+  sessionReady = true;
+  offerResume();
 
   if (!storageOK) {
     buildWarnStrip();
