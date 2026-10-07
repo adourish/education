@@ -24,23 +24,58 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Amazon EC2": (r"\bEC2\b|Elastic Compute Cloud",
         "Virtual servers rented by the second. You pick size, OS and disk, and you patch it yourself."),
     "AWS Lambda": (r"\bLambda\b(?!@)",
-        "Runs your code on a trigger with no server to manage. Billed per request and millisecond, capped at 15 minutes."),
+        "Runs your code on a trigger with no server to manage. Billed per "
+        "request and millisecond, capped at 15 minutes. It can run a container "
+        "image as well as a zip, so an existing Docker image is no reason to "
+        "rule it out. Nothing to patch and no cluster, which makes it the least "
+        "to manage of anything that runs code."),
     "Lambda@Edge": (r"Lambda@Edge",
         "Lambda functions that run at CloudFront edge locations, close to the viewer, so a request can be changed or answered without reaching your origin."),
+    "Lambda container image": (r"container image|image to Lambda|Lambda[^.]{0,40}container",
+        "Lambda can run a container image, up to 10 GB, instead of a zip of "
+        "code. So an application that already ships as a Docker image is not "
+        "shut out of Lambda: that is what a question means when it says the "
+        "company is willing to change the image, because the image has to use "
+        "the Lambda runtime interface. The 15-minute limit still applies. It is "
+        "the least to manage of any way of running a container, because there "
+        "is no cluster at all."),
+    "Choosing where a container runs": (r"container|Docker",
+        "Least to manage first. Lambda, where there is no cluster at all, if "
+        "the job finishes inside 15 minutes. Then ECS on Fargate: no servers, "
+        "but a cluster, a task definition and a service to set up. Then EKS on "
+        "Fargate, which is that plus Kubernetes. Then ECS or EKS on EC2, where "
+        "the instances are yours to patch and scale. Work down the list and "
+        "stop at the first one that fits. What pushes you down it: a job longer "
+        "than 15 minutes, something that must stay running, a need for "
+        "Kubernetes by name, or a need for particular hardware such as a GPU."),
     "Amazon ECS": (r"\bECS\b|Elastic Container Service",
-        "AWS's own container orchestrator: it runs and schedules Docker containers for you."),
+        "AWS's own container orchestrator: it runs and schedules Docker "
+        "containers for you. Simpler than Kubernetes and the one to reach for "
+        "unless a question names Kubernetes. Run it on Fargate for no servers, "
+        "or on EC2 when you need to choose the hardware."),
     "Amazon EKS": (r"\bEKS\b|Elastic Kubernetes",
-        "Managed Kubernetes. Pick this when the question says Kubernetes or kubectl, or when a team already runs Kubernetes elsewhere."),
+        "Managed Kubernetes. Pick this when the question says Kubernetes or "
+        "kubectl, or when a team already runs Kubernetes elsewhere. AWS runs "
+        "the control plane, but Kubernetes itself is still yours, so it is more "
+        "to manage than ECS and is rarely the least-overhead answer."),
     "Amazon EKS Anywhere": (r"EKS Anywhere",
         "Kubernetes managed the same way, but running on hardware you have rather than in an AWS Region, including on Snowball Edge Compute Optimized devices. The answer when a question wants a Kubernetes cluster somewhere with no reliable connection."),
     "AWS Fargate": (r"\bFargate\b",
-        "Runs containers without you managing any servers underneath. You give it a container and it finds somewhere to run it."),
+        "Runs containers without you managing any servers underneath. You give "
+        "it a container and it finds somewhere to run it. There is still a "
+        "cluster, a task definition and a service to set up, so it is more to "
+        "manage than Lambda and far less than owning the instances. The answer "
+        "when the work runs longer than 15 minutes or has to stay up."),
     "Amazon ECR": (r"\bECR\b|Elastic Container Registry",
         "A private store for your container images. Images live in one region, so using them elsewhere means copying them."),
     "AWS Elastic Beanstalk": (r"Elastic Beanstalk",
         "You upload code and AWS builds the servers, load balancer and scaling around it. You still own the resources it creates."),
     "AWS Batch": (r"AWS Batch",
-        "Runs large numbers of batch jobs, working out how much compute to start and when."),
+        "Runs large numbers of batch jobs, working out how much compute to "
+        "start and when. It queues them and runs them on Fargate or EC2 "
+        "underneath, so it adds a scheduler rather than removing the choice. "
+        "Worth it for many jobs with dependencies between them, not for one job "
+        "that runs in three minutes."),
     "Warm pool": (r"warm pool",
         "Instances kept ready beside an Auto Scaling group, stopped or running but not yet in service, so they can be put to work in seconds. The answer when a question says an instance takes a long time to start up -- a big application to install, a long boot, a cache to fill -- and scaling out therefore arrives too late. A stopped instance in the pool costs only its disk."),
     "EC2 Auto Scaling": (r"Auto Scaling|scaling polic|launch template|launch configuration",
@@ -251,8 +286,20 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "A free place to keep configuration values, with an encrypted option. No built-in rotation."),
     "AWS Certificate Manager (ACM)": (r"\bACM\b|Certificate Manager",
         "Issues and renews TLS certificates at no cost. A certificate for CloudFront must be created in the us-east-1 region."),
+    "WAF IP set": (r"IP set|IP rule set|IP match",
+        "A list of addresses and ranges that a WAF rule either allows or "
+        "refuses, holding up to ten thousand each, and a web ACL can use "
+        "several. That is what makes it the answer when a question has "
+        "thousands of addresses to let through: a network ACL stops at about "
+        "twenty rules and forty at the very most, and a security group at "
+        "sixty, so neither can hold a list that long. Changing the list is an "
+        "edit to the set, with nothing redeployed."),
     "AWS WAF": (r"\bWAF\b",
-        "A firewall for web traffic. It blocks things like SQL injection and cross-site scripting, and can rate-limit a single address."),
+        "A firewall for web traffic, attached to a load balancer, a CloudFront "
+        "distribution or an API, and checked at the edge before the request "
+        "reaches anything of yours. It blocks things like SQL injection and "
+        "cross-site scripting, can rate-limit a single address, and can allow "
+        "or refuse by IP address using an IP set."),
     "AWS Shield": (r"\bShield\b",
         "Protection against traffic floods. Standard is on for everyone at no charge. Advanced is paid, and is the one the exam means when it talks about a response team, cost protection for the bill a flood runs up, or protection beyond the network layer."),
     "AWS Shield Advanced": (r"Shield Advanced",
