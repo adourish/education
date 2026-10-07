@@ -831,7 +831,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.13.0";
+  var APP_VERSION = "1.13.1";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -1677,11 +1677,25 @@ footer .v { font-family: var(--mono); }
     var s = document.getElementById("practiceScore");
     s.textContent = "";
     if (!queue.length) { s.textContent = "Pick a category and press Start."; return; }
+
+    // How it is going in the set being drilled, not across everything ever
+    // answered. A set of one question used to sit under a running total in the
+    // forties, which says nothing about the set in front of you.
+    var right = 0, missed = 0, fresh = 0;
+    queue.forEach(function (q) {
+      var v = V.questions[q.id];
+      if (v === 1) right++;
+      else if (v === 0) missed++;
+      else fresh++;
+    });
+
     var parts = [
       ["Question", (Math.min(qi + 1, queue.length)) + " of " + queue.length],
-      ["Right", String(V.right)],
-      ["Missed", String(V.wrong)]
+      ["Right", String(right)],
+      ["Missed", String(missed)]
     ];
+    // Only worth saying while some of the set is still untouched.
+    if (fresh && (right || missed)) parts.push(["Not yet tried", String(fresh)]);
     parts.forEach(function (p) {
       var w = el("span");
       w.appendChild(document.createTextNode(p[0] + " "));
