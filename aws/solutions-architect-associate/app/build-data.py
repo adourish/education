@@ -36,9 +36,10 @@ OUT = HERE / "app-data.json"
 sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
 from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
+from diagrams import DIAGRAMS, diagrams_for  # noqa: E402
 
 # Bumped when the question set itself changes, separately from the app.
-VERSION = "1.5.0"
+VERSION = "1.6.0"
 
 # Where each question came from. The short code travels with every question so
 # the app can filter by provider; the name and note are for the picker and the
@@ -207,6 +208,9 @@ def main() -> None:
             # means separate outfits both think the exam asks it.
             "agree": len(r.get("in_origins") or [r.get("source")]),
             "flag": flag_for(r["id"]),
+            # Which shared pictures fit this answer. Matched on the answer so a
+            # diagram can never show an architecture the question rejects.
+            "dg": diagrams_for(a) or None,
         })
 
     # How many questions touch each poster line. A line nothing covers is a gap
@@ -229,6 +233,11 @@ def main() -> None:
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
         "glossary": {name: what for name, (_, what) in GLOSSARY.items()},
         "sources": dict(SOURCES.values()),
+        # Drawn by the app at display time, in the colours of whichever theme is
+        # chosen, so one picture serves every question that shares the pattern.
+        "diagrams": {d["id"]: {"title": d["title"], "nodes": d["nodes"],
+                               "edges": d["edges"], "note": d["note"]}
+                     for d in DIAGRAMS},
         # What the real paper is made of, so a mock can be drawn in the same
         # proportions rather than in whatever proportions the question sets
         # happen to hold. Kept apart from "exam", which is the exam's name.
@@ -259,6 +268,8 @@ def main() -> None:
     print(f"  {sum(1 for q in questions if q['star'])} starred as human-reviewed")
     print(f"  {sum(1 for q in questions if q['agree'] > 1)} carried by two or more publishers")
     print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
+    withdg = sum(1 for q in questions if q["dg"])
+    print(f"  {withdg} questions have a diagram, from {len(DIAGRAMS)} shared pictures")
     withterms = sum(1 for q in questions if q["t"])
     avg = sum(len(q["t"]) for q in questions) / max(len(questions), 1)
     print(f"  {withterms} questions have glossary terms, {avg:.1f} on average")
