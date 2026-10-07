@@ -1,5 +1,5 @@
 <title>SAA-C03 Recall Board</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ===========================================================================
    SAA-C03 Recall Board
@@ -75,6 +75,107 @@
   --shadow:      0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.28);
 }
 
+/* A terminal: black ground, phosphor green. Right and wrong stay cyan and
+   magenta so they never rest on green against red */
+:root[data-theme="terminal"] {
+  --ground: #000000;
+  --surface: #070b07;
+  --surface-2: #0d150d;
+  --ink: #33ff00;
+  --ink-2: #7cff5c;
+  --ink-3: #2aa800;
+  --rule: #1e4d14;
+  --rule-2: #13300d;
+  --cyan: #6cffea;
+  --cyan-soft: #04221d;
+  --magenta: #ff7ad9;
+  --magenta-soft: #2a0722;
+  --amber: #ffd166;
+  --amber-soft: #2a2208;
+  --violet: #c9a6ff;
+  --shadow: 0 0 0 1px rgba(51,255,0,.12);
+}
+
+/* The dark one a code editor opens with */
+:root[data-theme="code-dark"] {
+  --ground: #1e1e1e;
+  --surface: #252526;
+  --surface-2: #2d2d30;
+  --ink: #d4d4d4;
+  --ink-2: #a6a6a6;
+  --ink-3: #808080;
+  --rule: #3c3c3c;
+  --rule-2: #303031;
+  --cyan: #4fc1ff;
+  --cyan-soft: #10293a;
+  --magenta: #e79ddb;
+  --magenta-soft: #331b2e;
+  --amber: #dcdcaa;
+  --amber-soft: #2f2d1c;
+  --violet: #c586c0;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.35);
+}
+
+/* The light one a code editor opens with */
+:root[data-theme="code-light"] {
+  --ground: #f3f3f3;
+  --surface: #ffffff;
+  --surface-2: #eaeaea;
+  --ink: #1e1e1e;
+  --ink-2: #4b4b4b;
+  --ink-3: #737373;
+  --rule: #d0d0d0;
+  --rule-2: #e4e4e4;
+  --cyan: #0062a3;
+  --cyan-soft: #d6ecfb;
+  --magenta: #a3008f;
+  --magenta-soft: #fbe2f6;
+  --amber: #7a5c00;
+  --amber-soft: #fbf1d2;
+  --violet: #6f42c1;
+  --shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 14px rgba(0,0,0,.06);
+}
+
+/* Solarized, dark: low glare, warm paper tone for the words */
+:root[data-theme="solarized"] {
+  --ground: #002b36;
+  --surface: #073642;
+  --surface-2: #0a4552;
+  --ink: #eee8d5;
+  --ink-2: #93a1a1;
+  --ink-3: #657b83;
+  --rule: #0f4d5c;
+  --rule-2: #09404d;
+  --cyan: #4fd6c6;
+  --cyan-soft: #04333a;
+  --magenta: #ff7fb6;
+  --magenta-soft: #36121f;
+  --amber: #d8a500;
+  --amber-soft: #2f2708;
+  --violet: #b39ddb;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 4px 16px rgba(0,0,0,.3);
+}
+
+/* Everything as far apart as it will go: white on black, heavy rules */
+:root[data-theme="contrast"] {
+  --ground: #000000;
+  --surface: #000000;
+  --surface-2: #101010;
+  --ink: #ffffff;
+  --ink-2: #e0e0e0;
+  --ink-3: #bdbdbd;
+  --rule: #8a8a8a;
+  --rule-2: #5a5a5a;
+  --cyan: #56e8ff;
+  --cyan-soft: #002a33;
+  --magenta: #ff8ad8;
+  --magenta-soft: #330022;
+  --amber: #ffd34d;
+  --amber-soft: #332900;
+  --violet: #d2b3ff;
+  --shadow: 0 0 0 1px #8a8a8a;
+}
+
 * { box-sizing: border-box; }
 
 /* Everything that gets read is sized in rem against this, so the A-/A+ control
@@ -123,6 +224,52 @@ body {
    tabs. Two of those rows were mostly empty. The name shortens to the exam
    code and shares a row with the controls, which leaves the tabs a row of
    their own and gives a screenful of question back. */
+/* Reading settings. No typeface is proven best for everyone, so the choice is
+   offered rather than decided. Spacing and line length have firmer evidence
+   behind them than the typeface does, so they are offered too. */
+:root[data-font="lexend"]  { --ui: "Lexend", system-ui, sans-serif; }
+:root[data-font="system"]  { --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+:root[data-font="verdana"] { --ui: Verdana, Geneva, "DejaVu Sans", sans-serif; }
+
+:root[data-space="roomy"] body,
+:root[data-space="roomy"] .qtext,
+:root[data-space="roomy"] .opt,
+:root[data-space="roomy"] .lede,
+:root[data-space="roomy"] .why,
+:root[data-space="roomy"] .terms dd,
+:root[data-space="roomy"] .bul li { line-height: 2.1; }
+:root[data-space="roomy"] .bul li { margin-bottom: 0.75em; }
+
+/* Wider gaps between letters and words are the change with the strongest
+   evidence behind it for dyslexic readers, so it is a setting of its own. */
+:root[data-letter="wide"] body { letter-spacing: 0.055em; word-spacing: 0.16em; }
+:root[data-letter="wider"] body { letter-spacing: 0.1em; word-spacing: 0.26em; }
+
+:root[data-width="narrow"] .qtext,
+:root[data-width="narrow"] .lede,
+:root[data-width="narrow"] .why,
+:root[data-width="narrow"] .opt,
+:root[data-width="narrow"] .bul { max-width: 46ch; }
+
+/* a row of choices, one of which is on */
+.setrow { margin-bottom: 20px; }
+.setrow > .lab { display: block; font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
+.setrow > .hint { display: block; font-size: 0.84rem; color: var(--ink-2); margin-bottom: 9px; }
+.pick { display: flex; flex-wrap: wrap; gap: 7px; }
+.pick button {
+  appearance: none; cursor: pointer;
+  font: 500 0.88rem var(--ui); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 7px; padding: 8px 12px;
+}
+.pick button[aria-pressed="true"] {
+  border-color: var(--cyan); border-width: 2px; padding: 7px 11px;
+  font-weight: 700; color: var(--cyan);
+}
+.pick button[aria-pressed="true"]::before { content: "✓ "; }
+.cogbtn { padding: 6px 9px; font-size: 0.95rem; line-height: 1; }
+.modal.settings { max-width: 560px; text-align: left; }
+
 .topline {
   display: flex; align-items: center; gap: 12px;
   flex: 1 1 auto; min-width: 0;
@@ -743,7 +890,9 @@ footer .v { font-family: var(--mono); }
               title="Break long sentences into separate lines">
         <span aria-hidden="true">&bull;</span><span class="word"> Bullets</span>
       </button>
-      <div class="tsize" role="group" aria-label="Text size">
+      <button class="btn cogbtn" id="cogBtn" aria-haspopup="dialog"
+              aria-label="Reading settings" title="Reading settings">&#9881;</button>
+      <div class="tsize" role="group" aria-label="Text size" hidden>
         <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
         <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
       </div>
@@ -848,6 +997,84 @@ footer .v { font-family: var(--mono); }
     <p class="wrong" id="gateWrong" hidden>That is not the password.</p>
     <button class="btn primary" type="submit" style="width:100%">Open the board</button>
   </form>
+</div>
+
+<div class="modal-back" id="settingsModal" hidden>
+  <div class="modal settings" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <button class="x" id="setClose" aria-label="Close settings">&times;</button>
+  <h2 id="setTitle">Reading settings</h2>
+  <p class="lede">Nothing here changes your answers. Everything is remembered in this
+     browser, so each machine can be set up the way it suits you there.</p>
+  <div class="setrow">
+    <span class="lab">Theme</span>
+    <span class="hint">The last three come from a code editor and a terminal.</span>
+    <div class="pick" role="group" data-setting="theme">
+      <button type="button" data-value="auto">Match my device</button>
+      <button type="button" data-value="light">Light</button>
+      <button type="button" data-value="dark">Dark</button>
+      <button type="button" data-value="code-dark">Editor dark</button>
+      <button type="button" data-value="code-light">Editor light</button>
+      <button type="button" data-value="solarized">Solarized</button>
+      <button type="button" data-value="terminal">Terminal green</button>
+      <button type="button" data-value="contrast">High contrast</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Typeface</span>
+    <span class="hint">No typeface is proven best for everyone. Try each and keep the one you read fastest.</span>
+    <div class="pick" role="group" data-setting="font">
+      <button type="button" data-value="atkinson">Hyperlegible</button>
+      <button type="button" data-value="lexend">Lexend</button>
+      <button type="button" data-value="system">This device's own</button>
+      <button type="button" data-value="verdana">Verdana</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Text size</span>
+    <span class="hint"></span>
+    <div class="pick" role="group" data-setting="size">
+      <button type="button" data-value="0">Smaller</button>
+      <button type="button" data-value="1">Normal</button>
+      <button type="button" data-value="2">Large</button>
+      <button type="button" data-value="3">Larger</button>
+      <button type="button" data-value="4">Largest</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Line spacing</span>
+    <span class="hint">More air between lines makes it easier to keep your place.</span>
+    <div class="pick" role="group" data-setting="space">
+      <button type="button" data-value="normal">Normal</button>
+      <button type="button" data-value="roomy">Roomy</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Letter and word spacing</span>
+    <span class="hint">Wider gaps between letters and words is the change with the strongest evidence behind it.</span>
+    <div class="pick" role="group" data-setting="letter">
+      <button type="button" data-value="normal">Normal</button>
+      <button type="button" data-value="wide">Wider</button>
+      <button type="button" data-value="wider">Widest</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Line length</span>
+    <span class="hint">Short lines are easier to follow back to the start.</span>
+    <div class="pick" role="group" data-setting="width">
+      <button type="button" data-value="normal">Normal</button>
+      <button type="button" data-value="narrow">Short</button>
+    </div>
+  </div>
+  <div class="setrow">
+    <span class="lab">Bullet points</span>
+    <span class="hint">Breaks long questions and answers into one point per line.</span>
+    <div class="pick" role="group" data-setting="bullets">
+      <button type="button" data-value="off">Off</button>
+      <button type="button" data-value="on">On</button>
+    </div>
+  </div>
+  <p class="lede"><button class="btn" id="setReset">Put everything back as it was</button></p>
+  </div>
 </div>
 
 <div class="modal-back" id="storageModal" hidden>
@@ -2697,18 +2924,116 @@ footer .v { font-family: var(--mono); }
   });
   markLookback();
 
+  // ---------- reading settings ----------
+  // Each one is written on the html element and the stylesheet does the rest,
+  // so a setting can be added here without touching anything that renders.
+  var SETTINGS = {
+    theme:   { attr: "data-theme",  fallback: "auto" },
+    font:    { attr: "data-font",   fallback: "atkinson" },
+    size:    { attr: null,          fallback: "1" },   // the middle of TS_STEPS
+    space:   { attr: "data-space",  fallback: "normal" },
+    letter:  { attr: "data-letter", fallback: "normal" },
+    width:   { attr: "data-width",  fallback: "normal" },
+    bullets: { attr: null,          fallback: "off" }
+  };
+  var SET_KEY = STORE_KEY + "/settings";
+  var settings = {};
+
+  function loadSettings() {
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(SET_KEY) || "{}") || {}; } catch (e) { saved = {}; }
+    Object.keys(SETTINGS).forEach(function (k) {
+      settings[k] = saved[k] || SETTINGS[k].fallback;
+    });
+    // Text size and bullets both had a control of their own before this panel
+    // existed. Anything already chosen that way is carried over, so nobody
+    // opens the app to find their setting quietly reset.
+    if (!saved.bullets && bulletMode) settings.bullets = "on";
+    if (!saved.size) {
+      try {
+        var hadSize = parseInt(localStorage.getItem(TS_KEY), 10);
+        if (hadSize >= 0 && hadSize < TS_STEPS.length) settings.size = String(hadSize);
+      } catch (e) { /* the fallback stands */ }
+    }
+  }
+
+  function applySettings() {
+    var root = document.documentElement;
+    Object.keys(SETTINGS).forEach(function (k) {
+      var attr = SETTINGS[k].attr;
+      if (!attr) return;
+      // "auto" and "normal" mean leave it alone, so no attribute is written
+      // and the stylesheet keeps its own defaults.
+      if (settings[k] === SETTINGS[k].fallback) root.removeAttribute(attr);
+      else root.setAttribute(attr, settings[k]);
+    });
+
+    tsIdx = Math.max(0, Math.min(TS_STEPS.length - 1, parseInt(settings.size, 10)));
+    applyTextSize();
+
+    bulletMode = settings.bullets === "on";
+    bulletBtn.setAttribute("aria-pressed", String(bulletMode));
+
+    document.querySelectorAll(".pick[data-setting]").forEach(function (group) {
+      var key = group.getAttribute("data-setting");
+      group.querySelectorAll("button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-value") === settings[key]));
+      });
+    });
+  }
+
+  function saveSettings() {
+    try { localStorage.setItem(SET_KEY, JSON.stringify(settings)); } catch (e) { /* fine */ }
+  }
+
+  function setSetting(key, value) {
+    settings[key] = value;
+    saveSettings();
+    applySettings();
+    // Only the ones that change how a question is laid out need it redrawn,
+    // and only when one is not part-answered.
+    if (!answered) renderQuestion();
+    renderBoard();
+  }
+
+  document.querySelectorAll(".pick[data-setting]").forEach(function (group) {
+    group.addEventListener("click", function (ev) {
+      var b = ev.target.closest("button[data-value]");
+      if (b) setSetting(group.getAttribute("data-setting"), b.getAttribute("data-value"));
+    });
+  });
+
+  var settingsModal = document.getElementById("settingsModal");
+  function openSettings() { settingsModal.hidden = false; }
+  function closeSettings() { settingsModal.hidden = true; }
+  document.getElementById("cogBtn").addEventListener("click", openSettings);
+  document.getElementById("setClose").addEventListener("click", closeSettings);
+  settingsModal.addEventListener("click", function (ev) {
+    if (ev.target === settingsModal) closeSettings();
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape" && !settingsModal.hidden) closeSettings();
+  });
+  document.getElementById("setReset").addEventListener("click", function () {
+    Object.keys(SETTINGS).forEach(function (k) { settings[k] = SETTINGS[k].fallback; });
+    saveSettings();
+    applySettings();
+    if (!answered) renderQuestion();
+    renderBoard();
+  });
+
   // ---------- the bullets switch ----------
   var bulletBtn = document.getElementById("bulletBtn");
   bulletBtn.setAttribute("aria-pressed", String(bulletMode));
   bulletBtn.addEventListener("click", function () {
-    bulletMode = !bulletMode;
-    try { localStorage.setItem(BULLET_KEY, bulletMode ? "1" : "0"); } catch (e) { /* fine */ }
-    bulletBtn.setAttribute("aria-pressed", String(bulletMode));
     // Redrawing a question that has been answered would clear the answer and
-    // let it be answered a second time, so a question in progress is left
-    // alone and the change shows on the next one.
-    if (!answered) renderQuestion();
+    // let it be answered a second time, so setSetting leaves a question in
+    // progress alone and the change shows on the next one.
+    setSetting("bullets", bulletMode ? "off" : "on");
   });
+
+  loadSettings();
+  applySettings();
 
   // ---------- boot ----------
   // One version in the header, and it is this app's own: a number sitting next
