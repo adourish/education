@@ -475,7 +475,11 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   position: sticky; bottom: 12px; z-index: 5;
   box-shadow: var(--shadow);
 }
-.confirmbtn:disabled { opacity: .55; cursor: default; box-shadow: none; }
+.confirmbtn:disabled {
+  cursor: default;
+  background: var(--surface-2); color: var(--ink-3);
+  border-color: var(--rule);
+}
 .lookback {
   display: flex; align-items: center; gap: 7px;
   font: 500 0.82rem var(--ui); color: var(--ink-2);
@@ -737,6 +741,21 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .qtools .btn { margin-bottom: 0; }
 .speakbtn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
 .hintbtn { margin-bottom: 14px; }
+/* a shared architecture picture, drawn from a few boxes and arrows */
+.diagrams {
+  margin: 0 0 16px;
+  border: 1px solid var(--rule);
+  border-left: 5px solid var(--cyan);
+  border-radius: 8px;
+  background: var(--ground);
+  padding: 14px 16px;
+}
+.diagrams h5 { margin: 0 0 4px; font-size: 0.9rem; }
+.diagrams .dgnote { margin: 8px 0 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; }
+.diagrams .one + .one { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 16px; }
+.dgsvg { width: 100%; max-width: 560px; height: auto; display: block; margin: 8px 0 0; }
+.dgnode { font: 500 11px var(--ui); fill: var(--ink); }
+.dgedge { font: 400 9px var(--ui); fill: var(--ink-3); }
 .terms {
   margin: 0 0 16px;
   border: 1px solid var(--rule);
@@ -2132,6 +2151,169 @@ footer .v { font-family: var(--mono); }
     });
   }
 
+  // ---------- drawing a shared architecture picture ----------
+  // The data holds a handful of boxes and arrows, not a rendering, so one
+  // picture costs a few hundred bytes and is drawn here in whatever colours
+  // the chosen theme uses. That is what makes it work in high contrast and in
+  // the green terminal without a second copy of anything.
+  //
+  // The shape of a box carries its meaning as well as its colour does, because
+  // colour alone is never enough.
+  var DIAGRAM_KIND = {
+    actor:   { round: 14, dash: "" },
+    edge:    { round: 4,  dash: "" },
+    compute: { round: 4,  dash: "" },
+    store:   { round: 4,  dash: "5 3" },
+    queue:   { round: 10, dash: "2 3" },
+    net:     { round: 4,  dash: "" }
+  };
+
+  function svgEl(name, attrs) {
+    var n = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
+  }
+
+  // Two lines at most, broken on a space, so a box never grows taller than the
+  // row it sits in.
+  function wrapLabel(text, perLine) {
+    var words = String(text).split(" ");
+    var lines = [""];
+    words.forEach(function (w) {
+      var line = lines[lines.length - 1];
+      if (!line) { lines[lines.length - 1] = w; return; }
+      if ((line + " " + w).length <= perLine) lines[lines.length - 1] = line + " " + w;
+      else lines.push(w);
+    });
+    if (lines.length > 2) lines = [lines[0], lines.slice(1).join(" ")];
+    return lines;
+  }
+
+  function drawDiagram(spec, roomAcross) {
+    var BOX_W = 150, BOX_H = 44, GAP_X = 56, GAP_Y = 18, PAD = 6;
+
+    // How wide it would be laid out across the page. Past the room available it
+    // would be scaled down to fit, and a picture scaled until its labels cannot
+    // be read is no use, so it goes down the page instead.
+
+    // Which column each box belongs in: one further along than whatever points
+    // at it. A box nothing points at starts at the left.
+    var depth = {};
+    spec.nodes.forEach(function (n) { depth[n[0]] = 0; });
+    for (var pass = 0; pass < spec.nodes.length; pass++) {
+      spec.edges.forEach(function (e) {
+        if (depth[e[1]] !== undefined && depth[e[0]] !== undefined) {
+          depth[e[1]] = Math.max(depth[e[1]], depth[e[0]] + 1);
+        }
+      });
+    }
+
+    var columns = {};
+    spec.nodes.forEach(function (n) {
+      (columns[depth[n[0]]] = columns[depth[n[0]]] || []).push(n);
+    });
+    var columnKeys = Object.keys(columns).map(Number).sort(function (a, b) { return a - b; });
+    var tallest = Math.max.apply(null, columnKeys.map(function (c) { return columns[c].length; }));
+
+    var across = PAD * 2 + columnKeys.length * BOX_W + (columnKeys.length - 1) * GAP_X;
+    var downwards = across > (roomAcross || 560);
+
+    var place = {};
+    columnKeys.forEach(function (c, step) {
+      var stack = columns[c];
+      var blockSize = stack.length * (downwards ? BOX_W : BOX_H) +
+                      (stack.length - 1) * (downwards ? GAP_X : GAP_Y);
+      var fullSize = tallest * (downwards ? BOX_W : BOX_H) +
+                     (tallest - 1) * (downwards ? GAP_X : GAP_Y);
+      stack.forEach(function (n, lane) {
+        var offset = PAD + (fullSize - blockSize) / 2 + lane * (downwards ? BOX_W + GAP_X : BOX_H + GAP_Y);
+        place[n[0]] = downwards
+          ? { x: offset, y: PAD + step * (BOX_H + GAP_Y + 14), node: n }
+          : { x: PAD + step * (BOX_W + GAP_X), y: offset, node: n };
+      });
+    });
+
+    var width = downwards
+      ? PAD * 2 + tallest * BOX_W + (tallest - 1) * GAP_X
+      : across;
+    var height = downwards
+      ? PAD * 2 + columnKeys.length * (BOX_H + GAP_Y + 14)
+      : PAD * 2 + tallest * BOX_H + (tallest - 1) * GAP_Y;
+
+    var svg = svgEl("svg", {
+      viewBox: "0 0 " + width + " " + height,
+      role: "img",
+      "aria-label": spec.title,
+      class: "dgsvg"
+    });
+
+    var defs = svgEl("defs");
+    var marker = svgEl("marker", {
+      id: "dgarrow", viewBox: "0 0 8 8", refX: "7", refY: "4",
+      markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse"
+    });
+    marker.appendChild(svgEl("path", { d: "M0,0 L8,4 L0,8 z", fill: "var(--ink-2)" }));
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    // Arrows first, so a box always sits on top of a line.
+    spec.edges.forEach(function (e) {
+      var a = place[e[0]], b = place[e[1]];
+      if (!a || !b) return;
+      var x1, y1, x2, y2;
+      if (downwards) {
+        x1 = a.x + BOX_W / 2; y1 = a.y + BOX_H;
+        x2 = b.x + BOX_W / 2; y2 = b.y;
+      } else {
+        x1 = a.x + BOX_W; y1 = a.y + BOX_H / 2;
+        x2 = b.x; y2 = b.y + BOX_H / 2;
+        if (b.x <= a.x) {          // pointing back, or within one column
+          x1 = a.x + BOX_W / 2; y1 = a.y + BOX_H;
+          x2 = b.x + BOX_W / 2; y2 = b.y;
+        }
+      }
+      var mx = (x1 + x2) / 2;
+      svg.appendChild(svgEl("path", {
+        d: "M" + x1 + "," + y1 + " C" + mx + "," + y1 + " " + mx + "," + y2 + " " + x2 + "," + y2,
+        fill: "none", stroke: "var(--ink-2)", "stroke-width": "1.4",
+        "marker-end": "url(#dgarrow)"
+      }));
+      if (e[2]) {
+        var label = svgEl("text", {
+          x: (x1 + x2) / 2 + (downwards ? 6 : 0),
+          y: (y1 + y2) / 2 + (downwards ? 3 : -4),
+          "text-anchor": downwards ? "start" : "middle", class: "dgedge"
+        });
+        label.textContent = e[2];
+        svg.appendChild(label);
+      }
+    });
+
+    spec.nodes.forEach(function (n) {
+      var at = place[n[0]];
+      var kind = DIAGRAM_KIND[n[2]] || DIAGRAM_KIND.compute;
+      var box = svgEl("rect", {
+        x: at.x, y: at.y, width: BOX_W, height: BOX_H,
+        rx: kind.round, ry: kind.round,
+        fill: "var(--surface)", stroke: "var(--cyan)", "stroke-width": "1.6"
+      });
+      if (kind.dash) box.setAttribute("stroke-dasharray", kind.dash);
+      svg.appendChild(box);
+
+      var lines = wrapLabel(n[1], 22);
+      lines.forEach(function (line, i) {
+        var tx = svgEl("text", {
+          x: at.x + BOX_W / 2,
+          y: at.y + BOX_H / 2 + (lines.length === 1 ? 4 : i * 12 - 2),
+          "text-anchor": "middle", class: "dgnode"
+        });
+        tx.textContent = line;
+        svg.appendChild(tx);
+      });
+    });
+
+    return svg;
+  }
   // ---------- picking up where you left off ----------
   // Closing the tab in the middle of a set, or a phone deciding to drop the
   // page while you answer the door, used to mean starting that set again. The
@@ -2813,6 +2995,9 @@ footer .v { font-family: var(--mono); }
 
     var tools = el("div", "qtools");
     card.appendChild(tools);
+    // Boxes the buttons open. Added to the card after every button, so the
+    // buttons stay in one row and what they open appears under all of them.
+    var laterBoxes = [];
 
     // Reading aloud. Every speak button on the card goes through the same
     // toggle, so starting one stops whichever was going and no two voices
@@ -2849,6 +3034,37 @@ footer .v { font-family: var(--mono); }
       tools.appendChild(speakBtn);
     }
 
+    // The picture of the arrangement this answer describes, shared with every
+    // other question that describes the same one. Shown on asking, like the
+    // terms are, because it does give away the shape of the answer.
+    if (q.dg && q.dg.length && DATA.diagrams) {
+      var dgBox = el("div", "diagrams");
+      dgBox.hidden = true;
+      q.dg.forEach(function (id) {
+        var spec = DATA.diagrams[id];
+        if (!spec) return;
+        var one = el("div", "one");
+        one.appendChild(el("h5", null, spec.title));
+        one.appendChild(drawDiagram(spec, Math.max(280, card.clientWidth - 70)));
+        if (spec.note) one.appendChild(el("p", "dgnote", spec.note));
+        dgBox.appendChild(one);
+      });
+
+      var dgBtn = el("button", "btn dgbtn",
+        q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")" : "Show the diagram");
+      dgBtn.setAttribute("aria-expanded", "false");
+      dgBtn.addEventListener("click", function () {
+        var open = dgBox.hidden;
+        dgBox.hidden = !open;
+        dgBtn.setAttribute("aria-expanded", String(open));
+        dgBtn.textContent = open
+          ? "Hide the diagram" + (q.dg.length > 1 ? "s" : "")
+          : (q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")" : "Show the diagram");
+      });
+      tools.appendChild(dgBtn);
+      laterBoxes.push(dgBox);
+    }
+
     // A hint explains the services the question names. It never says which
     // option is right: that would answer the question instead of teaching it.
     if (q.t && q.t.length && DATA.glossary) {
@@ -2875,8 +3091,9 @@ footer .v { font-family: var(--mono); }
         hint.textContent = open ? "Hide the terms" : "Explain the terms (" + q.t.length + ")";
       });
       tools.appendChild(hint);
-      card.appendChild(termsBox);
+      laterBoxes.push(termsBox);
     }
+    laterBoxes.forEach(function (b) { card.appendChild(b); });
 
     var reveal = el("div", "reveal");
     reveal.hidden = true;
