@@ -168,6 +168,24 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   .logrow { grid-template-columns: 1fr auto; row-gap: 2px; }
   .logrow .qid { grid-column: 1; }
 }
+/* bullet mode: one point per line, so a long answer can be taken a piece at
+   a time instead of as a block */
+.bulletbtn { padding: 6px 10px; font-size: 0.82rem; }
+.bulletbtn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
+@media (max-width: 760px) { .bulletbtn .word { display: none; } }
+.bul { margin: 0 0 16px; padding-left: 1.15em; list-style: none; }
+.bul li {
+  position: relative; margin-bottom: 0.5em;
+  line-height: 1.75;
+}
+.bul li:last-child { margin-bottom: 0; }
+.bul li::before {
+  content: "▪"; position: absolute; left: -1.15em;
+  color: var(--ink-3);
+}
+.qtext.bul { font-size: 1.05rem; }
+.opt .bul { margin: 0; font-size: inherit; }
+.optletter { display: block; font-weight: 700; margin-bottom: 6px; }
 .optline { display: flex; align-items: stretch; gap: 8px; }
 .optline .opt { flex: 1; }
 .optspeak {
@@ -671,6 +689,10 @@ footer .v { font-family: var(--mono); }
       <span>Showing</span>
       <select id="lookbackSel" aria-label="Stretch of time the scores cover"></select>
     </label>
+    <button class="btn bulletbtn" id="bulletBtn" aria-pressed="false"
+            title="Break long sentences into separate lines">
+      <span aria-hidden="true">&bull;</span><span class="word"> Bullets</span>
+    </button>
     <div class="tsize" role="group" aria-label="Text size">
       <button class="sm" id="tsDown" aria-label="Smaller text" title="Smaller text">A</button>
       <button class="lg" id="tsUp" aria-label="Larger text" title="Larger text">A</button>
@@ -1147,6 +1169,82 @@ footer .v { font-family: var(--mono); }
       localStorage.setItem(SEED_KEY, stamp);
     } catch (e) { /* no storage here, so nothing carries over to double up */ }
   })();
+
+  // ---------- breaking a long answer into separate lines ----------
+  // Nothing is added and nothing is taken away: every line is a slice of the
+  // original words, so what is read is exactly what was written.
+
+  var BULLET_KEY = STORE_KEY + "/bullets";
+  var bulletMode = false;
+  try { bulletMode = localStorage.getItem(BULLET_KEY) === "1"; } catch (e) { /* off */ }
+
+  // Full stops that end a sentence, as against the ones inside e.g., U.S. or
+  // an initial. A number such as 99.99 is already safe, because the full stop
+  // there is not followed by a space.
+  var ABBREVIATIONS = /(?:\b(?:e\.g|i\.e|etc|vs|approx|Inc|Ltd|Mr|Mrs|Ms|Dr|St)\.|\b[A-Z]\.|\b[A-Z]\.[A-Z]\.)$/;
+
+  function sentencesIn(text) {
+    var out = [], start = 0;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (ch !== "." && ch !== "!" && ch !== "?") continue;
+      var j = i + 1;
+      while (j < text.length && (text.charAt(j) === '"' || text.charAt(j) === ")")) j++;
+      if (j >= text.length || !/\s/.test(text.charAt(j))) continue;
+      var k = j;
+      while (k < text.length && /\s/.test(text.charAt(k))) k++;
+      if (k >= text.length || !/[A-Z(0-9]/.test(text.charAt(k))) continue;
+      if (ABBREVIATIONS.test(text.slice(start, i + 1).trim())) continue;
+      out.push(text.slice(start, k).trim());
+      start = k;
+    }
+    if (start < text.length) out.push(text.slice(start).trim());
+    return out.filter(Boolean);
+  }
+
+  function atCommas(s) {
+    if (s.length <= 60) return [s];
+    var out = [], start = 0;
+    for (var i = 0; i < s.length; i++) {
+      if (s.charAt(i) !== ",") continue;
+      if (/\d/.test(s.charAt(i - 1)) && /\d/.test(s.charAt(i + 1))) continue;   // 1,500
+      if (!/\s/.test(s.charAt(i + 1))) continue;
+      // A comma with another close by on either side belongs to a list, and
+      // cutting a list in half reads worse than leaving it whole.
+      if (s.slice(i + 1, i + 26).indexOf(",") >= 0) continue;
+      if (s.slice(Math.max(0, i - 25), i).indexOf(",") >= 0) continue;
+      // A short run-up such as "To recover from a disaster," is part of what
+      // follows it and reads badly alone, so the piece before the comma has to
+      // be substantial. A short tail such as "and configure routing." stands on
+      // its own perfectly well, so that one is allowed to be brief.
+      if (i + 1 - start < 30) continue;
+      if (s.length - (i + 1) < 15) continue;
+      out.push(s.slice(start, i + 1).trim());
+      start = i + 1;
+    }
+    out.push(s.slice(start).trim());
+    return out.filter(Boolean);
+  }
+
+  function bulletsFor(text) {
+    var pieces = [];
+    sentencesIn(String(text || "").replace(/\s+/g, " ").trim()).forEach(function (s) {
+      atCommas(s).forEach(function (piece) { pieces.push(piece); });
+    });
+    return pieces;
+  }
+
+  // A block of words, as one paragraph or as a list of points. One bullet on
+  // its own is just a sentence, so it stays a paragraph.
+  function textBlock(text, cls, tag) {
+    var pieces = bulletMode ? bulletsFor(text) : [];
+    if (pieces.length < 2) {
+      return el(tag || "p", cls, String(text || "").trim());
+    }
+    var ul = el("ul", (cls ? cls + " " : "") + "bul");
+    pieces.forEach(function (piece) { ul.appendChild(el("li", null, piece)); });
+    return ul;
+  }
 
   // ---------- helpers ----------
   function el(tag, cls, text) {
@@ -1844,7 +1942,7 @@ footer .v { font-family: var(--mono); }
         }) + ", " + (last[2] ? "and got it right." : "and missed it.")));
     }
 
-    card.appendChild(el("p", "qtext", q.q));
+    card.appendChild(textBlock(q.q, "qtext"));
 
     var tools = el("div", "qtools");
     card.appendChild(tools);
@@ -1916,9 +2014,9 @@ footer .v { font-family: var(--mono); }
     var reveal = el("div", "reveal");
     reveal.hidden = true;
     reveal.appendChild(el("h4", null, "Answer"));
-    var ansbox = el("div", "ansbox", q.a);
+    var ansbox = textBlock(q.a, "ansbox", "div");
     reveal.appendChild(ansbox);
-    if (q.why) reveal.appendChild(el("div", "why", q.why));
+    if (q.why) reveal.appendChild(textBlock(q.why, "why", "div"));
     // And one for the answer, once it is showing. Nothing reads it before
     // then, so listening cannot give the answer away early.
     if (speech) {
@@ -1981,7 +2079,13 @@ footer .v { font-family: var(--mono); }
           });
           line.appendChild(sp);
         }
-        var b = el("button", "opt", o.shown + ". " + o.text);
+        var b = el("button", "opt");
+        if (bulletMode && bulletsFor(o.text).length > 1) {
+          b.appendChild(el("span", "optletter", o.shown + "."));
+          b.appendChild(textBlock(o.text, null, "p"));
+        } else {
+          b.textContent = o.shown + ". " + o.text;
+        }
         b.addEventListener("click", function () {
           if (answered) return;
           answered = true;
@@ -2495,6 +2599,19 @@ footer .v { font-family: var(--mono); }
     updateScore();
   });
   markLookback();
+
+  // ---------- the bullets switch ----------
+  var bulletBtn = document.getElementById("bulletBtn");
+  bulletBtn.setAttribute("aria-pressed", String(bulletMode));
+  bulletBtn.addEventListener("click", function () {
+    bulletMode = !bulletMode;
+    try { localStorage.setItem(BULLET_KEY, bulletMode ? "1" : "0"); } catch (e) { /* fine */ }
+    bulletBtn.setAttribute("aria-pressed", String(bulletMode));
+    // Redrawing a question that has been answered would clear the answer and
+    // let it be answered a second time, so a question in progress is left
+    // alone and the change shows on the next one.
+    if (!answered) renderQuestion();
+  });
 
   // ---------- boot ----------
   // One version in the header, and it is this app's own: a number sitting next
