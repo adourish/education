@@ -41,6 +41,8 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "You upload code and AWS builds the servers, load balancer and scaling around it. You still own the resources it creates."),
     "AWS Batch": (r"AWS Batch",
         "Runs large numbers of batch jobs, working out how much compute to start and when."),
+    "Warm pool": (r"warm pool",
+        "Instances kept ready beside an Auto Scaling group, stopped or running but not yet in service, so they can be put to work in seconds. The answer when a question says an instance takes a long time to start up -- a big application to install, a long boot, a cache to fill -- and scaling out therefore arrives too late. A stopped instance in the pool costs only its disk."),
     "EC2 Auto Scaling": (r"Auto Scaling|scaling polic|launch template|launch configuration",
         "Adds and removes EC2 instances automatically to match demand, keeping the count between a minimum and a maximum you set."),
     "Amazon Machine Image (AMI)": (r"\bAMI\b|Amazon Machine Image",

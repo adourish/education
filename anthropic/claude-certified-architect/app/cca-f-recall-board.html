@@ -16,7 +16,7 @@
 </style>
 </head>
 <body>
-<title>SAA-C03 Recall Board</title>
+<title>CCA-F Recall Board</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ===========================================================================
@@ -776,9 +776,14 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 /* the arrangement the question starts from, marked apart from the one the
    answer proposes so the two are never mistaken for each other */
 .diagrams.asis { border-left-color: var(--ink-3); }
-.dgsvg { width: 100%; max-width: 560px; height: auto; display: block; margin: 8px 0 0; }
-.dgnode { font: 500 11px var(--ui); fill: var(--ink); }
-.dgedge { font: 400 9px var(--ui); fill: var(--ink-3); }
+/* Drawn at its own size, never stretched. The width is set in rem when the
+   picture is built, so it still grows with the text-size setting, and
+   max-width only ever shrinks it to fit a narrow screen. Before this the
+   SVG filled the column, and a tall narrow picture was scaled up two or
+   three times over, labels and all. */
+.dgsvg { max-width: 100%; height: auto; display: block; margin: 8px 0 0; }
+.dgnode { font: 500 13px var(--ui); fill: var(--ink); }
+.dgedge { font: 400 10.5px var(--ui); fill: var(--ink-3); }
 .terms {
   margin: 0 0 16px;
   border: 1px solid var(--rule);
@@ -1005,7 +1010,7 @@ footer .v { font-family: var(--mono); }
   <div class="topbar-in">
     <div class="topline">
       <div class="brand">
-        <h1>SAA-C03<span class="long"> Recall Board</span></h1>
+        <h1>CCA-F<span class="long"> Recall Board</span></h1>
         <span class="exam" id="examTag"></span>
       </div>
       <button class="misschip" id="missChip" hidden></button>
@@ -1122,7 +1127,7 @@ footer .v { font-family: var(--mono); }
 
 <div class="gate" id="gate" hidden>
   <form class="gate-card" id="gateForm">
-    <h2>SAA-C03 Recall Board</h2>
+    <h2>CCA-F Recall Board</h2>
     <p>This board is password protected. Enter the password to carry on.</p>
     <input type="password" id="gatePass" autocomplete="current-password"
            placeholder="Password" aria-label="Password">
@@ -1238,6 +1243,17 @@ footer .v { font-family: var(--mono); }
     </div>
   </div>
   <div class="setrow">
+    <span class="lab">What to call this device</span>
+    <span class="hint">Shown against any half-finished set that was begun somewhere else, so
+      a list of them tells you which is the one from your phone. Guessed from the browser
+      unless you say otherwise. It stays in this browser and in files you export yourself,
+      and is not sent anywhere.</span>
+    <p class="lede"><input type="text" id="deviceName" maxlength="32"
+      style="font: inherit; padding: 7px 10px; border-radius: 8px;
+             border: 1px solid var(--rule); background: var(--surface);
+             color: var(--ink); max-width: 16rem; width: 100%"></p>
+  </div>
+  <div class="setrow">
     <span class="lab">Bullet points</span>
     <span class="hint">Breaks long questions and answers into one point per line.</span>
     <div class="pick" role="group" data-setting="bullets">
@@ -1279,7 +1295,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.26.0";
+  var APP_VERSION = "1.27.0";
   var BUILD_DATE  = "2026-10-07";
   // ---------- where this exam's work is kept ----------
   //
@@ -1304,6 +1320,7 @@ footer .v { font-family: var(--mono); }
   var SET_KEY     = ROOT + "/settings";
   var BULLET_KEY  = ROOT + "/bullets";
   var TS_KEY      = ROOT + "/textsize";
+  var DEVICE_KEY  = ROOT + "/device";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
   var PASS_KEY    = ROOT + "/" + EXAM + "/unlocked";
   var SEED_KEY    = ROOT + "/" + EXAM + "/seed";
@@ -1392,6 +1409,44 @@ footer .v { font-family: var(--mono); }
       ix.at = stampNow();
       localStorage.setItem(INDEX_KEY, JSON.stringify(ix));
     } catch (e) { /* fine: the index is a convenience, not a record */ }
+  }
+
+  // ---------- what to call this machine ----------
+  //
+  // Once sets can come from more than one place, a list of them all saying
+  // "Networking, 8 of 71" is no use: the question is which of them is the one
+  // from your phone. So a set is stamped with where it was begun.
+  //
+  // The guess comes from what the browser says it is running on, which is
+  // coarse but needs nobody to type anything. It can be renamed in settings,
+  // and the name only ever sits in this browser and in files you export
+  // yourself: it is not sent anywhere, and nothing else can read it.
+  function guessDevice() {
+    var ua = navigator.userAgent || "";
+    if (/iPhone/i.test(ua)) return "iPhone";
+    if (/iPad/i.test(ua)) return "iPad";
+    if (/Android/i.test(ua)) return /Mobile/i.test(ua) ? "Android phone" : "Android tablet";
+    if (/Macintosh|Mac OS X/i.test(ua)) return "Mac";
+    if (/Windows/i.test(ua)) return "Windows PC";
+    if (/CrOS/i.test(ua)) return "Chromebook";
+    if (/Linux/i.test(ua)) return "Linux PC";
+    return "This device";
+  }
+
+  function deviceName() {
+    try {
+      var saved = (localStorage.getItem(DEVICE_KEY) || "").trim();
+      if (saved) return saved.slice(0, 32);
+    } catch (e) { /* fall back to the guess */ }
+    return guessDevice();
+  }
+
+  function setDeviceName(name) {
+    try {
+      name = (name || "").trim().slice(0, 32);
+      if (name) localStorage.setItem(DEVICE_KEY, name);
+      else localStorage.removeItem(DEVICE_KEY);
+    } catch (e) { /* nothing to do: the guess stands */ }
   }
 
   function knownExams() {
@@ -2312,7 +2367,7 @@ footer .v { font-family: var(--mono); }
   }
 
   function drawDiagram(spec, roomAcross) {
-    var BOX_W = 150, BOX_H = 44, GAP_X = 56, GAP_Y = 18, PAD = 6;
+    var BOX_W = 136, BOX_H = 40, GAP_X = 46, GAP_Y = 13, PAD = 4;
 
     // How wide it would be laid out across the page. Past the room available it
     // would be scaled down to fit, and a picture scaled until its labels cannot
@@ -2350,7 +2405,7 @@ footer .v { font-family: var(--mono); }
       stack.forEach(function (n, lane) {
         var offset = PAD + (fullSize - blockSize) / 2 + lane * (downwards ? BOX_W + GAP_X : BOX_H + GAP_Y);
         place[n[0]] = downwards
-          ? { x: offset, y: PAD + step * (BOX_H + GAP_Y + 14), node: n }
+          ? { x: offset, y: PAD + step * (BOX_H + GAP_Y + 10), node: n }
           : { x: PAD + step * (BOX_W + GAP_X), y: offset, node: n };
       });
     });
@@ -2359,7 +2414,7 @@ footer .v { font-family: var(--mono); }
       ? PAD * 2 + tallest * BOX_W + (tallest - 1) * GAP_X
       : across;
     var height = downwards
-      ? PAD * 2 + columnKeys.length * (BOX_H + GAP_Y + 14)
+      ? PAD * 2 + columnKeys.length * (BOX_H + GAP_Y + 10)
       : PAD * 2 + tallest * BOX_H + (tallest - 1) * GAP_Y;
 
     var svg = svgEl("svg", {
@@ -2368,6 +2423,10 @@ footer .v { font-family: var(--mono); }
       "aria-label": spec.title,
       class: "dgsvg"
     });
+    // In rem rather than pixels: at the default text size one unit of the
+    // drawing is one pixel, and at a larger text size the whole picture grows
+    // with everything else instead of staying stubbornly small.
+    svg.style.width = (width / 16) + "rem";
 
     var defs = svgEl("defs");
     var marker = svgEl("marker", {
@@ -2422,11 +2481,11 @@ footer .v { font-family: var(--mono); }
       if (kind.dash) box.setAttribute("stroke-dasharray", kind.dash);
       svg.appendChild(box);
 
-      var lines = wrapLabel(n[1], 22);
+      var lines = wrapLabel(n[1], 17);
       lines.forEach(function (line, i) {
         var tx = svgEl("text", {
           x: at.x + BOX_W / 2,
-          y: at.y + BOX_H / 2 + (lines.length === 1 ? 4 : i * 12 - 2),
+          y: at.y + BOX_H / 2 + (lines.length === 1 ? 4.5 : i * 14 - 3),
           "text-anchor": "middle", class: "dgnode"
         });
         tx.textContent = line;
@@ -2460,12 +2519,14 @@ footer .v { font-family: var(--mono); }
   var sessionResumed = null;
   var sessionResumes = 0;
   var sessionId = null;            // which of the kept sets this one is
+  var sessionStartedOn = null;     // where it was begun
 
   function newSession() {
     sessionStarted = stampNow();
     sessionResumed = null;
     sessionResumes = 0;
     sessionId = newId();
+    sessionStartedOn = deviceName();
   }
 
   // Newest worked on first, which is the order they are offered in, and the
@@ -2517,6 +2578,8 @@ footer .v { font-family: var(--mono); }
     list.unshift({
       id: sessionId,
       exam: EXAM,
+      startedOn: sessionStartedOn || deviceName(),
+      lastOn: deviceName(),
       at: stampNow(),                      // last worked on
       started: sessionStarted,             // when this set was begun
       resumed: sessionResumed,             // when it was last picked back up
@@ -2595,6 +2658,7 @@ footer .v { font-family: var(--mono); }
     sessionResumed = stampNow();
     sessionResumes = (s.resumes || 0) + 1;
     sessionId = s.id || newId();
+    sessionStartedOn = s.startedOn || null;
 
     drilling = null;
     if (s.drill) {
@@ -2702,6 +2766,19 @@ footer .v { font-family: var(--mono); }
           (s.resumes > 1 ? ", " + s.resumes + " times in all" : "")));
       }
       history.appendChild(el("div", null, "Last worked on " + whenText(s.at)));
+
+      // Where it was begun, and where it was last touched if that is
+      // somewhere else. Said only when it is not simply here, because
+      // "started on this device" on every row is noise.
+      var here = deviceName();
+      if (s.startedOn && s.startedOn !== here) {
+        history.appendChild(el("div", null, "Started on " + s.startedOn +
+          (s.lastOn && s.lastOn !== s.startedOn
+            ? ", last worked on " + (s.lastOn === here ? "this device" : s.lastOn)
+            : "")));
+      } else if (s.lastOn && s.lastOn !== here) {
+        history.appendChild(el("div", null, "Last worked on " + s.lastOn));
+      }
       box.appendChild(history);
 
       var go = el("button", "btn primary", "Carry on");
@@ -3908,7 +3985,7 @@ footer .v { font-family: var(--mono); }
     function two(n) { return String(n).padStart(2, "0"); }
     var stamp = now.getFullYear() + "-" + two(now.getMonth() + 1) + "-" + two(now.getDate()) +
                 "-" + two(now.getHours()) + two(now.getMinutes());
-    var name = "saa-c03-progress-" + stamp + ".json";
+    var name = EXAM + "-progress-" + stamp + ".json";
 
     // Two ways to hand over a file, tried in order. Inside the claude.ai viewer
     // the sandbox blocks a plain download link, so the runtime has to do it;
@@ -4274,6 +4351,20 @@ footer .v { font-family: var(--mono); }
   document.addEventListener("keydown", function (ev) {
     if (ev.key === "Escape" && !settingsModal.hidden) closeSettings();
   });
+  (function () {
+    var box = document.getElementById("deviceName");
+    if (!box) return;
+    box.value = deviceName();
+    box.placeholder = guessDevice();
+    // Written as it is typed, so there is no button to forget to press. The
+    // name only ever matters to the sets started after it changes, which is
+    // why the ones already kept are left as they are.
+    box.addEventListener("input", function () {
+      setDeviceName(box.value);
+      offerResume();
+    });
+  })();
+
   document.getElementById("setReset").addEventListener("click", function () {
     Object.keys(SETTINGS).forEach(function (k) { settings[k] = SETTINGS[k].fallback; });
     saveSettings();
