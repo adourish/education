@@ -265,7 +265,8 @@ body {
 :root[data-ruler="on"] .bul li:hover::before { color: var(--cyan); }
 @media (hover: none) {
   /* No pointer to hover with, so the line being touched is the one marked. */
-  :root[data-ruler="on"] .bul li:active { border-left-color: var(--cyan); }
+  :root[data-ruler="on"] .bul li:active,
+  :root[data-ruler="on"] .opt:active:not(:disabled) { border-left-color: var(--cyan); }
 }
 
 :root[data-weight="light"] .btn,
@@ -444,12 +445,24 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 }
 .optspeak[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan); }
 /* marked but not yet committed */
+/* Written with the ruler's own weight in front of it. The ruler sets a left
+   edge on every answer, and that rule carries more weight than a plain class,
+   so a marked answer written as ".opt.picked" alone loses to it and shows no
+   mark whatsoever while the ruler is on. */
+:root .opts .opt.picked,
 .opt.picked {
-  border-color: var(--cyan); border-width: 2px; padding: 12px 14px;
-  background: var(--cyan-soft);
+  border-color: var(--cyan);
+  border-left-width: 7px;
+  padding-left: 8px;
 }
-.confirmbtn { margin-bottom: 14px; width: 100%; }
-.confirmbtn:disabled { opacity: .55; cursor: default; }
+/* The button that commits it stays in view while you scroll the answers, so a
+   long question never means scrolling past four of them to find it again. */
+.confirmbtn {
+  width: 100%; margin-bottom: 14px;
+  position: sticky; bottom: 12px; z-index: 5;
+  box-shadow: var(--shadow);
+}
+.confirmbtn:disabled { opacity: .55; cursor: default; box-shadow: none; }
 .lookback {
   display: flex; align-items: center; gap: 7px;
   font: 500 0.82rem var(--ui); color: var(--ink-2);
@@ -1208,7 +1221,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.18.2";
+  var APP_VERSION = "1.18.3";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
