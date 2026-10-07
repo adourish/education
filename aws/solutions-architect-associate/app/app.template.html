@@ -2636,6 +2636,10 @@ footer .v { font-family: var(--mono); }
     // what finished sets did. Reaching the end marks it finished.
     if (touched && sessionId && queue.length) {
       recordRun({ id: sessionId, ids: queue.map(function (q) { return q.id; }),
+                  qi: qi,                     // how far through, which is the
+                                              // only thing that knows about
+                                              // answers given before runs were
+                                              // recorded
                   started: sessionStarted, at: stampNow(), lastOn: deviceName(),
                   mock: mock.on ? {} : null, drill: drilling ? drilling.id : null,
                   area: areaSel.value }, qi >= queue.length);
@@ -2826,7 +2830,12 @@ footer .v { font-family: var(--mono); }
       var m = marks[a] || (marks[a] = { r: 0, w: 0 });
       if (e[2]) m.r++; else m.w++;
     });
-    if (!asked) return;                 // nothing happened in it, so nothing to show
+    // How far through the set is, which is known even when none of the
+    // answers carry this run's id -- a set begun before runs were recorded
+    // has a real position and no scored answers of its own.
+    var reached = (s.qi >= 0) ? s.qi : 0;
+    if (!asked && !reached) return;     // nothing has happened in it at all
+
     var list = readRuns().filter(function (r) { return r.id !== s.id; });
     list.unshift({
       id: s.id,
@@ -2838,7 +2847,11 @@ footer .v { font-family: var(--mono); }
       device: s.lastOn || deviceName(),
       finished: !!finished,
       of: (s.ids || []).length,
-      reached: (s.qi >= 0 ? s.qi + 1 : asked),
+      reached: reached,
+      // Answers in this set that were given before runs were recorded, and so
+      // cannot be scored against it. Said out loud rather than quietly
+      // shrinking the total.
+      untracked: Math.max(0, reached - asked),
       asked: asked,
       right: right,
       marks: marks
@@ -3835,27 +3848,48 @@ footer .v { font-family: var(--mono); }
       return;
     }
 
+    var open = {};
+    readSessions().forEach(function (s) { open[s.id] = true; });
+
     var show = runsAllShown ? runs : runs.slice(0, RUNS_SHOWN);
     show.forEach(function (run) {
       var share = pct(run.right, run.asked);
-      var box = el("details", "run" + (share < 60 ? " poor" : ""));
+      var box = el("details", "run" + (run.asked && share < 60 ? " poor" : ""));
       var head = el("summary");
 
       var what = run.label || "a set";
       if (run.kind === "mock") what = "Mock exam";
       else if (run.kind === "drill") what = "Drill: " + what;
-      if (!run.finished) what += ", left part way";
+
+      // A run whose set is still on the resume list is one you can carry on
+      // with. One that is not either finished, or was forgotten.
+      var live = open[run.id];
+      if (live) what += ", in progress";
+      else if (!run.finished) what += ", not finished";
       head.appendChild(el("div", "what", what));
 
-      var when = whenText(run.ended);
+      // "Last worked on" rather than "last answered", because a set picked
+      // up and not yet answered in has still been worked on.
+      var when = (live ? "Last worked on " : "") + whenText(run.ended);
+      if (run.of) {
+        when += " \u00b7 " + (run.reached || run.asked) + " of " + run.of;
+      }
       if (run.device) when += " \u00b7 " + run.device;
       head.appendChild(el("div", "when", when));
 
-      head.appendChild(el("div", "score",
-        run.right + "/" + run.asked + "  " + share + "%"));
+      head.appendChild(el("div", "score", run.asked
+        ? run.right + "/" + run.asked + "  " + share + "%"
+        : "not scored"));
       box.appendChild(head);
 
       var inner = el("div", "inner");
+      if (run.untracked) {
+        inner.appendChild(el("p", "lede",
+          run.untracked + (run.untracked === 1 ? " answer" : " answers")
+          + " in this set came before runs were recorded, so "
+          + (run.untracked === 1 ? "it is" : "they are")
+          + " in your totals but not in the figures here."));
+      }
       inner.appendChild(runBreakdown(run));
       box.appendChild(inner);
       host.appendChild(box);
