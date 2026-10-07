@@ -36,7 +36,7 @@ OUT = HERE / "app.html"
 OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
 SEED = HERE / "progress-seed.json"
 
-APP_VERSION = "1.11.3"
+APP_VERSION = "1.12.0"
 
 # SHA-256 of the board's password. The hash rather than the word, so the
 # password is not sitting in the published file in plain text. This is a
