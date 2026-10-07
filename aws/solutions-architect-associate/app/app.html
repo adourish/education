@@ -807,7 +807,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.11.3";
+  var APP_VERSION = "1.12.0";
   var BUILD_DATE  = "2026-10-06";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -2136,11 +2136,48 @@ footer .v { font-family: var(--mono); }
   var ioBox = document.getElementById("ioBox");
 
   function buildExport() {
+    // When each question was last answered, worked out from the log and put at
+    // the top of the file where it can be read at a glance. It is worked out
+    // rather than stored, so it is kept outside "progress" and nothing reads it
+    // back in: the log remains the one record of what happened.
+    var answeredAt = {};
+    var answerCount = {};
+    (S.log || []).forEach(function (e) {
+      if (!e) return;
+      answerCount[e[1]] = (answerCount[e[1]] || 0) + 1;
+      var prev = answeredAt[e[1]];
+      if (!prev || stampSeconds(e[0]) > stampSeconds(prev)) answeredAt[e[1]] = e[0];
+    });
+
+    var dated = Object.keys(answeredAt).length;
+    var undated = (S.base && S.base.seen) || 0;
+
     return JSON.stringify({
       app: "SAA-C03 Recall Board",
       appVersion: APP_VERSION,
       dataVersion: DATA.version,
       exported: new Date().toISOString(),
+
+      // A plain reading of what is below, so the file explains itself.
+      answers: {
+        total: S.seen || 0,
+        withTimes: (S.log || []).length,
+        withoutTimes: undated,
+        undatedCountedAs: undated ? (S.baseAt || null) : null,
+        note: undated
+          ? ("Every answer in \"log\" carries the time it was given. The other " +
+             undated + " were answered before this browser kept times, or came from " +
+             "progress built into the app by a version that kept none. There is no " +
+             "record of when each of those happened, so they all count as " +
+             (S.baseAt || "") + ".")
+          : "Every answer carries the time it was given."
+      },
+
+      // Question id to the time it was last answered, and how many times.
+      lastAnswered: answeredAt,
+      timesAnswered: answerCount,
+      questionsWithTimes: dated,
+
       progress: S
     }, null, 1);
   }
