@@ -1101,7 +1101,7 @@ DIAGRAMS = [
     {
         "id": "datasync-move",
         "title": "Moving files in, over the network",
-        "words": r"DataSync|Transfer Family|\\bSFTP\\b",
+        "words": r"DataSync|Transfer Family|\bSFTP\b",
         "nodes": [["src", "On premises, or in AWS", "actor"],
                   ["ag", "Agent, or an AWS endpoint", "net"],
                   ["dst", "S3, EFS or FSx", "store"]],
@@ -1121,9 +1121,25 @@ DIAGRAMS = [
                 "delete guards removing a version for good.",
     },
     {
+        "id": "sg-chain",
+        "title": "One security group allowing another",
+        "words": r"from the [^.]{0,30}security group|"
+                 r"security group (of|referenced by|attached to) the|"
+                 r"security group as the source",
+        "nodes": [["cli", "Callers", "actor"],
+                  ["lb", "Balancer, its own group", "edge"],
+                  ["app", "Instances, their own group", "compute"]],
+        "edges": [["cli", "lb", "allowed by address"],
+                  ["lb", "app", "allowed by naming the balancer's group"]],
+        "note": "The instances' group names the balancer's group rather than an address "
+                "range, so it keeps working as instances come and go and nobody has to "
+                "chase addresses. Allow only the port that is wanted: letting all traffic "
+                "through from the balancer works, and is still the wrong answer.",
+    },
+    {
         "id": "sg-vs-nacl",
         "title": "Two places traffic is allowed or refused",
-        "words": r"network ACL|\\bNACL\\b",
+        "words": r"security group|network ACL|\bNACL\b",
         "nodes": [["net", "Traffic", "actor"], ["nacl", "Network ACL, on the subnet", "net"],
                   ["sg", "Security group, on the instance", "net"], ["ec2", "Instance", "compute"]],
         "edges": [["net", "nacl", "allow and deny, in order"],
@@ -1222,6 +1238,16 @@ if _bad:
         "the string: " + ", ".join(_bad))
 
 # Enough of an answer to be worth drawing. The phrase gates do the real work;
+# The same mistake as a missing r prefix, only the other way round: a doubled
+# backslash inside a raw string holds a real backslash, so the pattern matches
+# a literal backslash and therefore nothing. Two did, quietly, for days.
+_doubled = [d["id"] for d in DIAGRAMS
+            if "\\\\" in (d["words"] + (d.get("unless_words") or ""))]
+if _doubled:
+    raise AssertionError(
+        "a doubled backslash in a pattern, which matches a literal backslash "
+        "and so matches nothing real: " + ", ".join(_doubled))
+
 # this only skips a stub such as "B. None of these".
 MIN_ANSWER = 20
 
@@ -1280,7 +1306,7 @@ AS_IS = {
     "redshift-s3", "athena-s3", "s3-query-in-place", "lambda-vpc-rds",
     "s3-event-lambda", "kinesis-lambda", "ddb-stream-s3", "ddb-export-s3",
     "ddb-metadata-s3", "s3-crr", "s3-vpce", "s3-vpce-interface",
-    "interface-endpoint", "snow-edge", "snowball-bulk", "lifecycle-tiers",
+    "interface-endpoint", "snow-edge", "sg-chain", "snowball-bulk", "lifecycle-tiers",
     "s3-glacier-lifecycle", "s3-express-onezone", "route53-failover",
     "route53-active-active", "global-accelerator", "alb-waf", "alb-route53",
     "eventbridge-targets", "sns-fanout", "multi-region-dr",
