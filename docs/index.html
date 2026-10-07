@@ -973,6 +973,8 @@ select {
 .run .barrow { font-size: 0.86rem; }
 .runmore { margin-top: 10px; }
 
+#ioBox.dropping { border-color: var(--cyan); background: var(--cyan-soft); }
+
 .weak { display: grid; gap: 6px; }
 .weakrow {
   display: flex; gap: 10px; align-items: baseline; justify-content: space-between;
@@ -1151,10 +1153,12 @@ footer .v { font-family: var(--mono); }
         </p>
         <div class="picker">
           <button class="btn primary" id="exportBtn">Export progress</button>
-          <button class="btn" id="importBtn">Merge in the box below</button>
+          <button class="btn" id="chooseBtn">Merge from a file</button>
+          <button class="btn" id="importBtn">Merge what is in the box</button>
           <button class="btn bad" id="resetBtn">Reset all progress</button>
         </div>
-        <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Paste a progress file in and press Import."></textarea>
+        <input type="file" id="ioFile" accept=".json,application/json,text/plain" hidden>
+        <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Choose a file above, drop one on this box, or paste one in."></textarea>
       </div>
     </details>
 
@@ -1376,7 +1380,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.28.0";
+  var APP_VERSION = "1.29.0";
   var BUILD_DATE  = "2026-10-07";
   // ---------- where this exam's work is kept ----------
   //
@@ -4323,9 +4327,11 @@ footer .v { font-family: var(--mono); }
     exportProgress(ioBox);
   });
 
-  document.getElementById("importBtn").addEventListener("click", function () {
-    var raw = ioBox.value.trim();
-    if (!raw) { ioBox.placeholder = "Paste an exported progress file here first."; return; }
+  // The merge, as a thing that takes text, so the button, a chosen file and a
+  // dropped file all go through exactly the same path and report the same way.
+  function mergeFromText(raw) {
+    raw = (raw || "").trim();
+    if (!raw) { ioBox.placeholder = "Choose a progress file, or paste one here."; return; }
     try {
       var payload = readPayload(JSON.parse(raw));
       if (!payload) throw new Error("not a progress file");
@@ -4446,9 +4452,63 @@ footer .v { font-family: var(--mono); }
         ? "Merged " + examIds.length + " exams.\n\n"
         : "Merged.\n\n") + report.join("\n\n");
     } catch (e) {
-      ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
+      ioBox.value = "That did not look like a progress file. Choose the file you "
+        + "exported, or paste the whole block including the outer braces.";
     }
+  }
+
+  document.getElementById("importBtn").addEventListener("click", function () {
+    mergeFromText(ioBox.value);
   });
+
+  // Reading a file beats copying and pasting one, especially on a phone, where
+  // opening a .json, selecting all of it and pasting it into a box is several
+  // awkward steps. Export hands you a file; this takes one back.
+  function takeFile(file) {
+    if (!file) return;
+    if (file.size > 25 * 1024 * 1024) {
+      ioBox.value = "That file is larger than any progress file should be, so "
+        + "it has not been read.";
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      ioBox.value = String(reader.result || "");
+      mergeFromText(ioBox.value);
+    };
+    reader.onerror = function () {
+      ioBox.value = "That file could not be read. Try choosing it again, or "
+        + "open it and paste what is inside.";
+    };
+    reader.readAsText(file);
+  }
+
+  (function wireFilePicking() {
+    var picker = document.getElementById("ioFile");
+    var choose = document.getElementById("chooseBtn");
+    if (picker && choose) {
+      choose.addEventListener("click", function () { picker.click(); });
+      picker.addEventListener("change", function () {
+        takeFile(picker.files && picker.files[0]);
+        picker.value = "";          // so the same file can be chosen twice
+      });
+    }
+    // And dropping one onto the box, for anyone on a desktop.
+    ["dragenter", "dragover"].forEach(function (ev) {
+      ioBox.addEventListener(ev, function (e) {
+        e.preventDefault();
+        ioBox.classList.add("dropping");
+      });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      ioBox.addEventListener(ev, function () { ioBox.classList.remove("dropping"); });
+    });
+    ioBox.addEventListener("drop", function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) takeFile(f);
+    });
+  })();
 
   // One exam's lines, indented under its name, so a report covering two exams
   // can be read without working out which number belongs to which.
