@@ -95,6 +95,12 @@ def main() -> None:
     build_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     html = html.replace("__DATA__", data)
+    # Whichever exam this build is, in the heading, the tab title and the way
+    # in. These used to be written into the template, so a second exam called
+    # itself SAA-C03 everywhere except the small chip beside the heading.
+    exam_short = json.loads(data).get("exam", "Exam")
+    html = html.replace("__EXAM_SHORT__", exam_short)
+    html = html.replace("__EXAM_FULL__", exam_short + " Recall Board")
     html = html.replace("__APP_VERSION__", APP_VERSION)
     html = html.replace("__BUILD_DATE__", build_date)
 
@@ -110,7 +116,7 @@ def main() -> None:
     html = html.replace("__PASS_SHA__", hashlib.sha256(PASSWORD.encode()).hexdigest())
 
     for left in ("__DATA__", "__APP_VERSION__", "__BUILD_DATE__",
-             "__PASS_SHA__", "__SEED__"):
+             "__PASS_SHA__", "__SEED__", "__EXAM_SHORT__", "__EXAM_FULL__"):
         if left in html:
             raise SystemExit(f"placeholder {left} was left unreplaced")
     if False:

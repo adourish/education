@@ -1,4 +1,4 @@
-<title>SAA-C03 Recall Board</title>
+<title>CCA-F Recall Board</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ===========================================================================
@@ -992,7 +992,7 @@ footer .v { font-family: var(--mono); }
   <div class="topbar-in">
     <div class="topline">
       <div class="brand">
-        <h1>SAA-C03<span class="long"> Recall Board</span></h1>
+        <h1>CCA-F<span class="long"> Recall Board</span></h1>
         <span class="exam" id="examTag"></span>
       </div>
       <button class="misschip" id="missChip" hidden></button>
@@ -1109,7 +1109,7 @@ footer .v { font-family: var(--mono); }
 
 <div class="gate" id="gate" hidden>
   <form class="gate-card" id="gateForm">
-    <h2>SAA-C03 Recall Board</h2>
+    <h2>CCA-F Recall Board</h2>
     <p>This board is password protected. Enter the password to carry on.</p>
     <input type="password" id="gatePass" autocomplete="current-password"
            placeholder="Password" aria-label="Password">
@@ -3967,7 +3967,7 @@ footer .v { font-family: var(--mono); }
     function two(n) { return String(n).padStart(2, "0"); }
     var stamp = now.getFullYear() + "-" + two(now.getMonth() + 1) + "-" + two(now.getDate()) +
                 "-" + two(now.getHours()) + two(now.getMinutes());
-    var name = "saa-c03-progress-" + stamp + ".json";
+    var name = EXAM + "-progress-" + stamp + ".json";
 
     // Two ways to hand over a file, tried in order. Inside the claude.ai viewer
     // the sandbox blocks a plain download link, so the runtime has to do it;
