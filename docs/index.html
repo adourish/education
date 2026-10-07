@@ -315,7 +315,14 @@ body {
   border: 2px solid var(--amber); border-radius: var(--radius);
   padding: 14px 16px; margin-bottom: 14px;
 }
-.resume .what { margin-bottom: 12px; line-height: 1.6; }
+.resume .what { margin-bottom: 10px; line-height: 1.6; }
+.resume .when { margin-bottom: 12px; font-size: 0.88rem; color: var(--ink-2); line-height: 1.7; }
+/* how long this set has been going, kept quiet so it never competes with
+   the question itself */
+.sessionline {
+  font-size: 0.82rem; color: var(--ink-3);
+  margin: 4px 0 14px;
+}
 .mockbar {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   border: 2px solid var(--cyan); border-radius: var(--radius);
@@ -1047,7 +1054,8 @@ footer .v { font-family: var(--mono); }
       <div id="resumeBar" hidden></div>
       <div id="drillBanner" hidden></div>
       <div id="mockBar" hidden></div>
-      <div class="scorebar" id="practiceScore" style="margin-bottom:14px"></div>
+      <div class="scorebar" id="practiceScore"></div>
+      <div class="sessionline" id="sessionLine" hidden></div>
       <div id="qhost"></div>
     </div>
   </section>
@@ -1252,7 +1260,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.20.0";
+  var APP_VERSION = "1.20.1";
   var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
@@ -2080,6 +2088,7 @@ footer .v { font-family: var(--mono); }
         "the bank is thin here, not the exam.");
       return;
     }
+    newSession();
     drilling = row;
     cameFromRow = row.id;
     queue = shuffle(list);
@@ -2158,7 +2167,38 @@ footer .v { font-family: var(--mono); }
   // small and can never disagree with the question bank.
   var SESSION_KEY = STORE_KEY + "/session";
   var resumeBar = document.getElementById("resumeBar");
+  var sessionLine = document.getElementById("sessionLine");
   var sessionReady = false;        // nothing is written until the page is up
+
+  // When this set was begun, when it was last picked back up, and how many
+  // times. Kept alongside the place in the set so that coming back to it says
+  // how long it has been going rather than only where you had got to.
+  var sessionStarted = null;
+  var sessionResumed = null;
+  var sessionResumes = 0;
+
+  function newSession() {
+    sessionStarted = stampNow();
+    sessionResumed = null;
+    sessionResumes = 0;
+  }
+
+  // "today at 19:04", "yesterday at 22:10", "3 Oct at 08:15". The day in words
+  // where there is a word for it, because "yesterday" is read faster than a
+  // date is.
+  function whenText(when) {
+    if (!when) return "";
+    var d = new Date(stampSeconds(when) * 1000);
+    var clock = d.toLocaleTimeString(undefined,
+      { hour: "2-digit", minute: "2-digit", hour12: false });
+    var midnight = new Date();
+    midnight.setHours(0, 0, 0, 0);
+    var daysBack = Math.floor((midnight - d) / 86400000) + 1;
+    if (d >= midnight) return "today at " + clock;
+    if (daysBack === 1) return "yesterday at " + clock;
+    if (daysBack < 7) return daysBack + " days ago at " + clock;
+    return d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) + " at " + clock;
+  }
 
   function saveSession() {
     if (!sessionReady || !storageOK) return;
@@ -2168,7 +2208,10 @@ footer .v { font-family: var(--mono); }
         return;
       }
       localStorage.setItem(SESSION_KEY, JSON.stringify({
-        at: stampNow(),
+        at: stampNow(),                      // last worked on
+        started: sessionStarted,             // when this set was begun
+        resumed: sessionResumed,             // when it was last picked back up
+        resumes: sessionResumes,
         ids: queue.map(function (q) { return q.id; }),
         qi: qi,
         done: alreadyDone,
@@ -2229,6 +2272,10 @@ footer .v { font-family: var(--mono); }
     qi = Math.min(stillThere, queue.length - 1);
     alreadyDone = s.done || {};
 
+    sessionStarted = s.started || s.at;
+    sessionResumed = stampNow();
+    sessionResumes = (s.resumes || 0) + 1;
+
     drilling = null;
     if (s.drill) {
       DATA.sections.forEach(function (sec) {
@@ -2264,6 +2311,23 @@ footer .v { font-family: var(--mono); }
     renderQuestion();
     renderMockBar();
     updateScore();
+    renderSessionLine();
+  }
+
+  function renderSessionLine() {
+    if (!sessionLine) return;
+    if (!sessionStarted || !queue.length || qi >= queue.length) {
+      sessionLine.hidden = true;
+      sessionLine.textContent = "";
+      return;
+    }
+    var bits = ["Started " + whenText(sessionStarted)];
+    if (sessionResumes) {
+      bits.push("picked up again " + whenText(sessionResumed) +
+        (sessionResumes > 1 ? ", " + sessionResumes + " times in all" : ""));
+    }
+    sessionLine.textContent = bits.join(" \u00b7 ");
+    sessionLine.hidden = false;
   }
 
   function forgetSession() {
@@ -2295,6 +2359,15 @@ footer .v { font-family: var(--mono); }
     }
 
     box.appendChild(el("div", "what", line));
+
+    var history = el("div", "when");
+    history.appendChild(el("div", null, "Started " + whenText(s.started || s.at)));
+    if (s.resumed) {
+      history.appendChild(el("div", null, "Picked up again " + whenText(s.resumed) +
+        (s.resumes > 1 ? ", " + s.resumes + " times in all" : "")));
+    }
+    history.appendChild(el("div", null, "Last worked on " + whenText(s.at)));
+    box.appendChild(history);
     var go = el("button", "btn primary", "Carry on");
     go.addEventListener("click", function () { resumeSession(s); });
     box.appendChild(go);
@@ -2360,6 +2433,7 @@ footer .v { font-family: var(--mono); }
       "until the end. Your answers still count towards your progress.";
     if (!window.confirm(ask)) return;
 
+    newSession();
     mock.plan = mockPlan();
     mock.on = true;
     mock.given = {};
@@ -2488,6 +2562,7 @@ footer .v { font-family: var(--mono); }
         : "Nothing to go back to: you have not got anything wrong yet.");
       return;
     }
+    newSession();
     drilling = null;
     queue = shuffle(list);
     qi = 0;
@@ -2517,6 +2592,7 @@ footer .v { font-family: var(--mono); }
   document.getElementById("missBtn").addEventListener("click", drillMisses);
 
   function buildQueue() {
+    newSession();
     drilling = null;
     var pick = areaSel.value;
     // The provider filter narrows the pool first, then the category picks from
@@ -3051,6 +3127,7 @@ footer .v { font-family: var(--mono); }
     qhost.appendChild(card);
     updateScore();
     saveSession();
+    renderSessionLine();
   }
 
   document.getElementById("startBtn").addEventListener("click", function () {
