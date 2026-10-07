@@ -807,8 +807,8 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.12.0";
-  var BUILD_DATE  = "2026-10-06";
+  var APP_VERSION = "1.12.1";
+  var BUILD_DATE  = "2026-10-07";
   var STORE_KEY   = "saa-c03-recall-board/v1";
   var PASS_SHA    = "b91acbfce7848754af1e32c6f26f7b46a6e50d7443577fc7cb58b299786e6f41";
   var PASS_KEY    = STORE_KEY + "/unlocked";
@@ -2136,20 +2136,39 @@ footer .v { font-family: var(--mono); }
   var ioBox = document.getElementById("ioBox");
 
   function buildExport() {
-    // When each question was last answered, worked out from the log and put at
-    // the top of the file where it can be read at a glance. It is worked out
-    // rather than stored, so it is kept outside "progress" and nothing reads it
-    // back in: the log remains the one record of what happened.
-    var answeredAt = {};
-    var answerCount = {};
+    // One entry per question that has ever been answered: how it went last
+    // time, when that was, and how it has gone overall. A date on its own says
+    // nothing useful, so the result travels with it.
+    //
+    // Worked out from the log when the file is written, and kept outside
+    // "progress" so nothing reads it back in. The log remains the one record of
+    // what happened.
+    var perQuestion = {};
+    Object.keys(S.questions || {}).forEach(function (qid) {
+      perQuestion[qid] = {
+        result: S.questions[qid] ? "right" : "missed",
+        at: null
+      };
+    });
     (S.log || []).forEach(function (e) {
       if (!e) return;
-      answerCount[e[1]] = (answerCount[e[1]] || 0) + 1;
-      var prev = answeredAt[e[1]];
-      if (!prev || stampSeconds(e[0]) > stampSeconds(prev)) answeredAt[e[1]] = e[0];
+      var row = perQuestion[e[1]] || (perQuestion[e[1]] = { result: null, at: null });
+      row.times = (row.times || 0) + 1;
+      if (e[2]) row.right = (row.right || 0) + 1;
+      else row.wrong = (row.wrong || 0) + 1;
+      if (!row.at || stampSeconds(e[0]) > stampSeconds(row.at)) {
+        row.at = e[0];
+        row.result = e[2] ? "right" : "missed";
+      }
     });
 
-    var dated = Object.keys(answeredAt).length;
+    var dated = 0;
+    Object.keys(perQuestion).forEach(function (qid) {
+      if (perQuestion[qid].at) dated++;
+      // A question answered only before times were kept has no date of its own.
+      // Say so, rather than leaving an empty field to be read as a mistake.
+      else perQuestion[qid].at = null;
+    });
     var undated = (S.base && S.base.seen) || 0;
 
     return JSON.stringify({
@@ -2173,9 +2192,11 @@ footer .v { font-family: var(--mono); }
           : "Every answer carries the time it was given."
       },
 
-      // Question id to the time it was last answered, and how many times.
-      lastAnswered: answeredAt,
-      timesAnswered: answerCount,
+      // Question id to how it went last time, when that was, and the tally
+      // over every attempt. "at" is null where the only record of it predates
+      // times being kept.
+      lastAnswered: perQuestion,
+      questionsAnswered: Object.keys(perQuestion).length,
       questionsWithTimes: dated,
 
       progress: S
