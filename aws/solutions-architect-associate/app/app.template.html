@@ -951,6 +951,31 @@ select {
 
 #ioBox.dropping { border-color: var(--cyan); background: var(--cyan-soft); }
 
+/* A choice the exam keeps asking, as a branch per line.
+   Deliberately not a flowchart: the same decision drawn as boxes and arrows
+   fans seven ways, and at the width of a phone the conditions on the arrows,
+   which are the only part that matters, shrink to nothing. */
+.decs { margin: 10px 0 0; padding: 12px 14px; border-radius: 8px;
+        background: var(--surface); border: 1px solid var(--rule);
+        border-left: 3px solid var(--cyan); }
+.dec + .dec { margin-top: 16px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.dec h5 { margin: 0 0 2px; font-size: 0.95rem; }
+.dec .asked { margin: 0 0 8px; font-size: 0.8rem; color: var(--ink-3); }
+.decrow { padding: 8px 0; border-top: 1px solid var(--rule); }
+.decrow:first-of-type { border-top: 0; padding-top: 2px; }
+.decrow .when { font-size: 0.88rem; color: var(--ink-2); line-height: 1.55; }
+.decrow .when::before { content: "If "; color: var(--ink-3); }
+.decrow .then { font-size: 0.95rem; font-weight: 500; line-height: 1.55; }
+.dectraps { margin: 12px 0 0; padding: 10px 12px; border-radius: 7px;
+            border: 1px solid var(--rule); border-left: 3px solid var(--magenta);
+            background: var(--surface-2); }
+.dectraps h6 { margin: 0 0 6px; font-size: 0.82rem; font-weight: 500;
+               color: var(--magenta); }
+.dectraps ul { margin: 0; padding-left: 18px; }
+.dectraps li { font-size: 0.86rem; color: var(--ink-2); line-height: 1.6;
+               margin-bottom: 6px; }
+.dectraps li:last-child { margin-bottom: 0; }
+
 /* A new version is ready. It waits to be taken rather than reloading on its
    own, because being thrown out of a question you are halfway through reading
    is worse than running a version that is ten minutes old. */
@@ -1105,6 +1130,16 @@ footer .v { font-family: var(--mono); }
       <span class="scorebar" id="posterSummary"></span>
     </div>
     <div class="board" id="board"></div>
+
+    <details class="fold" id="fold-dec" data-fold="dec">
+      <summary>How to choose<span class="count" id="decCount"></span></summary>
+      <div class="inner">
+        <p class="lede">The handful of choices the exam keeps asking. Six hundred
+          questions are not six hundred decisions: they come back to these. Each one
+          is the branches, then what the question is really testing underneath.</p>
+        <div id="decList"></div>
+      </div>
+    </details>
   </section>
 
   <!-- ============ PRACTICE ============ -->
@@ -3568,6 +3603,32 @@ footer .v { font-family: var(--mono); }
       tools.appendChild(hint);
       laterBoxes.push(termsBox);
     }
+
+    // The choices this question is putting in front of you. Worked out from
+    // what its options span rather than from the right answer, so it is just
+    // as useful before you have picked one, and it gives nothing away.
+    var decIds = (q.dec || []).filter(function (id) { return DEC_BY_ID[id]; });
+    if (decIds.length) {
+      var decBox = el("div", "decs");
+      decBox.hidden = true;
+      decIds.forEach(function (id) {
+        decBox.appendChild(drawDecision(DEC_BY_ID[id], DEC_ASKED[id]));
+      });
+      var decBtn = el("button", "btn hintbtn",
+        decIds.length > 1 ? "How to choose (" + decIds.length + ")" : "How to choose");
+      decBtn.setAttribute("aria-expanded", "false");
+      decBtn.addEventListener("click", function () {
+        var open = decBox.hidden;
+        decBox.hidden = !open;
+        decBtn.setAttribute("aria-expanded", String(open));
+        decBtn.textContent = open ? "Hide how to choose"
+          : (decIds.length > 1 ? "How to choose (" + decIds.length + ")"
+                               : "How to choose");
+      });
+      tools.appendChild(decBtn);
+      laterBoxes.push(decBox);
+    }
+
     laterBoxes.forEach(function (b) { card.appendChild(b); });
 
     var reveal = el("div", "reveal");
@@ -3851,6 +3912,58 @@ footer .v { font-family: var(--mono); }
       host.appendChild(row);
     });
     return host;
+  }
+
+  // One choice, as a list of branches with the traps underneath. Used both
+  // beside a question and on the poster, so the two cannot drift apart.
+  function drawDecision(dec, asked) {
+    var box = el("div", "dec");
+    box.appendChild(el("h5", null, dec.title));
+    if (asked) {
+      box.appendChild(el("p", "asked",
+        asked + (asked === 1 ? " question" : " questions") + " come down to this"));
+    }
+    (dec.rows || []).forEach(function (r) {
+      var row = el("div", "decrow");
+      row.appendChild(el("div", "when", r[0]));
+      row.appendChild(el("div", "then", r[1]));
+      box.appendChild(row);
+    });
+    if ((dec.traps || []).length) {
+      var t = el("div", "dectraps");
+      t.appendChild(el("h6", null, "What the question is really testing"));
+      var ul = document.createElement("ul");
+      dec.traps.forEach(function (s) { ul.appendChild(el("li", null, s)); });
+      t.appendChild(ul);
+      box.appendChild(t);
+    }
+    return box;
+  }
+
+  var DEC_BY_ID = {};
+  (DATA.decisions || []).forEach(function (d) { DEC_BY_ID[d.id] = d; });
+
+  // How many questions each one reaches, counted once rather than per draw.
+  var DEC_ASKED = {};
+  DATA.questions.forEach(function (q) {
+    (q.dec || []).forEach(function (id) {
+      DEC_ASKED[id] = (DEC_ASKED[id] || 0) + 1;
+    });
+  });
+
+  // Every choice, on the poster, in the order they are asked about most.
+  function renderDecisions() {
+    var host = document.getElementById("decList");
+    if (!host) return;
+    var all = (DATA.decisions || []).slice().sort(function (a, b) {
+      return (DEC_ASKED[b.id] || 0) - (DEC_ASKED[a.id] || 0);
+    });
+    var tally = document.getElementById("decCount");
+    if (tally) tally.textContent = all.length + " choices";
+    host.textContent = "";
+    all.forEach(function (d) {
+      host.appendChild(drawDecision(d, DEC_ASKED[d.id]));
+    });
   }
 
   function renderRuns() {
@@ -4998,6 +5111,7 @@ footer .v { font-family: var(--mono); }
   });
 
   renderBoard();
+  renderDecisions();
   refreshMissChip();
   updateScore();
 
