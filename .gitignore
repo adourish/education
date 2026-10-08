@@ -20,3 +20,15 @@ aws/solutions-architect-associate/questions/sources/certempire.*
 # Python build cache
 __pycache__/
 *.pyc
+
+# Built pages. Only docs/ needs to be in git, because that is what Pages
+# serves; these are what it is built from and are remade by build.py in a few
+# seconds. Committing them meant nine megabytes of generated files changing on
+# every edit, and a merge conflict on every pull request over files nobody
+# edits by hand.
+aws/solutions-architect-associate/app/app.html
+aws/solutions-architect-associate/app/app-data.json
+aws/solutions-architect-associate/app/saa-c03-recall-board.html
+anthropic/claude-certified-architect/app/app.html
+anthropic/claude-certified-architect/app/app-data.json
+anthropic/claude-certified-architect/app/cca-f-recall-board.html

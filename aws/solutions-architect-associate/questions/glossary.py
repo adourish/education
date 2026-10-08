@@ -18,6 +18,9 @@ say which option is correct, because a hint that answers the question for you
 teaches nothing.
 """
 
+import re
+
+
 GLOSSARY: dict[str, tuple[str, str]] = {
 
     # ---------------- compute ----------------
@@ -447,8 +450,27 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Looks at real usage and tells you where an instance or volume is bigger than it needs to be."),
     "AWS Cost Explorer": (r"Cost Explorer",
         "Shows and forecasts your spending, broken down by service, tag or account."),
+    "Budget action": (r"budget action|Budgets action|action in the (alert|budget)|budget.{0,40}\baction\b",
+        "What a budget does when its threshold is passed, rather than only who "
+        "it tells. Three kinds: apply an IAM policy, apply a service control "
+        "policy, or stop EC2 or RDS instances. It can be set to run on its own "
+        "or to wait for someone to approve it. The instances are ones you name "
+        "when you set it up, not every instance in the account."),
+    "Forecasted against actual spend": (r"forecast",
+        "A budget alert can watch what has been spent, or what AWS thinks will "
+        "be spent by the end of the period. Actual fires once the money has "
+        "gone; forecast fires before it does. So a question about stopping "
+        "waste before it happens wants forecast, and a question about not "
+        "acting until it is real wants actual. Forecasting needs some weeks of "
+        "history to go on, so a brand new account has nothing to forecast from."),
     "AWS Budgets": (r"AWS Budgets",
-        "Alerts you when spending or usage passes a threshold you set."),
+        "Watches what an account is spending against a figure you set, and "
+        "tells you when it passes it. It can also do something about it, which "
+        "is the part worth remembering: a budget action can apply an IAM policy "
+        "or a service control policy to take permissions away, or stop EC2 or "
+        "RDS instances you have nominated. Anything that bolts SNS and a Lambda "
+        "function onto a budget to do the same job is doing by hand what it "
+        "already does."),
     "AWS X-Ray": (r"X-Ray",
         "Traces a single request as it passes through several services, so you can see which step is slow or failing."),
     "AWS OpsWorks": (r"OpsWorks",
@@ -491,6 +513,51 @@ def compile_glossary():
     items.sort(key=lambda t: -len(t[0]))
     return items
 
+
+
+# --------------------------------------------------------------------------
+# Patterns that cannot match, caught here rather than noticed later.
+#
+# A pattern written without the r prefix turns \b into a backspace character.
+# It still compiles, still runs, and matches nothing, so the only sign is a
+# term that quietly never appears. That has happened twice: once to a term for
+# an exam option worth three questions, and once to a pair of service names.
+# Both were found by counting matches by hand, which is luck rather than a
+# process, so the same three checks the diagram library makes are made here.
+# --------------------------------------------------------------------------
+def _audit_patterns() -> None:
+    control, doubled, broken, empty = [], [], [], []
+    for name, (pattern, what) in GLOSSARY.items():
+        if any(ord(c) < 32 for c in pattern + what):
+            control.append(name)
+        if "\\\\" in pattern:
+            doubled.append(name)
+        if not pattern.strip() or not what.strip():
+            empty.append(name)
+            continue
+        try:
+            re.compile(pattern)
+        except re.error as e:
+            broken.append(f"{name} ({e})")
+
+    trouble = []
+    if control:
+        trouble.append(
+            "a control character, which means a missing r prefix on the "
+            "string: " + ", ".join(control))
+    if doubled:
+        trouble.append(
+            "a doubled backslash, which matches a real backslash and so "
+            "matches nothing: " + ", ".join(doubled))
+    if broken:
+        trouble.append("a pattern that will not compile: " + ", ".join(broken))
+    if empty:
+        trouble.append("nothing to match, or nothing to say: " + ", ".join(empty))
+    if trouble:
+        raise AssertionError("glossary: " + "; ".join(trouble))
+
+
+_audit_patterns()
 
 if __name__ == "__main__":
     print(f"{len(GLOSSARY)} terms defined")
