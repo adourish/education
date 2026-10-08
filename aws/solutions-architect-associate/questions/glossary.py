@@ -18,6 +18,9 @@ say which option is correct, because a hint that answers the question for you
 teaches nothing.
 """
 
+import re
+
+
 GLOSSARY: dict[str, tuple[str, str]] = {
 
     # ---------------- compute ----------------
@@ -491,6 +494,51 @@ def compile_glossary():
     items.sort(key=lambda t: -len(t[0]))
     return items
 
+
+
+# --------------------------------------------------------------------------
+# Patterns that cannot match, caught here rather than noticed later.
+#
+# A pattern written without the r prefix turns \b into a backspace character.
+# It still compiles, still runs, and matches nothing, so the only sign is a
+# term that quietly never appears. That has happened twice: once to a term for
+# an exam option worth three questions, and once to a pair of service names.
+# Both were found by counting matches by hand, which is luck rather than a
+# process, so the same three checks the diagram library makes are made here.
+# --------------------------------------------------------------------------
+def _audit_patterns() -> None:
+    control, doubled, broken, empty = [], [], [], []
+    for name, (pattern, what) in GLOSSARY.items():
+        if any(ord(c) < 32 for c in pattern + what):
+            control.append(name)
+        if "\\\\" in pattern:
+            doubled.append(name)
+        if not pattern.strip() or not what.strip():
+            empty.append(name)
+            continue
+        try:
+            re.compile(pattern)
+        except re.error as e:
+            broken.append(f"{name} ({e})")
+
+    trouble = []
+    if control:
+        trouble.append(
+            "a control character, which means a missing r prefix on the "
+            "string: " + ", ".join(control))
+    if doubled:
+        trouble.append(
+            "a doubled backslash, which matches a real backslash and so "
+            "matches nothing: " + ", ".join(doubled))
+    if broken:
+        trouble.append("a pattern that will not compile: " + ", ".join(broken))
+    if empty:
+        trouble.append("nothing to match, or nothing to say: " + ", ".join(empty))
+    if trouble:
+        raise AssertionError("glossary: " + "; ".join(trouble))
+
+
+_audit_patterns()
 
 if __name__ == "__main__":
     print(f"{len(GLOSSARY)} terms defined")

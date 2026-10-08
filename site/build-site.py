@@ -225,7 +225,24 @@ NOT_FOUND = """<!doctype html>
 
 def main() -> None:
     if not APP.exists():
-        raise SystemExit(f"{APP.name} is missing - run build-app.py first.")
+        raise SystemExit(f"{APP.name} is missing - run build.py from the "
+                         "top of the repository, which builds everything in "
+                         "the order it has to be built.")
+
+    # docs/ is the only built thing kept in git, so it is the one that can
+    # quietly ship a version that no longer exists. A page built by an older
+    # run of build-app.py carries an older version number than the one that
+    # script would stamp today, which is cheap to notice and worth refusing.
+    want = re.search(r'APP_VERSION = "([^"]+)"',
+                     (ROOT / "aws" / "solutions-architect-associate" / "app"
+                      / "build-app.py").read_text(encoding="utf-8"))
+    if want:
+        found = app_version(APP)
+        if found != want.group(1):
+            raise SystemExit(
+                f"{APP.name} was built as v{found} but build-app.py now says "
+                f"v{want.group(1)}. Run build.py from the top of the "
+                "repository so docs/ is not published from an old build.")
 
     if DOCS.exists():
         shutil.rmtree(DOCS)
