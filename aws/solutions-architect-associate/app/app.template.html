@@ -1132,7 +1132,7 @@ footer .v { font-family: var(--mono); }
     <div class="board" id="board"></div>
 
     <details class="fold" id="fold-dec" data-fold="dec">
-      <summary>How to choose<span class="count" id="decCount"></span></summary>
+      <summary>Compare the choices<span class="count" id="decCount"></span></summary>
       <div class="inner">
         <p class="lede">The handful of choices the exam keeps asking. Six hundred
           questions are not six hundred decisions: they come back to these. Each one
@@ -3615,15 +3615,15 @@ footer .v { font-family: var(--mono); }
         decBox.appendChild(drawDecision(DEC_BY_ID[id], DEC_ASKED[id]));
       });
       var decBtn = el("button", "btn hintbtn",
-        decIds.length > 1 ? "How to choose (" + decIds.length + ")" : "How to choose");
+        decIds.length > 1 ? "Compare the choices (" + decIds.length + ")" : "Compare the choices");
       decBtn.setAttribute("aria-expanded", "false");
       decBtn.addEventListener("click", function () {
         var open = decBox.hidden;
         decBox.hidden = !open;
         decBtn.setAttribute("aria-expanded", String(open));
-        decBtn.textContent = open ? "Hide how to choose"
-          : (decIds.length > 1 ? "How to choose (" + decIds.length + ")"
-                               : "How to choose");
+        decBtn.textContent = open ? "Hide the choices"
+          : (decIds.length > 1 ? "Compare the choices (" + decIds.length + ")"
+                               : "Compare the choices");
       });
       tools.appendChild(decBtn);
       laterBoxes.push(decBox);

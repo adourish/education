@@ -17,10 +17,13 @@ Each one is:
     id      short and stable
     title   what the choice is, as a question
     area    which part of the exam it belongs to
-    words   a phrase that must appear in the question or its options. Matched
-            against the whole question rather than the answer, because a
-            decision is relevant when the options span the choice, whether or
-            not the right one was picked.
+    choices the distinct destinations. A question is asking this decision when
+            two or more of them turn up among its options, which is what being
+            asked to choose actually looks like.
+    stem    the problem this choice exists to solve, as the question states it.
+            A well-made question often pairs one real destination with three
+            distractors nobody would list, so one destination counts when the
+            question says it has this problem.
     unless  a phrase that rules it out
     rows    (what the question says, what that means you pick)
     traps   what the question is really testing, which is usually a limit or a
@@ -35,6 +38,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "s3-class",
+        "stem": r"storage cost|cost of storage|access(ed)? (less|infrequent|rarely)|archiv|retain|older than|after \d+ days|lifecycle|how often",
         "choices": [
             r"S3 Standard(?!-IA)|Standard storage class",
             r"Intelligent-Tiering",
@@ -46,8 +50,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "Which S3 storage class",
         "area": "storage",
-        "words": r"Standard-IA|One Zone|Intelligent-Tiering|Glacier|storage class|"
-                 r"Deep Archive",
         "rows": [
             ("read often, and you know it will be", "S3 Standard"),
             ("nobody can say how often", "Intelligent-Tiering"),
@@ -70,6 +72,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "container-where",
+        "stem": r"container|Docker image|microservice",
         "choices": [
             r"Lambda",
             r"Fargate",
@@ -80,7 +83,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "Where to run a container",
         "area": "compute",
-        "words": r"container|Docker|Fargate|\bECS\b|\bEKS\b",
         "rows": [
             ("it finishes inside 15 minutes", "Lambda, with a container image"),
             ("longer than that, or always on", "ECS on Fargate"),
@@ -102,6 +104,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "db-engine",
+        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series",
         "choices": [
             r"Aurora",
             r"DynamoDB",
@@ -114,8 +117,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "Which database",
         "area": "database",
-        "words": r"Aurora|DynamoDB|RDS for|DocumentDB|Neptune|Keyspaces|Timestream|"
-                 r"relational|NoSQL",
         "rows": [
             ("joins, transactions, existing SQL", "RDS"),
             ("the same, but faster and surviving a Region", "Aurora"),
@@ -140,6 +141,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "decouple",
+        "stem": r"decoupl|loosely coupled|buffer|spike|asynchron|between the|must not be lost|order of|fan out",
         "choices": [
             r"\bSQS\b",
             r"\bSNS\b",
@@ -150,7 +152,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "How to put something in between",
         "area": "integration",
-        "words": r"\bSQS\b|\bSNS\b|EventBridge|Kinesis|Step Functions|decouple|queue",
         "rows": [
             ("one sender, one worker, nothing lost", "SQS"),
             ("order matters, and no duplicates", "SQS FIFO"),
@@ -171,6 +172,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "balancer",
+        "stem": r"load balanc|distribute (the )?traffic|in front of|static IP|route (the )?requests",
         "choices": [
             r"Application Load Balancer|\bALB\b",
             r"Network Load Balancer|\bNLB\b",
@@ -180,8 +182,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "Which load balancer",
         "area": "networking",
-        "words": r"Application Load Balancer|Network Load Balancer|Gateway Load|"
-                 r"\bALB\b|\bNLB\b|\bGWLB\b|load balancer",
         "rows": [
             ("routing on path, host or header", "Application Load Balancer"),
             ("a fixed address, or an allow-list", "Network Load Balancer"),
@@ -202,6 +202,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "read-scale",
+        "stem": r"report(ing)? quer|read (traffic|queries|load|performance)|without (affecting|impacting)|offload|read-heavy|same quer|repeated(ly)? (read|quer)|latency of (the )?(read|quer)",
         "choices": [
             r"read replica",
             r"ElastiCache",
@@ -211,8 +212,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "How to take load off a database",
         "area": "database",
-        "words": r"read replica|ElastiCache|\bDAX\b|reader endpoint|read traffic|"
-                 r"caching",
         "rows": [
             ("the same queries over and over", "ElastiCache"),
             ("the same, and it is DynamoDB", "DAX"),
@@ -234,6 +233,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "files-in",
+        "stem": r"on-premises|on premises|data cent(er|re)|migrat\w+ .{0,30}data|transfer .{0,30}(data|files)|existing (NFS|SMB|tape)",
         "choices": [
             r"Storage Gateway",
             r"DataSync",
@@ -244,8 +244,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "How to get data in from your own building",
         "area": "storage",
-        "words": r"Storage Gateway|DataSync|Snowball|Snowcone|Transfer Family|"
-                 r"on-premises|on premises",
         "rows": [
             ("a lot, once, and the line is too slow", "Snowball Edge"),
             ("a lot, repeatedly, over the network", "DataSync"),
@@ -267,6 +265,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "shared-files",
+        "stem": r"shared (file|storage)|same files|concurrently|many (instances|servers)|file system|mount",
         "choices": [
             r"\bEFS\b",
             r"FSx for Windows",
@@ -277,7 +276,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "Which file system",
         "area": "storage",
-        "words": r"\bEFS\b|\bFSx\b|Lustre|ONTAP|OpenZFS|shared file|file system",
         "rows": [
             ("many Linux servers, across zones", "EFS"),
             ("Windows, SMB, Active Directory", "FSx for Windows File Server"),
@@ -298,6 +296,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "ec2-buy",
+        "stem": r"cost|cheapest|reduce .{0,20}spend|interrupt|steady state|committed|licens",
         "choices": [
             r"Spot",
             r"Reserved Instance",
@@ -308,8 +307,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "How to pay for EC2",
         "area": "cost",
-        "words": r"Spot|Reserved Instance|Savings Plan|On-Demand|Dedicated Host|"
-                 r"Dedicated Instance",
         "rows": [
             ("steady, and running all the time", "Savings Plan, or Reserved Instances"),
             ("steady, and you may change instance type", "Compute Savings Plan"),
@@ -331,6 +328,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "network-join",
+        "stem": r"on-premises|on premises|data cent(er|re)|hybrid|private connect|without (traversing|using) the (public )?internet|between VPCs",
         "choices": [
             r"Direct Connect",
             r"Site-to-Site VPN",
@@ -341,8 +339,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "How to join two networks",
         "area": "networking",
-        "words": r"Direct Connect|Site-to-Site VPN|Transit Gateway|VPC peering|"
-                 r"PrivateLink|VPC endpoint",
         "rows": [
             ("steady, predictable, never the internet", "Direct Connect"),
             ("needed this week, cost matters", "Site-to-Site VPN"),
@@ -364,6 +360,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "encrypt",
+        "stem": r"encrypt|at rest|key|complian|audit",
         "choices": [
             r"SSE-KMS|\bKMS\b",
             r"SSE-S3",
@@ -374,7 +371,6 @@ DECISIONS: list[dict] = [
         ],
         "title": "Who holds the key",
         "area": "security",
-        "words": r"SSE-KMS|SSE-S3|SSE-C|CloudHSM|client-side|encrypt",
         "rows": [
             ("encrypted, and nobody asked who by", "SSE-S3"),
             ("you must say who may use the key", "SSE-KMS, a customer managed key"),
@@ -395,6 +391,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "who-may",
+        "stem": r"access to|permission|who (can|may)|least privilege|sign in|sign-in|authenticat|federat|credential",
         "choices": [
             r"IAM role",
             r"instance profile",
@@ -403,11 +400,13 @@ DECISIONS: list[dict] = [
             r"\bSCP\b|service control polic",
             r"Cognito",
             r"access key",
+            r"\bSAML\b|SAML-based",
+            r"[Ww]eb [Ii]dentity [Ff]ederation|OpenID|OIDC",
+            r"[Cc]ross-[Aa]ccount",
+            r"Directory Service|Managed Microsoft AD",
         ],
         "title": "How to say who may do what",
         "area": "security",
-        "words": r"IAM role|IAM polic|assume|trust polic|Identity Center|\bSCP\b|"
-                 r"bucket policy|resource-based",
         "rows": [
             ("an application on an instance", "An instance role"),
             ("a function", "An execution role"),
@@ -426,11 +425,43 @@ DECISIONS: list[dict] = [
             "permission on the caller.",
         ],
     },
+
+    {
+        "id": "scaling-policy",
+        "choices": [
+            r"target tracking",
+            r"step scaling",
+            r"simple scaling",
+            r"scheduled scaling|scheduled action",
+            r"predictive scaling",
+            r"warm pool",
+        ],
+        "title": "Which scaling policy",
+        "area": "compute",
+        "rows": [
+            ("keep one number where you want it", "Target tracking"),
+            ("different sizes of response to different gaps", "Step scaling"),
+            ("a rush you can name the hour of", "Scheduled scaling"),
+            ("a pattern that repeats week to week", "Predictive scaling"),
+            ("instances take too long to start", "A warm pool"),
+            ("the metric is memory or disk", "The CloudWatch agent, then "
+                                             "target tracking"),
+        ],
+        "traps": [
+            "Target tracking is the one to reach for unless the question gives a "
+            "reason not to. Step scaling is for when the size of the response has "
+            "to vary with how far out the number is.",
+            "Memory and disk space are not there until the CloudWatch agent is "
+            "installed. Processor and network are.",
+            "A warm pool answers slow starts, not slow scaling decisions: it is "
+            "about how long an instance takes to be useful.",
+        ],
+    },
 ]
 
 
-_WORDS: dict[str, re.Pattern] = {}
 _NOT: dict[str, re.Pattern] = {}
+_STEM: dict[str, re.Pattern] = {}
 
 
 def _rx(cache: dict, key: str, phrase: str) -> re.Pattern:
@@ -469,10 +500,16 @@ def decisions_for(question: str, options: list[str] | None = None,
         if pats is None:
             pats = _CHOICE[d["id"]] = [re.compile(p, re.I) for p in d["choices"]]
         spanned = sum(1 for rx in pats if any(rx.search(o) for o in opts))
+        if not spanned:
+            continue
+        # Two destinations on offer is a choice on its own. One destination is
+        # a choice when the question states the problem that choice answers,
+        # because a well-made question often pairs the right service with
+        # three distractors nobody would list as destinations.
         if spanned < 2:
-            continue
-        if not _rx(_WORDS, d["id"], d["words"]).search(text):
-            continue
+            stem = d.get("stem")
+            if not stem or not _rx(_STEM, d["id"], stem).search(question or ""):
+                continue
         no = d.get("unless")
         if no and _rx(_NOT, d["id"], no).search(text):
             continue
@@ -493,7 +530,7 @@ _ids = [d["id"] for d in DECISIONS]
 if len(set(_ids)) != len(_ids):
     raise AssertionError("two decisions share an id")
 for _d in DECISIONS:
-    _pat = _d["words"] + (_d.get("unless") or "")
+    _pat = (_d.get("stem") or "") + (_d.get("unless") or "")
     if any(ord(c) < 32 for c in _pat):
         raise AssertionError(
             f"{_d['id']}: a control character in the pattern, which means a "
