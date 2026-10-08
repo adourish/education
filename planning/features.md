@@ -1,11 +1,12 @@
 # What the app does today
 
-Live at https://adourish.github.io/education/ · version 1.25.0
+Live at https://adourish.github.io/education/ · version 1.31.0
 
-One HTML file. The questions, the recall poster and the glossary are baked into
-it, so it works with no signal once loaded. Everything about your progress is
-kept in the browser's own storage on that device. There is no account, no
-server and nothing sent anywhere.
+One HTML file per exam. The questions, the recall poster and the glossary are
+baked into it, and a service worker keeps the page itself, so it installs to a
+home screen and opens with no signal. Everything about your progress is kept in
+the browser's own storage on that device. There is no account, no server and
+nothing sent anywhere.
 
 ## The three tabs
 
@@ -40,7 +41,8 @@ server and nothing sent anywhere.
 ## Keeping your place
 
 - **Several half-finished sets are kept**, up to twelve. Starting a new one
-  puts the old one aside rather than destroying it
+  puts the old one aside rather than destroying it. **Forget this one** is the
+  only thing that removes one, and it asks first
 - Coming back offers every one of them, newest worked on first, each with when
   it was begun, when you last picked it up, how many times, and when you last
   worked on it. **Put this aside** drops one for good
@@ -48,6 +50,28 @@ server and nothing sent anywhere.
   area filter does not leave a trail of sets nobody touched
 - A resumed mock says how much time is left, and marks itself as it stands if
   the clock ran out while you were away
+
+## Installing it
+
+- **Add to Home screen** on a phone, and it opens like an app with no browser
+  chrome around it
+- It opens from its own cache, so it works with no signal once opened once
+- A new version is fetched quietly in the background. When one is ready a bar
+  offers **Update now** or **Not now**, and nothing changes until you say so,
+  because being thrown out of a half-read question is worse than being ten
+  minutes behind
+- Each exam installs as itself, with its own name, icon and cache
+
+## Runs
+
+- Each go at a set of questions is scored and kept, by category
+- A run is scored from its first answer, so the set in hand shows too, not just
+  finished ones
+- **Recent runs** lists the last five with what, when, which device and how many
+  were right. Open one for the category breakdown; the full list expands
+- A set still going carries **Carry on**, so it can be picked up from here
+- Runs travel in the export and join by identity, so a phone run sits beside a
+  laptop run
 
 ## More than one exam
 
@@ -77,9 +101,10 @@ Built for reading comfort first, because that is the constraint that matters.
 
 ## Moving between devices
 
-- **Export** writes a single block of text covering **every exam** this browser
-  has work for: each one's answers with the date each was given, the totals,
-  and every half-finished set
+- **Export** writes a file covering **every exam** this browser has work for:
+  each one's answers with the date each was given, the totals, every
+  half-finished set and every run
+- **Merge from a file**, drop one on the box, or paste one in
 - **Import** merges rather than overwriting, exam by exam. Answers add up, and
   where two devices disagree about a question it goes on the revisit list
 - **Half-finished sets merge by identity, so nothing is replaced.** This
