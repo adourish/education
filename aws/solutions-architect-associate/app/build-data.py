@@ -36,7 +36,8 @@ OUT = HERE / "app-data.json"
 sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
 from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
-from diagrams import DIAGRAMS, diagrams_for, as_is_for  # noqa: E402, as_is_for
+from diagrams import DIAGRAMS, diagrams_for, as_is_for  # noqa: E402
+from decisions import DECISIONS, decisions_for  # noqa: E402, as_is_for
 
 # Bumped when the question set itself changes, separately from the app.
 VERSION = "1.8.0"
@@ -216,6 +217,10 @@ def main() -> None:
             # answer's picture so it can be looked at without being told the
             # answer, and left out when the two are the same.
             "dgnow": as_is_for(q, diagrams_for(a)),
+            # The choices this question is putting in front of you, worked out
+            # from what its options span rather than from the right answer, so
+            # it is just as useful before you have picked one.
+            "dec": decisions_for(q, r.get("options")) or None,
         })
 
     # How many questions touch each poster line. A line nothing covers is a gap
@@ -256,6 +261,13 @@ def main() -> None:
         "diagrams": {d["id"]: {"title": d["title"], "nodes": d["nodes"],
                                "edges": d["edges"], "note": d["note"]}
                      for d in DIAGRAMS},
+        # The dozen choices the exam keeps asking, each as a list of branches
+        # rather than a flowchart: a decision that fans seven ways is
+        # unreadable on a phone as boxes and arrows.
+        "decisions": [{"id": d["id"], "title": d["title"], "area": d["area"],
+                       "rows": [list(r) for r in d["rows"]],
+                       "traps": d["traps"]}
+                      for d in DECISIONS],
         # What the real paper is made of, so a mock can be drawn in the same
         # proportions rather than in whatever proportions the question sets
         # happen to hold. Kept apart from "exam", which is the exam's name.
