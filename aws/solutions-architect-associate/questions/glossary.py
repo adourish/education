@@ -184,8 +184,23 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "gp3 is the general-purpose default. io1 and io2 are for guaranteed high IOPS. st1 is cheap sequential throughput, sc1 is the coldest and cheapest."),
     "EBS snapshot": (r"snapshot",
         "A point-in-time backup of a disk, stored in S3 and tied to one region. Copying a snapshot is how you move a volume between zones or regions."),
+    "EFS throughput mode": (r"throughput mode|Bursting throughput|Elastic throughput",
+        "How much an EFS file system will carry, and how it is charged for. "
+        "Bursting goes by how much is stored, about 50 KiB a second for every "
+        "GiB, and builds up credit while it sits under that which it can spend "
+        "going over; so a small file system meeting a sudden load runs the "
+        "credit down and slows to its baseline. Elastic works the other way "
+        "about: it rises and falls with whatever the work is actually doing and "
+        "charges for what was moved, which is what a spike nobody can size in "
+        "advance wants. Provisioned is a figure you name and pay for whether it "
+        "is used or not, for a steady known demand on a small amount of data. "
+        "Elastic needs the General Purpose performance mode, which is the one "
+        "to use anyway: Max I/O is the old one and costs latency."),
     "Amazon EFS": (r"\bEFS\b|Elastic File System",
-        "A shared file system many Linux servers can mount at once, over NFS. It spans Availability Zones and grows and shrinks on its own."),
+        "A shared file system many Linux servers can mount at once, over NFS. "
+        "It spans Availability Zones and grows and shrinks on its own. How fast "
+        "it goes is a separate choice from how big it is: see the throughput "
+        "mode."),
     "Amazon FSx": (r"\bFSx\b",
         "Managed file systems, and which one matters: FSx for Windows File Server for Windows and SMB, FSx for Lustre for speed. Picking the family is never the answer; picking the right one is."),
     "FSx for Windows File Server": (r"FSx for Windows",
