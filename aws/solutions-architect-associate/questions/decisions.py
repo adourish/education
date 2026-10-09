@@ -427,6 +427,43 @@ DECISIONS: list[dict] = [
     },
 
     {
+        "id": "scale-how",
+        "choices": [
+            r"Auto Scaling group",
+            r"larger instance|instance (size|type)|vertical|scale up|resiz",
+            r"horizontal|scale out|additional (EC2 )?instances|more instances",
+            r"scheduled scaling|scheduled action",
+            r"(across|in) (two|three|multiple|separate|different) Availability Zones|"
+            r"spread across|Multi-AZ",
+            r"load balancer|\bALB\b|\bNLB\b",
+        ],
+        "stem": r"growing|grow(th|s)?|more traffic|increase in (traffic|usage|load)|"
+                r"handle (the )?(growing|increasing|additional)? ?(traffic|load|demand)|"
+                r"spike|peak|scal|resilien|single (EC2 )?instance|"
+                r"single Availability Zone",
+        "title": "How to carry more traffic",
+        "area": "compute",
+        "rows": [
+            ("more of the same work at once", "More instances, in an Auto Scaling group"),
+            ("one job that cannot be split up", "A larger instance"),
+            ("it must survive losing a zone", "Instances in two zones or more"),
+            ("the rush has an hour you can name", "Scheduled scaling"),
+            ("the rush cannot be predicted", "A scaling policy on a measurement"),
+            ("the work must never be turned away", "A minimum count on the group"),
+        ],
+        "traps": [
+            "Scaling up means a stop and a start, so it is not a way to meet a spike "
+            "and it leaves you on one machine, which is still one thing to lose.",
+            "Adding instances by hand is not scaling. Without a group, nothing adds "
+            "them, nothing takes them away, and nothing replaces one that dies.",
+            "Instances in a single zone are not resilient however many there are. "
+            "Resilience is about where they sit, not how many.",
+            "Nine instances to be safe is the expensive wrong answer: a group with a "
+            "sensible minimum does the same job and costs what the traffic costs.",
+        ],
+    },
+
+    {
         "id": "scaling-policy",
         "choices": [
             r"target tracking",
