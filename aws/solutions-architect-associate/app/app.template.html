@@ -448,13 +448,20 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .optline { display: flex; align-items: stretch; gap: 8px; }
 .optline .opt { flex: 1; min-width: 0; }
 
+/* The letter, and under it the button that reads the option aloud. Side by
+   side they took two columns of a phone's width for two things that are
+   pressed rarely; stacked they take one. */
+.optmarks {
+  flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px;
+  align-self: flex-start;
+}
+
 /* The letter, as something to press. It used to sit inside the option text as
    "A. ", so giving it its own target costs almost none of the width back: a
    phone has little enough to spare. Pressing it crosses the option off while
    you think, and pressing it again brings it back. */
 .optletter {
-  flex: 0 0 auto; align-self: stretch;
-  width: 34px; min-height: 40px; padding: 0;
+  width: 36px; min-height: 36px; padding: 0;
   font: 500 0.95rem/1 var(--mono);
   background: var(--ground); color: var(--ink-2);
   border: 1px solid var(--rule); border-radius: 8px; cursor: pointer;
@@ -471,8 +478,7 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   text-decoration-thickness: 1px; border-style: dashed;
 }
 .optspeak {
-  flex: 0 0 auto; align-self: stretch;
-  width: 40px; min-height: 40px; padding: 0;
+  width: 36px; min-height: 36px; padding: 0;
   font-size: 0.8rem; line-height: 1;
   background: var(--ground); color: var(--ink-2);
 }
@@ -3756,6 +3762,8 @@ footer .v { font-family: var(--mono); }
       });
       pool.forEach(function (o) {
         var line = el("div", "optline");
+        var marks = el("div", "optmarks");
+        line.appendChild(marks);
         if (speech) {
           var sp = el("button", "btn optspeak", "▶");
           sp.type = "button";
@@ -3768,7 +3776,7 @@ footer .v { font-family: var(--mono); }
             ev.stopPropagation();
             speakWith(sp, "Option " + o.shown + ". " + o.text, "▶");
           });
-          line.appendChild(sp);
+          marks.appendChild(sp);
         }
         var b = el("button", "opt");
 
@@ -3792,7 +3800,7 @@ footer .v { font-family: var(--mono); }
           letter.title = out ? "Bring this one back" : "Rule this one out";
         });
         letterBtns.push(letter);
-        line.appendChild(letter);
+        marks.insertBefore(letter, marks.firstChild);
 
         var points = bulletMode ? bulletsFor(o.text) : [];
         if (points.length > 1) {
