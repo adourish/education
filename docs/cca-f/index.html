@@ -469,13 +469,31 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .qtext.bul { font-size: 1.05rem; }
 .opt .bul { margin: 0; font-size: inherit; }
 .optbul { padding-left: 1.6em; }
-.optbul li.lead::before {
-  content: attr(data-letter);
-  font-weight: 700; color: var(--ink);
-  left: -1.6em;
-}
 .optline { display: flex; align-items: stretch; gap: 8px; }
-.optline .opt { flex: 1; }
+.optline .opt { flex: 1; min-width: 0; }
+
+/* The letter, as something to press. It used to sit inside the option text as
+   "A. ", so giving it its own target costs almost none of the width back: a
+   phone has little enough to spare. Pressing it crosses the option off while
+   you think, and pressing it again brings it back. */
+.optletter {
+  flex: 0 0 auto; align-self: stretch;
+  width: 34px; min-height: 40px; padding: 0;
+  font: 500 0.95rem/1 var(--mono);
+  background: var(--ground); color: var(--ink-2);
+  border: 1px solid var(--rule); border-radius: 8px; cursor: pointer;
+}
+.optletter:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
+.optletter:disabled { cursor: default; opacity: 0.55; }
+/* Out, said three ways over: the letter becomes a cross, the option is struck
+   through, and the whole row steps back. Never by colour alone. */
+.optletter[aria-pressed="true"] {
+  border-style: dashed; color: var(--ink-3);
+}
+.opt.ruledout {
+  opacity: 0.5; text-decoration: line-through;
+  text-decoration-thickness: 1px; border-style: dashed;
+}
 .optspeak {
   flex: 0 0 auto; align-self: stretch;
   width: 40px; min-height: 40px; padding: 0;
@@ -1450,7 +1468,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.36.1";
+  var APP_VERSION = "1.37.0";
   var BUILD_DATE  = "2026-10-09";
   // ---------- where this exam's work is kept ----------
   //
@@ -3747,6 +3765,7 @@ footer .v { font-family: var(--mono); }
 
       var opts = el("div", "opts");
       var optBtns = [];
+      var letterBtns = [];
       var chosen = null;
       // Always in the same place, from the moment the question appears, so the
       // eye learns where it is. It arrives switched off and says what it is
@@ -3777,20 +3796,38 @@ footer .v { font-family: var(--mono); }
           line.appendChild(sp);
         }
         var b = el("button", "opt");
+
+        // Pressing the letter rules the option out, and pressing it again
+        // brings it back. It is a note to yourself while you weigh them up, so
+        // a crossed-off option can still be chosen: changing your mind should
+        // not cost two taps, and nothing here is marking your answer.
+        var letter = el("button", "optletter", o.shown);
+        letter.type = "button";
+        letter.setAttribute("aria-pressed", "false");
+        letter.setAttribute("aria-label", "Rule out option " + o.shown);
+        letter.title = "Rule this one out";
+        letter.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          if (answered) return;
+          var out = b.classList.toggle("ruledout");
+          letter.setAttribute("aria-pressed", String(out));
+          letter.textContent = out ? "\u00d7" : o.shown;
+          letter.setAttribute("aria-label",
+            (out ? "Bring back option " : "Rule out option ") + o.shown);
+          letter.title = out ? "Bring this one back" : "Rule this one out";
+        });
+        letterBtns.push(letter);
+        line.appendChild(letter);
+
         var points = bulletMode ? bulletsFor(o.text) : [];
         if (points.length > 1) {
-          // The letter stands in for the marker on the first point rather than
-          // taking a line of its own. Four options each losing a line is most
-          // of a phone screen back.
           var ul = el("ul", "bul optbul");
-          points.forEach(function (piece, n) {
-            var li = el("li", n === 0 ? "lead" : null, piece);
-            if (n === 0) li.setAttribute("data-letter", o.shown + ".");
-            ul.appendChild(li);
+          points.forEach(function (piece) {
+            ul.appendChild(el("li", null, piece));
           });
           b.appendChild(ul);
         } else {
-          b.textContent = o.shown + ". " + o.text;
+          b.textContent = o.text;
         }
         b.addEventListener("click", function () {
           if (answered) return;
@@ -3810,6 +3847,7 @@ footer .v { font-family: var(--mono); }
           var ok = right ? o === right : false;
           b.classList.add(ok ? "pick-ok" : "pick-bad");
           optBtns.forEach(function (c) { c.disabled = true; });
+          letterBtns.forEach(function (c) { c.disabled = true; });
           if (!ok && right) {
             for (var k = 0; k < optBtns.length; k++) {
               if (pool[k] === right) optBtns[k].classList.add("pick-ok");
@@ -3871,6 +3909,9 @@ footer .v { font-family: var(--mono); }
       reveal.hidden = false;
       if (typeof optBtns !== "undefined" && optBtns) {
         optBtns.forEach(function (c) { c.disabled = true; });
+        if (typeof letterBtns !== "undefined" && letterBtns) {
+          letterBtns.forEach(function (c) { c.disabled = true; });
+        }
         if (typeof right !== "undefined" && right && typeof pool !== "undefined") {
           for (var z = 0; z < optBtns.length; z++) {
             if (pool[z] === right) optBtns[z].classList.add("pick-ok");
