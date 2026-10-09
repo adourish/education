@@ -250,6 +250,15 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "The same DynamoDB table kept in several regions at once, writable in all of them."),
     "Amazon ElastiCache": (r"ElastiCache|Memcached|\bRedis\b",
         "Managed in-memory caching. Redis adds persistence, failover and data structures; Memcached is a simpler multi-threaded cache."),
+    "Redshift Advisor": (r"Redshift Advisor",
+        "Tailored suggestions for making a Redshift cluster quicker or cheaper, "
+        "worked out from what your own queries have been doing: compress this "
+        "table, change that distribution key, this cluster is bigger than it "
+        "needs to be. It is advice about performance and cost, and only that. "
+        "It does not check a cluster against your security policy and it does "
+        "not report compliance, so an option offering it for either is the "
+        "wrong tool rather than the wrong setting. That job belongs to AWS "
+        "Config."),
     "Amazon Redshift": (r"Redshift",
         "A data warehouse for analytics over large structured datasets. Built for reporting, not transactions."),
     "Amazon Neptune": (r"Neptune",
@@ -452,7 +461,12 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS CloudTrail": (r"CloudTrail",
         "Records who called which AWS API, when, and from where. The audit trail, as opposed to CloudWatch's performance view."),
     "AWS Config": (r"AWS Config",
-        "Records how your resources were configured over time and checks them against rules, so you can see what changed and whether it is compliant."),
+        "Records how your resources were configured over time and checks them "
+        "against rules, so you can see what changed and whether it is allowed. "
+        "It is the answer whenever a question asks whether something is set up "
+        "the way the policy says, and whether somebody should be told when it "
+        "is not. A custom rule is a function of yours that returns compliant or "
+        "not, for the policies no built-in rule covers."),
     "AWS CloudFormation": (r"CloudFormation",
         "Describes your infrastructure in a template file so the same stack can be built again identically."),
     "AWS Systems Manager": (r"Systems Manager|\bSSM\b",

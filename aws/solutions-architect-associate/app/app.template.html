@@ -3297,6 +3297,13 @@ footer .v { font-family: var(--mono); }
     s.textContent = "";
     if (!queue.length) { s.textContent = "Pick a category and press Start."; return; }
 
+    // Nothing of the kind under exam conditions. A mock is marked at the end,
+    // so a tally here is not this mock's: it is how these same questions went
+    // before, which both reads as a live score and quietly says which of the
+    // ones still to come you have had right. The clock and the count answered
+    // are on the mock's own bar.
+    if (mock.on) return;
+
     // How it is going in the set being drilled, not across everything ever
     // answered. A set of one question used to sit under a running total in the
     // forties, which says nothing about the set in front of you.
@@ -3308,13 +3315,28 @@ footer .v { font-family: var(--mono); }
       else fresh++;
     });
 
+    // The share right, of what has been answered rather than of the whole
+    // set: a set barely started would otherwise read as a near-total failure
+    // on the strength of the questions nobody has reached yet.
+    var tried = right + missed;
+    function share(n) { return tried ? Math.round(100 * n / tried) + "%" : ""; }
+
     var parts = [
       ["Question", (Math.min(qi + 1, queue.length)) + " of " + queue.length],
-      ["Right", String(right)],
-      ["Missed", String(missed)]
+      ["Right", right + (tried ? " (" + share(right) + ")" : "")],
+      ["Missed", missed + (tried ? " (" + share(missed) + ")" : "")]
     ];
     // Only worth saying while some of the set is still untouched.
     if (fresh && (right || missed)) parts.push(["Not yet tried", String(fresh)]);
+
+    // What the real paper wants, so the share above has something to be
+    // measured against. Said only once there is enough answered for the
+    // figure to mean anything, and only for an exam whose mark we know.
+    var paper = DATA.paper;
+    if (paper && paper.pass && tried >= 10) {
+      var need = Math.round(100 * paper.pass / 1000);
+      parts.push(["Pass mark", need + "%"]);
+    }
     parts.forEach(function (p) {
       var w = el("span");
       w.appendChild(document.createTextNode(p[0] + " "));
