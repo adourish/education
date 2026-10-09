@@ -302,8 +302,29 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "An encrypted tunnel for one person at a time, from a laptop into a VPC. It is for staff who need to reach private resources while away from the office, not for joining two networks: there is no site at the other end, and it runs over the public internet. Whenever a question is about a data centre rather than people, this is the wrong shape."),
     "Site-to-Site VPN": (r"Site-to-Site VPN|virtual private gateway|customer gateway",
         "An encrypted tunnel from your network to AWS over the ordinary internet. The right shape for joining two sites, and up the same day, which is why it wins whenever cost or speed of setup is the point. But it rides the public internet, so latency varies with whatever else is happening out there. That rules it out when a question asks for consistent or predictable latency, and it is often run as the backup for a Direct Connect line."),
+    "Route 53 routing policies": (r"routing policy|weighted routing|latency-based|geolocation|geoproximity|multivalue|multi-value|simple routing",
+        "How Route 53 decides what to answer with. Simple returns the values on "
+        "one record. Weighted gives each a share, which is what a staged "
+        "release needs. Latency sends each person to the quickest Region, "
+        "geolocation sends them by where they are, geoproximity by distance "
+        "with a thumb on the scale. Failover is one live and one waiting. "
+        "Multivalue answer returns several at once, up to eight."),
+    "Simple against multivalue answer": (r"multivalue|multi-value|simple routing|simple record",
+        "Both can hand back more than one address, and only one of them checks "
+        "whether those addresses are up. Simple returns everything on the "
+        "record whether it is healthy or not, because a simple record cannot "
+        "carry a health check. Multivalue answer gives each record its own "
+        "health check and leaves out the ones that are failing, up to eight at "
+        "a time. So a question that wants traffic spread about and wants "
+        "nothing sent to a Region that is down is asking for multivalue, and "
+        "simple is the trap beside it. Neither is a load balancer: the client "
+        "picks from what it is given."),
     "Amazon Route 53": (r"Route ?53",
-        "AWS's DNS. Routes by latency, geography or weight, and away from anything failing a health check."),
+        "AWS's DNS. It can answer differently depending who is asking: by "
+        "latency, by geography, by weight, or with several records at once, and "
+        "it can leave out anything failing a health check. An alias record "
+        "points at an AWS resource, costs nothing to resolve, and works at the "
+        "root of a domain where a CNAME cannot."),
     "Amazon CloudFront": (r"CloudFront",
         "A content delivery network. It caches your content at edge locations around the world so users are served from somewhere near them."),
     "AWS Global Accelerator": (r"Global Accelerator",
