@@ -118,8 +118,24 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Adds and removes EC2 instances automatically to match demand, keeping the count between a minimum and a maximum you set."),
     "Amazon Machine Image (AMI)": (r"\bAMI\b|Amazon Machine Image",
         "A saved template of a disk, used to launch instances that all start identical. An AMI belongs to one region and must be copied to be used in another."),
+    "Spreading Spot across instance types": (r"instance type|divers|capacity[- ]optimized|allocation strategy|Spot Fleet|EC2 Fleet|mixed instance",
+        "Spot capacity is not one pool but one for each instance type in each "
+        "zone. Asking for a single type in a single zone means a single pot, "
+        "and when that runs dry the instances go. Naming several types the work "
+        "could run on, across several zones, is the usual answer to a question "
+        "about making Spot more reliable: all of those pots have to run dry at "
+        "once before anything stops. An Auto Scaling group takes a list of "
+        "types for exactly this, and the capacity-optimized allocation strategy "
+        "then draws from whichever has the most to spare. It is about the "
+        "chance of being interrupted, not about the two minutes' notice, which "
+        "you get either way."),
     "Spot Instances": (r"\bSpot\b",
-        "Spare EC2 capacity at up to about 90% off, which AWS can take back with two minutes' warning. Only suitable for work that can be interrupted and retried."),
+        "Spare EC2 capacity at up to about 90 per cent off, which AWS can take "
+        "back with two minutes' warning. Only for work that can be interrupted "
+        "and tried again. The spare capacity is counted separately for every "
+        "instance type in every zone, so asking for one type in one zone is "
+        "asking from one pot: name several types across several zones and it "
+        "takes all of them running dry at once to stop you."),
     "Reserved Instances": (r"Reserved Instance",
         "A one or three year commitment to a certain amount of EC2 usage, for up to about 72% off the on-demand price."),
     "Savings Plans": (r"Savings Plan",
