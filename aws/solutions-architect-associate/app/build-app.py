@@ -45,7 +45,7 @@ DATA = APP_DIR / "app-data.json"
 OUT = APP_DIR / "app.html"
 SEED = APP_DIR / "progress-seed.json"
 
-APP_VERSION = "1.37.1"
+APP_VERSION = "1.38.0"
 
 # SHA-256 of the board's password. The hash rather than the word, so the
 # password is not sitting in the published file in plain text. This is a
