@@ -2385,6 +2385,27 @@ footer .v { font-family: var(--mono); }
   function renderDrillBanner() {
     relabelAll();
     drillBanner.textContent = "";
+
+    // A second go at what was missed is not a drill off a poster line, but it
+    // is just as much worth saying out loud: a short set of hard questions
+    // with no explanation would otherwise look like the bank gone strange.
+    if (!drilling && retakeOf) {
+      drillBanner.hidden = false;
+      var rbox = el("div", "drill");
+      rbox.appendChild(el("div", "what",
+        "Going again at what you missed in " + retakeOf));
+      rbox.appendChild(el("span", "count",
+        queue.length + (queue.length === 1 ? " question" : " questions") +
+        " · the run you missed them in is kept, under recent runs"));
+      var out = el("button", "btn", "Back to everything");
+      out.addEventListener("click", function () {
+        retakeOf = null; buildQueue(); renderDrillBanner(); renderQuestion();
+      });
+      rbox.appendChild(out);
+      drillBanner.appendChild(rbox);
+      return;
+    }
+
     if (!drilling) { drillBanner.hidden = true; return; }
     drillBanner.hidden = false;
     var box = el("div", "drill");
@@ -2675,12 +2696,52 @@ footer .v { font-family: var(--mono); }
   var sessionId = null;            // which of the kept sets this one is
   var sessionStartedOn = null;     // where it was begun
 
+  // What this set is a second go at, where it is one. Kept so the run it
+  // becomes can say so, rather than looking like any other set of that
+  // category and leaving you to work out why it is eight questions long.
+  var retakeOf = null;
+
   function newSession() {
     sessionStarted = stampNow();
     sessionResumed = null;
     sessionResumes = 0;
     sessionId = newId();
     sessionStartedOn = deviceName();
+    retakeOf = null;
+  }
+
+  // The questions got wrong in one run, by its id. Taken from the log rather
+  // than from the questions' standing record, because what is wanted is how
+  // they went in that run and not how they have ever gone.
+  function missedInRun(runId) {
+    if (!runId) return [];
+    var last = {};
+    (S.log || []).forEach(function (e) {
+      if (!e || e[3] !== runId) return;
+      last[e[1]] = e[2];
+    });
+    return Object.keys(last).filter(function (id) {
+      return !last[id] && QBYID[id];
+    });
+  }
+
+  // Another go at those, as a run of its own. The one they were missed in is
+  // left exactly as it was: the point of this is to see the two side by side.
+  function retakeMissed(ids, label) {
+    var list = (ids || []).map(function (id) { return QBYID[id]; }).filter(Boolean);
+    if (!list.length) return false;
+    newSession();
+    retakeOf = label || null;
+    drilling = null;
+    mock.on = false;
+    queue = shuffle(list);
+    qi = 0;
+    alreadyDone = {};
+    document.getElementById("tab-practice").click();
+    renderDrillBanner();
+    renderQuestion();
+    updateScore();
+    return true;
   }
 
   // Newest worked on first, which is the order they are offered in, and the
@@ -2730,6 +2791,7 @@ footer .v { font-family: var(--mono); }
     // what finished sets did. Reaching the end marks it finished.
     if (touched && sessionId && queue.length) {
       recordRun({ id: sessionId, ids: queue.map(function (q) { return q.id; }),
+                  retakeOf: retakeOf,
                   qi: qi,                     // how far through, which is the
                                               // only thing that knows about
                                               // answers given before runs were
@@ -2748,6 +2810,7 @@ footer .v { font-family: var(--mono); }
       exam: EXAM,
       startedOn: sessionStartedOn || deviceName(),
       lastOn: deviceName(),
+      retakeOf: retakeOf,
       at: stampNow(),                      // last worked on
       started: sessionStarted,             // when this set was begun
       resumed: sessionResumed,             // when it was last picked back up
@@ -2793,6 +2856,7 @@ footer .v { font-family: var(--mono); }
   }
 
   function describeSession(s) {
+    if (s.retakeOf) return "the ones missed in " + s.retakeOf;
     if (s.mock) return "a mock exam";
     if (s.drill) {
       var row = null;
@@ -2827,6 +2891,7 @@ footer .v { font-family: var(--mono); }
     sessionResumes = (s.resumes || 0) + 1;
     sessionId = s.id || newId();
     sessionStartedOn = s.startedOn || null;
+    retakeOf = s.retakeOf || null;
 
     drilling = null;
     if (s.drill) {
@@ -3461,7 +3526,28 @@ footer .v { font-family: var(--mono); }
           "You worked through " + queue.length +
           " questions. The Poster tab now shows your score against every line you touched."));
       }
-      var again = el("button", "btn primary", drilling ? "Go round again" : "Go again");
+      // The ones just missed, while they are still fresh. A second go at them
+      // is a run of its own, so the one they were missed in stays where it is
+      // and the two can be read side by side.
+      var justMissed = missedInRun(sessionId);
+      if (justMissed.length) {
+        var whatThisWas = retakeOf ? retakeOf
+          : (drilling ? "“" + drilling.cue + "”" : areaName(areaSel.value));
+        var retake = el("button", "btn primary",
+          "Go again at the " + justMissed.length +
+          (justMissed.length === 1 ? " you missed" : " you missed"));
+        retake.addEventListener("click", function () {
+          retakeMissed(justMissed, whatThisWas);
+        });
+        done.appendChild(retake);
+        done.appendChild(el("p", "lede",
+          "Only those, as a run of its own. This one stays under recent runs, so "
+          + "you can see the two next to each other."));
+      }
+
+      var again = el("button", drilling || !justMissed.length ? "btn primary" : "btn",
+        drilling ? "Go round again" : "Go again");
+      if (justMissed.length) again.style.marginRight = "8px";
       again.addEventListener("click", function () {
         if (drilling) { queue = shuffle(queue); qi = 0; renderDrillBanner(); }
         else { buildQueue(); }
@@ -4128,6 +4214,19 @@ footer .v { font-family: var(--mono); }
         var go = el("button", "btn primary", "Carry on");
         go.addEventListener("click", function () { resumeSession(live); });
         inner.appendChild(go);
+      }
+
+      // Any run with something missed in it can be gone at again, however
+      // long ago it was. The run itself is not touched.
+      var missed = missedInRun(run.id);
+      if (missed.length) {
+        var rt = el("button", "btn" + (live ? "" : " primary"),
+          "Go again at the " + missed.length + " missed");
+        if (live) rt.style.marginLeft = "8px";
+        rt.addEventListener("click", function () {
+          retakeMissed(missed, run.label || "an earlier run");
+        });
+        inner.appendChild(rt);
       }
 
       inner.appendChild(runBreakdown(run));
