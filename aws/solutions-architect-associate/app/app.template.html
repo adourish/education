@@ -1005,6 +1005,9 @@ select {
 .decrow .when { font-size: 0.88rem; color: var(--ink-2); line-height: 1.55; }
 .decrow .when::before { content: "If "; color: var(--ink-3); }
 .decrow .then { font-size: 0.95rem; font-weight: 500; line-height: 1.55; }
+.decrow .then::before { content: "then "; color: var(--ink-3); font-weight: 400; }
+.dec .missedof { margin: -4px 0 8px; font-size: 0.8rem; font-weight: 500;
+                 color: var(--magenta); }
 .dectraps { margin: 12px 0 0; padding: 10px 12px; border-radius: 7px;
             border: 1px solid var(--rule); border-left: 3px solid var(--magenta);
             background: var(--surface-2); }
@@ -1171,9 +1174,10 @@ footer .v { font-family: var(--mono); }
     <details class="fold" id="fold-dec" data-fold="dec" open>
       <summary>Compare the choices<span class="count" id="decCount"></span></summary>
       <div class="inner">
-        <p class="lede">The handful of choices the exam keeps asking. Six hundred
-          questions are not six hundred decisions: they come back to these. Each one
-          is the branches, then what the question is really testing underneath.</p>
+        <p class="lede">The choices the exam keeps asking. Eighteen hundred
+          questions are not eighteen hundred decisions: most come back to one of
+          these. Each is a list of if and then, with what the question is really
+          testing underneath. The ones you have missed questions on come first.</p>
         <div id="decList"></div>
       </div>
     </details>
@@ -3760,7 +3764,8 @@ footer .v { font-family: var(--mono); }
       var decBox = el("div", "decs");
       decBox.hidden = true;
       decIds.forEach(function (id) {
-        decBox.appendChild(drawDecision(DEC_BY_ID[id], DEC_ASKED[id]));
+        decBox.appendChild(drawDecision(DEC_BY_ID[id], DEC_ASKED[id],
+                                        decMissed()[id]));
       });
       var decBtn = el("button", "btn hintbtn",
         decIds.length > 1 ? "Compare the choices (" + decIds.length + ")" : "Compare the choices");
@@ -4089,12 +4094,18 @@ footer .v { font-family: var(--mono); }
 
   // One choice, as a list of branches with the traps underneath. Used both
   // beside a question and on the poster, so the two cannot drift apart.
-  function drawDecision(dec, asked) {
+  function drawDecision(dec, asked, missed) {
     var box = el("div", "dec");
     box.appendChild(el("h5", null, dec.title));
     if (asked) {
       box.appendChild(el("p", "asked",
         asked + (asked === 1 ? " question" : " questions") + " come down to this"));
+    }
+    // Your own record on it, so the choices you keep getting wrong stand out
+    // from the ones you have already got the hang of.
+    if (missed) {
+      box.appendChild(el("p", "missedof",
+        "You have " + missed + " of them standing as missed"));
     }
     (dec.rows || []).forEach(function (r) {
       var row = el("div", "decrow");
@@ -4124,18 +4135,36 @@ footer .v { font-family: var(--mono); }
     });
   });
 
-  // Every choice, on the poster, in the order they are asked about most.
+  // How many of a choice's questions you last got wrong. Counted when asked
+  // rather than kept, because every answer changes it.
+  function decMissed() {
+    var out = {};
+    DATA.questions.forEach(function (q) {
+      if (V.questions[q.id] !== 0) return;
+      (q.dec || []).forEach(function (id) { out[id] = (out[id] || 0) + 1; });
+    });
+    return out;
+  }
+
+  // Every choice, on the poster. The ones you have missed questions on come
+  // first, most missed at the top; after those, the ones asked about most.
   function renderDecisions() {
     var host = document.getElementById("decList");
     if (!host) return;
+    var missed = decMissed();
     var all = (DATA.decisions || []).slice().sort(function (a, b) {
-      return (DEC_ASKED[b.id] || 0) - (DEC_ASKED[a.id] || 0);
+      return ((missed[b.id] || 0) - (missed[a.id] || 0))
+        || ((DEC_ASKED[b.id] || 0) - (DEC_ASKED[a.id] || 0));
     });
     var tally = document.getElementById("decCount");
-    if (tally) tally.textContent = all.length + " choices";
+    if (tally) {
+      var n = Object.keys(missed).length;
+      tally.textContent = all.length + " choices" +
+        (n ? ", " + n + " with misses" : "");
+    }
     host.textContent = "";
     all.forEach(function (d) {
-      host.appendChild(drawDecision(d, DEC_ASKED[d.id]));
+      host.appendChild(drawDecision(d, DEC_ASKED[d.id], missed[d.id]));
     });
   }
 
@@ -4963,7 +4992,7 @@ footer .v { font-family: var(--mono); }
       currentView = t[1];
 
       if (t[0] === "tab-progress") renderProgress();
-      if (t[0] === "tab-poster") renderBoard();
+      if (t[0] === "tab-poster") { renderBoard(); renderDecisions(); }
 
       // Restore after the view has been laid out, or the page has no height to
       // scroll into yet. A timeout rather than requestAnimationFrame, which a
