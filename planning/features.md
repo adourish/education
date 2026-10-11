@@ -30,8 +30,12 @@ nothing sent anywhere.
 ## Help on a question
 
 - **Explain the terms** — plain-English definitions of the AWS names in the
-  question and all its options. 162 terms, about 5 attached to a typical
+  question and all its options. 182 terms, about 5 attached to a typical
   question
+- **Compare the choices** — the decision the question is really asking, as a
+  list of if and then, with what the examiner is testing underneath. 29
+  choices reach 1,137 of the 1,799 questions. Each says how many of its
+  questions you last got wrong, and the poster puts those first
 - **Show the diagram** — a drawing of the arrangement the answer describes.
   82 shared pictures across 647 questions, drawn in whatever theme you have on
 - **What they have now** — where the question describes a setup someone already

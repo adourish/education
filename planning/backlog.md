@@ -6,7 +6,7 @@ either small and useful, or needed by something below it.
 Sizes are rough: **small** is an evening, **medium** a day, **large** more than
 that or carrying real risk.
 
-Current version: **1.31.0**
+Current version: **1.39.0**
 
 ---
 
@@ -28,20 +28,7 @@ watermarked ones kept locally and never committed. Point me at them and it is
 an evening: raise the cap, re-parse, rebuild, check the page is still a sane
 size.
 
-### 2. Refuse a broken pattern in the glossary, the way the diagrams do
-**small** · a bug that has now happened three times
-
-A pattern written without the `r` prefix turns `\b` into a backspace
-character. It still compiles, still runs, and silently matches nothing. The
-diagram library refuses to load when that happens; the glossary does not, and
-has been bitten twice, most recently the `immutable` term, which matched zero
-questions where it should have matched three.
-
-Both times it was caught only by checking the match count by hand. The same
-guard belongs in `questions/glossary.py`: no control character in any pattern,
-and no doubled backslash either.
-
-### 3. A home page listing exams and open sets
+### 2. A home page listing exams and open sets
 **medium**
 
 Small page, no question data of its own. Lists the exams there is material for,
@@ -51,7 +38,7 @@ Now that each exam installs separately this also answers "which one am I
 installing", and it is the only way to the second exam other than a footer
 link.
 
-### 4. Export one exam on its own
+### 3. Export one exam on its own
 **small**
 
 Export covers every exam, which is right as the default. Sometimes you want
@@ -59,22 +46,11 @@ only one, for instance to hand the AWS work to someone studying the same exam.
 The import side already copes with either, so this is a second button and
 nothing more.
 
-### 5. Stop committing the built pages
-**small** · housekeeping, but it costs time on every single change
-
-`app.html`, `app-data.json` and the two recall-board files are build output and
-are committed. Only `docs/` has to be in git, because that is what Pages
-serves. Every squash merge therefore collides with the next branch on files
-nobody edits by hand: every pull request today needed a merge and a rebuild
-before it would go in.
-
-Keep `docs/`, ignore the rest, and have the build refuse if `docs/` is stale.
-
 ---
 
 ## Waiting on something
 
-### 6. A real question bank for the Claude Certified Architect exam
+### 4. A real question bank for the Claude Certified Architect exam
 **large** · blocked on material and on a decision
 
 Twelve questions, all from the official guide's samples. The page is built,
@@ -85,7 +61,7 @@ Also needs a decision: that guide is marked confidential in its footer, this
 repository is public, and the samples are served at a public URL. Removing them
 is one line in `site/build-site.py` plus the questions file.
 
-### 7. Review the before-pictures
+### 5. Review the before-pictures
 **medium** · worth doing, not urgent
 
 The answer pictures were reviewed against 531 sampled judgements and 72 wrong
@@ -108,12 +84,34 @@ but the same thorough pass would settle it.
 | Say which publisher a question came from on the card | small | Useful when one publisher's answer looks wrong |
 | A way to flag a question as wrong while practising | small | Today a correction needs a code change |
 | Steady the one flaky test | small | `f2-sets` misses its first question about one run in three, on timing |
+| The choices you miss, on the progress page | small | The poster orders by it already; progress could list the choices with a miss and a link to each |
+| The last 662 questions | medium | Mostly trivia with no choice in them (307 have a one-line answer); the rest need a look one by one |
 | A poster worth reading for the second exam | medium | Eight stub rows today, not a syllabus |
 | Explanations that fit the glossary's voice | large | Publisher wording is uneven and sometimes wrong |
 
 ---
 
 ## Done
+
+### 1.39.0 — twenty-nine choices, and your misses on each
+| Item |
+|---|
+| Fifteen more choices, found by reading every answer the first fourteen did not reach: where to keep a secret, how to lock down a bucket, how a private instance reaches out, which service finds what, which defence and where, how to query data in S3, which front door for an API, how to survive losing a Region, which placement group, which EBS volume, how to move S3 data, how to govern many accounts, and which DynamoDB, RDS and Lambda feature |
+| 1,137 of 1,799 questions now reach a choice, up from 855 |
+| Each choice says how many of its questions you last got wrong, and the poster puts those first |
+| Every pick reads "If ... then ...", the way the condition does |
+
+### 1.32.0 to 1.38.0 — the choices, the letters, and going again
+| Item |
+|---|
+| Compare the choices: fourteen decisions written as if-then lists, beside a question and on the poster in columns |
+| The glossary refuses a broken pattern at load, the way the diagrams do |
+| Built pages are no longer committed; only `docs/` is, and the build refuses if it is stale |
+| Right and missed as percentages, with the pass mark beside them; hidden during a mock |
+| Tap a letter to rule an option out, and the play button sits under the letter |
+| Go again at just the ones you missed, as a run of its own, without losing the first |
+| Merge from a file, and from a file written by the one-exam version |
+| Terms for warm pools, HTTP against REST APIs, Beanstalk deployments, WAF IP sets, budgets, EFS throughput, Redshift Advisor, Route 53 routing, Spot diversification |
 
 ### 1.31.0 — installable and offline
 | Item |
