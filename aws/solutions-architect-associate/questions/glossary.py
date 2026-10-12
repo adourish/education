@@ -279,6 +279,18 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "A data warehouse for analytics over large structured datasets. Built for reporting, not transactions."),
     "Amazon Neptune": (r"Neptune",
         "A graph database, for data that is mostly about relationships: social networks, fraud rings, recommendations."),
+    "Amazon Timestream": (r"Timestream",
+        "A database built for readings stamped with a time: sensor values, "
+        "telemetry from vehicles or devices, metrics, anything that arrives as "
+        "a steady stream of measurements and is asked about by time range. It "
+        "takes in millions of points a minute, keeps recent data in memory and "
+        "moves older data to cheaper storage on its own, and has no servers to "
+        "size. The full name is Timestream for LiveAnalytics. When a question "
+        "says telemetry, IoT or time series and asks where to store it, this is "
+        "the purpose-built one; DynamoDB can hold the rows but is not made for "
+        "asking what happened between two times, and Neptune is for "
+        "relationships, not readings. QuickSight connects to it directly for "
+        "reports."),
     "Amazon DocumentDB": (r"DocumentDB",
         "A managed document database that speaks MongoDB's API."),
     "Amazon QLDB": (r"\bQLDB\b|Quantum Ledger",
@@ -490,7 +502,19 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Amazon OpenSearch Service": (r"OpenSearch|Elasticsearch",
         "Full-text search and log analytics, with dashboards."),
     "Amazon QuickSight": (r"QuickSight",
-        "Business intelligence dashboards for non-technical readers."),
+        "Business intelligence dashboards for non-technical readers. It draws "
+        "charts and reports from data held elsewhere: Athena, Redshift, RDS, "
+        "Timestream, S3. It is the answer to 'visualise' or 'visual reports'. "
+        "Athena is a query tool, not a drawing one, so an option that visualises "
+        "with Athena has the two the wrong way round."),
+    "Amazon SageMaker": (r"SageMaker",
+        "The AWS service for machine learning: building, training and running "
+        "models, with notebooks, managed training jobs and hosted endpoints to "
+        "call a model from. When a question says machine learning, predict, or "
+        "train a model, and the options differ in which service does that part, "
+        "SageMaker is the one built for it. It reads its data from S3 and from "
+        "databases it is given permission to, which is why an option pairs it "
+        "with a role or a grant rather than a copy of the data."),
 
     # ---------------- management ----------------
     "Amazon CloudWatch": (r"CloudWatch",
