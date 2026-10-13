@@ -225,8 +225,10 @@ DIAGRAMS = [
     {
         "id": "route53-routing-policies",
         "title": "One name, answered differently depending who asks",
-        "when": ["Route53"],
-        "words": r"weighted|latency-based|geolocation|geoproximity|multivalue",
+        # No service gate: an answer that names a routing policy rarely says
+        # "Route 53" as well, since the policy's name already says it.
+        "when": [],
+        "words": r"latency(-based)? (routing )?polic|latency routing|geolocation|geoproximity|multivalue|weighted (routing|polic|record)|routing policy",
         "nodes": [["z", "Hosted zone", "edge"], ["w", "Weighted: a share each", "compute"],
                   ["l", "Latency: the quickest", "compute"],
                   ["g", "Geolocation: by country", "compute"],

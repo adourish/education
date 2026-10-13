@@ -189,13 +189,34 @@ DECISIONS: list[dict] = [
                                                "with AWS WAF"),
             ("a fixed address, so customers can allow-list it", "Network Load "
                                                                 "Balancer"),
+            ("targets on premises, by IP address", "Either, with IP targets; a "
+                                                   "fixed address makes it the NLB"),
             ("TCP or UDP rather than web traffic", "Network Load Balancer"),
             ("millions of requests, lowest latency", "Network Load Balancer"),
             ("traffic through a firewall appliance", "Gateway Load Balancer"),
             ("fixed addresses and more than one Region", "Global Accelerator"),
-            ("caching static content near the user", "CloudFront"),
+            ("users around the world, content that can be cached", "One Region, "
+                                                                   "with CloudFront "
+                                                                   "in front"),
+            ("a site that is only files: HTML, JavaScript, images", "S3, with "
+                                                                    "CloudFront in "
+                                                                    "front, no "
+                                                                    "servers"),
+            ("users must log in before they reach the servers", "ALB, with a "
+                                                                "Cognito user pool"),
         ],
         "traps": [
+            "Users around the world is not a reason to deploy in several Regions. "
+            "One Region behind CloudFront is cheaper, faster for cached content, "
+            "and pays nothing to move data from the origin to the edge. Several "
+            "Regions is for writes that must happen locally or data that must "
+            "stay in a country. Global Accelerator caches nothing, so it is not "
+            "the answer when the content can be cached.",
+            "An internet-facing load balancer sits in the public subnets. The "
+            "instances and the database sit in private subnets behind it. Nothing "
+            "else of yours belongs in a public subnet but the NAT gateway.",
+            "Both load balancers can send to IP addresses, including on premises "
+            "over Direct Connect. What picks the NLB is the fixed address.",
             "Anything about a header, a path, a cookie or what is inside a "
             "request is web-level work, and that is the ALB. An NLB never looks "
             "inside a request, so it cannot route on a header or block one by "
@@ -344,9 +365,10 @@ DECISIONS: list[dict] = [
             r"Direct Connect",
             r"Site-to-Site VPN",
             r"Transit Gateway",
-            r"VPC peering",
+            r"VPC peering|peering connection|[Pp]eer (each|the|all|every)",
             r"PrivateLink",
             r"VPC endpoint",
+            r"Resolver (inbound|outbound) endpoint|Route 53 Resolver",
         ],
         "title": "How to join two networks",
         "area": "networking",
@@ -355,17 +377,45 @@ DECISIONS: list[dict] = [
             ("needed this week, cost matters", "Site-to-Site VPN"),
             ("both, with the VPN as the fallback", "Direct Connect, VPN backup"),
             ("exactly two VPCs", "VPC peering"),
-            ("more than a few VPCs, or many sites", "Transit Gateway"),
+            ("more than a few VPCs, many accounts, or many sites", "Transit "
+                                                                   "Gateway"),
+            ("hundreds of VPCs, or a thousand", "Transit Gateway, nothing else "
+                                                "scales to it"),
+            ("many VPCs that must not see each other", "Transit Gateway, a route "
+                                                       "table per attachment"),
             ("reach one service, not a whole network", "PrivateLink"),
+            ("a SaaS product that is hosted on AWS", "PrivateLink"),
+            ("offer your own service to other VPCs", "An NLB, with a PrivateLink "
+                                                    "endpoint service in front"),
             ("reach S3 or DynamoDB from inside a VPC", "A gateway VPC endpoint"),
+            ("names on premises must resolve from the VPC", "Route 53 Resolver, "
+                                                            "an outbound endpoint"),
+            ("names in the VPC must resolve from on premises", "Route 53 Resolver, "
+                                                               "an inbound endpoint"),
         ],
         "traps": [
+            "Hundreds of VPCs is always the transit gateway. Peering is one link "
+            "between two VPCs, is not transitive, and a VPC can have at most 125 "
+            "of them. Shared across accounts with Resource Access Manager.",
+            "Keeping spokes apart on a transit gateway is done with a route table "
+            "per attachment, each allowed only to the shared VPC. The default "
+            "route table lets every spoke reach every other.",
+            "PrivateLink's provider side is always a Network Load Balancer with an "
+            "endpoint service in front of it. There is no gateway endpoint for "
+            "anything but S3 and DynamoDB.",
             "PrivateLink creates no network path. From your own building it still "
-            "needs Direct Connect or a VPN underneath.",
-            "A gateway endpoint works only from inside the VPC and only over IPv4. "
-            "From on premises you need the interface kind.",
-            "VPC peering is not transitive, and Direct Connect reaches a transit "
-            "gateway only through a Direct Connect gateway.",
+            "needs Direct Connect or a VPN underneath. A gateway endpoint works "
+            "only from inside the VPC; from on premises you need the interface "
+            "kind.",
+            "A company you do not control, such as a SaaS provider, is reached by "
+            "PrivateLink. A VPN or a transit gateway needs both sides to take "
+            "part, which is not on offer.",
+            "Name resolution across a VPN is the Route 53 Resolver, not a DNS "
+            "server you run on EC2, not a public hosted zone, and never a "
+            "network ACL. Outbound sends the VPC's questions out; inbound takes "
+            "on-premises questions in.",
+            "Direct Connect reaches a transit gateway only through a Direct "
+            "Connect gateway.",
         ],
     },
 
@@ -434,6 +484,12 @@ DECISIONS: list[dict] = [
             "does not apply to the management account.",
             "Across accounts you need both ends: the trust policy on the role and the "
             "permission on the caller.",
+            "Users of your own web application sign in through Cognito, never "
+            "through IAM or Identity Center, which are for people using AWS "
+            "itself. A Cognito user pool federates with AD FS, Google or any SAML "
+            "or OpenID provider, and an ALB can demand that sign-in before it "
+            "forwards anything. Directory Service and AD Connector join servers "
+            "and desktops to a domain; they do not log users into a web page.",
         ],
     },
 
@@ -602,9 +658,22 @@ DECISIONS: list[dict] = [
             ("any other AWS service, privately", "An interface endpoint"),
             ("it must survive losing a zone", "One NAT gateway per zone, and a "
                                               "route table per zone"),
+            ("it need not survive losing a zone, and cost matters", "One NAT "
+                                                                    "gateway, every "
+                                                                    "private subnet "
+                                                                    "routed to it"),
             ("cheapest, and you will manage it yourself", "A NAT instance"),
         ],
         "traps": [
+            "A NAT gateway costs by the hour whether it carries anything or not. "
+            "For a test or development environment that does not need to survive "
+            "a zone, one gateway shared by every private subnet is the saving. "
+            "Production keeps one per zone.",
+            "An internet gateway is one per VPC and lives in no zone. An option "
+            "that puts one in each zone, or in a subnet, is nonsense, and so is a "
+            "NAT device in a private subnet: it needs the public subnet's route "
+            "to the internet gateway to get out. An egress-only internet gateway "
+            "is IPv6 only.",
             "A NAT gateway lives in one zone. One per zone, with each private subnet "
             "routing to its own, or losing that zone takes everyone's internet.",
             "A shared route table is the trap. A route has one target, so one "
@@ -744,6 +813,10 @@ DECISIONS: list[dict] = [
             "and EMR all read from. A Glue crawler fills it in.",
             "QuickSight draws. It does not read files by itself: it sits on Athena, "
             "Redshift or RDS.",
+            "Logs out of CloudWatch Logs and into OpenSearch, S3 or Redshift go by "
+            "a subscription filter into Data Firehose, with no code. Data Streams "
+            "would need something written to read it. CloudTrail records API "
+            "calls; it never carries VPC Flow Logs.",
         ],
     },
 
@@ -1087,10 +1160,14 @@ DECISIONS: list[dict] = [
             r"container image",
             r"event source mapping",
             r"dead-letter|on-failure destination|Lambda destination",
+            r"[Aa]ttach the (Lambda )?function to the VPC|VPC-enabled|connect the function to the VPC|Lambda function to the VPC",
         ],
         "title": "Which Lambda feature",
         "area": "compute",
         "rows": [
+            ("it must reach something private in a VPC", "Attach the function to "
+                                                         "the VPC's private subnets, "
+                                                         "with a security group"),
             ("cold starts hurt", "Provisioned concurrency"),
             ("cold starts hurt, and it is Java", "SnapStart"),
             ("stop one function eating all the concurrency", "Reserved concurrency"),
@@ -1109,8 +1186,57 @@ DECISIONS: list[dict] = [
             "hour you can name, schedule it with Application Auto Scaling.",
             "A Lambda inside a VPC has no public address. To reach the internet it "
             "needs a NAT gateway, and to reach AWS services, endpoints.",
+            "Reaching a database or anything else private in a VPC is a setting on "
+            "the function: its subnets and a security group. Not a VPN, not an "
+            "endpoint, not PrivateLink. Those are for reaching things outside the "
+            "VPC.",
             "Reserved concurrency set to zero turns the function off. Set to a "
             "number, it is both a ceiling and a guarantee.",
+        ],
+    },
+
+    {
+        "id": "route53-policy",
+        "stem": r"Route ?53|DNS|routing polic|fail ?over|lowest latency|high-performing|users? in|nearest Region|closest Region",
+        "choices": [
+            r"latency(-based)? (routing )?polic|latency routing|latency-based",
+            r"geolocation",
+            r"geoproximity",
+            r"failover (routing )?polic|failover record|fail over to",
+            r"weighted",
+            r"multivalue|multi-value",
+            r"simple (routing )?polic|simple record",
+            r"IP-based routing",
+            r"health check",
+        ],
+        "title": "Which Route 53 routing policy",
+        "area": "networking",
+        "rows": [
+            ("fastest answer for each user, several Regions", "Latency"),
+            ("users in a country must get one particular answer", "Geolocation"),
+            ("like geolocation, but you can lean traffic one way", "Geoproximity, "
+                                                                 "with a bias"),
+            ("a standby to fall over to on its own", "Failover, with a health "
+                                                     "check"),
+            ("a share of traffic each: a canary, a staged release", "Weighted"),
+            ("several healthy addresses, no load balancer", "Multivalue answer"),
+            ("one name, one target, nothing clever", "Simple"),
+            ("answer by the range the user's address falls in", "IP-based"),
+        ],
+        "traps": [
+            "Latency is about speed and picks whichever Region answers quickest "
+            "for that user. Geolocation is about where the user is, and sends a "
+            "country to one place even when another is quicker. 'Most high-"
+            "performing' means latency.",
+            "Only failover with a health check moves traffic on its own when a "
+            "Region goes down. IP-based routing is for answering by address "
+            "range; it is not a failover policy, however an option words it.",
+            "An alias A record points at a load balancer, a distribution or a "
+            "bucket, costs nothing to query, and works at the top of the domain. "
+            "A CNAME cannot sit at the top of the domain at all.",
+            "Weighted is a percentage you set; it does not look at health or "
+            "speed. Multivalue is up to eight healthy answers, the nearest DNS "
+            "gets to a load balancer, and it is not one.",
         ],
     },
 ]
