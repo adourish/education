@@ -403,6 +403,17 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "twenty rules and forty at the very most, and a security group at "
         "sixty, so neither can hold a list that long. Changing the list is an "
         "edit to the set, with nothing redeployed."),
+    "AWS Network Firewall": (r"Network Firewall",
+        "A managed firewall for the traffic going in and out of a VPC, placed "
+        "in its own subnet so that traffic passes through it. Its rules are "
+        "about addresses, ports, protocols and domain names, and it can "
+        "inspect packets for known bad patterns. It is not a web application "
+        "firewall: it does not read a web request's headers, paths or form "
+        "fields, and it does not attach to a load balancer. A question that "
+        "wants to block web requests by rule wants AWS WAF on an ALB, CloudFront "
+        "or API Gateway. Network Firewall is the answer when the question is "
+        "about filtering or inspecting all of a VPC's traffic, or traffic "
+        "between VPCs and the internet, by where it is going."),
     "AWS WAF": (r"\bWAF\b",
         "A firewall for web traffic, attached to a load balancer, a CloudFront "
         "distribution or an API, and checked at the edge before the request "
