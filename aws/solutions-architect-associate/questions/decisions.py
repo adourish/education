@@ -680,6 +680,14 @@ DECISIONS: list[dict] = [
             ("too many requests from one address", "WAF, a rate-based rule"),
             ("a known list of bad addresses", "WAF, an IP set"),
             ("a big DDoS, and a team to call", "Shield Advanced"),
+            ("several resources that share one load, blue/green", "Shield Advanced "
+                                                                   "protection group, "
+                                                                   "Sum"),
+            ("several resources that each carry the same", "Shield Advanced "
+                                                            "protection group, "
+                                                            "Mean"),
+            ("resources that differ a lot in size", "Shield Advanced protection "
+                                                    "group, Max"),
             ("the same rules in every account", "Firewall Manager"),
             ("block a whole country on a distribution", "CloudFront geographic "
                                                         "restriction"),
@@ -695,6 +703,9 @@ DECISIONS: list[dict] = [
             "A security group cannot deny. Only a network ACL has deny rules, so "
             "blocking an address at the subnet is always the network ACL.",
             "Firewall Manager needs Organizations. It is for many accounts, not one.",
+            "In a protection group, Mean sounds the most reasonable and is the "
+            "trap for a blue/green shift: the average barely moves while the new "
+            "balancer's rise reads as an attack. Sum sees the pair as one load.",
         ],
     },
 

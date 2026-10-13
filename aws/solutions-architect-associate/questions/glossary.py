@@ -439,6 +439,23 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Protection against traffic floods. Standard is on for everyone at no charge. Advanced is paid, and is the one the exam means when it talks about a response team, cost protection for the bill a flood runs up, or protection beyond the network layer."),
     "AWS Shield Advanced": (r"Shield Advanced",
         "The paid tier. Adds a response team you can call, refunds the scaling charges an attack causes, and covers application-layer floods alongside AWS WAF. The answer when a question mentions a dedicated team, a refund, or a service-level guarantee during an attack."),
+    "Shield Advanced protection group": (r"protection group|aggregation type|Select (Sum|Mean|Max) as",
+        "A set of resources that Shield Advanced watches as one, so an attack "
+        "spread thinly across several of them still shows up, and so a planned "
+        "shift of traffic between them does not look like one. The aggregation "
+        "type says how their traffic is added up to make the baseline, and "
+        "picking it is the whole question. Sum adds every resource's traffic "
+        "together: for resources that share a load between them, such as the "
+        "old and new load balancer in a blue/green deployment, because the "
+        "total stays the same while the traffic moves across. Mean takes the "
+        "average: for resources that each carry about the same traffic, like "
+        "a fleet of similar instances, where one of them jumping is what you "
+        "want to notice. Max takes the busiest one as the measure: for "
+        "resources that differ a lot, such as a CloudFront distribution and "
+        "the origin behind it. Mean sounds the most reasonable and is the trap "
+        "for a blue/green shift: as traffic leaves the old balancer and lands "
+        "on the new one, the average barely moves and the new one's rise "
+        "reads as an attack. Sum is the one that sees the pair as one."),
     "Amazon GuardDuty": (r"GuardDuty",
         "Watches your logs for signs of compromise, such as unusual API calls or crypto-mining. It detects; it does not scan software."),
     "Amazon Inspector": (r"Inspector",
