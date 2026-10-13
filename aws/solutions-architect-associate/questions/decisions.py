@@ -607,6 +607,10 @@ DECISIONS: list[dict] = [
         "traps": [
             "A NAT gateway lives in one zone. One per zone, with each private subnet "
             "routing to its own, or losing that zone takes everyone's internet.",
+            "A shared route table is the trap. A route has one target, so one "
+            "table shared by every private subnet sends them all to one NAT "
+            "gateway in one zone. One route table per private subnet, each "
+            "pointing at its own zone's NAT gateway.",
             "Traffic to S3 through a NAT gateway is charged by the gigabyte. A "
             "gateway endpoint carries it for nothing. Cut the NAT bill means add "
             "the endpoint.",
