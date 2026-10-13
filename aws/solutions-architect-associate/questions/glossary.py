@@ -316,6 +316,21 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Lets servers in a private subnet reach the internet to fetch updates, while stopping anything on the internet from starting a connection to them."),
     "Internet gateway": (r"internet gateway",
         "The VPC's door to the internet. A subnet is only public if its route table points at one."),
+    "Route table": (r"route table",
+        "The list that says where a subnet's traffic goes: this range stays "
+        "local, everything else goes to the internet gateway, or to the NAT "
+        "gateway, or to an endpoint. Every subnet uses exactly one route "
+        "table, but one table can be shared by several subnets."),
+    "Shared route table": (r"shared route table|route table for each|one route table per|route table per|each private subnet",
+        "The trap in the NAT gateway questions. A route has one target, so if "
+        "every private subnet shares one route table, all of them send their "
+        "internet traffic to one NAT gateway, in one Availability Zone. Lose "
+        "that zone and every private subnet loses the internet, and the "
+        "others pay to cross zones on the way. The fix is one route table per "
+        "private subnet, each pointing at the NAT gateway in its own zone. "
+        "'Shared route table' in an option is the wrong answer whenever the "
+        "question has NAT gateways in more than one zone; 'one route table "
+        "for each private subnet' is the right one."),
     "VPC peering": (r"VPC peering",
         "A private link between two VPCs. It is not transitive, so A to B and B to C does not give A to C, and the address ranges must not overlap."),
     "AWS Transit Gateway": (r"Transit Gateway",
