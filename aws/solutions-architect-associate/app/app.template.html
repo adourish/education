@@ -3358,7 +3358,7 @@ footer .v { font-family: var(--mono); }
     renderDrillBanner();
   }
 
-  function record(q, ok) {
+  function record(q, ok, picked) {
     alreadyDone[qi] = true;
     // A question the reviewers found wrong teaches nothing, so it is shown but
     // never scored: counting it would put a cross on a line you actually know.
@@ -3373,8 +3373,13 @@ footer .v { font-family: var(--mono); }
     // a run can be scored later, by category, even after the page has been
     // closed and the set picked up again. Answers given before runs were
     // recorded simply do not have it.
+    // The fifth is which option was picked, as its letter in the source (the
+    // one the footer line under the answer shows), so a miss can be read back
+    // later: not just that it was wrong, but what seemed right at the time.
+    // The letters on screen are shuffled, so those would say nothing later.
     var entry = [stampNow(), q.id, ok ? 1 : 0];
-    if (sessionId) entry.push(sessionId);
+    if (sessionId || picked) entry.push(sessionId || null);
+    if (picked) entry.push(picked);
     S.log.push(entry);
     recompute();
 
@@ -3927,7 +3932,7 @@ footer .v { font-family: var(--mono); }
               if (pool[k] === right) optBtns[k].classList.add("pick-ok");
             }
           }
-          record(q, ok);
+          record(q, ok, o.src || null);
           if (mock.on) {
             // Under exam conditions you answer and move on. Nothing is
             // marked, nothing is revealed, and the last answer ends the
@@ -4409,7 +4414,8 @@ footer .v { font-family: var(--mono); }
         hour: "2-digit", minute: "2-digit", hour12: false
       });
       row.appendChild(t);
-      row.appendChild(el("span", "verdict " + (e[2] ? "ok" : "no"), e[2] ? "right" : "missed"));
+      row.appendChild(el("span", "verdict " + (e[2] ? "ok" : "no"),
+        (e[2] ? "right" : "missed") + (e[4] ? ", picked " + e[4] : "")));
       var q = QBYID[e[1]];
       var what = el("span", "qid", e[1] + (q ? "  " + q.q.slice(0, 70) : ""));
       row.appendChild(what);
@@ -4466,6 +4472,9 @@ footer .v { font-family: var(--mono); }
       if (!row.at || stampSeconds(e[0]) > stampSeconds(row.at)) {
         row.at = e[0];
         row.result = e[2] ? "right" : "missed";
+        // The option picked, as its letter in the source, where that was kept.
+        if (e[4]) row.picked = e[4];
+        else delete row.picked;
       }
     });
 

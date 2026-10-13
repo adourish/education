@@ -345,7 +345,19 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "An encrypted tunnel for one person at a time, from a laptop into a VPC. It is for staff who need to reach private resources while away from the office, not for joining two networks: there is no site at the other end, and it runs over the public internet. Whenever a question is about a data centre rather than people, this is the wrong shape."),
     "Site-to-Site VPN": (r"Site-to-Site VPN|virtual private gateway|customer gateway",
         "An encrypted tunnel from your network to AWS over the ordinary internet. The right shape for joining two sites, and up the same day, which is why it wins whenever cost or speed of setup is the point. But it rides the public internet, so latency varies with whatever else is happening out there. That rules it out when a question asks for consistent or predictable latency, and it is often run as the backup for a Direct Connect line."),
-    "Route 53 routing policies": (r"routing policy|weighted routing|latency-based|geolocation|geoproximity|multivalue|multi-value|simple routing",
+    "Route 53 Resolver endpoints": (r"Route 53 Resolver|Resolver (inbound|outbound|endpoint)|DNS forwarder|resolve (the )?(internal|on-premises|private) domain|name resolution",
+        "The piece that lets DNS cross between a VPC and your own building. "
+        "Every VPC already has a resolver for AWS names; it cannot see your "
+        "on-premises DNS server and your server cannot see it. An outbound "
+        "endpoint sends questions out of the VPC: a forwarding rule says "
+        "'anything ending in corp.example goes to this on-premises server', "
+        "over the VPN or Direct Connect. An inbound endpoint takes questions "
+        "in, so machines on premises can resolve private names in the VPC. "
+        "This is the answer to 'name resolution errors after migrating' and "
+        "'resolve internal domain names'. Running your own DNS forwarder on "
+        "EC2 works but is yours to patch; a public hosted zone is for the "
+        "internet; a network ACL does not forward anything."),
+    "Route 53 routing policies": (r"routing policy|weighted routing|latency-based|latency policy|geolocation|geoproximity|multivalue|multi-value|simple routing",
         "How Route 53 decides what to answer with. Simple returns the values on "
         "one record. Weighted gives each a share, which is what a staged "
         "release needs. Latency sends each person to the quickest Region, "
@@ -377,7 +389,13 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Network Load Balancer (NLB)": (r"Network Load Balancer|\bNLB\b",
         "A load balancer that works at the TCP and UDP level. Extremely fast, and it can have a fixed IP address."),
     "VPC Flow Logs": (r"Flow Logs",
-        "A record of which traffic was allowed and which was rejected in your VPC. The first place to look when a connection is being blocked and you do not know why."),
+        "A record of which traffic was allowed and which was rejected at the "
+        "network interfaces in your VPC: addresses, ports, bytes, accept or "
+        "reject. The first place to look when a connection is being blocked "
+        "and you do not know why. They are written to CloudWatch Logs or to "
+        "S3, and from CloudWatch Logs a subscription filter can hand them to "
+        "Data Firehose, which delivers them to OpenSearch for searching. They "
+        "are not API calls, so CloudTrail has nothing to do with them."),
     "Elastic IP": (r"[Ee]lastic IP",
         "A fixed public address you own and can move between instances."),
     "CIDR block": (r"\bCIDR\b",
@@ -397,7 +415,15 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS Control Tower": (r"Control Tower",
         "Sets up new AWS accounts with guard rails and logging already in place."),
     "Amazon Cognito": (r"Cognito",
-        "Handles sign-up and sign-in for your application's users, and can swap a social or corporate login for temporary AWS credentials."),
+        "Sign-up and sign-in for the users of your own application, as opposed "
+        "to people using AWS itself, who are IAM or Identity Center. A user pool "
+        "is the login: it holds users, or federates with Google, Facebook, "
+        "Active Directory Federation Services or any SAML or OpenID provider, "
+        "and an Application Load Balancer can demand that login before it "
+        "forwards a request. An identity pool is the other half: it swaps a "
+        "login for temporary AWS credentials, so an app can reach S3 or "
+        "DynamoDB directly. Directory Service and AD Connector are not a "
+        "substitute: they join servers and desktops to a domain."),
     "AWS KMS": (r"\bKMS\b|Key Management Service|customer master key|\bCMK\b",
         "Creates and controls encryption keys, and is wired into nearly every AWS service. It encrypts up to 4 KB directly; anything larger uses a data key it hands out."),
     "AWS CloudHSM": (r"CloudHSM",
