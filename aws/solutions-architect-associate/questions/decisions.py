@@ -184,8 +184,11 @@ DECISIONS: list[dict] = [
         "title": "Which load balancer",
         "area": "networking",
         "rows": [
-            ("routing on path, host or header", "Application Load Balancer"),
-            ("a fixed address, or an allow-list", "Network Load Balancer"),
+            ("routing on path, host, header or cookie", "Application Load Balancer"),
+            ("blocking web requests by rule", "Application Load Balancer, "
+                                               "with AWS WAF"),
+            ("a fixed address, so customers can allow-list it", "Network Load "
+                                                                "Balancer"),
             ("TCP or UDP rather than web traffic", "Network Load Balancer"),
             ("millions of requests, lowest latency", "Network Load Balancer"),
             ("traffic through a firewall appliance", "Gateway Load Balancer"),
@@ -193,11 +196,18 @@ DECISIONS: list[dict] = [
             ("caching static content near the user", "CloudFront"),
         ],
         "traps": [
+            "Anything about a header, a path, a cookie or what is inside a "
+            "request is web-level work, and that is the ALB. An NLB never looks "
+            "inside a request, so it cannot route on a header or block one by "
+            "rule, however the option words it.",
+            "AWS WAF attaches to an ALB, CloudFront or an API, never to an NLB. "
+            "Rules-based blocking of web requests means WAF, and WAF means ALB. "
+            "Network Firewall is a different thing: it filters the VPC's traffic "
+            "by address, port and domain, not web requests by their content.",
             "Only an ALB can authenticate at the edge, redirect to HTTPS, return a "
             "fixed response, or send to Lambda.",
             "Global Accelerator carries any protocol and caches nothing. CloudFront "
             "caches and is for web traffic.",
-            "AWS WAF attaches to an ALB, CloudFront or an API, never to an NLB.",
         ],
     },
 
