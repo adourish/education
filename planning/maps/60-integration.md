@@ -8,16 +8,20 @@
 ### row
 
 **SQS**
+match: \bSQS\b
 *One sender, one worker, nothing lost*. At-least-once, so work must be safe
 to repeat.
 
 **SQS FIFO**
+match: \bFIFO\b
 *Order, no duplicates*. 300 a second, 3,000 in batches.
 
 **SNS**
+match: \bSNS\b
 *One message, many places at once*. Email, SMS, Lambda, queues.
 
 **SNS in front of SQS**
+match: SNS.{0,80}SQS|SQS.{0,80}SNS
 *Both*: a copy to every subscriber, each queue holds its own work.
 
 **EventBridge**
@@ -28,12 +32,14 @@ products.
 *A stream several readers can replay*. Order inside a shard.
 
 **Data Firehose**
+match: Firehose
 *Straight into S3, Redshift, OpenSearch*, no code. Nothing kept, no replay.
 
 **Step Functions**
 *Steps, retries, waiting for a person*. Map state for thousands in parallel.
 
 **Amazon MQ**
+match: Amazon MQ|ActiveMQ|RabbitMQ
 An *existing ActiveMQ or RabbitMQ* app, moved as it is.
 
 ## end
@@ -51,18 +57,22 @@ How long a taken message *stays hidden*. Longer than the work, or it is
 done twice.
 
 **Dead-letter queue**
+match: dead-letter
 After *too many failed tries*, the message goes here to be looked at.
 
 **Long polling**
 *Wait up to 20 seconds* for a message. Fewer empty answers, less cost.
 
 **Size and age**
+match: 256 KB|Extended Client|retention period
 *256 KB* a message; bigger goes to S3 with a pointer. Kept 4 days, up to 14.
 
 **Scaling the workers**
+match: queue.{0,80}(Auto Scaling|scal)|ApproximateNumberOfMessages
 An Auto Scaling group on *queue length per instance*.
 
 **Delay**
+match: delay queue|delay seconds|DelaySeconds
 Hide a new message for up to *15 minutes*.
 
 ## end
@@ -72,13 +82,16 @@ Hide a new message for up to *15 minutes*.
 ### row
 
 **API Gateway REST**
+match: REST API
 *Caching, usage plans, API keys, request validation, WAF*. More features,
 more cost.
 
 **API Gateway HTTP**
+match: HTTP API
 *Cheaper and faster*, a JWT authorizer built in. None of the above.
 
 **Lambda function URL**
+match: function URL
 *One function, one address*, nothing in between.
 
 **WebSocket, AppSync**
@@ -89,10 +102,12 @@ more cost.
 ## row: hub
 
 **Lambda and events**
+match: S3 event|EventBridge rule|event source mapping|destination
 *S3 event, EventBridge schedule, SQS or stream* as the trigger. Async calls
 fail into a *dead-letter queue* or a destination.
 
 **Email**
+match: \bSES\b|Simple Email
 *SES* to send at volume. SNS email is for alerts, not newsletters.
 
 ## key

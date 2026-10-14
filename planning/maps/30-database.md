@@ -8,6 +8,7 @@
 ### row
 
 **RDS**
+match: \bRDS\b
 *SQL, joins, transactions*, an existing app. Multi-AZ for failover, read
 replicas for reads.
 
@@ -46,12 +47,15 @@ Then the feature
 *Too many connections*, Lambda opening them. Pools them.
 
 **Encrypt an existing one**
+match: snapshot.{0,80}encrypt|encrypt.{0,80}snapshot
 *Snapshot, copy with encryption, restore*. It cannot be switched on in place.
 
 **Aurora global**
+match: global database
 *One writer*, other Regions read. Failover about a minute.
 
 **Keep the bill down**
+match: storage auto ?scaling|I/O-Optimized|stop the (DB|database)|snapshot.{0,60}delete
 Stop lasts 7 days: *snapshot and delete*. Storage auto scaling for a filling
 disk. I/O-Optimized when the bill is I/O.
 
@@ -62,6 +66,7 @@ disk. I/O-Optimized when the bill is I/O.
 ### row
 
 **On-demand or provisioned**
+match: on-demand capacity|provisioned capacity|DynamoDB auto ?scaling|capacity mode
 *Spiky or new: on-demand*. Steady: provisioned with auto scaling.
 
 **DAX**
@@ -71,12 +76,15 @@ The same reads, *microseconds*. In front of the table.
 *Two Regions, both writing*. Needs Streams on.
 
 **Streams**
+match: DynamoDB Streams
 *React to every change*, into Lambda.
 
 **TTL and PITR**
+match: Time to Live|\bTTL\b|point-in-time
 *TTL*: rows vanish after a time, free. *PITR*: back to any second in 35 days.
 
 **Analyse it**
+match: DynamoDB.{0,80}export|export.{0,80}DynamoDB
 *Export to S3*, then Athena. Never a scan.
 
 ## end
@@ -95,6 +103,7 @@ The same for DynamoDB, but it *goes to the table itself*.
 *More reads* than one instance can serve.
 
 **Writes are the problem**
+match: shard|larger (DB |database )?instance
 A bigger instance, or *sharding*. A replica does nothing for writes.
 
 ## end
@@ -102,10 +111,12 @@ A bigger instance, or *sharding*. A replica does nothing for writes.
 ## row: hub
 
 **Moving in**
+match: \bDMS\b|Database Migration|Schema Conversion|\bSCT\b
 *DMS* keeps the old one running, switchover short. *SCT* when the engine
 changes. An RDS snapshot imports straight into Aurora.
 
 **Who may connect**
+match: IAM database authentication|Secrets Manager
 *IAM database authentication*: no password in the app. *Secrets Manager*
 rotates one that must exist.
 
