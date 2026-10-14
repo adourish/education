@@ -1083,6 +1083,7 @@ select {
 .nm-arrow { text-align: center; color: var(--ink-3); font-size: 0.78rem; padding: 2px 0; line-height: 1.35; }
 .nm-arrow b { color: var(--ink-2); font-weight: 600; }
 .nm-arrow::before { content: "↓"; display: block; font-size: 1.05rem; color: var(--cyan); line-height: 1; }
+.qmap .netmap { margin-top: 2px; }
 .nm-key { margin: 8px 0 0; padding: 5px 8px; border-radius: 7px; background: var(--surface-2);
           font-size: 0.76rem; color: var(--ink-2); line-height: 1.45; }
 .nm-key span { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin: 0 4px 0 1px; vertical-align: middle; }
@@ -1834,7 +1835,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.44.0";
+  var APP_VERSION = "1.45.0";
   var BUILD_DATE  = "2026-10-14";
   // ---------- where this exam's work is kept ----------
   //
@@ -4172,6 +4173,29 @@ footer .v { font-family: var(--mono); }
       laterBoxes.push(decBox);
     }
 
+    // The map for this question's part of the exam: the same picture as on
+    // the poster, copied in, with its tallies worked out afresh each time it
+    // is opened so they match what has been answered since.
+    var mapSrc = document.querySelector("#fold-map-" + q.area + " .netmap");
+    if (mapSrc) {
+      var mapBox = el("div", "decs qmap");
+      mapBox.hidden = true;
+      var mapCopy = mapSrc.cloneNode(true);
+      mapBox.appendChild(mapCopy);
+      var mapLabel = "Show the " + q.area + " map";
+      var mapBtn = el("button", "btn hintbtn", mapLabel);
+      mapBtn.setAttribute("aria-expanded", "false");
+      mapBtn.addEventListener("click", function () {
+        var open = mapBox.hidden;
+        if (open) tallyMapBoxes(mapCopy);
+        mapBox.hidden = !open;
+        mapBtn.setAttribute("aria-expanded", String(open));
+        mapBtn.textContent = open ? "Hide the map" : mapLabel;
+      });
+      tools.appendChild(mapBtn);
+      laterBoxes.push(mapBox);
+    }
+
     laterBoxes.forEach(function (b) { card.appendChild(b); });
 
     var reveal = el("div", "reveal");
@@ -4700,8 +4724,27 @@ footer .v { font-family: var(--mono); }
     // And each box: the questions whose answer its pattern matches, so the
     // tally sits on the thing itself rather than on the map as a whole. The
     // pattern is compiled once and kept on the box.
+    tallyMapBoxes(document);
+
+    Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
+      .forEach(function (d) {
+        var area = (d.getAttribute("data-fold") || "").replace(/^map-/, "");
+        var c = d.querySelector("summary .count");
+        var a = by[area];
+        if (!c) return;
+        // The same tick and cross as a section's header, so it reads the same
+        // way everywhere and never by colour alone.
+        c.textContent = "";
+        if (!a || !a.n) { c.textContent = "one picture"; return; }
+        c.appendChild(tally(a.n - a.w, a.w, false));
+      });
+  }
+
+  // The tally on each box under a root: the poster, or a copy of one map
+  // beside a question. The pattern is compiled once and kept on the box.
+  function tallyMapBoxes(root) {
     var answered = DATA.questions.filter(function (q) { return V.questions[q.id] !== undefined; });
-    Array.prototype.slice.call(document.querySelectorAll("details.fold.map .nm-box[data-rx]"))
+    Array.prototype.slice.call(root.querySelectorAll(".nm-box[data-rx]"))
       .forEach(function (box) {
         if (!box._rx) {
           try { box._rx = new RegExp(box.getAttribute("data-rx"), "i"); }
@@ -4718,19 +4761,6 @@ footer .v { font-family: var(--mono); }
           if (V.questions[q.id] === 0) w++;
         });
         if (n) h.appendChild(tally(n - w, w, false));
-      });
-
-    Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
-      .forEach(function (d) {
-        var area = (d.getAttribute("data-fold") || "").replace(/^map-/, "");
-        var c = d.querySelector("summary .count");
-        var a = by[area];
-        if (!c) return;
-        // The same tick and cross as a section's header, so it reads the same
-        // way everywhere and never by colour alone.
-        c.textContent = "";
-        if (!a || !a.n) { c.textContent = "one picture"; return; }
-        c.appendChild(tally(a.n - a.w, a.w, false));
       });
   }
 
