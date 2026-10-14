@@ -99,8 +99,7 @@ Encrypted over the internet. This week, costs little.
 
 ## key
 
-cyan: the edge · magenta: joining networks · amber: your building. Magenta text
-is the pick.
+cyan: the edge · magenta: joining networks · amber: your building. Underlined text is the pick.
 
 ## Notes
 

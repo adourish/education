@@ -119,8 +119,7 @@ or a transit gateway.
 
 ## key
 
-cyan: who may · amber: defences · magenta: many accounts. Magenta text is the
-pick.
+cyan: who may · amber: defences · magenta: many accounts. Underlined text is the pick.
 
 ## Notes
 
