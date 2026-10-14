@@ -112,7 +112,7 @@ rotates one that must exist.
 ## key
 
 cyan: which engine · amber: taking load off · magenta: moving in and
-connecting. Magenta text is the pick.
+connecting. Underlined text is the pick.
 
 ## Notes
 

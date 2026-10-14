@@ -117,8 +117,7 @@ undone. Copy to another Region.
 
 ## key
 
-cyan: which kind · amber: getting data in · magenta: keeping it. Magenta text
-is the pick.
+cyan: which kind · amber: getting data in · magenta: keeping it. Underlined text is the pick.
 
 ## Notes
 

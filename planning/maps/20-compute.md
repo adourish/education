@@ -113,7 +113,7 @@ distributed systems.
 
 ## key
 
-cyan: where it runs · amber: paying. Magenta text is the pick.
+cyan: where it runs · amber: paying. Underlined text is the pick.
 
 ## Notes
 

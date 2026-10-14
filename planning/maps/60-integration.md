@@ -97,8 +97,7 @@ fail into a *dead-letter queue* or a destination.
 
 ## key
 
-cyan: what goes in between · amber: the front door · magenta: events. Magenta
-text is the pick.
+cyan: what goes in between · amber: the front door · magenta: events. Underlined text is the pick.
 
 ## Notes
 
