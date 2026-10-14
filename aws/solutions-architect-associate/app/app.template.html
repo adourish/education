@@ -1018,6 +1018,39 @@ select {
                margin-bottom: 6px; }
 .dectraps li:last-child { margin-bottom: 0; }
 
+/* NETMAP-CSS-START */
+
+/* The networking map: one picture of where the networking questions live.
+   Boxes two across at any width, so a phone gets the same shape as a desk. */
+.netmap { margin: 4px 0 0; }
+.netmap *, .netmap *::before { box-sizing: border-box; }
+.netmap .lede { font-size: 0.86rem; margin: 0 0 8px; }
+.nm-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+.nm-row > * { flex: 1 1 140px; min-width: 0; }
+.nm-box { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface);
+          padding: 6px 8px; }
+.nm-box h4 { margin: 0 0 1px; font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+.nm-box p { margin: 0; font-size: 0.8rem; color: var(--ink-2); line-height: 1.45; }
+.nm-box .pick { color: var(--magenta); font-weight: 600; }
+.nm-box.edge { border-left: 4px solid var(--cyan); }
+.nm-box.hub  { border-left: 4px solid var(--magenta); }
+.nm-zone { border: 2px dashed var(--rule); border-radius: 10px; padding: 7px; margin: 0; }
+.nm-zone > h3 { margin: 0 0 5px; font-size: 0.86rem; font-weight: 600; color: var(--ink-2); }
+.nm-zone.vpc { background: var(--cyan-soft); border-color: var(--cyan); }
+.nm-zone.sub { background: var(--surface); border-style: solid; border-color: var(--rule); }
+.nm-zone.sub > h3 { color: var(--ink-3); font-size: 0.78rem; margin-bottom: 4px; }
+.nm-zone.home { background: var(--amber-soft); border-color: var(--amber); margin-top: 6px; }
+.nm-arrow { text-align: center; color: var(--ink-3); font-size: 0.78rem; padding: 2px 0; line-height: 1.35; }
+.nm-arrow b { color: var(--ink-2); font-weight: 600; }
+.nm-arrow::before { content: "↓"; display: block; font-size: 1.05rem; color: var(--cyan); line-height: 1; }
+.nm-side { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.nm-side > * { flex: 1 1 140px; min-width: 0; }
+.nm-key { margin: 8px 0 0; padding: 5px 8px; border-radius: 7px; background: var(--surface-2);
+          font-size: 0.76rem; color: var(--ink-2); line-height: 1.45; }
+.nm-key span { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin: 0 4px 0 1px; vertical-align: middle; }
+
+/* NETMAP-CSS-END */
+
 /* A new version is ready. It waits to be taken rather than reloading on its
    own, because being thrown out of a question you are halfway through reading
    is worse than running a version that is ten minutes old. */
@@ -1181,6 +1214,65 @@ footer .v { font-family: var(--mono); }
         <div id="decList"></div>
       </div>
     </details>
+
+<!-- NETMAP-HTML-START -->
+    <details class="fold" id="fold-netmap" data-fold="netmap">
+      <summary>The networking map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+  <p class="lede">Where every networking question lives, top to bottom: the user, your VPC, the ways out.</p>
+  <div class="nm-row">
+<div class="nm-box edge"><h4>Route 53</h4><p>Which Region answers. <span class="pick">Latency</span>: fastest. <span class="pick">Geolocation</span>: by country. <span class="pick">Failover</span> and a health check: a standby. <span class="pick">Weighted</span>: a share.</p></div>
+<div class="nm-box edge"><h4>CloudFront</h4><p>Caches near the user. <span class="pick">One Region behind CloudFront</span>, not many Regions. Only files? S3 behind it.</p></div>
+<div class="nm-box edge"><h4>WAF and Shield</h4><p>Rules on web requests: CloudFront, ALB or API, <span class="pick">never an NLB</span>. Big attack, team to call: Shield Advanced.</p></div>
+  </div>
+  <div class="nm-arrow"><b>Internet gateway</b>: one per VPC, in no zone</div>
+  <div class="nm-zone vpc">
+    <h3>Your VPC</h3>
+    <div class="nm-zone sub">
+      <h3>Public subnets, one per zone</h3>
+      <div class="nm-row">
+<div class="nm-box"><h4>Load balancer</h4><p><span class="pick">ALB</span> reads the request: paths, headers, logins, WAF. <span class="pick">NLB</span>: fixed address or raw TCP.</p></div>
+<div class="nm-box"><h4>NAT gateway</h4><p>Private subnets out, never in. <span class="pick">One per zone</span> in production; one shared for test.</p></div>
+      </div>
+    </div>
+    <div class="nm-arrow"><b>A route table per private subnet</b>, to its own zone's NAT gateway. A shared table sends every zone through one.</div>
+    <div class="nm-zone sub">
+      <h3>Private subnets, one per zone</h3>
+      <div class="nm-row">
+<div class="nm-box"><h4>Servers, containers, Lambda, database</h4><p>No public address. Lambda joins by being <span class="pick">attached to the VPC</span>, not by VPN or endpoint. The database opens by security group to the servers only.</p></div>
+      </div>
+    </div>
+    <div class="nm-side">
+<div class="nm-box"><h4>Gateway endpoint</h4><p><span class="pick">S3 and DynamoDB</span> only. Free. Cuts the NAT bill.</p></div>
+<div class="nm-box"><h4>Interface endpoint, PrivateLink</h4><p>Any other AWS service, or <span class="pick">another company's service on AWS</span>, no internet. To offer yours: NLB with PrivateLink in front.</p></div>
+    </div>
+  </div>
+  <div class="nm-arrow">Out to other networks</div>
+  <div class="nm-row">
+<div class="nm-box hub"><h4>Transit gateway</h4><p>Hub for <span class="pick">hundreds of VPCs</span>, accounts, sites. A route table each keeps VPCs apart. Two VPCs only: <span class="pick">peering</span>.</p></div>
+  </div>
+  <div class="nm-zone home">
+    <h3>Your own building</h3>
+    <div class="nm-row">
+<div class="nm-box"><h4>Direct Connect</h4><p>Private line. Steady, never the internet. Weeks to set up.</p></div>
+<div class="nm-box"><h4>Site-to-Site VPN</h4><p>Encrypted over the internet. This week, costs little.</p></div>
+<div class="nm-box"><h4>Both</h4><p><span class="pick">Direct Connect, VPN as backup</span>, when the link must not fail.</p></div>
+<div class="nm-box"><h4>One line, many VPCs</h4><p><span class="pick">Direct Connect gateway</span>, usually into a transit gateway.</p></div>
+<div class="nm-box"><h4>One person's laptop</h4><p><span class="pick">Client VPN</span>. Not for a whole building.</p></div>
+<div class="nm-box"><h4>Names across the link</h4><p><span class="pick">Route 53 Resolver</span>: outbound asks your DNS, inbound lets it ask yours.</p></div>
+    </div>
+  </div>
+  <div class="nm-key">
+    <span style="background: var(--cyan)"></span>the edge ·
+    <span style="background: var(--magenta)"></span>joining networks ·
+    <span style="background: var(--amber)"></span>your building.
+    Magenta text is the pick.
+  </div>
+</div>
+      </div>
+    </details>
+<!-- NETMAP-HTML-END -->
 
     <div class="board" id="board"></div>
 
@@ -4282,6 +4374,11 @@ footer .v { font-family: var(--mono); }
 
   // Which sections were left open, so the page comes back the way it was left.
   (function rememberFolds() {
+    // NETMAP-GATE
+    if (EXAM !== "saa-c03") {
+      var nm = document.getElementById("fold-netmap");
+      if (nm) nm.parentNode.removeChild(nm);
+    }
     var KEY = ROOT + "/folds";
     var open = {};
     try { open = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; }
