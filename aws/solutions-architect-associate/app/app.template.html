@@ -533,13 +533,13 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .tally b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .tally .g { color: var(--cyan); }
 .tally .r { color: var(--magenta); }
-.sec > header .tally {
+.sec > summary .tally {
   font-size: 0.74rem; font-weight: 500;
   padding: 2px 7px; border-radius: 99px;
   background: var(--surface); border: 1px solid var(--rule);
 }
-.sec > header .tagline { margin-left: auto; }
-.sec > header .tally + .tagline { margin-left: 0; }
+.sec > summary .tagline { margin-left: auto; }
+.sec > summary .tally + .tagline { margin-left: 0; }
 
 /* ---------------- shared bits ---------------- */
 
@@ -579,17 +579,25 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   overflow: hidden;
   box-shadow: var(--shadow);
 }
-.sec > header {
+.sec > summary {
   padding: 8px 12px;
   background: var(--surface-2);
   border-bottom: 1px solid var(--rule);
   display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  cursor: pointer; list-style: none;
 }
-.sec > header h3 {
+.sec > summary::-webkit-details-marker { display: none; }
+.sec > summary::before {
+  content: "\203a"; display: inline-block; width: 0.6em;
+  transition: transform .12s ease; color: var(--ink-3); font-weight: 700;
+}
+.sec[open] > summary::before { transform: rotate(90deg); }
+.sec:not([open]) > summary { border-bottom: 0; }
+.sec > summary h3 {
   margin: 0; font-size: 0.95rem; font-weight: 700;
   letter-spacing: .01em; color: var(--cyan);
 }
-.sec > header .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
+.sec > summary .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
 
 .row {
   display: grid;
@@ -948,6 +956,7 @@ select {
   margin-left: auto; font-family: var(--mono); font-size: 0.8rem;
   color: var(--ink-3); font-weight: 400;
 }
+.fold > summary .count.warn { color: var(--magenta); font-weight: 600; }
 .fold .inner { padding: 0 0 20px; }
 
 /* One go at a set of questions: when, what, and how it went. */
@@ -1202,6 +1211,8 @@ footer .v { font-family: var(--mono); }
     <div class="picker">
       <button class="btn" id="posterFilterAll">Show all rows</button>
       <button class="btn" id="posterFilterMissed">Only what I missed</button>
+      <button class="btn" id="foldsOpen">Open all</button>
+      <button class="btn" id="foldsClose">Close all</button>
       <span class="scorebar" id="posterSummary"></span>
     </div>
     <details class="fold" id="fold-dec" data-fold="dec" open>
@@ -2456,8 +2467,12 @@ footer .v { font-family: var(--mono); }
       if (!rows.length && (onlyMissed || (!sec.notes.length && !sec.traps.length))) return;
       if (onlyMissed && !rows.length) return;
 
-      var box = el("div", "sec");
-      var head = el("header");
+      // A section folds like everything else on the poster, and remembers
+      // whether it was left open, so a long board can be read a part at a time.
+      var box = el("details", "sec");
+      box.open = true;
+      bindFold(box, "sec:" + sec.key);
+      var head = el("summary");
       head.appendChild(el("h3", null, sec.title));
       // Questions answered on this block, counted once each however many lines
       // in the block they touched.
@@ -4621,6 +4636,49 @@ footer .v { font-family: var(--mono); }
   }
 
   // Which sections were left open, so the page comes back the way it was left.
+  // Which folds were left open, read once and written on every change. A
+  // function rather than a variable so a section drawn before this point in
+  // the file can still ask.
+  function foldMemory() {
+    if (!foldMemory.map) {
+      try { foldMemory.map = JSON.parse(localStorage.getItem(ROOT + "/folds") || "{}") || {}; }
+      catch (e) { foldMemory.map = {}; }
+    }
+    return foldMemory.map;
+  }
+  function bindFold(d, name) {
+    var open = foldMemory();
+    if (open[name] !== undefined) d.open = !!open[name];
+    d.addEventListener("toggle", function () {
+      open[name] = d.open;
+      try { localStorage.setItem(ROOT + "/folds", JSON.stringify(open)); }
+      catch (e) { /* it simply will not be remembered */ }
+    });
+  }
+
+  // How each map is going for you: missed out of answered, on its summary,
+  // so the parts of the exam that need work say so before they are opened.
+  function renderMapCounts() {
+    var by = {};
+    DATA.questions.forEach(function (q) {
+      var v = V.questions[q.id];
+      if (v === undefined) return;
+      var a = by[q.area] || (by[q.area] = { n: 0, w: 0 });
+      a.n++;
+      if (v === 0) a.w++;
+    });
+    Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
+      .forEach(function (d) {
+        var area = (d.getAttribute("data-fold") || "").replace(/^map-/, "");
+        var c = d.querySelector("summary .count");
+        var a = by[area];
+        if (!c) return;
+        if (!a || !a.n) { c.textContent = "one picture"; c.classList.remove("warn"); return; }
+        c.textContent = a.w + " missed of " + a.n;
+        c.classList.toggle("warn", a.w > 0);
+      });
+  }
+
   (function rememberFolds() {
     // The maps are AWS. The other exams share the page but have nothing
     // for them to show, so they are taken out before the folds are read.
@@ -4628,20 +4686,18 @@ footer .v { font-family: var(--mono); }
       Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
         .forEach(function (m) { m.parentNode.removeChild(m); });
     }
-    var KEY = ROOT + "/folds";
-    var open = {};
-    try { open = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; }
-    catch (e) { open = {}; }
     Array.prototype.slice.call(document.querySelectorAll("details.fold"))
-      .forEach(function (d) {
-        var name = d.getAttribute("data-fold");
-        if (open[name] !== undefined) d.open = !!open[name];
-        d.addEventListener("toggle", function () {
-          open[name] = d.open;
-          try { localStorage.setItem(KEY, JSON.stringify(open)); }
-          catch (e) { /* it simply will not be remembered */ }
-        });
-      });
+      .forEach(function (d) { bindFold(d, d.getAttribute("data-fold")); });
+
+    // The lot at once. Setting open fires each fold's own toggle, so every
+    // one of them is remembered the same as if it had been tapped.
+    function setAll(open) {
+      Array.prototype.slice.call(document.querySelectorAll("#view-poster details"))
+        .forEach(function (d) { d.open = open; });
+    }
+    var oa = document.getElementById("foldsOpen"), ca = document.getElementById("foldsClose");
+    if (oa) oa.addEventListener("click", function () { setAll(true); });
+    if (ca) ca.addEventListener("click", function () { setAll(false); });
   })();
 
   function renderProgress() {
@@ -5347,7 +5403,7 @@ footer .v { font-family: var(--mono); }
       currentView = t[1];
 
       if (t[0] === "tab-progress") renderProgress();
-      if (t[0] === "tab-poster") { renderBoard(); renderDecisions(); }
+      if (t[0] === "tab-poster") { renderBoard(); renderDecisions(); renderMapCounts(); }
 
       // Restore after the view has been laid out, or the page has no height to
       // scroll into yet. A timeout rather than requestAnimationFrame, which a
@@ -5682,6 +5738,7 @@ footer .v { font-family: var(--mono); }
 
   renderBoard();
   renderDecisions();
+  renderMapCounts();
   refreshMissChip();
   updateScore();
 
