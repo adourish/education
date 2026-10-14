@@ -14,6 +14,7 @@ Caches near the user. *One Region behind CloudFront*, not many Regions. Only
 files? S3 behind it.
 
 **WAF and Shield**
+match: \bWAF\b|Shield
 Rules on web requests: CloudFront, ALB or API, *never an NLB*. Big attack, team
 to call: Shield Advanced.
 
@@ -28,10 +29,12 @@ to call: Shield Advanced.
 #### row
 
 **Load balancer**
+match: Application Load Balancer|\bALB\b|Network Load Balancer|\bNLB\b
 *ALB* reads the request: paths, headers, logins, WAF. *NLB*: fixed address or
 raw TCP.
 
 **NAT gateway**
+match: NAT gateway|NAT instance
 Private subnets out, never in. *One per zone* in production; one shared for
 test.
 
@@ -47,6 +50,7 @@ table sends every zone through one.
 #### row
 
 **Servers, containers, Lambda, database**
+match: -
 No public address. Lambda joins by being *attached to the VPC*, not by VPN or
 endpoint. The database opens by security group to the servers only.
 
@@ -55,9 +59,11 @@ endpoint. The database opens by security group to the servers only.
 ### row
 
 **Gateway endpoint**
+match: gateway (VPC )?endpoint|VPC gateway endpoint
 *S3 and DynamoDB* only. Free. Cuts the NAT bill.
 
 **Interface endpoint, PrivateLink**
+match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink
 Any other AWS service, or *another company's service on AWS*, no internet. To
 offer yours: NLB with PrivateLink in front.
 
@@ -78,21 +84,26 @@ apart. Two VPCs only: *peering*.
 ### row
 
 **Direct Connect**
+match: Direct Connect(?! gateway)
 Private line. Steady, never the internet. Weeks to set up.
 
 **Site-to-Site VPN**
 Encrypted over the internet. This week, costs little.
 
 **Both**
+match: Direct Connect.{0,120}VPN|VPN.{0,120}Direct Connect
 *Direct Connect, VPN as backup*, when the link must not fail.
 
 **One line, many VPCs**
+match: Direct Connect gateway
 *Direct Connect gateway*, usually into a transit gateway.
 
 **One person's laptop**
+match: Client VPN
 *Client VPN*. Not for a whole building.
 
 **Names across the link**
+match: Resolver
 *Route 53 Resolver*: outbound asks your DNS, inbound lets it ask yours.
 
 ## end

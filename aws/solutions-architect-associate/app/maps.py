@@ -19,10 +19,16 @@ the parser knows:
 Inside a row, a box is a bold line, then its words up to a blank line:
 
     **NAT gateway**
+    match: NAT gateway|NAT instance
     Private subnets out, never in. *One per zone* in production.
 
 Words between single stars are the pick: what a question is after, drawn in
-magenta. In an arrow, double stars make the words bold.
+magenta and underlined. In an arrow, double stars make the words bold.
+
+The optional "match:" line is a pattern tried against each question's answer,
+so the box can carry a tick-and-cross tally of how those questions went for
+you. Without one, the title is used, split on commas, "and" and "or". A
+"match: -" line means the box counts nothing.
 
 The maps are written into app.template.html between marker comments, one
 fold each, and the page takes them out again for an exam they do not belong
@@ -51,9 +57,14 @@ CSS = """
 .nm-row > * { flex: 1 1 140px; min-width: 0; }
 .nm-box { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface);
           padding: 6px 8px; }
-.nm-box h4 { margin: 0 0 1px; font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+.nm-box h4 { margin: 0 0 1px; font-size: 0.9rem; font-weight: 600; line-height: 1.3;
+             display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.nm-box h4 .tally { font-size: 0.72rem; font-weight: 500; flex: none; }
 .nm-box p { margin: 0; font-size: 0.8rem; color: var(--ink-2); line-height: 1.45; }
-.nm-box .pick { color: var(--magenta); font-weight: 600; }
+/* The pick is underlined as well as coloured, so it never rests on colour alone. */
+.nm-box .pick { color: var(--magenta); font-weight: 600;
+                text-decoration: underline dotted; text-underline-offset: 3px;
+                text-decoration-thickness: 1px; }
 .nm-box.edge { border-left: 4px solid var(--cyan); }
 .nm-box.hub  { border-left: 4px solid var(--magenta); }
 .nm-box.home { border-left: 4px solid var(--amber); }
@@ -162,9 +173,11 @@ def parse(md: str) -> dict:
             b = re.match(r"^\*\*(.+?)\*\*\s*$", line)
             if b:
                 close_box()
-                box = {"title": b.group(1).strip(), "body": []}
+                box = {"title": b.group(1).strip(), "body": [], "match": None}
             elif not line.strip():
                 close_box()
+            elif box is not None and line.startswith("match:"):
+                box["match"] = line[6:].strip()
             elif box is not None:
                 box["body"].append(line.strip())
         elif mode in ("arrow", "key"):
@@ -178,6 +191,21 @@ def parse(md: str) -> dict:
     return {"title": title, "lede": " ".join(lede), "items": root}
 
 
+def pattern(box: dict) -> str:
+    """What this box counts: its own pattern, or one made from its title."""
+    m = box.get("match")
+    if m == "-":
+        return ""
+    if m:
+        re.compile(m)
+        if any(ord(c) < 32 for c in m) or "\\\\" in m:
+            raise SystemExit(box["title"] + ": a broken match pattern")
+        return m
+    parts = [p.strip() for p in re.split(r",| and | or ", box["title"]) if p.strip()]
+    # A leading boundary only, so "Dedicated Host" also counts "Dedicated Hosts".
+    return "|".join(r"\b" + re.escape(p) for p in parts)
+
+
 def draw(items: list) -> str:
     out = []
     for it in items:
@@ -185,8 +213,10 @@ def draw(items: list) -> str:
             cls = (" " + it["cls"]) if it["cls"] else ""
             out.append('<div class="nm-row">')
             for b in it["boxes"]:
-                out.append('<div class="nm-box%s"><h4>%s</h4><p>%s</p></div>'
-                           % (cls, inline(b["title"]), inline(b["body"])))
+                rx = pattern(b)
+                attr = (' data-rx="%s"' % html.escape(rx, quote=True)) if rx else ""
+                out.append('<div class="nm-box%s"%s><h4><span>%s</span></h4><p>%s</p></div>'
+                           % (cls, attr, inline(b["title"]), inline(b["body"])))
             out.append('</div>')
         elif it["kind"] == "arrow":
             out.append('<div class="nm-arrow">%s</div>' % inline(it["text"]))
