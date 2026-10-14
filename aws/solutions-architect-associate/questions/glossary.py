@@ -237,6 +237,26 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Rugged devices AWS posts to you. They do two jobs, not one: moving data the network would take too long to carry, and running compute where there is no usable network at all. Reading one of these questions as being about data transfer when it is really about running something in a disconnected place is the way to get it wrong."),
     "AWS Snowcone": (r"Snowcone",
         "The smallest of them, 8 or 14 TB, light enough to carry and able to run on a battery. It runs EC2 instances too, for a drone, a vehicle or a backpack."),
+    "SFTP": (r"\bSFTP\b|\bFTPS?\b",
+        "File transfer over SSH, on port 22: the way other companies have "
+        "sent each other files for twenty years, with a client on their side "
+        "and a server on yours. On the exam the server is the problem: one "
+        "EC2 instance running SFTP is a single point of failure that cannot "
+        "scale. An Application Load Balancer cannot help, because SFTP is not "
+        "web traffic; a Network Load Balancer could carry it but only spreads "
+        "it across instances you still own and patch. The answer to 'reliable "
+        "and scalable SFTP' is AWS Transfer Family, which keeps the partners' "
+        "clients and the DNS name and removes the server."),
+    "AWS Transfer Family": (r"Transfer Family|Transfer for SFTP|AWS Transfer\b",
+        "SFTP, FTPS and FTP as a managed service, writing straight into S3 or "
+        "EFS. No instance, no patching, no cron job to move the files "
+        "afterwards: they land in the bucket as they arrive. Highly available "
+        "and scaling on its own, so it is the answer whenever a question has "
+        "an SFTP server on EC2 and wants reliability or scale, or wants "
+        "partners to keep using SFTP while the data goes to a data lake. Point "
+        "the existing DNS name at the server's endpoint and the partners "
+        "notice nothing. File Gateway is the distractor: it is a file share "
+        "(NFS or SMB) backed by a bucket, not an SFTP endpoint."),
     "AWS DataSync": (r"DataSync",
         "Copies files between your datacentre and AWS over the network, on a schedule, repeatedly. The online alternative to shipping a Snowball."),
     "AWS Backup": (r"AWS Backup",

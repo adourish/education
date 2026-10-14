@@ -103,17 +103,20 @@ def main() -> None:
     # can explain the services a question names without revealing which is right.
     gloss = [(name, re.compile(pat, re.I)) for name, (pat, _) in GLOSSARY.items()]
 
-    def terms_in(text: str) -> list[str]:
-        """Matched terms, most specific first.
+    # How many questions each term turns up in, so the rare ones can go first.
+    term_count: dict[str, int] = {}
 
-        A hint is capped at nine entries, and truncating in dictionary order
+    def terms_in(text: str) -> list[str]:
+        """Matched terms, rarest first.
+
+        A hint is capped at twelve entries, and truncating in dictionary order
         could drop the term the question is actually about: one whose whole
-        point is Intelligent-Tiering would keep the generic "Amazon S3" and
-        lose the specific one. Longer names are the more specific ones, so
-        they go first and survive the cut.
+        point is SFTP would keep the generic "Amazon EC2" and lose the specific
+        one. A term that turns up in few questions is the specific one, so it
+        goes first and survives the cut; length breaks ties.
         """
         hit = [name for name, rx in gloss if rx.search(text)]
-        return sorted(hit, key=lambda n: (-len(n), n))
+        return sorted(hit, key=lambda n: (term_count.get(n, 0), -len(n), n))
 
     # ---- poster rows, grouped by the section they sit in --------------------
     html = POSTER.read_text(encoding="utf-8")
@@ -188,6 +191,11 @@ def main() -> None:
                     flags.pop(a, None)
 
     bank = json.loads(BANK.read_text(encoding="utf-8"))
+    for r in bank:
+        text = (r["question"] + " " + " ".join(r.get("options") or []) + " " + r["answer"])
+        for name, rx in gloss:
+            if rx.search(text):
+                term_count[name] = term_count.get(name, 0) + 1
     questions = []
     for r in bank:
         q = r["question"].strip()
@@ -201,7 +209,7 @@ def main() -> None:
             "area": r["area"],
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
-            "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:9],
+            "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:12],
             "src": SOURCES.get(r.get("source"), UNKNOWN_SOURCE)[0],
             # A star means a person has checked this question, not a scraper.
             "star": bool(r.get("reviewed")),
