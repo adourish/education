@@ -1042,14 +1042,15 @@ select {
                margin-bottom: 6px; }
 .dectraps li:last-child { margin-bottom: 0; }
 
-/* NETMAP-CSS-START */
+/* MAPS-CSS-START */
 
-/* The networking map: one picture of where the networking questions live.
-   Boxes two across at any width, so a phone gets the same shape as a desk. */
+/* The maps: one picture per part of the exam. Boxes two across at any width,
+   so a phone gets the same shape as a desk. */
 .netmap { margin: 4px 0 0; }
 .netmap *, .netmap *::before { box-sizing: border-box; }
 .netmap .lede { font-size: 0.86rem; margin: 0 0 8px; }
 .nm-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+.nm-row + .nm-row, .nm-zone + .nm-row, .nm-row + .nm-zone, .nm-zone + .nm-zone { margin-top: 6px; }
 .nm-row > * { flex: 1 1 140px; min-width: 0; }
 .nm-box { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface);
           padding: 6px 8px; }
@@ -1058,22 +1059,21 @@ select {
 .nm-box .pick { color: var(--magenta); font-weight: 600; }
 .nm-box.edge { border-left: 4px solid var(--cyan); }
 .nm-box.hub  { border-left: 4px solid var(--magenta); }
+.nm-box.home { border-left: 4px solid var(--amber); }
 .nm-zone { border: 2px dashed var(--rule); border-radius: 10px; padding: 7px; margin: 0; }
 .nm-zone > h3 { margin: 0 0 5px; font-size: 0.86rem; font-weight: 600; color: var(--ink-2); }
 .nm-zone.vpc { background: var(--cyan-soft); border-color: var(--cyan); }
 .nm-zone.sub { background: var(--surface); border-style: solid; border-color: var(--rule); }
 .nm-zone.sub > h3 { color: var(--ink-3); font-size: 0.78rem; margin-bottom: 4px; }
-.nm-zone.home { background: var(--amber-soft); border-color: var(--amber); margin-top: 6px; }
+.nm-zone.home { background: var(--amber-soft); border-color: var(--amber); }
 .nm-arrow { text-align: center; color: var(--ink-3); font-size: 0.78rem; padding: 2px 0; line-height: 1.35; }
 .nm-arrow b { color: var(--ink-2); font-weight: 600; }
 .nm-arrow::before { content: "↓"; display: block; font-size: 1.05rem; color: var(--cyan); line-height: 1; }
-.nm-side { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.nm-side > * { flex: 1 1 140px; min-width: 0; }
 .nm-key { margin: 8px 0 0; padding: 5px 8px; border-radius: 7px; background: var(--surface-2);
           font-size: 0.76rem; color: var(--ink-2); line-height: 1.45; }
 .nm-key span { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin: 0 4px 0 1px; vertical-align: middle; }
 
-/* NETMAP-CSS-END */
+/* MAPS-CSS-END */
 
 /* A new version is ready. It waits to be taken rather than reloading on its
    own, because being thrown out of a question you are halfway through reading
@@ -1239,64 +1239,312 @@ footer .v { font-family: var(--mono); }
       </div>
     </details>
 
-<!-- NETMAP-HTML-START -->
-    <details class="fold" id="fold-netmap" data-fold="netmap">
+<!-- MAPS-HTML-START -->
+    <details class="fold map" id="fold-map-networking" data-fold="map-networking">
       <summary>The networking map<span class="count">one picture</span></summary>
       <div class="inner">
 <div class="netmap">
-  <p class="lede">Where every networking question lives, top to bottom: the user, your VPC, the ways out.</p>
-  <div class="nm-row">
+<p class="lede">Where every networking question lives, top to bottom: the user, your VPC, the ways out.</p>
+<div class="nm-row">
 <div class="nm-box edge"><h4>Route 53</h4><p>Which Region answers. <span class="pick">Latency</span>: fastest. <span class="pick">Geolocation</span>: by country. <span class="pick">Failover</span> and a health check: a standby. <span class="pick">Weighted</span>: a share.</p></div>
 <div class="nm-box edge"><h4>CloudFront</h4><p>Caches near the user. <span class="pick">One Region behind CloudFront</span>, not many Regions. Only files? S3 behind it.</p></div>
 <div class="nm-box edge"><h4>WAF and Shield</h4><p>Rules on web requests: CloudFront, ALB or API, <span class="pick">never an NLB</span>. Big attack, team to call: Shield Advanced.</p></div>
-  </div>
-  <div class="nm-arrow"><b>Internet gateway</b>: one per VPC, in no zone</div>
-  <div class="nm-zone vpc">
-    <h3>Your VPC</h3>
-    <div class="nm-zone sub">
-      <h3>Public subnets, one per zone</h3>
-      <div class="nm-row">
+</div>
+<div class="nm-arrow"><b>Internet gateway</b>: one per VPC, in no zone</div>
+<div class="nm-zone vpc"><h3>Your VPC</h3>
+<div class="nm-zone sub"><h3>Public subnets, one per zone</h3>
+<div class="nm-row">
 <div class="nm-box"><h4>Load balancer</h4><p><span class="pick">ALB</span> reads the request: paths, headers, logins, WAF. <span class="pick">NLB</span>: fixed address or raw TCP.</p></div>
 <div class="nm-box"><h4>NAT gateway</h4><p>Private subnets out, never in. <span class="pick">One per zone</span> in production; one shared for test.</p></div>
-      </div>
-    </div>
-    <div class="nm-arrow"><b>A route table per private subnet</b>, to its own zone's NAT gateway. A shared table sends every zone through one.</div>
-    <div class="nm-zone sub">
-      <h3>Private subnets, one per zone</h3>
-      <div class="nm-row">
+</div>
+</div>
+<div class="nm-arrow"><b>A route table per private subnet</b>, to its own zone's NAT gateway. A shared table sends every zone through one.</div>
+<div class="nm-zone sub"><h3>Private subnets, one per zone</h3>
+<div class="nm-row">
 <div class="nm-box"><h4>Servers, containers, Lambda, database</h4><p>No public address. Lambda joins by being <span class="pick">attached to the VPC</span>, not by VPN or endpoint. The database opens by security group to the servers only.</p></div>
-      </div>
-    </div>
-    <div class="nm-side">
+</div>
+</div>
+<div class="nm-row">
 <div class="nm-box"><h4>Gateway endpoint</h4><p><span class="pick">S3 and DynamoDB</span> only. Free. Cuts the NAT bill.</p></div>
 <div class="nm-box"><h4>Interface endpoint, PrivateLink</h4><p>Any other AWS service, or <span class="pick">another company's service on AWS</span>, no internet. To offer yours: NLB with PrivateLink in front.</p></div>
-    </div>
-  </div>
-  <div class="nm-arrow">Out to other networks</div>
-  <div class="nm-row">
+</div>
+</div>
+<div class="nm-arrow">Out to other networks</div>
+<div class="nm-row">
 <div class="nm-box hub"><h4>Transit gateway</h4><p>Hub for <span class="pick">hundreds of VPCs</span>, accounts, sites. A route table each keeps VPCs apart. Two VPCs only: <span class="pick">peering</span>.</p></div>
-  </div>
-  <div class="nm-zone home">
-    <h3>Your own building</h3>
-    <div class="nm-row">
+</div>
+<div class="nm-zone home"><h3>Your own building</h3>
+<div class="nm-row">
 <div class="nm-box"><h4>Direct Connect</h4><p>Private line. Steady, never the internet. Weeks to set up.</p></div>
 <div class="nm-box"><h4>Site-to-Site VPN</h4><p>Encrypted over the internet. This week, costs little.</p></div>
 <div class="nm-box"><h4>Both</h4><p><span class="pick">Direct Connect, VPN as backup</span>, when the link must not fail.</p></div>
 <div class="nm-box"><h4>One line, many VPCs</h4><p><span class="pick">Direct Connect gateway</span>, usually into a transit gateway.</p></div>
 <div class="nm-box"><h4>One person's laptop</h4><p><span class="pick">Client VPN</span>. Not for a whole building.</p></div>
 <div class="nm-box"><h4>Names across the link</h4><p><span class="pick">Route 53 Resolver</span>: outbound asks your DNS, inbound lets it ask yours.</p></div>
-    </div>
-  </div>
-  <div class="nm-key">
-    <span style="background: var(--cyan)"></span>the edge ·
-    <span style="background: var(--magenta)"></span>joining networks ·
-    <span style="background: var(--amber)"></span>your building.
-    Magenta text is the pick.
-  </div>
+</div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: the edge · <span style="background: var(--magenta)"></span>magenta: joining networks · <span style="background: var(--amber)"></span>amber: your building. Magenta text is the pick.</div>
 </div>
       </div>
     </details>
-<!-- NETMAP-HTML-END -->
+
+    <details class="fold map" id="fold-map-compute" data-fold="map-compute">
+      <summary>The compute map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Where every compute question lives, top to bottom: where the code runs, how it grows, how you pay.</p>
+<div class="nm-zone vpc"><h3>Where the code runs. Least to manage at the top; stop at the first that fits</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Lambda</h4><p>A function on a trigger. <span class="pick">15 minutes, 10 GB</span>, a zip or a container image. Nothing to patch.</p></div>
+<div class="nm-box"><h4>Fargate</h4><p>Containers with <span class="pick">no servers</span>. Longer than 15 minutes, or always on. ECS or EKS on top.</p></div>
+<div class="nm-box"><h4>ECS or EKS on EC2</h4><p>You <span class="pick">choose the hardware</span>: a GPU, a size. EKS only when Kubernetes is named.</p></div>
+<div class="nm-box"><h4>EC2</h4><p>Anything at all, and <span class="pick">you patch it</span>. Pick when nothing above fits.</p></div>
+<div class="nm-box"><h4>Batch</h4><p><span class="pick">Many queued jobs</span>, with an order between them. It runs the instances.</p></div>
+<div class="nm-box"><h4>Elastic Beanstalk</h4><p>Hand it the app; it runs the rest. <span class="pick">Rolling, immutable, blue/green, traffic splitting</span> deployments.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then how it carries more</div>
+<div class="nm-zone sub"><h3>Growing</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Auto Scaling group</h4><p><span class="pick">Min, desired, max</span>, across two zones or more. Replaces what dies. The answer to "handle more traffic".</p></div>
+<div class="nm-box"><h4>Target tracking</h4><p><span class="pick">Keep one number</span> where you want it. Reach for it first.</p></div>
+<div class="nm-box"><h4>Step, scheduled, predictive</h4><p>Step: sizes of response. <span class="pick">Scheduled</span>: a rush with a time. <span class="pick">Predictive</span>: a weekly pattern.</p></div>
+<div class="nm-box"><h4>Warm pool</h4><p>Instances that take too long to <span class="pick">boot</span>.</p></div>
+<div class="nm-box"><h4>Memory or disk</h4><p>Not there until the <span class="pick">CloudWatch agent</span> is installed. CPU and network are.</p></div>
+<div class="nm-box"><h4>Bigger, not more</h4><p>One job that cannot be split: a <span class="pick">larger instance</span>. A stop and a start, still one machine.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>Lambda, when it is the answer and something is wrong</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Cold starts</h4><p><span class="pick">Provisioned concurrency</span>; schedule it for a known hour. Java: <span class="pick">SnapStart</span>.</p></div>
+<div class="nm-box"><h4>One function eating all</h4><p><span class="pick">Reserved concurrency</span>: a ceiling, and zero turns it off.</p></div>
+<div class="nm-box"><h4>Inside a VPC</h4><p>No public address: a <span class="pick">NAT gateway</span> for the internet, <span class="pick">endpoints</span> for AWS.</p></div>
+<div class="nm-box"><h4>Big or shared files</h4><p><span class="pick">Mount EFS</span>. The package is 250 MB, /tmp 10 GB.</p></div>
+<div class="nm-box"><h4>Something in front</h4><p><span class="pick">Function URL</span> for just HTTPS. API Gateway for keys, caching, limits.</p></div>
+<div class="nm-box"><h4>Failed events</h4><p>A <span class="pick">dead-letter queue</span>, or a destination.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Paying for EC2</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>On-Demand</h4><p>Short, unknown, or being measured.</p></div>
+<div class="nm-box"><h4>Spot</h4><p>Can be <span class="pick">interrupted, two minutes' warning</span>. Spread across instance types.</p></div>
+<div class="nm-box"><h4>Savings Plan</h4><p>Steady, and the <span class="pick">type may change</span>. Pounds per hour, not a reservation.</p></div>
+<div class="nm-box"><h4>Reserved</h4><p>Steady, <span class="pick">one type</span>, one to three years.</p></div>
+<div class="nm-box"><h4>Dedicated Host</h4><p>A <span class="pick">licence by socket or core</span>. Dedicated Instance only keeps others' tenants off.</p></div>
+<div class="nm-box"><h4>Placement groups</h4><p><span class="pick">Cluster</span>: fast, one zone. <span class="pick">Spread</span>: 7 a zone, apart. <span class="pick">Partition</span>: big distributed systems.</p></div>
+</div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: where it runs · <span style="background: var(--amber)"></span>amber: paying. Magenta text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-database" data-fold="map-database">
+      <summary>The database map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Where every database question lives, top to bottom: which engine, then the feature the question is really about.</p>
+<div class="nm-zone vpc"><h3>Which engine</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>RDS</h4><p><span class="pick">SQL, joins, transactions</span>, an existing app. Multi-AZ for failover, read replicas for reads.</p></div>
+<div class="nm-box"><h4>Aurora</h4><p>The same, <span class="pick">faster and Region-safe</span>. Serverless v2 when load comes and goes.</p></div>
+<div class="nm-box"><h4>DynamoDB</h4><p><span class="pick">Key-value, any scale</span>, single-digit milliseconds. No joins.</p></div>
+<div class="nm-box"><h4>ElastiCache</h4><p><span class="pick">Memory</span>: the same reads over and over, sessions. Redis or Memcached.</p></div>
+<div class="nm-box"><h4>DocumentDB, Neptune</h4><p><span class="pick">MongoDB wording</span>: DocumentDB. <span class="pick">Relationships, graph</span>: Neptune.</p></div>
+<div class="nm-box"><h4>Redshift, Timestream</h4><p><span class="pick">Reporting over history</span>: Redshift. <span class="pick">Readings over time</span>: Timestream.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then the feature</div>
+<div class="nm-zone sub"><h3>RDS and Aurora</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Multi-AZ</h4><p><span class="pick">Failover</span>, no reads. A standby that serves nothing.</p></div>
+<div class="nm-box"><h4>Read replica</h4><p><span class="pick">Reads</span>, in Region or across. Promoted by hand, so not a failover.</p></div>
+<div class="nm-box"><h4>RDS Proxy</h4><p><span class="pick">Too many connections</span>, Lambda opening them. Pools them.</p></div>
+<div class="nm-box"><h4>Encrypt an existing one</h4><p><span class="pick">Snapshot, copy with encryption, restore</span>. It cannot be switched on in place.</p></div>
+<div class="nm-box"><h4>Aurora global</h4><p><span class="pick">One writer</span>, other Regions read. Failover about a minute.</p></div>
+<div class="nm-box"><h4>Keep the bill down</h4><p>Stop lasts 7 days: <span class="pick">snapshot and delete</span>. Storage auto scaling for a filling disk. I/O-Optimized when the bill is I/O.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>DynamoDB</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>On-demand or provisioned</h4><p><span class="pick">Spiky or new: on-demand</span>. Steady: provisioned with auto scaling.</p></div>
+<div class="nm-box"><h4>DAX</h4><p>The same reads, <span class="pick">microseconds</span>. In front of the table.</p></div>
+<div class="nm-box"><h4>Global tables</h4><p><span class="pick">Two Regions, both writing</span>. Needs Streams on.</p></div>
+<div class="nm-box"><h4>Streams</h4><p><span class="pick">React to every change</span>, into Lambda.</p></div>
+<div class="nm-box"><h4>TTL and PITR</h4><p><span class="pick">TTL</span>: rows vanish after a time, free. <span class="pick">PITR</span>: back to any second in 35 days.</p></div>
+<div class="nm-box"><h4>Analyse it</h4><p><span class="pick">Export to S3</span>, then Athena. Never a scan.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Taking load off</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>ElastiCache</h4><p>The app checks the cache, misses, reads the database, <span class="pick">writes the value in</span>.</p></div>
+<div class="nm-box"><h4>DAX</h4><p>The same for DynamoDB, but it <span class="pick">goes to the table itself</span>.</p></div>
+<div class="nm-box"><h4>Read replica</h4><p><span class="pick">More reads</span> than one instance can serve.</p></div>
+<div class="nm-box"><h4>Writes are the problem</h4><p>A bigger instance, or <span class="pick">sharding</span>. A replica does nothing for writes.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub"><h4>Moving in</h4><p><span class="pick">DMS</span> keeps the old one running, switchover short. <span class="pick">SCT</span> when the engine changes. An RDS snapshot imports straight into Aurora.</p></div>
+<div class="nm-box hub"><h4>Who may connect</h4><p><span class="pick">IAM database authentication</span>: no password in the app. <span class="pick">Secrets Manager</span> rotates one that must exist.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: which engine · <span style="background: var(--amber)"></span>amber: taking load off · <span style="background: var(--magenta)"></span>magenta: moving in and connecting. Magenta text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-storage" data-fold="map-storage">
+      <summary>The storage map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Where every storage question lives, top to bottom: which kind, then what S3 and EBS can do, then getting data in and keeping it safe.</p>
+<div class="nm-zone vpc"><h3>Which kind</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>S3</h4><p><span class="pick">Objects</span>, unlimited, reached by URL. Not a disk.</p></div>
+<div class="nm-box"><h4>EBS</h4><p><span class="pick">One instance, one zone</span>, a plain disk. Multi-Attach only io1/io2, same zone.</p></div>
+<div class="nm-box"><h4>EFS</h4><p><span class="pick">Many Linux servers, across zones</span>. Grows on its own.</p></div>
+<div class="nm-box"><h4>FSx for Windows</h4><p><span class="pick">SMB, Active Directory</span>, Windows apps.</p></div>
+<div class="nm-box"><h4>FSx for Lustre</h4><p><span class="pick">Speed for modelling or training</span>. Links to a bucket.</p></div>
+<div class="nm-box"><h4>Instance store</h4><p><span class="pick">Scratch, fastest, gone on stop</span>.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then what the question wants done with it</div>
+<div class="nm-zone sub"><h3>S3</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Storage classes</h4><p>Standard · <span class="pick">Intelligent-Tiering when unknown</span> · Standard-IA · One Zone-IA · Glacier Instant · Flexible · <span class="pick">Deep Archive, cheapest</span>.</p></div>
+<div class="nm-box"><h4>Minimums</h4><p>IA charges <span class="pick">30 days</span>, Glacier <span class="pick">90</span>, Deep Archive <span class="pick">180</span>. Short-lived data costs more there than in Standard.</p></div>
+<div class="nm-box"><h4>Lifecycle rules</h4><p><span class="pick">Move after N days, delete after N days</span>, clean up incomplete multipart uploads.</p></div>
+<div class="nm-box"><h4>Nobody may delete it</h4><p><span class="pick">Object Lock, compliance mode</span>: not even root. Governance: an admin can lift it.</p></div>
+<div class="nm-box"><h4>Accidents</h4><p><span class="pick">Versioning and MFA Delete</span>. Block Public Access on the account.</p></div>
+<div class="nm-box"><h4>Only through CloudFront</h4><p><span class="pick">Origin access control</span> and a bucket policy. Presigned URL: one person, one object, a while.</p></div>
+<div class="nm-box"><h4>Faster</h4><p><span class="pick">Transfer Acceleration</span> for uploads from far away. <span class="pick">Multipart</span> over 100 MB. Express One Zone for millions of tiny reads.</p></div>
+<div class="nm-box"><h4>Copies and events</h4><p><span class="pick">Replication</span> to another Region or bucket, needs versioning. Event notifications into Lambda, SQS, SNS.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>EBS</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>gp3</h4><p>The default. IOPS and throughput <span class="pick">set apart from size</span>; gp2 ties them.</p></div>
+<div class="nm-box"><h4>io2</h4><p><span class="pick">Over 16,000 IOPS</span>, a database that needs a promise, Multi-Attach.</p></div>
+<div class="nm-box"><h4>st1 and sc1</h4><p>Hard disks: <span class="pick">big sequential reads</span> cheap, and cold. Neither can boot.</p></div>
+<div class="nm-box"><h4>Snapshots</h4><p>To S3, incremental. <span class="pick">Data Lifecycle Manager</span> on a schedule. Encrypt by default in the Region.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Getting data in</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Snowball Edge</h4><p><span class="pick">A lot, once</span>, and the line is too slow. Past about a week of transfer.</p></div>
+<div class="nm-box"><h4>DataSync</h4><p><span class="pick">A lot, repeatedly</span>, over the network. Only what changed.</p></div>
+<div class="nm-box"><h4>Storage Gateway</h4><p><span class="pick">File</span>: a share backed by a bucket. <span class="pick">Volume</span>: local disk, copy in AWS. <span class="pick">Tape</span>: retire a tape library.</p></div>
+<div class="nm-box"><h4>Transfer Family</h4><p>Keep using <span class="pick">SFTP</span>, straight into S3.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub"><h4>AWS Backup</h4><p><span class="pick">One plan, every service</span>, a vault. Vault lock in compliance mode cannot be undone. Copy to another Region.</p></div>
+<div class="nm-box hub"><h4>Querying files</h4><p><span class="pick">Athena</span> for SQL over S3; convert to Parquet with Glue to cut the scan.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: which kind · <span style="background: var(--amber)"></span>amber: getting data in · <span style="background: var(--magenta)"></span>magenta: keeping it. Magenta text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-security" data-fold="map-security">
+      <summary>The security map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Where every security question lives, top to bottom: who may do what, keys and secrets, who finds what, the defences, many accounts.</p>
+<div class="nm-zone vpc"><h3>Who may do what</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>A role</h4><p><span class="pick">Assumed, credentials expire</span>. Never an access key on a server.</p></div>
+<div class="nm-box"><h4>Instance role, execution role</h4><p>An app on an instance; a function. The role <span class="pick">is</span> the identity.</p></div>
+<div class="nm-box"><h4>Across accounts</h4><p><span class="pick">A role in the far account</span>: a trust policy there, permission on the caller.</p></div>
+<div class="nm-box"><h4>Resource policy</h4><p><span class="pick">An outsider at one bucket or queue</span>. Written on the thing itself.</p></div>
+<div class="nm-box"><h4>Staff with company logins</h4><p><span class="pick">IAM Identity Center</span>, federated with their directory.</p></div>
+<div class="nm-box"><h4>Users of your own app</h4><p><span class="pick">Cognito user pool</span> for the login, identity pool for AWS credentials.</p></div>
+<div class="nm-box"><h4>A ceiling</h4><p><span class="pick">Service control policy</span>: limits, never grants, not the management account. Permissions boundary: the same for one user.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then what protects the data</div>
+<div class="nm-zone sub"><h3>Keys and secrets</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Who holds the key</h4><p><span class="pick">SSE-S3</span>: nobody asked. <span class="pick">SSE-KMS, customer managed</span>: say who may use it, audit every use. <span class="pick">SSE-C or client-side</span>: AWS never sees it.</p></div>
+<div class="nm-box"><h4>KMS</h4><p>Encrypts the data key; the data key encrypts the data. <span class="pick">Rotation changes the outer key</span> only. CloudHSM: a module you control.</p></div>
+<div class="nm-box"><h4>Secrets Manager</h4><p>A password that must <span class="pick">rotate itself</span>. Built in to RDS, Aurora, Redshift.</p></div>
+<div class="nm-box"><h4>Parameter Store</h4><p>A setting, or a secret with <span class="pick">no rotation</span>, free.</p></div>
+<div class="nm-box"><h4>Certificates</h4><p><span class="pick">ACM</span>, free and public, DNS validation. For CloudFront, in us-east-1.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>Who finds what</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>GuardDuty</h4><p><span class="pick">Threats</span>: a stolen key, mining, an odd login. Reads the logs itself.</p></div>
+<div class="nm-box"><h4>Macie</h4><p><span class="pick">Personal data in S3</span>. Only S3.</p></div>
+<div class="nm-box"><h4>Inspector</h4><p><span class="pick">Software flaws</span> on instances, containers, Lambda.</p></div>
+<div class="nm-box"><h4>Config</h4><p><span class="pick">A setting that drifted</span>. What changed, and whether it is allowed.</p></div>
+<div class="nm-box"><h4>CloudTrail</h4><p><span class="pick">Who called what, when</span>. Never flow logs.</p></div>
+<div class="nm-box"><h4>Access Analyzer, Security Hub, Detective</h4><p><span class="pick">Outsiders who can reach in</span>; <span class="pick">every finding in one place</span>; <span class="pick">why it happened</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Defences</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>WAF</h4><p><span class="pick">Rules on web requests</span>: on CloudFront, ALB, API Gateway. Rate-based rule, IP set, managed rules.</p></div>
+<div class="nm-box"><h4>Shield</h4><p>Standard is on and free. <span class="pick">Advanced</span>: big DDoS, a team, cost protection, an NLB or Elastic IP.</p></div>
+<div class="nm-box"><h4>Network ACL</h4><p>The only one with <span class="pick">deny</span>. Block an address at the subnet.</p></div>
+<div class="nm-box"><h4>Security group</h4><p><span class="pick">Allow only</span>, stateful, instance level. From another group by id.</p></div>
+<div class="nm-box"><h4>Network Firewall</h4><p>Filters a <span class="pick">VPC's traffic</span> by address, port, domain. Not web requests.</p></div>
+<div class="nm-box"><h4>Firewall Manager</h4><p><span class="pick">The same rules in every account</span>. Needs Organizations.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub"><h4>Many accounts</h4><p><span class="pick">Organizations</span> for one bill and shared discounts. <span class="pick">SCP on the root OU</span> to stop something everywhere. <span class="pick">Control Tower</span> for new accounts set up right. Tag policies for allowed values. <span class="pick">Resource Access Manager</span> to share a subnet or a transit gateway.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: who may · <span style="background: var(--amber)"></span>amber: defences · <span style="background: var(--magenta)"></span>magenta: many accounts. Magenta text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-integration" data-fold="map-integration">
+      <summary>The integration map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Where every integration question lives, top to bottom: what goes in between, what the queue can do, the front door, and events.</p>
+<div class="nm-zone vpc"><h3>What goes in between</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>SQS</h4><p><span class="pick">One sender, one worker, nothing lost</span>. At-least-once, so work must be safe to repeat.</p></div>
+<div class="nm-box"><h4>SQS FIFO</h4><p><span class="pick">Order, no duplicates</span>. 300 a second, 3,000 in batches.</p></div>
+<div class="nm-box"><h4>SNS</h4><p><span class="pick">One message, many places at once</span>. Email, SMS, Lambda, queues.</p></div>
+<div class="nm-box"><h4>SNS in front of SQS</h4><p><span class="pick">Both</span>: a copy to every subscriber, each queue holds its own work.</p></div>
+<div class="nm-box"><h4>EventBridge</h4><p><span class="pick">Route on what is inside the event</span>. Schedules. Events from other companies' products.</p></div>
+<div class="nm-box"><h4>Kinesis Data Streams</h4><p><span class="pick">A stream several readers can replay</span>. Order inside a shard.</p></div>
+<div class="nm-box"><h4>Data Firehose</h4><p><span class="pick">Straight into S3, Redshift, OpenSearch</span>, no code. Nothing kept, no replay.</p></div>
+<div class="nm-box"><h4>Step Functions</h4><p><span class="pick">Steps, retries, waiting for a person</span>. Map state for thousands in parallel.</p></div>
+<div class="nm-box"><h4>Amazon MQ</h4><p>An <span class="pick">existing ActiveMQ or RabbitMQ</span> app, moved as it is.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then what the queue needs set</div>
+<div class="nm-zone sub"><h3>SQS details</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>Visibility timeout</h4><p>How long a taken message <span class="pick">stays hidden</span>. Longer than the work, or it is done twice.</p></div>
+<div class="nm-box"><h4>Dead-letter queue</h4><p>After <span class="pick">too many failed tries</span>, the message goes here to be looked at.</p></div>
+<div class="nm-box"><h4>Long polling</h4><p><span class="pick">Wait up to 20 seconds</span> for a message. Fewer empty answers, less cost.</p></div>
+<div class="nm-box"><h4>Size and age</h4><p><span class="pick">256 KB</span> a message; bigger goes to S3 with a pointer. Kept 4 days, up to 14.</p></div>
+<div class="nm-box"><h4>Scaling the workers</h4><p>An Auto Scaling group on <span class="pick">queue length per instance</span>.</p></div>
+<div class="nm-box"><h4>Delay</h4><p>Hide a new message for up to <span class="pick">15 minutes</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>The front door</h3>
+<div class="nm-row">
+<div class="nm-box"><h4>API Gateway REST</h4><p><span class="pick">Caching, usage plans, API keys, request validation, WAF</span>. More features, more cost.</p></div>
+<div class="nm-box"><h4>API Gateway HTTP</h4><p><span class="pick">Cheaper and faster</span>, a JWT authorizer built in. None of the above.</p></div>
+<div class="nm-box"><h4>Lambda function URL</h4><p><span class="pick">One function, one address</span>, nothing in between.</p></div>
+<div class="nm-box"><h4>WebSocket, AppSync</h4><p><span class="pick">Two-way, live</span>: WebSocket API. <span class="pick">GraphQL</span>, offline sync: AppSync.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub"><h4>Lambda and events</h4><p><span class="pick">S3 event, EventBridge schedule, SQS or stream</span> as the trigger. Async calls fail into a <span class="pick">dead-letter queue</span> or a destination.</p></div>
+<div class="nm-box hub"><h4>Email</h4><p><span class="pick">SES</span> to send at volume. SNS email is for alerts, not newsletters.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: what goes in between · <span style="background: var(--amber)"></span>amber: the front door · <span style="background: var(--magenta)"></span>magenta: events. Magenta text is the pick.</div>
+</div>
+      </div>
+    </details>
+<!-- MAPS-HTML-END -->
 
     <div class="board" id="board"></div>
 
@@ -1570,7 +1818,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.41.0";
+  var APP_VERSION = "1.42.0";
   var BUILD_DATE  = "2026-10-14";
   // ---------- where this exam's work is kept ----------
   //
@@ -4399,10 +4647,11 @@ footer .v { font-family: var(--mono); }
 
   // Which sections were left open, so the page comes back the way it was left.
   (function rememberFolds() {
-    // NETMAP-GATE
+    // The maps are AWS. The other exams share the page but have nothing
+    // for them to show, so they are taken out before the folds are read.
     if (EXAM !== "saa-c03") {
-      var nm = document.getElementById("fold-netmap");
-      if (nm) nm.parentNode.removeChild(nm);
+      Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
+        .forEach(function (m) { m.parentNode.removeChild(m); });
     }
     var KEY = ROOT + "/folds";
     var open = {};
