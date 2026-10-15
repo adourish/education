@@ -1278,7 +1278,7 @@ footer .v { font-family: var(--mono); }
 <div class="nm-box" data-rx="Direct Connect.{0,120}VPN|VPN.{0,120}Direct Connect"><h4><span>Both</span></h4><p><span class="pick">Direct Connect, VPN as backup</span>, when the link must not fail.</p></div>
 <div class="nm-box" data-rx="Direct Connect gateway"><h4><span>One line, many VPCs</span></h4><p><span class="pick">Direct Connect gateway</span>, usually into a transit gateway.</p></div>
 <div class="nm-box" data-rx="Client VPN"><h4><span>One person's laptop</span></h4><p><span class="pick">Client VPN</span>. Not for a whole building.</p></div>
-<div class="nm-box" data-rx="Resolver"><h4><span>Names across the link</span></h4><p><span class="pick">Route 53 Resolver</span>: outbound asks your DNS, inbound lets it ask yours.</p></div>
+<div class="nm-box" data-rx="Resolver|forwarding rule"><h4><span>Names across the link</span></h4><p><span class="pick">Route 53 Resolver</span>. Outbound endpoint plus a <span class="pick">forwarding rule</span> ("corp.example goes to these on-premises DNS addresses"), <span class="pick">associated with the VPC</span> that has the VPN. Inbound endpoint lets on-premises ask for your names.</p></div>
 </div>
 </div>
 <div class="nm-key"><span style="background: var(--cyan)"></span>cyan: the edge · <span style="background: var(--magenta)"></span>magenta: joining networks · <span style="background: var(--amber)"></span>amber: your building. Underlined text is the pick.</div>

@@ -126,8 +126,10 @@ match: Client VPN
 *Client VPN*. Not for a whole building.
 
 **Names across the link**
-match: Resolver
-*Route 53 Resolver*: outbound asks your DNS, inbound lets it ask yours.
+match: Resolver|forwarding rule
+*Route 53 Resolver*. Outbound endpoint plus a *forwarding rule* ("corp.example
+goes to these on-premises DNS addresses"), *associated with the VPC* that
+has the VPN. Inbound endpoint lets on-premises ask for your names.
 
 ## end
 
