@@ -1240,7 +1240,8 @@ footer .v { font-family: var(--mono); }
 <div class="nm-row">
 <div class="nm-box edge" data-rx="\bRoute\ 53"><h4><span>Route 53</span></h4><p>Which Region answers. <span class="pick">Latency</span>: fastest. <span class="pick">Geolocation</span>: by country. <span class="pick">Failover</span> and a health check: a standby. <span class="pick">Weighted</span>: a share.</p></div>
 <div class="nm-box edge" data-rx="\bCloudFront"><h4><span>CloudFront</span></h4><p>Caches near the user. <span class="pick">One Region behind CloudFront</span>, not many Regions. Only files? S3 behind it.</p></div>
-<div class="nm-box edge" data-rx="\bWAF\b|Shield"><h4><span>WAF and Shield</span></h4><p>Rules on web requests: CloudFront, ALB or API, <span class="pick">never an NLB</span>. Big attack, team to call: Shield Advanced.</p></div>
+<div class="nm-box edge" data-rx="WAF"><h4><span>WAF</span></h4><p><span class="pick">Rules on web requests</span>: SQL injection, bad bots, too many requests from one address, an IP set. Sits on CloudFront, an ALB or API Gateway, <span class="pick">never an NLB</span>.</p></div>
+<div class="nm-box edge" data-rx="Shield"><h4><span>Shield Advanced</span></h4><p>DDoS protection for an <span class="pick">NLB, an Elastic IP</span>, CloudFront, an ALB or Route 53, with a team to call and the attack's bill refunded. Standard is free and already on. "Unauthorised access attempts on an NLB, <span class="pick">minimal architecture change</span>": Shield Advanced, since WAF cannot attach and a new NLB is a rebuild.</p></div>
 </div>
 <div class="nm-arrow">In through the VPC's one door</div>
 <div class="nm-zone vpc"><h3>Your VPC</h3>
