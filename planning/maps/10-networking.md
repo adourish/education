@@ -13,10 +13,19 @@ and a health check: a standby. *Weighted*: a share.
 Caches near the user. *One Region behind CloudFront*, not many Regions. Only
 files? S3 behind it.
 
-**WAF and Shield**
-match: \bWAF\b|Shield
-Rules on web requests: CloudFront, ALB or API, *never an NLB*. Big attack, team
-to call: Shield Advanced.
+**WAF**
+match: WAF
+*Rules on web requests*: SQL injection, bad bots, too many requests from one
+address, an IP set. Sits on CloudFront, an ALB or API Gateway, *never an
+NLB*.
+
+**Shield Advanced**
+match: Shield
+DDoS protection for an *NLB, an Elastic IP*, CloudFront, an ALB or Route 53,
+with a team to call and the attack's bill refunded. Standard is free and
+already on. "Unauthorised access attempts on an NLB, *minimal architecture
+change*": Shield Advanced, since WAF cannot attach and a new NLB is a
+rebuild.
 
 ## arrow
 
