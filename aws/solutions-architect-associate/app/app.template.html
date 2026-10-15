@@ -1396,49 +1396,59 @@ footer .v { font-family: var(--mono); }
       <summary>The storage map<span class="count">one picture</span></summary>
       <div class="inner">
 <div class="netmap">
-<p class="lede">Where every storage question lives, top to bottom: which kind, then what S3 and EBS can do, then getting data in and keeping it safe.</p>
+<p class="lede">Cue on the left, pick on the right. Which kind, then S3, EFS, EBS, getting data in, keeping it.</p>
 <div class="nm-zone vpc"><h3>Which kind</h3>
 <div class="nm-row">
-<div class="nm-box" data-rx="\bS3\b"><h4><span>S3</span></h4><p><span class="pick">Objects</span>, unlimited, reached by URL. Not a disk.</p></div>
-<div class="nm-box" data-rx="\bEBS\b"><h4><span>EBS</span></h4><p><span class="pick">One instance, one zone</span>, a plain disk. Multi-Attach only io1/io2, same zone.</p></div>
-<div class="nm-box" data-rx="\bEFS"><h4><span>EFS</span></h4><p><span class="pick">Many Linux servers, across zones</span>. Grows on its own.</p></div>
-<div class="nm-box" data-rx="\bFSx\ for\ Windows"><h4><span>FSx for Windows</span></h4><p><span class="pick">SMB, Active Directory</span>, Windows apps.</p></div>
-<div class="nm-box" data-rx="\bFSx\ for\ Lustre"><h4><span>FSx for Lustre</span></h4><p><span class="pick">Speed for modelling or training</span>. Links to a bucket.</p></div>
-<div class="nm-box" data-rx="\bInstance\ store"><h4><span>Instance store</span></h4><p><span class="pick">Scratch, fastest, gone on stop</span>.</p></div>
+<div class="nm-box" data-rx="\bS3\b"><h4><span>S3</span></h4><p>Objects by URL, unlimited. <span class="pick">Static site: S3 + CloudFront.</span></p></div>
+<div class="nm-box" data-rx="\bEBS\b"><h4><span>EBS</span></h4><p><span class="pick">One instance, one zone.</span> Multi-Attach: io1/io2 only, same zone.</p></div>
+<div class="nm-box" data-rx="\bEFS\b"><h4><span>EFS</span></h4><p><span class="pick">Linux, many servers, across zones</span>, NFS.</p></div>
+<div class="nm-box" data-rx="FSx for Windows"><h4><span>FSx for Windows</span></h4><p><span class="pick">SMB, Active Directory.</span> Multi-AZ to survive a zone; SSD for 2 GB/s.</p></div>
+<div class="nm-box" data-rx="FSx for Lustre"><h4><span>FSx for Lustre</span></h4><p><span class="pick">HPC, training, sub-millisecond.</span> Linked to a bucket.</p></div>
+<div class="nm-box" data-rx="ONTAP"><h4><span>FSx for ONTAP</span></h4><p><span class="pick">SMB and NFS together</span>, Windows and Linux on one share. Auto tiering.</p></div>
+<div class="nm-box" data-rx="instance store"><h4><span>Instance store</span></h4><p><span class="pick">Scratch, fastest, gone on stop.</span></p></div>
 </div>
 </div>
-<div class="nm-arrow">Then what the question wants done with it</div>
+<div class="nm-arrow">Then what to do with it</div>
 <div class="nm-zone sub"><h3>S3</h3>
 <div class="nm-row">
-<div class="nm-box" data-rx="Intelligent-Tiering|Standard-IA|One Zone-IA|Glacier|Deep Archive|storage class"><h4><span>Storage classes</span></h4><p>Standard · <span class="pick">Intelligent-Tiering when unknown</span> · Standard-IA · One Zone-IA · Glacier Instant · Flexible · <span class="pick">Deep Archive, cheapest</span>.</p></div>
-<div class="nm-box" data-rx="minimum (storage )?(duration|charge)|minimum of \d+ days"><h4><span>Minimums</span></h4><p>IA charges <span class="pick">30 days</span>, Glacier <span class="pick">90</span>, Deep Archive <span class="pick">180</span>. Short-lived data costs more there than in Standard.</p></div>
-<div class="nm-box" data-rx="[Ll]ifecycle (rule|polic|configuration)"><h4><span>Lifecycle rules</span></h4><p><span class="pick">Move after N days, delete after N days</span>, clean up incomplete multipart uploads.</p></div>
-<div class="nm-box" data-rx="Object Lock|legal hold|WORM"><h4><span>Nobody may delete it</span></h4><p><span class="pick">Object Lock, compliance mode</span>: not even root. Governance: an admin can lift it.</p></div>
-<div class="nm-box" data-rx="MFA Delete|[Vv]ersioning|Block Public Access"><h4><span>Accidents</span></h4><p><span class="pick">Versioning and MFA Delete</span>. Block Public Access on the account.</p></div>
-<div class="nm-box" data-rx="origin access|\bOAC\b|\bOAI\b|presigned|pre-signed"><h4><span>Only through CloudFront</span></h4><p><span class="pick">Origin access control</span> and a bucket policy. Presigned URL: one person, one object, a while.</p></div>
-<div class="nm-box" data-rx="Transfer Acceleration|multipart|Express One Zone"><h4><span>Faster</span></h4><p><span class="pick">Transfer Acceleration</span> for uploads from far away. <span class="pick">Multipart</span> over 100 MB. Express One Zone for millions of tiny reads.</p></div>
-<div class="nm-box" data-rx="[Rr]eplication|event notification|S3 Event"><h4><span>Copies and events</span></h4><p><span class="pick">Replication</span> to another Region or bucket, needs versioning. Event notifications into Lambda, SQS, SNS.</p></div>
+<div class="nm-box" data-rx="Intelligent-Tiering|Standard-IA|One Zone-IA|Glacier|Deep Archive|storage class"><h4><span>Retrieval time picks the class</span></h4><p>Milliseconds, once a year: <span class="pick">Glacier Instant</span>. Up to 12 hours: <span class="pick">Flexible</span>. Up to 48 hours, cheapest: <span class="pick">Deep Archive</span>. Pattern unknown or varies, no retrieval cost, minimal management: <span class="pick">Intelligent-Tiering</span>.</p></div>
+<div class="nm-box" data-rx="minimum (storage )?(duration|charge)|minimum of \d+ days"><h4><span>Minimums</span></h4><p>IA <span class="pick">30 days</span>, Glacier <span class="pick">90</span>, Deep Archive <span class="pick">180</span>, 128 KB. Short-lived or tiny: stay in Standard.</p></div>
+<div class="nm-box" data-rx="[Ll]ifecycle (rule|polic|configuration)"><h4><span>Lifecycle rules</span></h4><p><span class="pick">Move after N days, delete after N days.</span> Filter by prefix, tag or <span class="pick">size</span>. Clears incomplete multipart uploads.</p></div>
+<div class="nm-box" data-rx="Object Lock|legal hold|WORM"><h4><span>Cannot be deleted</span></h4><p><span class="pick">Object Lock compliance</span>: not even root. Governance: an admin can. Needs versioning. Public-read-but-locked: Object Lock + CloudFront + bucket policy.</p></div>
+<div class="nm-box" data-rx="MFA Delete|[Vv]ersioning|Block Public Access"><h4><span>Against accidents</span></h4><p><span class="pick">Versioning + MFA Delete.</span> <span class="pick">Block Public Access</span> on the account.</p></div>
+<div class="nm-box" data-rx="bucket polic|aws:Source|access point|Requester Pays|gateway (VPC )?endpoint"><h4><span>Who may reach it</span></h4><p>Another account: <span class="pick">bucket policy</span>. One VPC: <span class="pick">aws:SourceVpc</span>. Named addresses: <span class="pick">IP condition</span>. Many apps: <span class="pick">access point each</span>. Reader pays: <span class="pick">Requester Pays</span>. From instances, privately: <span class="pick">gateway endpoint</span>.</p></div>
+<div class="nm-box" data-rx="origin access|\bOAC\b|\bOAI\b|presigned|pre-signed|signed URL|signed cookie"><h4><span>Three kinds of signed access</span></h4><p>Bucket answers only CloudFront: <span class="pick">origin access control</span>. Paying viewers: <span class="pick">CloudFront signed URL</span>. One person, one object, one upload: <span class="pick">S3 presigned URL</span>.</p></div>
+<div class="nm-box" data-rx="SSE-S3|SSE-KMS|Bucket Key|server-side encryption"><h4><span>Encryption</span></h4><p>Nobody asked who holds the key: <span class="pick">SSE-S3</span>. Control rotation, audit use: <span class="pick">SSE-KMS, customer managed key</span>. KMS bill or request limit: <span class="pick">Bucket Key</span>.</p></div>
+<div class="nm-box" data-rx="Macie|Object Lambda"><h4><span>Personal data</span></h4><p>Find it: <span class="pick">Macie</span>. Mask it on the way out, no copy: <span class="pick">Object Lambda</span>.</p></div>
+<div class="nm-box" data-rx="Transfer Acceleration|multipart|Express One Zone"><h4><span>Faster</span></h4><p>Uploads from far away: <span class="pick">Transfer Acceleration + multipart</span>. Sub-millisecond reads: <span class="pick">Express One Zone</span>. Downloads everywhere: CloudFront.</p></div>
+<div class="nm-box" data-rx="[Rr]eplication|Multi-Region Access Point|event notification|S3 Event"><h4><span>Copies and events</span></h4><p>Disaster recovery, least loss: <span class="pick">Cross-Region Replication</span>. Logs into one bucket: <span class="pick">Same-Region Replication</span>. One address, nearest bucket: <span class="pick">Multi-Region Access Point</span>. On every upload: <span class="pick">event notification</span> to Lambda, SQS, SNS.</p></div>
+<div class="nm-box" data-rx="Storage Lens|S3 Inventory|Batch Operations"><h4><span>Across many buckets</span></h4><p>Which buckets are idle or unversioned: <span class="pick">Storage Lens</span>. Act on millions of objects: <span class="pick">Inventory + Batch Operations</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>EFS</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="mount target|EFS.{0,60}(Lambda|ECS|Fargate)|VPC sharing"><h4><span>Mounting</span></h4><p><span class="pick">A mount target per zone.</span> Lambda mounts it for big dependencies. Another account: <span class="pick">VPC sharing</span>.</p></div>
+<div class="nm-box" data-rx="throughput mode|elastic throughput|bursting|EFS (Standard-)?Infrequent|Transition into IA|EFS.{0,40}lifecycle"><h4><span>Throughput and cost</span></h4><p>Spike nobody can size: <span class="pick">elastic</span>. Files unused for N days: <span class="pick">lifecycle to Infrequent Access</span>. Another Region: <span class="pick">AWS Backup</span>.</p></div>
 </div>
 </div>
 <div class="nm-zone sub"><h3>EBS</h3>
 <div class="nm-row">
-<div class="nm-box" data-rx="\bgp3\b|General Purpose SSD"><h4><span>gp3</span></h4><p>The default. IOPS and throughput <span class="pick">set apart from size</span>; gp2 ties them.</p></div>
-<div class="nm-box" data-rx="\bio[12]\b|Provisioned IOPS"><h4><span>io2</span></h4><p><span class="pick">Over 16,000 IOPS</span>, a database that needs a promise, Multi-Attach.</p></div>
-<div class="nm-box" data-rx="\bst1\b|\bsc1\b|Throughput Optimized|Cold HDD"><h4><span>st1 and sc1</span></h4><p>Hard disks: <span class="pick">big sequential reads</span> cheap, and cold. Neither can boot.</p></div>
-<div class="nm-box" data-rx="EBS snapshot|snapshot lifecycle|Data Lifecycle Manager|encryption by default"><h4><span>Snapshots</span></h4><p>To S3, incremental. <span class="pick">Data Lifecycle Manager</span> on a schedule. Encrypt by default in the Region.</p></div>
+<div class="nm-box" data-rx="\bgp3\b|General Purpose SSD|\bio[12]\b|Provisioned IOPS|\bst1\b|\bsc1\b|Throughput Optimized|Cold HDD"><h4><span>Which volume</span></h4><p>Default: <span class="pick">gp3</span> (IOPS set apart from size). Over 16,000 IOPS: <span class="pick">io2</span>; 200,000: <span class="pick">io2 Block Express</span>. Big sequential reads, cheap: <span class="pick">st1</span>. Cold: <span class="pick">sc1</span>. HDDs cannot boot.</p></div>
+<div class="nm-box" data-rx="EBS snapshot|snapshot lifecycle|Data Lifecycle Manager|fast snapshot restore"><h4><span>Snapshots</span></h4><p>Schedule and prune: <span class="pick">Data Lifecycle Manager</span>. Clone production into test: <span class="pick">fast snapshot restore</span>.</p></div>
+<div class="nm-box" data-rx="encrypt(ed|ion) by default|account attribute|Elastic Volumes|Compute Optimizer|block public access for (EBS )?snapshots|Config rule.{0,60}(EBS|volume)"><h4><span>Controls</span></h4><p>Encrypt every new volume: <span class="pick">account setting</span>. Prove they are: <span class="pick">Config rule</span>. No public snapshots: <span class="pick">block at the organization</span>. Grow live: <span class="pick">Elastic Volumes</span>. Right-size: <span class="pick">Compute Optimizer</span>.</p></div>
 </div>
 </div>
 <div class="nm-zone home"><h3>Getting data in</h3>
 <div class="nm-row">
-<div class="nm-box" data-rx="Snowball|Snowcone|Snowmobile"><h4><span>Snowball Edge</span></h4><p><span class="pick">A lot, once</span>, and the line is too slow. Past about a week of transfer.</p></div>
-<div class="nm-box" data-rx="\bDataSync"><h4><span>DataSync</span></h4><p><span class="pick">A lot, repeatedly</span>, over the network. Only what changed.</p></div>
-<div class="nm-box" data-rx="Storage Gateway|File Gateway|Volume Gateway|Tape Gateway"><h4><span>Storage Gateway</span></h4><p><span class="pick">File</span>: a share backed by a bucket. <span class="pick">Volume</span>: local disk, copy in AWS. <span class="pick">Tape</span>: retire a tape library.</p></div>
-<div class="nm-box" data-rx="\bTransfer\ Family"><h4><span>Transfer Family</span></h4><p>Keep using <span class="pick">SFTP</span>, straight into S3.</p></div>
+<div class="nm-box" data-rx="Snowball|Snowcone|Snowmobile"><h4><span>Snowball Edge</span></h4><p>Too much for the line: <span class="pick">a device</span>. 10 Mbps is about 100 GB a day. Work with no connection: <span class="pick">Compute Optimized</span>.</p></div>
+<div class="nm-box" data-rx="DataSync"><h4><span>DataSync</span></h4><p>Over the network, <span class="pick">repeatedly, only what changed</span>, encrypted. Hundreds of GB on 100 Mbps is this.</p></div>
+<div class="nm-box" data-rx="Storage Gateway|File Gateway|Volume Gateway|Tape Gateway|stored volume|cached volume"><h4><span>Storage Gateway</span></h4><p>NFS or SMB share into a bucket: <span class="pick">File</span>. All data local, backed up: <span class="pick">Volume, stored</span>. Hot data local, rest in S3: <span class="pick">Volume, cached</span>. Tapes into Deep Archive, same backup software: <span class="pick">Tape</span>.</p></div>
+<div class="nm-box" data-rx="Transfer Family|Transfer for SFTP"><h4><span>Transfer Family</span></h4><p>Partners keep <span class="pick">SFTP</span>, files land in S3.</p></div>
 </div>
 </div>
 <div class="nm-row">
-<div class="nm-box hub" data-rx="\bAWS\ Backup"><h4><span>AWS Backup</span></h4><p><span class="pick">One plan, every service</span>, a vault. Vault lock in compliance mode cannot be undone. Copy to another Region.</p></div>
-<div class="nm-box hub" data-rx="Athena|Parquet"><h4><span>Querying files</span></h4><p><span class="pick">Athena</span> for SQL over S3; convert to Parquet with Glue to cut the scan.</p></div>
+<div class="nm-box hub" data-rx="AWS Backup"><h4><span>AWS Backup</span></h4><p><span class="pick">One plan for every service</span>, retention in years, copy to another Region. Vault lock cannot be undone.</p></div>
+<div class="nm-box hub" data-rx="Athena|Parquet"><h4><span>Querying files</span></h4><p>SQL over S3, no server: <span class="pick">Athena</span>. Cut the scan: <span class="pick">Parquet</span>.</p></div>
 </div>
 <div class="nm-key"><span style="background: var(--cyan)"></span>cyan: which kind · <span style="background: var(--amber)"></span>amber: getting data in · <span style="background: var(--magenta)"></span>magenta: keeping it. Underlined text is the pick.</div>
 </div>
