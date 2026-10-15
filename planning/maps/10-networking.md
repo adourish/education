@@ -102,6 +102,13 @@ Out to other networks
 Hub for *hundreds of VPCs*, accounts, sites. A route table each keeps VPCs
 apart. Two VPCs only: *peering*.
 
+**Many accounts, one network**
+match: Control Tower|Resource Access Manager|\bRAM\b|shared subnet|share the subnet
+An account per workload, with *guardrails*: *Control Tower* makes the
+accounts, not plain Organizations. One networking account holds the VPC and
+*shares its subnets with Resource Access Manager*, so nobody builds a VPC
+each. A transit gateway and inspection VPC is more to run.
+
 ## zone: Your own building | home
 
 ### row

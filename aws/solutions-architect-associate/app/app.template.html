@@ -1270,6 +1270,7 @@ footer .v { font-family: var(--mono); }
 <div class="nm-arrow">Out to other networks</div>
 <div class="nm-row">
 <div class="nm-box hub" data-rx="\bTransit\ gateway"><h4><span>Transit gateway</span></h4><p>Hub for <span class="pick">hundreds of VPCs</span>, accounts, sites. A route table each keeps VPCs apart. Two VPCs only: <span class="pick">peering</span>.</p></div>
+<div class="nm-box hub" data-rx="Control Tower|Resource Access Manager|\bRAM\b|shared subnet|share the subnet"><h4><span>Many accounts, one network</span></h4><p>An account per workload, with <span class="pick">guardrails</span>: <span class="pick">Control Tower</span> makes the accounts, not plain Organizations. One networking account holds the VPC and <span class="pick">shares its subnets with Resource Access Manager</span>, so nobody builds a VPC each. A transit gateway and inspection VPC is more to run.</p></div>
 </div>
 <div class="nm-zone home"><h3>Your own building</h3>
 <div class="nm-row">
