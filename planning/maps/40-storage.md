@@ -1,7 +1,7 @@
 # The storage map
 
-> Where every storage question lives, top to bottom: which kind, then what S3
-> and EBS can do, then getting data in and keeping it safe.
+> Cue on the left, pick on the right. Which kind, then S3, EFS, EBS, getting
+> data in, keeping it.
 
 ## zone: Which kind | vpc
 
@@ -9,72 +9,119 @@
 
 **S3**
 match: \bS3\b
-*Objects*, unlimited, reached by URL. Not a disk.
+Objects by URL, unlimited. *Static site: S3 + CloudFront.*
 
 **EBS**
 match: \bEBS\b
-*One instance, one zone*, a plain disk. Multi-Attach only io1/io2, same zone.
+*One instance, one zone.* Multi-Attach: io1/io2 only, same zone.
 
 **EFS**
-*Many Linux servers, across zones*. Grows on its own.
+match: \bEFS\b
+*Linux, many servers, across zones*, NFS.
 
 **FSx for Windows**
-*SMB, Active Directory*, Windows apps.
+match: FSx for Windows
+*SMB, Active Directory.* Multi-AZ to survive a zone; SSD for 2 GB/s.
 
 **FSx for Lustre**
-*Speed for modelling or training*. Links to a bucket.
+match: FSx for Lustre
+*HPC, training, sub-millisecond.* Linked to a bucket.
+
+**FSx for ONTAP**
+match: ONTAP
+*SMB and NFS together*, Windows and Linux on one share. Auto tiering.
 
 **Instance store**
-*Scratch, fastest, gone on stop*.
+match: instance store
+*Scratch, fastest, gone on stop.*
 
 ## end
 
 ## arrow
 
-Then what the question wants done with it
+Then what to do with it
 
 ## zone: S3 | sub
 
 ### row
 
-**Storage classes**
+**Retrieval time picks the class**
 match: Intelligent-Tiering|Standard-IA|One Zone-IA|Glacier|Deep Archive|storage class
-Standard · *Intelligent-Tiering when unknown* · Standard-IA · One Zone-IA ·
-Glacier Instant · Flexible · *Deep Archive, cheapest*.
+Milliseconds, once a year: *Glacier Instant*. Up to 12 hours: *Flexible*.
+Up to 48 hours, cheapest: *Deep Archive*. Pattern unknown or varies, no
+retrieval cost, minimal management: *Intelligent-Tiering*.
 
 **Minimums**
 match: minimum (storage )?(duration|charge)|minimum of \d+ days
-IA charges *30 days*, Glacier *90*, Deep Archive *180*. Short-lived data costs
-more there than in Standard.
+IA *30 days*, Glacier *90*, Deep Archive *180*, 128 KB. Short-lived or tiny:
+stay in Standard.
 
 **Lifecycle rules**
 match: [Ll]ifecycle (rule|polic|configuration)
-*Move after N days, delete after N days*, clean up incomplete multipart
-uploads.
+*Move after N days, delete after N days.* Filter by prefix, tag or *size*.
+Clears incomplete multipart uploads.
 
-**Nobody may delete it**
+**Cannot be deleted**
 match: Object Lock|legal hold|WORM
-*Object Lock, compliance mode*: not even root. Governance: an admin can lift
-it.
+*Object Lock compliance*: not even root. Governance: an admin can. Needs
+versioning. Public-read-but-locked: Object Lock + CloudFront + bucket policy.
 
-**Accidents**
+**Against accidents**
 match: MFA Delete|[Vv]ersioning|Block Public Access
-*Versioning and MFA Delete*. Block Public Access on the account.
+*Versioning + MFA Delete.* *Block Public Access* on the account.
 
-**Only through CloudFront**
-match: origin access|\bOAC\b|\bOAI\b|presigned|pre-signed
-*Origin access control* and a bucket policy. Presigned URL: one person, one
-object, a while.
+**Who may reach it**
+match: bucket polic|aws:Source|access point|Requester Pays|gateway (VPC )?endpoint
+Another account: *bucket policy*. One VPC: *aws:SourceVpc*. Named addresses:
+*IP condition*. Many apps: *access point each*. Reader pays: *Requester
+Pays*. From instances, privately: *gateway endpoint*.
+
+**Three kinds of signed access**
+match: origin access|\bOAC\b|\bOAI\b|presigned|pre-signed|signed URL|signed cookie
+Bucket answers only CloudFront: *origin access control*. Paying viewers:
+*CloudFront signed URL*. One person, one object, one upload: *S3 presigned
+URL*.
+
+**Encryption**
+match: SSE-S3|SSE-KMS|Bucket Key|server-side encryption
+Nobody asked who holds the key: *SSE-S3*. Control rotation, audit use:
+*SSE-KMS, customer managed key*. KMS bill or request limit: *Bucket Key*.
+
+**Personal data**
+match: Macie|Object Lambda
+Find it: *Macie*. Mask it on the way out, no copy: *Object Lambda*.
 
 **Faster**
 match: Transfer Acceleration|multipart|Express One Zone
-*Transfer Acceleration* for uploads from far away. *Multipart* over 100 MB.
-Express One Zone for millions of tiny reads.
+Uploads from far away: *Transfer Acceleration + multipart*. Sub-millisecond
+reads: *Express One Zone*. Downloads everywhere: CloudFront.
 
 **Copies and events**
-match: [Rr]eplication|event notification|S3 Event
-*Replication* to another Region or bucket, needs versioning. Event
-notifications into Lambda, SQS, SNS.
+match: [Rr]eplication|Multi-Region Access Point|event notification|S3 Event
+Disaster recovery, least loss: *Cross-Region Replication*. Logs into one
+bucket: *Same-Region Replication*. One address, nearest bucket: *Multi-Region
+Access Point*. On every upload: *event notification* to Lambda, SQS, SNS.
+
+**Across many buckets**
+match: Storage Lens|S3 Inventory|Batch Operations
+Which buckets are idle or unversioned: *Storage Lens*. Act on millions of
+objects: *Inventory + Batch Operations*.
+
+## end
+
+## zone: EFS | sub
+
+### row
+
+**Mounting**
+match: mount target|EFS.{0,60}(Lambda|ECS|Fargate)|VPC sharing
+*A mount target per zone.* Lambda mounts it for big dependencies. Another
+account: *VPC sharing*.
+
+**Throughput and cost**
+match: throughput mode|elastic throughput|bursting|EFS (Standard-)?Infrequent|Transition into IA|EFS.{0,40}lifecycle
+Spike nobody can size: *elastic*. Files unused for N days: *lifecycle to
+Infrequent Access*. Another Region: *AWS Backup*.
 
 ## end
 
@@ -82,22 +129,22 @@ notifications into Lambda, SQS, SNS.
 
 ### row
 
-**gp3**
-match: \bgp3\b|General Purpose SSD
-The default. IOPS and throughput *set apart from size*; gp2 ties them.
-
-**io2**
-match: \bio[12]\b|Provisioned IOPS
-*Over 16,000 IOPS*, a database that needs a promise, Multi-Attach.
-
-**st1 and sc1**
-match: \bst1\b|\bsc1\b|Throughput Optimized|Cold HDD
-Hard disks: *big sequential reads* cheap, and cold. Neither can boot.
+**Which volume**
+match: \bgp3\b|General Purpose SSD|\bio[12]\b|Provisioned IOPS|\bst1\b|\bsc1\b|Throughput Optimized|Cold HDD
+Default: *gp3* (IOPS set apart from size). Over 16,000 IOPS: *io2*; 200,000:
+*io2 Block Express*. Big sequential reads, cheap: *st1*. Cold: *sc1*. HDDs
+cannot boot.
 
 **Snapshots**
-match: EBS snapshot|snapshot lifecycle|Data Lifecycle Manager|encryption by default
-To S3, incremental. *Data Lifecycle Manager* on a schedule. Encrypt by
-default in the Region.
+match: EBS snapshot|snapshot lifecycle|Data Lifecycle Manager|fast snapshot restore
+Schedule and prune: *Data Lifecycle Manager*. Clone production into test:
+*fast snapshot restore*.
+
+**Controls**
+match: encrypt(ed|ion) by default|account attribute|Elastic Volumes|Compute Optimizer|block public access for (EBS )?snapshots|Config rule.{0,60}(EBS|volume)
+Encrypt every new volume: *account setting*. Prove they are: *Config rule*.
+No public snapshots: *block at the organization*. Grow live: *Elastic
+Volumes*. Right-size: *Compute Optimizer*.
 
 ## end
 
@@ -107,36 +154,43 @@ default in the Region.
 
 **Snowball Edge**
 match: Snowball|Snowcone|Snowmobile
-*A lot, once*, and the line is too slow. Past about a week of transfer.
+Too much for the line: *a device*. 10 Mbps is about 100 GB a day. Work with
+no connection: *Compute Optimized*.
 
 **DataSync**
-*A lot, repeatedly*, over the network. Only what changed.
+match: DataSync
+Over the network, *repeatedly, only what changed*, encrypted. Hundreds of
+GB on 100 Mbps is this.
 
 **Storage Gateway**
-match: Storage Gateway|File Gateway|Volume Gateway|Tape Gateway
-*File*: a share backed by a bucket. *Volume*: local disk, copy in AWS. *Tape*:
-retire a tape library.
+match: Storage Gateway|File Gateway|Volume Gateway|Tape Gateway|stored volume|cached volume
+NFS or SMB share into a bucket: *File*. All data local, backed up: *Volume,
+stored*. Hot data local, rest in S3: *Volume, cached*. Tapes into Deep
+Archive, same backup software: *Tape*.
 
 **Transfer Family**
-Keep using *SFTP*, straight into S3.
+match: Transfer Family|Transfer for SFTP
+Partners keep *SFTP*, files land in S3.
 
 ## end
 
 ## row: hub
 
 **AWS Backup**
-*One plan, every service*, a vault. Vault lock in compliance mode cannot be
-undone. Copy to another Region.
+match: AWS Backup
+*One plan for every service*, retention in years, copy to another Region.
+Vault lock cannot be undone.
 
 **Querying files**
 match: Athena|Parquet
-*Athena* for SQL over S3; convert to Parquet with Glue to cut the scan.
+SQL over S3, no server: *Athena*. Cut the scan: *Parquet*.
 
 ## key
 
-cyan: which kind · amber: getting data in · magenta: keeping it. Underlined text is the pick.
+cyan: which kind · amber: getting data in · magenta: keeping it. Underlined
+text is the pick.
 
 ## Notes
 
-One Zone is the only class that does not survive losing a zone. S3 Express
-One Zone is a different thing: the fastest and dearest, not an archive.
+Reviewed against all 150 reviewed storage questions on 2026-10-15. Written
+as cue: pick, so each line can be learnt as a pair.
