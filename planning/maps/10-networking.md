@@ -59,13 +59,17 @@ endpoint. The database opens by security group to the servers only.
 ### row
 
 **Gateway endpoint**
-match: gateway (VPC )?endpoint|VPC gateway endpoint
-*S3 and DynamoDB* only. Free. Cuts the NAT bill.
+match: gateway (VPC )?endpoint|VPC gateway endpoint|endpoint polic
+A private door to *S3 and DynamoDB* only. Free, one line in the route
+table. Cuts the NAT bill. "Private bucket, no public endpoint, least
+privilege": gateway endpoint plus an *endpoint policy* that allows only
+the right roles. Not a bucket policy by address, not a NAT gateway.
 
-**Interface endpoint, PrivateLink**
+**Interface endpoint (PrivateLink)**
 match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink
-Any other AWS service, or *another company's service on AWS*, no internet. To
-offer yours: NLB with PrivateLink in front.
+A private door to *any other AWS service*, or to *another company's service
+hosted on AWS*. No internet, costs by the hour. To let others reach your
+service the same way: an NLB in front, published with PrivateLink.
 
 ## end
 

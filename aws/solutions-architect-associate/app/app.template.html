@@ -1059,7 +1059,6 @@ select {
 .nm-arrow { text-align: center; color: var(--ink-3); font-size: 0.78rem; padding: 2px 0; line-height: 1.35; }
 .nm-arrow b { color: var(--ink-2); font-weight: 600; }
 .nm-arrow::before { content: "↓"; display: block; font-size: 1.05rem; color: var(--cyan); line-height: 1; }
-.qmap .netmap { margin-top: 2px; }
 .nm-key { margin: 8px 0 0; padding: 5px 8px; border-radius: 7px; background: var(--surface-2);
           font-size: 0.76rem; color: var(--ink-2); line-height: 1.45; }
 .nm-key span { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin: 0 4px 0 1px; vertical-align: middle; }
@@ -1258,8 +1257,8 @@ footer .v { font-family: var(--mono); }
 </div>
 </div>
 <div class="nm-row">
-<div class="nm-box" data-rx="gateway (VPC )?endpoint|VPC gateway endpoint"><h4><span>Gateway endpoint</span></h4><p><span class="pick">S3 and DynamoDB</span> only. Free. Cuts the NAT bill.</p></div>
-<div class="nm-box" data-rx="interface (VPC )?endpoint|VPC interface endpoint|PrivateLink"><h4><span>Interface endpoint, PrivateLink</span></h4><p>Any other AWS service, or <span class="pick">another company's service on AWS</span>, no internet. To offer yours: NLB with PrivateLink in front.</p></div>
+<div class="nm-box" data-rx="gateway (VPC )?endpoint|VPC gateway endpoint|endpoint polic"><h4><span>Gateway endpoint</span></h4><p>A private door to <span class="pick">S3 and DynamoDB</span> only. Free, one line in the route table. Cuts the NAT bill. "Private bucket, no public endpoint, least privilege": gateway endpoint plus an <span class="pick">endpoint policy</span> that allows only the right roles. Not a bucket policy by address, not a NAT gateway.</p></div>
+<div class="nm-box" data-rx="interface (VPC )?endpoint|VPC interface endpoint|PrivateLink"><h4><span>Interface endpoint (PrivateLink)</span></h4><p>A private door to <span class="pick">any other AWS service</span>, or to <span class="pick">another company's service hosted on AWS</span>. No internet, costs by the hour. To let others reach your service the same way: an NLB in front, published with PrivateLink.</p></div>
 </div>
 </div>
 <div class="nm-arrow">Out to other networks</div>
