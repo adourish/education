@@ -71,6 +71,17 @@ A private door to *any other AWS service*, or to *another company's service
 hosted on AWS*. No internet, costs by the hour. To let others reach your
 service the same way: an NLB in front, published with PrivateLink.
 
+### row
+
+**IPv4 or IPv6**
+match: IPv6|IPv4|egress-only|dual-stack|NAT64|DNS64
+Every IPv6 address is public, so "private but outbound" means an
+*egress-only internet gateway*: IPv6 only, out and never in. *NAT gateway*:
+IPv4 (NAT64 lets IPv6-only hosts reach IPv4 services). *Gateway endpoint*
+and *Elastic IP*: IPv4 only. Internet gateway, both load balancers, peering,
+transit gateway, Direct Connect: both. Security group rules are per family:
+::/0 is not 0.0.0.0/0.
+
 ## end
 
 ## arrow

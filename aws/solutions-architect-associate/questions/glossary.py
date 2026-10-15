@@ -416,6 +416,18 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "S3, and from CloudWatch Logs a subscription filter can hand them to "
         "Data Firehose, which delivers them to OpenSearch for searching. They "
         "are not API calls, so CloudTrail has nothing to do with them."),
+    "IPv4 and IPv6": (r"IPv6|IPv4|dual-stack|egress-only|NAT64|DNS64",
+        "Two kinds of address, and the gateways are not the same for both. "
+        "Every IPv6 address is public, so there is no NAT for IPv6: a private "
+        "subnet that must reach out over IPv6 uses an egress-only internet "
+        "gateway, which lets traffic out and never in. A NAT gateway is for "
+        "IPv4; it can also do NAT64 so an IPv6-only host can reach an IPv4 "
+        "service. Gateway endpoints and Elastic IPs are IPv4 only. The "
+        "internet gateway, both load balancers, VPC peering, transit gateways "
+        "and Direct Connect carry both. Security group and network ACL rules "
+        "are written per family: allowing 0.0.0.0/0 does nothing for IPv6, "
+        "which needs ::/0. A question that says IPv6 and offers a NAT gateway "
+        "is pointing at the egress-only internet gateway instead."),
     "Elastic IP": (r"[Ee]lastic IP",
         "A fixed public address you own and can move between instances."),
     "CIDR block": (r"\bCIDR\b",
