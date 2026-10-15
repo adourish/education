@@ -387,6 +387,9 @@ DECISIONS: list[dict] = [
             ("a SaaS product that is hosted on AWS", "PrivateLink"),
             ("offer your own service to other VPCs", "An NLB, with a PrivateLink "
                                                     "endpoint service in front"),
+            ("traffic must stay in the company's private address space",
+             "PrivateLink: an interface endpoint with a private address, reached "
+             "over the VPN"),
             ("reach S3 or DynamoDB from inside a VPC", "A gateway VPC endpoint"),
             ("names on premises must resolve from the VPC", "Route 53 Resolver, "
                                                             "an outbound endpoint"),

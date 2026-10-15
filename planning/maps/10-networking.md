@@ -77,7 +77,9 @@ the right roles. Not a bucket policy by address, not a NAT gateway.
 match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink
 A private door to *any other AWS service*, or to *another company's service
 hosted on AWS*. No internet, costs by the hour. To let others reach your
-service the same way: an NLB in front, published with PrivateLink.
+service the same way: an NLB in front, published with PrivateLink. "Traffic
+must *stay within the company's private IP address space*" over a VPN is
+this: the endpoint has a private address, so nothing crosses the internet.
 
 ### row
 
