@@ -1266,8 +1266,11 @@ footer .v { font-family: var(--mono); }
 <div class="nm-box edge" data-rx="\bCloudFront"><h4><span>CloudFront</span></h4><p>Caches near the user. <span class="pick">One Region behind CloudFront</span>, not many Regions. Only files? S3 behind it.</p></div>
 <div class="nm-box edge" data-rx="\bWAF\b|Shield"><h4><span>WAF and Shield</span></h4><p>Rules on web requests: CloudFront, ALB or API, <span class="pick">never an NLB</span>. Big attack, team to call: Shield Advanced.</p></div>
 </div>
-<div class="nm-arrow"><b>Internet gateway</b>: one per VPC, in no zone</div>
+<div class="nm-arrow">In through the VPC's one door</div>
 <div class="nm-zone vpc"><h3>Your VPC</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="internet gateway(?! .{0,10}egress)|(?&lt;!egress-only )Internet Gateway"><h4><span>Internet gateway</span></h4><p>The VPC's door to the internet, <span class="pick">one per VPC, in no zone</span>, in and out, IPv4 and IPv6. A subnet is public only if its <span class="pick">route table points at it</span>. An option that puts one in each zone or in a subnet is wrong.</p></div>
+</div>
 <div class="nm-zone sub"><h3>Public subnets, one per zone</h3>
 <div class="nm-row">
 <div class="nm-box" data-rx="Application Load Balancer|\bALB\b|Network Load Balancer|\bNLB\b"><h4><span>Load balancer</span></h4><p><span class="pick">ALB</span> reads the request: paths, headers, logins, WAF. <span class="pick">NLB</span>: fixed address or raw TCP.</p></div>
@@ -1837,7 +1840,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.45.3";
+  var APP_VERSION = "1.45.4";
   var BUILD_DATE  = "2026-10-15";
   // ---------- where this exam's work is kept ----------
   //

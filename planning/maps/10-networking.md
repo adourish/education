@@ -20,9 +20,17 @@ to call: Shield Advanced.
 
 ## arrow
 
-**Internet gateway**: one per VPC, in no zone
+In through the VPC's one door
 
 ## zone: Your VPC | vpc
+
+### row
+
+**Internet gateway**
+match: internet gateway(?! .{0,10}egress)|(?<!egress-only )Internet Gateway
+The VPC's door to the internet, *one per VPC, in no zone*, in and out, IPv4
+and IPv6. A subnet is public only if its *route table points at it*. An
+option that puts one in each zone or in a subnet is wrong.
 
 ### zone: Public subnets, one per zone | sub
 
