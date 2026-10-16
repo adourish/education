@@ -523,8 +523,19 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Watches your logs for signs of compromise, such as unusual API calls or crypto-mining. It detects; it does not scan software."),
     "Amazon Inspector": (r"Inspector",
         "Scans your EC2 instances, container images and Lambda functions for known software vulnerabilities."),
-    "Amazon Macie": (r"Macie",
-        "Looks through S3 for sensitive data such as personal details or card numbers."),
+    "Amazon Macie": (r"Macie|sensitive data discovery",
+        "Looks through S3 for sensitive data: personal details, card numbers, "
+        "credentials. Two ways to run it. Automated sensitive data discovery "
+        "watches every bucket continuously and samples objects as they arrive, "
+        "which is the answer when a question says monitor continuously or "
+        "datasets keep landing. A classification job scans named buckets once "
+        "or on a schedule. Either way Macie only finds and reports: each "
+        "finding goes to EventBridge and Security Hub, and anything that must "
+        "happen next, such as removing or masking the data, is an EventBridge "
+        "rule that invokes a Lambda function. To hand one application a copy "
+        "with the personal data masked, with no second object, that is S3 "
+        "Object Lambda, not Macie. Macie is S3 only; it does not look inside "
+        "databases or instances."),
     "AWS Security Hub": (r"Security Hub",
         "Collects findings from GuardDuty, Inspector, Macie, Config and others into one list, and scores you against standards."),
     "Amazon Detective": (r"Detective",

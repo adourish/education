@@ -87,9 +87,12 @@ match: SSE-S3|SSE-KMS|Bucket Key|server-side encryption
 Nobody asked who holds the key: *SSE-S3*. Control rotation, audit use:
 *SSE-KMS, customer managed key*. KMS bill or request limit: *Bucket Key*.
 
-**Personal data**
-match: Macie|Object Lambda
-Find it: *Macie*. Mask it on the way out, no copy: *Object Lambda*.
+**Personal data (Macie)**
+match: Macie|Object Lambda|sensitive data discovery
+Watch buckets all the time: *Macie automated sensitive data discovery*. A
+one-off look: *a classification job*. Act on a finding: *EventBridge rule,
+Lambda removes it*. Serve it to one app with the PII masked, no copy:
+*Object Lambda*. Macie only finds; it never changes an object.
 
 **Faster**
 match: Transfer Acceleration|multipart|Express One Zone

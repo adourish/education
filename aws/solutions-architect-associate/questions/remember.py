@@ -155,7 +155,7 @@ REMEMBER: dict[str, str] = {
     "Shield Advanced protection group": "Blue/green across two balancers: aggregation Sum. Similar resources: Mean. Different sizes: Max.",
     "Amazon GuardDuty": "Threats: stolen key, mining, odd login: GuardDuty. Act with EventBridge + Lambda.",
     "Amazon Inspector": "Software flaws on instances, containers, Lambda: Inspector.",
-    "Amazon Macie": "Personal data in S3: Macie. Only S3.",
+    "Amazon Macie": "Personal data in S3: Macie. Continuous: automated discovery. Act on a finding: EventBridge + Lambda.",
     "AWS Security Hub": "Every finding in one place: Security Hub. Finds nothing itself.",
     "Amazon Detective": "Why a finding happened: Detective.",
     "AWS Directory Service": "Join servers and desktops to a domain; FSx for Windows needs it. Not for logging users into a web app.",

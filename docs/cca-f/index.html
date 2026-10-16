@@ -1445,7 +1445,7 @@ footer .v { font-family: var(--mono); }
 <div class="nm-box" data-rx="bucket polic|aws:Source|access point|Requester Pays|gateway (VPC )?endpoint"><h4><span>Who may reach it</span></h4><p>Another account: <span class="pick">bucket policy</span>. One VPC: <span class="pick">aws:SourceVpc</span>. Named addresses: <span class="pick">IP condition</span>. Many apps: <span class="pick">access point each</span>. Reader pays: <span class="pick">Requester Pays</span>. From instances, privately: <span class="pick">gateway endpoint</span>.</p></div>
 <div class="nm-box" data-rx="origin access|\bOAC\b|\bOAI\b|presigned|pre-signed|signed URL|signed cookie"><h4><span>Three kinds of signed access</span></h4><p>Bucket answers only CloudFront: <span class="pick">origin access control</span>. Paying viewers: <span class="pick">CloudFront signed URL</span>. One person, one object, one upload: <span class="pick">S3 presigned URL</span>.</p></div>
 <div class="nm-box" data-rx="SSE-S3|SSE-KMS|Bucket Key|server-side encryption"><h4><span>Encryption</span></h4><p>Nobody asked who holds the key: <span class="pick">SSE-S3</span>. Control rotation, audit use: <span class="pick">SSE-KMS, customer managed key</span>. KMS bill or request limit: <span class="pick">Bucket Key</span>.</p></div>
-<div class="nm-box" data-rx="Macie|Object Lambda"><h4><span>Personal data</span></h4><p>Find it: <span class="pick">Macie</span>. Mask it on the way out, no copy: <span class="pick">Object Lambda</span>.</p></div>
+<div class="nm-box" data-rx="Macie|Object Lambda|sensitive data discovery"><h4><span>Personal data (Macie)</span></h4><p>Watch buckets all the time: <span class="pick">Macie automated sensitive data discovery</span>. A one-off look: <span class="pick">a classification job</span>. Act on a finding: <span class="pick">EventBridge rule, Lambda removes it</span>. Serve it to one app with the PII masked, no copy: <span class="pick">Object Lambda</span>. Macie only finds; it never changes an object.</p></div>
 <div class="nm-box" data-rx="Transfer Acceleration|multipart|Express One Zone"><h4><span>Faster</span></h4><p>Uploads from far away: <span class="pick">Transfer Acceleration + multipart</span>. Sub-millisecond reads: <span class="pick">Express One Zone</span>. Downloads everywhere: CloudFront.</p></div>
 <div class="nm-box" data-rx="[Rr]eplication|Multi-Region Access Point|event notification|S3 Event"><h4><span>Copies and events</span></h4><p>Disaster recovery, least loss: <span class="pick">Cross-Region Replication</span>. Logs into one bucket: <span class="pick">Same-Region Replication</span>. One address, nearest bucket: <span class="pick">Multi-Region Access Point</span>. On every upload: <span class="pick">event notification</span> to Lambda, SQS, SNS.</p></div>
 <div class="nm-box" data-rx="Storage Lens|S3 Inventory|Batch Operations"><h4><span>Across many buckets</span></h4><p>Which buckets are idle or unversioned: <span class="pick">Storage Lens</span>. Act on millions of objects: <span class="pick">Inventory + Batch Operations</span>.</p></div>
@@ -1856,7 +1856,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.49.0";
+  var APP_VERSION = "1.49.1";
   var BUILD_DATE  = "2026-10-16";
   // ---------- where this exam's work is kept ----------
   //
