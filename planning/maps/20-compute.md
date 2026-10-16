@@ -1,36 +1,40 @@
 # The compute map
 
-> Where every compute question lives, top to bottom: where the code runs, how
-> it grows, how you pay.
+> Cue on the left, pick on the right. Where the code runs, how it grows, Lambda
+> fixes, how you pay.
 
-## zone: Where the code runs. Least to manage at the top; stop at the first that fits | vpc
+## zone: Where the code runs. Stop at the first that fits | vpc
 
 ### row
 
 **Lambda**
 match: \bLambda\b
-A function on a trigger. *15 minutes, 10 GB*, a zip or a container image.
-Nothing to patch.
+*Under 15 minutes, on a trigger*, a zip or a *container image* up to 10 GB.
+Nothing to patch. Event in, Lambda out.
 
 **Fargate**
-Containers with *no servers*. Longer than 15 minutes, or always on. ECS or
-EKS on top.
+match: Fargate
+*Containers, no servers*, longer than 15 minutes or always on. Nightly job,
+can be interrupted: *Fargate Spot*.
 
 **ECS or EKS on EC2**
-match: (ECS|EKS).{0,60}EC2|EC2 launch type
-You *choose the hardware*: a GPU, a size. EKS only when Kubernetes is named.
+match: (ECS|EKS).{0,80}EC2|EC2 launch type|GPU instance|EKS Anywhere|EKS Connector|Amazon ECS cluster|ECS containers
+*A GPU, or you choose the hardware.* Kubernetes named: EKS; else ECS.
+Kubernetes on your own servers: *EKS Anywhere*. See every cluster in one
+place: *EKS Connector*.
 
 **EC2**
 match: -
-Anything at all, and *you patch it*. Pick when nothing above fits.
+Anything at all, *you patch it*. Last resort.
 
 **Batch**
 match: AWS Batch
-*Many queued jobs*, with an order between them. It runs the instances.
+*Many jobs, hours or days, with an order.* Simulations that run for days.
 
 **Elastic Beanstalk**
-Hand it the app; it runs the rest. *Rolling, immutable, blue/green, traffic
-splitting* deployments.
+match: Elastic Beanstalk
+Hand it the app. New version on a slice of real traffic: *traffic splitting*.
+Safest, undoable: *immutable*. Quick rollback: *blue/green*.
 
 ## end
 
@@ -43,60 +47,76 @@ Then how it carries more
 ### row
 
 **Auto Scaling group**
-match: Auto Scaling group
-*Min, desired, max*, across two zones or more. Replaces what dies. The answer
-to "handle more traffic".
+match: Auto Scaling group|launch template|AWS Auto Scaling|Application Auto Scaling
+*Min, desired, max, across zones*, replaces what dies. "Single instance,
+growing": *ASG min 3 across zones + ALB*. Queue-fed workers: *scale on queue
+length*.
 
-**Target tracking**
-match: target tracking
-*Keep one number* where you want it. Reach for it first.
+**Which policy**
+match: target tracking|step scaling|scheduled (scaling|action)|predictive scaling
+Keep one number: *target tracking*, first choice. A time you can name:
+*scheduled*. Weekly pattern: *predictive*. Sizes of response: *step*.
 
-**Step, scheduled, predictive**
-match: step scaling|scheduled (scaling|action)|predictive scaling
-Step: sizes of response. *Scheduled*: a rush with a time. *Predictive*: a
-weekly pattern.
-
-**Warm pool**
-Instances that take too long to *boot*.
+**Slow to start**
+match: warm pool|fast snapshot restore
+Instances boot slowly, peak known: *max at peak + warm pool*. Large AMI:
+*fast snapshot restore* on the snapshot, then a new AMI.
 
 **Memory or disk**
-match: CloudWatch agent|memory utili[sz]ation
-Not there until the *CloudWatch agent* is installed. CPU and network are.
+match: CloudWatch agent|memory utili[sz]ation|Container Insights
+Not there until the *CloudWatch agent* is installed. EKS pods and nodes:
+*Container Insights*.
 
 **Bigger, not more**
 match: larger instance|instance (size|type)|vertical
-One job that cannot be split: a *larger instance*. A stop and a start, still
+One job that cannot be split: *a larger instance*. A stop and a start, still
 one machine.
+
+**Containers scaling**
+match: Service Auto Scaling|Cluster Autoscaler|Horizontal Pod|task placement
+ECS tasks across zones: *Service Auto Scaling, min 3, placement spread by
+zone*. EKS pods grow but nodes do not: *Cluster Autoscaler*.
+
+**Images and config**
+match: Image Builder|Service Catalog|ECR.{0,40}scan|scan on push|Parameter Store
+Patched AMIs on a schedule: *EC2 Image Builder*. Only approved AMIs: *Service
+Catalog*. Scan images for CVEs: *ECR scan on push*. Secrets into a container:
+*Parameter Store + task execution role*.
 
 ## end
 
-## zone: Lambda, when it is the answer and something is wrong | sub
+## zone: Lambda, when something is wrong | sub
 
 ### row
 
 **Cold starts**
 match: provisioned concurrency|SnapStart
-*Provisioned concurrency*; schedule it for a known hour. Java: *SnapStart*.
+Peak season, latency: *provisioned concurrency*, scheduled for the hour.
+Java: *SnapStart*.
 
 **One function eating all**
 match: reserved concurrency
-*Reserved concurrency*: a ceiling, and zero turns it off.
+*Reserved concurrency*: a ceiling; zero turns it off.
 
-**Inside a VPC**
-match: Lambda.{0,80}VPC|VPC.{0,80}Lambda
-No public address: a *NAT gateway* for the internet, *endpoints* for AWS.
+**Something in front**
+match: function URL|API Gateway|edge-optimized|HTTP API
+One function, one HTTPS address, a webhook, a mainframe calling REST:
+*function URL*. Keys, caching, limits: *API Gateway*. Users worldwide:
+*edge-optimized + caching*. JWT: *HTTP API*.
 
 **Big or shared files**
 match: Lambda.{0,80}\bEFS\b|\bEFS\b.{0,80}Lambda
-*Mount EFS*. The package is 250 MB, /tmp 10 GB.
+Dependencies too big for a layer: *mount EFS*.
 
-**Something in front**
-match: function URL|API Gateway
-*Function URL* for just HTTPS. API Gateway for keys, caching, limits.
+**Reacting to things**
+match: EventBridge rule.{0,80}Lambda|Lambda.{0,80}EventBridge|Config custom rule|GuardDuty.{0,80}Lambda
+Start and stop by schedule: *EventBridge rule, Lambda*. A finding needs
+action (GuardDuty mining, a bad Redshift setting): *EventBridge or Config
+custom rule, Lambda*.
 
 **Failed events**
 match: dead-letter|on-failure destination
-A *dead-letter queue*, or a destination.
+*A dead-letter queue*, or a destination.
 
 ## end
 
@@ -106,28 +126,34 @@ A *dead-letter queue*, or a destination.
 
 **On-Demand**
 match: On-Demand
-Short, unknown, or being measured.
+Short, unknown, dev and test, being measured.
 
 **Spot**
-match: \bSpot\b
-Can be *interrupted, two minutes' warning*. Spread across instance types.
+match: \bSpot\b|allocation strategy
+Can be interrupted, two minutes' warning: *Spot*. Capacity keeps failing:
+*capacity-optimized allocation + more instance types*. Stateless web on one
+instance: *AMI, launch template, Spot Fleet*.
 
-**Savings Plan**
-match: Savings Plan
-Steady, and the *type may change*. Pounds per hour, not a reservation.
-
-**Reserved**
-match: Reserved Instance
-Steady, *one type*, one to three years.
+**Reserved or Savings Plan**
+match: Reserved Instance|Savings Plan
+Steady baseline, cannot be interrupted: *Reserved for the ASG minimum*,
+Spot or On-Demand above it. Production reserved, *dev and test On-Demand*.
+Type may change: *Savings Plan*.
 
 **Dedicated Host**
-A *licence by socket or core*. Dedicated Instance only keeps others' tenants
-off.
+match: Dedicated Host|Dedicated Instance
+*Licence by socket or core*: Dedicated Host. Only off others' hardware:
+Dedicated Instance.
 
 **Placement groups**
-match: placement group
-*Cluster*: fast, one zone. *Spread*: 7 a zone, apart. *Partition*: big
-distributed systems.
+match: placement group|Elastic Fabric Adapter|\bEFA\b
+Tightly coupled HPC, node to node: *cluster placement group + EFA*. Few
+critical instances apart: *spread*. Big distributed system: *partition*.
+
+**Spending guard**
+match: Budgets|Instance Scheduler
+Developers leave instances on: *Budgets alert at forecast, action stops
+them*. Office hours only: *Instance Scheduler* or EventBridge + Lambda.
 
 ## end
 
@@ -137,5 +163,5 @@ cyan: where it runs · amber: paying. Underlined text is the pick.
 
 ## Notes
 
-The ladder in the top box is the thing to memorise: each step down is more to
-manage, so the one above is the least-overhead answer.
+Reviewed against all 111 reviewed compute questions on 2026-10-15. Written as
+cue: pick, so each line can be learnt as a pair.

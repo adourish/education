@@ -1,31 +1,37 @@
 # The networking map
 
-> Where every networking question lives, top to bottom: the user, your VPC,
-> the ways out.
+> Cue on the left, pick on the right. The user at the edge, your VPC, the ways
+> out.
 
 ## row: edge
 
 **Route 53**
-Which Region answers. *Latency*: fastest. *Geolocation*: by country. *Failover*
-and a health check: a standby. *Weighted*: a share.
+match: Route ?53|latency(-based)? (routing )?polic|geolocation|failover (routing )?polic|weighted|multivalue
+Fastest Region for each user: *latency*. By country: *geolocation*. A
+standby: *failover + health check*. Several healthy servers, no load
+balancer: *multivalue*. A share: *weighted*.
 
 **CloudFront**
-Caches near the user. *One Region behind CloudFront*, not many Regions. Only
-files? S3 behind it.
+match: CloudFront
+Users everywhere, content cacheable: *one Region + CloudFront*, not many
+Regions. Only files: *S3 + CloudFront*. ALB origin too.
+
+**Global Accelerator**
+match: Global Accelerator
+*UDP or TCP, gaming, VoIP, live video, fixed IPs, many Regions*: Global
+Accelerator. Caches nothing; NLBs or ALBs as endpoints.
 
 **WAF**
 match: WAF
-*Rules on web requests*: SQL injection, bad bots, too many requests from one
-address, an IP set. Sits on CloudFront, an ALB or API Gateway, *never an
-NLB*.
+*Rules on web requests*: SQL injection, bots, rate limits, IP sets. On
+CloudFront, ALB, API Gateway. *Never an NLB.*
 
 **Shield Advanced**
 match: Shield
-DDoS protection for an *NLB, an Elastic IP*, CloudFront, an ALB or Route 53,
-with a team to call and the attack's bill refunded. Standard is free and
-already on. "Unauthorised access attempts on an NLB, *minimal architecture
-change*": Shield Advanced, since WAF cannot attach and a new NLB is a
-rebuild.
+DDoS on an *NLB, Elastic IP*, CloudFront, ALB, Route 53. Team to call, bill
+refunded. "Attacks on an NLB, minimal change": *Shield Advanced*.
+
+## end
 
 ## arrow
 
@@ -37,69 +43,71 @@ In through the VPC's one door
 
 **Internet gateway**
 match: internet gateway(?! .{0,10}egress)|(?<!egress-only )Internet Gateway
-The VPC's door to the internet, *one per VPC, in no zone*, in and out, IPv4
-and IPv6. A subnet is public only if its *route table points at it*. An
-option that puts one in each zone or in a subnet is wrong.
-
-### zone: Public subnets, one per zone | sub
-
-#### row
+*One per VPC, no zone, in and out.* A subnet is public only if its route
+table points here. One per zone or per subnet: wrong.
 
 **Load balancer**
 match: Application Load Balancer|\bALB\b|Network Load Balancer|\bNLB\b
-*ALB* reads the request: paths, headers, logins, WAF. *NLB*: fixed address or
-raw TCP.
+Paths, headers, cookies, WAF, *Cognito login*: *ALB*. Fixed IP, TCP or UDP,
+PrivateLink, on-premises IP targets: *NLB*. Both sit in *public subnets*;
+servers and database in private.
 
 **NAT gateway**
 match: NAT gateway|NAT instance
-Private subnets out, never in. *One per zone* in production; one shared for
-test.
+Private out, never in. Production: *one per zone*. Test: *one shared*. IPv6:
+*egress-only internet gateway* instead.
 
-### end
+**Route tables**
+match: route table
+*One per private subnet*, each to its own zone's NAT. One shared table sends
+every zone through one gateway. Public subnet: a route to the internet
+gateway.
+
+**Security group vs network ACL**
+match: security group|network ACL|\bNACL\b
+Allow only, stateful, per instance, *from another group by id*: *security
+group*. *Deny*, stateless, per subnet, *block one subnet or address*:
+*network ACL*.
+
+## end
 
 ### arrow
 
-**A route table per private subnet**, to its own zone's NAT gateway. A shared
-table sends every zone through one.
-
-### zone: Private subnets, one per zone | sub
-
-#### row
-
-**Servers, containers, Lambda, database**
-match: -
-No public address. Lambda joins by being *attached to the VPC*, not by VPN or
-endpoint. The database opens by security group to the servers only.
-
-### end
+Private things reaching out, privately
 
 ### row
 
 **Gateway endpoint**
 match: gateway (VPC )?endpoint|VPC gateway endpoint|endpoint polic
-A private door to *S3 and DynamoDB* only. Free, one line in the route
-table. Cuts the NAT bill. "Private bucket, no public endpoint, least
-privilege": gateway endpoint plus an *endpoint policy* that allows only
-the right roles. Not a bucket policy by address, not a NAT gateway.
+*S3 and DynamoDB only*, free, a route. "Private bucket, no public endpoint,
+least privilege": *gateway endpoint + endpoint policy* naming the roles. Cuts
+the NAT bill.
 
 **Interface endpoint (PrivateLink)**
-match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink
-A private door to *any other AWS service*, or to *another company's service
-hosted on AWS*. No internet, costs by the hour. To let others reach your
-service the same way: an NLB in front, published with PrivateLink. "Traffic
-must *stay within the company's private IP address space*" over a VPN is
-this: the endpoint has a private address, so nothing crosses the internet.
+match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink|VPC endpoint for (Amazon )?(SQS|SNS|Kinesis|Secrets|KMS)
+*Any other AWS service* (SQS, Kinesis, Secrets Manager): interface endpoint,
+a private address, by the hour. *Another company's service on AWS*:
+PrivateLink. *Offer yours*: NLB + endpoint service. "Stay within the
+company's private IP space" over a VPN: this.
 
-### row
+**Lambda in a VPC**
+match: Lambda.{0,60}(VPC|private subnet)|(VPC|private subnet).{0,60}Lambda
+Needs something private: *attach the function to the subnets* with a
+security group. Not a VPN, not an endpoint. Then it has no internet: NAT
+gateway or endpoints.
 
 **IPv4 or IPv6**
 match: IPv6|IPv4|egress-only|dual-stack|NAT64|DNS64
-Every IPv6 address is public, so "private but outbound" means an
-*egress-only internet gateway*: IPv6 only, out and never in. *NAT gateway*:
-IPv4 (NAT64 lets IPv6-only hosts reach IPv4 services). *Gateway endpoint*
-and *Elastic IP*: IPv4 only. Internet gateway, both load balancers, peering,
-transit gateway, Direct Connect: both. Security group rules are per family:
-::/0 is not 0.0.0.0/0.
+Every IPv6 address is public: private-but-outbound is the *egress-only
+internet gateway*. NAT gateway: IPv4 (NAT64 for IPv6-only hosts). Gateway
+endpoint, Elastic IP: IPv4 only. Everything else: both. Rules per family:
+*::/0 is not 0.0.0.0/0*.
+
+**Seeing the traffic**
+match: Flow Logs|Network Monitor|Reachability Analyzer
+Which traffic was allowed or rejected: *VPC Flow Logs*, to CloudWatch Logs,
+then *Firehose to OpenSearch*. Is the path to on premises up: *CloudWatch
+Network Monitor*. Why a packet cannot get there: *Reachability Analyzer*.
 
 ## end
 
@@ -110,15 +118,20 @@ Out to other networks
 ## row: hub
 
 **Transit gateway**
-Hub for *hundreds of VPCs*, accounts, sites. A route table each keeps VPCs
-apart. Two VPCs only: *peering*.
+match: Transit Gateway
+*Hundreds of VPCs, many accounts, many sites*: transit gateway. Keep spokes
+apart: *a route table per attachment*. Share across accounts: RAM.
+
+**VPC peering**
+match: VPC peering|peering connection|[Pp]eer (each|the|all|every)
+*Exactly two VPCs*, even across accounts (a Lambda reaching another
+account's EFS). Not transitive, stops at 125.
 
 **Many accounts, one network**
 match: Control Tower|Resource Access Manager|\bRAM\b|shared subnet|share the subnet
-An account per workload, with *guardrails*: *Control Tower* makes the
-accounts, not plain Organizations. One networking account holds the VPC and
-*shares its subnets with Resource Access Manager*, so nobody builds a VPC
-each. A transit gateway and inspection VPC is more to run.
+Account per workload with *guardrails*: *Control Tower*. One networking
+account, *subnets shared with RAM*. Transit gateway + inspection VPC: more
+to run.
 
 ## zone: Your own building | home
 
@@ -126,14 +139,17 @@ each. A transit gateway and inspection VPC is more to run.
 
 **Direct Connect**
 match: Direct Connect(?! gateway)
-Private line. Steady, never the internet. Weeks to set up.
+*Private line, steady, never the internet.* Weeks to set up.
 
 **Site-to-Site VPN**
-Encrypted over the internet. This week, costs little.
+match: Site-to-Site VPN|customer gateway|virtual private gateway
+*Encrypted over the internet, this week, cheap.* A customer gateway at the
+office, a virtual private gateway on the VPC. Private RDS for an office
+client: this.
 
 **Both**
 match: Direct Connect.{0,120}VPN|VPN.{0,120}Direct Connect
-*Direct Connect, VPN as backup*, when the link must not fail.
+Link must not fail: *Direct Connect with the VPN as backup*.
 
 **One line, many VPCs**
 match: Direct Connect gateway
@@ -141,31 +157,22 @@ match: Direct Connect gateway
 
 **One person's laptop**
 match: Client VPN
-*Client VPN*. Not for a whole building.
+*Client VPN.* Not for a whole building.
 
 **Names across the link**
 match: Resolver|forwarding rule
-*Route 53 Resolver*. Outbound endpoint plus a *forwarding rule* ("corp.example
-goes to these on-premises DNS addresses"), *associated with the VPC* that
-has the VPN. Inbound endpoint lets on-premises ask for your names.
+*Route 53 Resolver*: outbound endpoint + *forwarding rule* + *associate the
+rule with the VPC* that has the VPN. On premises resolving your names:
+inbound endpoint.
 
 ## end
 
 ## key
 
-cyan: the edge · magenta: joining networks · amber: your building. Underlined text is the pick.
+cyan: the edge · magenta: joining networks · amber: your building. Underlined
+text is the pick.
 
 ## Notes
 
-How to write one of these: see the top of app/maps.py. Headings the parser
-knows are row, arrow, zone, end and key; a heading it does not know, like this
-one, is left out of the picture.
-
-From the 2026-10-13 review of missed networking questions: ce-75, ce-946,
-ce-639, ce-750 (transit gateway); ce-839, ce-397, ce-89, ce-104 (NAT gateway);
-ce-683, ce-362, ce-893, ce-949 (Route 53 and CloudFront); ce-310, ce-120,
-ce-313, ce-809 (PrivateLink, VPN, Lambda in a VPC); ce-132, ce-148, ce-369,
-ce-245, ce-640, ce-233, ce-184.
-
-Left out on purpose: security groups against network ACLs, placement groups,
-Global Accelerator. Each has its own term or diagram.
+Reviewed against all 71 reviewed networking questions on 2026-10-15. Written
+as cue: pick, so each line can be learnt as a pair.
