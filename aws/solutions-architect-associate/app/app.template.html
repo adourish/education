@@ -820,6 +820,9 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   color: var(--ink-2); max-width: 62ch;
 }
 .terms .none { padding: 0 13px 11px; font-size: 0.9rem; color: var(--ink-2); }
+.terms dd .keep { display: block; font-weight: 600; color: var(--ink); margin: 0 0 3px;
+                  padding-left: 9px; border-left: 3px solid var(--cyan); line-height: 1.5; }
+.terms dd .more { display: block; }
 
 /* banner naming the topic being drilled */
 .drill {
@@ -4122,7 +4125,12 @@ footer .v { font-family: var(--mono); }
         var what = DATA.glossary[name];
         if (!what) return;
         var dt = el("dt", null, name);
-        var dd = el("dd", null, what);
+        // The line to memorise first, in its own weight; the explanation
+        // under it for when the line is not enough.
+        var dd = el("dd");
+        var keep = (DATA.remember || {})[name];
+        if (keep) dd.appendChild(el("b", "keep", keep));
+        dd.appendChild(el("span", "more", what));
         dl.appendChild(dt); dl.appendChild(dd);
       });
       termsBox.appendChild(dl);
