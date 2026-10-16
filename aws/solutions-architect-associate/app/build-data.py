@@ -35,6 +35,8 @@ OUT = HERE / "app-data.json"
 # The glossary lives with the questions, so import it from there.
 sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
+from remember import REMEMBER, _check as _check_remember  # noqa: E402
+_check_remember()
 from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
 from diagrams import DIAGRAMS, diagrams_for, as_is_for  # noqa: E402
 from decisions import DECISIONS, decisions_for  # noqa: E402, as_is_for
@@ -263,6 +265,8 @@ def main() -> None:
         "questions": questions,
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
         "glossary": {name: what for name, (_, what) in GLOSSARY.items()},
+        # One line per term to memorise; the entry above explains it.
+        "remember": REMEMBER,
         "sources": dict(SOURCES.values()),
         # Drawn by the app at display time, in the colours of whichever theme is
         # chosen, so one picture serves every question that shares the pattern.
