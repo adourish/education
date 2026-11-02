@@ -29,19 +29,33 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS Lambda": (r"\bLambda\b(?!@)",
         "Runs your code on a trigger with no server to manage. Billed per "
         "request and millisecond, capped at 15 minutes. It can run a container "
-        "image as well as a zip, so an existing Docker image is no reason to "
-        "rule it out. Nothing to patch and no cluster, which makes it the least "
-        "to manage of anything that runs code."),
+        "image as well as a zip, but only an image built for Lambda, so an "
+        "ordinary containerized app that must change as little as possible goes "
+        "to ECS instead. Nothing to patch and no cluster, which makes it the "
+        "least to manage of anything that runs code."),
+    "Provisioned concurrency": (r"provisioned concurrency",
+        "A number of Lambda instances kept started and warm in advance, so requests never wait for a cold start (the delay while a new instance loads the code). The answer when a question says 'consistently low latency' or 'cold starts are hurting' for a Lambda function. You pay for it whether it is used or not, so for a known busy period schedule it with Application Auto Scaling. It is about speed, not about limits."),
+    "Reserved concurrency": (r"reserved concurrency",
+        "A share of the account's Lambda concurrency (1,000 at once by default) set aside for one function. It is both a guarantee and a ceiling: the function can always run that many at once, and never more. Use it to stop one function starving the others, or to protect a database behind it from too many connections. Set to zero, it switches the function off. It costs nothing and does nothing about cold starts."),
+    "Provisioned vs reserved concurrency": (r"provisioned concurrency|reserved concurrency",
+        "Provisioned is about speed: instances warm in advance, so no cold starts and steady low latency; it costs money. Reserved is about limits: a guaranteed slice of concurrency that is also a cap, to protect other functions or a database; it is free and does not warm anything. A question asking for consistent low latency at peak wants provisioned. A question about one function using up the account's capacity, or overwhelming what it calls, wants reserved. Reserved concurrency can make latency worse at peak, because requests over the cap are throttled."),
     "Lambda@Edge": (r"Lambda@Edge",
         "Lambda functions that run at CloudFront edge locations, close to the viewer, so a request can be changed or answered without reaching your origin."),
     "Lambda container image": (r"container image|image to Lambda|Lambda[^.]{0,40}container",
         "Lambda can run a container image, up to 10 GB, instead of a zip of "
-        "code. So an application that already ships as a Docker image is not "
-        "shut out of Lambda: that is what a question means when it says the "
-        "company is willing to change the image, because the image has to use "
-        "the Lambda runtime interface. The 15-minute limit still applies. It is "
-        "the least to manage of any way of running a container, because there "
-        "is no cluster at all."),
+        "code, but not just any container. The image must include the Lambda "
+        "runtime interface client and answer one event at a time through a "
+        "handler. An ordinary containerized app, such as a web server listening "
+        "on a port or a worker that is always running, does not work that way, "
+        "so moving it to Lambda means rewriting how it starts. That is a change "
+        "to the application. So: 'willing to change the image' and a job under "
+        "15 minutes can be Lambda; 'minimal changes to the application' for an "
+        "existing container is ECS, on Fargate for no servers. Nothing persists "
+        "between runs, and a Lambda function attached to a VPC already runs "
+        "across the subnets it is given, so it needs no minimum count to be "
+        "highly available. Application Auto Scaling on Lambda only sets "
+        "provisioned concurrency (instances kept warm), which does nothing for "
+        "Availability Zones."),
     "Choosing where a container runs": (r"container|Docker",
         "Least to manage first. Lambda, where there is no cluster at all, if "
         "the job finishes inside 15 minutes. Then ECS on Fargate: no servers, "
@@ -272,6 +286,8 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Managed relational databases: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server and Aurora. AWS handles patching and backups; you get no access to the operating system."),
     "Amazon Aurora": (r"Aurora",
         "AWS's MySQL and PostgreSQL-compatible database. Six copies across three AZs, up to 128 TiB."),
+    "Aurora Global Database": (r"Aurora global database|global database",
+        "One Aurora database spread across Regions: a primary Region that takes writes and up to ten secondary Regions with read copies, kept about a second behind. Users everywhere read nearby, and a secondary can be promoted in about a minute if the primary Region fails. The answer when a question says relational (SQL) and global, low latency or survive a Region. If it says relational, DynamoDB global tables are ruled out however global they are, because DynamoDB is not a relational database."),
     "Aurora Serverless": (r"Aurora Serverless",
         "Aurora that scales its capacity up and down automatically, so an idle database costs very little."),
     "RDS Multi-AZ": (r"Multi-AZ",
@@ -280,6 +296,10 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "An asynchronous readable copy that takes read load off the main database. Can be cross-region; promoted by hand."),
     "Amazon DynamoDB": (r"DynamoDB",
         "A serverless key-value database, single-digit milliseconds at any size. You design around a partition key, not joins."),
+    "DynamoDB capacity modes": (r"capacity mode|on-demand capacity|on demand capacity|provisioned (?:capacity|throughput|mode)|reserved capacity|\bRCUs?\b|\bWCUs?\b|(?:read|write) capacity units?",
+        "Two ways to pay for a table's throughput. On-demand: nothing to set, you pay per request, and the table follows the traffic up and down by itself; the answer for spiky, unpredictable or new workloads, or 'stop the throttling with least effort'. Provisioned: you set read and write capacity units, pay for them by the hour whether used or not, and requests above them are throttled; add auto scaling to move the numbers with steady, predictable changes, though it reacts in minutes and so can still throttle a sudden spike. Reserved capacity is a one- or three-year discount on provisioned capacity: it lowers the bill and adds no throughput. You can switch a table between the two modes."),
+    "DynamoDB read and write capacity units": (r"\bRCUs?\b|\bWCUs?\b|(?:read|write) capacity units?",
+        "One read capacity unit (RCU) is one strongly consistent read a second of an item up to 4 KB, or two eventually consistent reads. One write capacity unit (WCU) is one write a second of an item up to 1 KB. Transactions cost twice as much. So switching to strongly consistent reads uses twice the capacity and makes throttling worse, not better."),
     "DynamoDB Accelerator (DAX)": (r"\bDAX\b",
         "An in-memory cache in front of DynamoDB that brings reads down to microseconds. It helps reads only, not writes."),
     "DynamoDB Global Tables": (r"Global Table",
@@ -559,9 +579,19 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Dead-letter queue": (r"dead-letter|dead letter",
         "Where a message goes after failing to be processed a set number of times, so one bad message does not block the queue."),
     "Amazon SNS": (r"\bSNS\b|Simple Notification Service",
-        "Publishes one message to many subscribers at once: queues, functions, email addresses, phone numbers or web endpoints."),
+        "Publishes one message to many subscribers at once: queues, functions, email addresses, phone numbers or web endpoints. It pushes and keeps nothing, so a subscriber that is down misses the message unless an SQS queue sits in front of it. Each subscriber can filter on the message's attributes."),
+    "SNS fan-out to SQS": (r"fan[- ]?out",
+        "One SNS topic with an SQS queue subscribed for each downstream system. Every system gets its own copy, and each works through its queue at its own pace without losing anything. The usual answer when a question wants both 'many receivers' and 'nothing lost'."),
     "Amazon EventBridge": (r"EventBridge|CloudWatch Events",
-        "Routes events between services based on what is inside the event, and can run things on a schedule. Also receives events from outside SaaS products."),
+        "An event bus that routes events by rules matching any field inside the event. AWS services already send their events to it, and SaaS partners such as Zendesk or Datadog can too. It can send events to another account or Region, and archive and replay them. Like SNS it pushes rather than holds, so slow workers need an SQS queue behind it. It cannot send email itself; that goes through SNS. Events arrive on one of three kinds of bus: the default bus for AWS services' own events, a custom bus for your own, and a partner bus for a SaaS product's."),
+    "EventBridge default event bus": (r"default (?:event )?bus",
+        "The bus every AWS account already has. AWS services send their state-change events to it, such as an EC2 instance stopping, a GuardDuty finding or an S3 event once switched on, with nothing to set up. AWS management events arrive at no charge. Your own application's events belong on a custom bus instead."),
+    "EventBridge custom event bus": (r"custom (?:event )?bus",
+        "A bus you create for your own application's events, kept apart from the AWS events on the default bus. Another account can be allowed to send to it with a resource policy, which is how one central bus collects events from many accounts. Since September 2026 AWS offers two kinds: the enhanced custom bus, for organisation-wide use, shared across accounts, with more than 10,000 subscriptions, ordered delivery and built-in storage, billed by data volume; and the custom bus (classic), the original from 2019, billed per event in 64 KB chunks. The SAA-C03 exam predates the split, so on the exam a custom bus is simply 'your own events'."),
+    "EventBridge partner event bus": (r"partner (?:event )?(?:bus|source)|SaaS partner",
+        "A bus that receives events from a third-party SaaS product, such as Zendesk, Datadog, Shopify or Auth0. The partner offers an event source to your account; you accept it and it becomes a partner event bus, with rules on it like any other. The answer when a question says events from another company's software must start something in AWS with no code of your own polling for them."),
+    "EventBridge Scheduler": (r"EventBridge Scheduler|cron expression|rate expression|scheduled (?:rule|event)",
+        "Runs a target, such as a Lambda function, on a cron or a fixed rate, or once at a set time. What took the place of scheduled CloudWatch Events rules."),
     "AWS Step Functions": (r"Step Functions",
         "Strings several steps into one workflow, handling the retries, branches and waiting for you, so your code does not have to."),
     "Amazon MQ": (r"Amazon MQ",
@@ -636,6 +666,10 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     # ---------------- management ----------------
     "Amazon CloudWatch": (r"CloudWatch",
         "Collects metrics, logs and alarms, and tells you how things are performing. Memory and disk space are not collected unless you install the agent."),
+    "CloudWatch Container Insights": (r"Container Insights",
+        "CloudWatch's ready-made monitoring for containers on EKS, ECS and Kubernetes on EC2. It collects, aggregates and summarises metrics and logs from the cluster, its nodes, pods and services, and shows them on built-in dashboards. On EKS it is installed as an add-on that runs the CloudWatch agent and Fluent Bit on every node. The answer when a question wants metrics and logs from containers or microservices in one place, most operationally efficiently. The plain CloudWatch agent collects from a server, but does not understand pods and services or summarise them, so it is more to build. CloudTrail records API calls, not application logs."),
+    "EKS logging": (r"(?:EKS|Kubernetes)[\s\S]{0,300}?\blogs?\b|control plane log|Fluent ?Bit|Fluentd",
+        "Logs from an EKS cluster come from two places. The control plane (the part AWS runs: the API server, audit, authenticator, controller manager and scheduler) sends its logs to CloudWatch Logs once you switch each type on, in the console or with aws eks update-cluster-config --logging; they are off by default and nothing is installed. Node and application logs come from the cluster itself: Fluent Bit (or the older Fluentd) runs on every node as a DaemonSet (one copy per node) and sends container logs to CloudWatch Logs. CloudWatch Container Insights sets that up for you and adds metrics and dashboards, which makes it the least-effort answer for 'collect, aggregate and summarise metrics and logs'."),
     "AWS CloudTrail": (r"CloudTrail",
         "Records who called which AWS API, when, and from where. The audit trail, as opposed to CloudWatch's performance view."),
     "AWS Config": (r"AWS Config",
@@ -649,10 +683,14 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Describes your infrastructure in a template file so the same stack can be built again identically."),
     "AWS Systems Manager": (r"Systems Manager|\bSSM\b",
         "A toolbox for running and maintaining instances: shell access without opening ports, patching, running commands across a fleet, and storing parameters."),
+    "Systems Manager State Manager": (r"State Manager",
+        "Keeps managed servers in a set configuration, such as software installed or settings applied, by re-applying it on a schedule. An association can also run one of AWS's ready-made runbooks, such as AWS-StartRdsInstance and AWS-StopRdsInstance, on a cron against resources picked by tag, with no code. On the exam, though, State Manager is the answer for keeping servers configured, not for a time-of-day schedule; that is EventBridge."),
+    "Starting and stopping on a schedule": (r"business hours|on a schedule|start and stop|stop .{0,30}(?:nights|weekends)",
+        "Run something at set times, such as starting development databases at 8 am and stopping them at 6 pm: an EventBridge schedule (a rule or EventBridge Scheduler, with a cron or rate expression) that invokes a Lambda function, which finds the resources by tag and starts or stops them. A CloudWatch alarm cannot do it, because an alarm fires when a metric crosses a line, never on a clock. Trusted Advisor only reports. Systems Manager State Manager can technically run start and stop runbooks on a cron with no code, so it is a fair argument for least overhead, but the exam's key follows the EventBridge pattern. Pick Systems Manager when the question is about managed servers: patching, settings or running commands."),
     "Session Manager": (r"Session Manager",
         "Gives a shell on an instance with no open inbound port, no SSH key and no bastion host, and records the whole session."),
     "AWS Trusted Advisor": (r"Trusted Advisor",
-        "Checks your account against best practice in five areas: cost, performance, fault tolerance, security and service limits."),
+        "Checks your account against best practice in five areas: cost, performance, fault tolerance, security and service limits. It only reports; it never starts, stops or schedules anything."),
     "AWS Compute Optimizer": (r"Compute Optimizer",
         "Looks at real usage and tells you where an instance or volume is bigger than it needs to be."),
     "AWS Cost Explorer": (r"Cost Explorer",
