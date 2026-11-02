@@ -2162,7 +2162,7 @@ footer .v { font-family: var(--mono); }
 
   function scoresFor(days) {
     var out = blankCounts();
-    var cut = days ? Math.floor(Date.now() / 1000) - days * 86400 : -1;
+    var cut = days ? Math.floor(Date.now() / 1000) - days * 86400 : -1;
     // The lump has one date. Either the whole of it is inside the window or
     // none of it is; there is no way to split it, because nothing recorded
     // when any single one of those answers was given.
@@ -3784,12 +3784,23 @@ footer .v { font-family: var(--mono); }
     // are on the mock's own bar.
     if (mock.on) return;
 
-    // How it is going in the set being drilled, not across everything ever
-    // answered. A set of one question used to sit under a running total in the
-    // forties, which says nothing about the set in front of you.
+    // How it is going in this run, counted from this run's own answers. It
+    // used to read each question's last result ever, so a retake of 41 misses
+    // opened at "Missed 41" and the questions not reached yet went on counting
+    // as misses from the earlier run; a second go at a category did the same
+    // with the first go's results. Only what was answered in this run counts
+    // now, and the rest is "still to go".
+    var inSet = {};
+    queue.forEach(function (q) { inSet[q.id] = true; });
+    var thisRun = {};
+    if (sessionId) {
+      (S.log || []).forEach(function (e) {
+        if (e && e[3] === sessionId && inSet[e[1]]) thisRun[e[1]] = e[2];
+      });
+    }
     var right = 0, missed = 0, fresh = 0;
     queue.forEach(function (q) {
-      var v = V.questions[q.id];
+      var v = thisRun[q.id];
       if (v === 1) right++;
       else if (v === 0) missed++;
       else fresh++;
@@ -3801,13 +3812,15 @@ footer .v { font-family: var(--mono); }
     var tried = right + missed;
     function share(n) { return tried ? Math.round(100 * n / tried) + "%" : ""; }
 
+    // A retake is all questions missed before, so say it in those terms:
+    // right this time is a miss put right.
     var parts = [
       ["Question", (Math.min(qi + 1, queue.length)) + " of " + queue.length],
-      ["Right", right + (tried ? " (" + share(right) + ")" : "")],
-      ["Missed", missed + (tried ? " (" + share(missed) + ")" : "")]
+      [retakeOf ? "Right this time" : "Right", right + (tried ? " (" + share(right) + ")" : "")],
+      [retakeOf ? "Missed again" : "Missed", missed + (tried ? " (" + share(missed) + ")" : "")]
     ];
     // Only worth saying while some of the set is still untouched.
-    if (fresh && (right || missed)) parts.push(["Not yet tried", String(fresh)]);
+    if (fresh) parts.push(["Still to go", String(fresh)]);
 
     // What the real paper wants, so the share above has something to be
     // measured against. Said only once there is enough answered for the

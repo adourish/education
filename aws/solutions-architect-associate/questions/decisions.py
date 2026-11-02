@@ -85,8 +85,10 @@ DECISIONS: list[dict] = [
         "title": "Where to run a container",
         "area": "compute",
         "rows": [
-            ("it finishes inside 15 minutes", "Lambda, with a container image"),
+            ("it finishes inside 15 minutes, and the image may be rebuilt for Lambda", "Lambda, with a container image"),
+            ("an existing container, minimal changes to the application", "ECS, on Fargate for no servers"),
             ("longer than that, or always on", "ECS on Fargate"),
+            ("highly available across zones, least work", "ECS service, at least one task per zone, spread by Availability Zone"),
             ("the question says Kubernetes", "EKS on Fargate"),
             ("you must choose the hardware, or need a GPU", "ECS or EKS on EC2"),
             ("many queued jobs with an order between them", "AWS Batch"),
@@ -95,9 +97,18 @@ DECISIONS: list[dict] = [
         "traps": [
             "Work down the list and stop at the first that fits: each step down is "
             "more to manage, so the one above is the least-overhead answer.",
-            "An existing Docker image is no reason to rule out Lambda. It runs an "
-            "image up to 10 GB; that is what a question means by being willing to "
-            "change the image.",
+            "Lambda runs a container image only if it is built for Lambda: the "
+            "runtime interface client and a handler taking one event at a time. "
+            "An ordinary app in a container needs its start-up rewritten, so "
+            "'minimal changes to the application' rules Lambda out and points to "
+            "ECS. 'Willing to change the image' is the phrase that lets Lambda in.",
+            "A Lambda option with 'minimum capacity 3' is a decoy. Lambda in a VPC "
+            "already spreads across its subnets; Application Auto Scaling there "
+            "only keeps instances warm (provisioned concurrency).",
+            "'Self-managed nodes' means you patch and scale the servers, so it is "
+            "never the least-overhead answer. A spread placement group keeps "
+            "instances on separate hardware, at most seven per zone; it is not "
+            "a container platform, and Reserved Instances save money, not work.",
             "Fargate still has a cluster, a task definition and a service. It is less "
             "than owning instances and more than Lambda.",
         ],
@@ -168,6 +179,54 @@ DECISIONS: list[dict] = [
             "Firehose keeps nothing, so it cannot be replayed or read twice. That is "
             "what separates it from Data Streams.",
             "Order in a Kinesis stream holds within a shard, not across the stream.",
+        ],
+    },
+
+    {
+        "id": "queue-topic-bus",
+        "stem": r"fan[- ]?out|subscriber|notif|event-driven|react to|on a schedule|every \d+ minutes|cron|SaaS|partner",
+        "choices": [
+            r"\bSQS\b",
+            r"\bSNS\b",
+            r"EventBridge|CloudWatch Events",
+        ],
+        "title": "SQS, SNS or EventBridge",
+        "area": "integration",
+        "rows": [
+            ("hold it until a worker can take it, the worker is slow or offline", "SQS"),
+            ("absorb a spike, scale workers on how long the queue is", "SQS"),
+            ("in order, exactly once", "SQS FIFO"),
+            ("one message to many subscribers at once, fastest fan-out", "SNS"),
+            ("tell people by email, text message or mobile push", "SNS"),
+            ("every subscriber must get it and work at its own pace", "SNS, to one SQS queue each"),
+            ("react to an AWS service's event: EC2 state change, GuardDuty finding", "EventBridge"),
+            ("route on any field inside the event, many different targets", "EventBridge"),
+            ("events from a SaaS partner: Zendesk, Datadog, Shopify", "EventBridge"),
+            ("run something every few minutes, or on a cron", "EventBridge Scheduler"),
+            ("send events to another account or Region, archive and replay them", "EventBridge"),
+            ("route on content, then hold it for slow workers", "EventBridge, to SQS"),
+            ("alert the team when a service reports something", "EventBridge, to SNS"),
+            ("which bus: an AWS service's own events", "EventBridge default bus"),
+            ("which bus: your own application's events, or one bus for many accounts", "EventBridge custom bus"),
+            ("which bus: events from a SaaS product", "EventBridge partner bus"),
+        ],
+        "traps": [
+            "Ask: who should hear about this (EventBridge), everyone at once (SNS), "
+            "or hold it until someone can do it (SQS)?",
+            "Only SQS holds a backlog. SNS and EventBridge push and retry, but keep "
+            "nothing for a worker to pull, so 'must not be lost while the consumer is "
+            "down for hours' needs a queue behind them.",
+            "SNS filters on message attributes. EventBridge filters on any field of "
+            "the event itself. Rich content routing, or AWS and SaaS events, means "
+            "EventBridge; plain high-volume fan-out from your own app means SNS.",
+            "EventBridge cannot send email itself. Email or a text to a person goes "
+            "through SNS, often as EventBridge to SNS.",
+            "A schedule is EventBridge, not a CloudWatch alarm. An alarm watches a "
+            "metric; it does not run on a clock.",
+            "AWS events land on the default bus with no setup, so a rule for an "
+            "EC2 or GuardDuty event goes there, not on a bus you create. Many "
+            "accounts reporting to one place: each sends to a custom bus in a "
+            "central account, allowed by that bus's resource policy.",
         ],
     },
 
@@ -1195,6 +1254,43 @@ DECISIONS: list[dict] = [
             "VPC.",
             "Reserved concurrency set to zero turns the function off. Set to a "
             "number, it is both a ceiling and a guarantee.",
+            "Provisioned is speed, reserved is a limit. 'Respond consistently "
+            "with low latency' at peak is provisioned concurrency; reserved does "
+            "nothing about cold starts and throttles anything over its cap, so it "
+            "can make peak latency worse. With API Gateway in front, Lambda with "
+            "provisioned concurrency is also less to run than ECS or EKS behind "
+            "a load balancer.",
+        ],
+    },
+
+    {
+        "id": "lambda-concurrency",
+        "stem": r"cold start|consistent(?:ly)? .{0,30}latency|concurren|throttl",
+        "choices": [
+            r"provisioned concurrency",
+            r"reserved concurrency",
+        ],
+        "title": "Provisioned or reserved concurrency",
+        "area": "compute",
+        # The comparison table, one feature per line: what the feature is, and
+        # which of the two has it.
+        "rows": [
+            ("guarantees the function can run that many at once", "Both (provisioned also starts them in advance)"),
+            ("caps the most it can run at once", "Reserved only"),
+            ("removes cold starts, steady low latency", "Provisioned only"),
+            ("costs extra, even when idle", "Provisioned only (reserved is free)"),
+            ("protects a database or other system behind it", "Reserved (provisioned only indirectly)"),
+            ("best for: throughput control, fairness between functions", "Reserved"),
+            ("best for: low-latency workloads, a known busy peak", "Provisioned"),
+            ("switch the function off", "Reserved, set to zero"),
+        ],
+        "traps": [
+            "Provisioned is speed, reserved is a limit. 'Respond consistently with "
+            "low latency' is provisioned; reserved does nothing about cold starts.",
+            "Reserved is a cap as well as a guarantee, so at peak it throttles "
+            "requests over the cap and can make latency worse.",
+            "Provisioned concurrency is billed while it sits warm. For a busy "
+            "period you can name, schedule it with Application Auto Scaling.",
         ],
     },
 
@@ -1298,12 +1394,15 @@ def decisions_for(question: str, options: list[str] | None = None,
         no = d.get("unless")
         if no and _rx(_NOT, d["id"], no).search(text):
             continue
-        out.append((spanned, d["id"]))
+        out.append((spanned / len(pats), spanned, d["id"]))
 
     # The decision whose destinations the options cover most fully is the one
-    # the question is really about.
-    out.sort(key=lambda x: -x[0])
-    return [did for _, did in out[:limit]]
+    # the question is really about. Measured as a share of that decision's own
+    # destinations, so a narrow choice the options settle completely, such as
+    # provisioned against reserved concurrency, beats a broad one they only
+    # touch; the raw count breaks ties.
+    out.sort(key=lambda x: (-x[0], -x[1]))
+    return [did for _, _, did in out[:limit]]
 
 
 # The same two mistakes as the diagram library, which have cost hours: a
