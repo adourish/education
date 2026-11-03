@@ -1576,6 +1576,7 @@ footer .v { font-family: var(--mono); }
         <button class="btn bad" id="missBtn">Drill my misses</button>
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
         <button class="btn" id="mockBtn">Sit a mock exam</button>
+        <button class="btn" id="halfMockBtn">Sit a half mock exam</button>
       </div>
       <div id="resumeBar" hidden></div>
       <div id="drillBanner" hidden></div>
@@ -3207,7 +3208,7 @@ footer .v { font-family: var(--mono); }
       area: areaSel.value,
       src: srcSel.value,
       drill: drilling ? drilling.id : null,
-      mock: mock.on ? { ends: mock.ends, given: mock.given } : null
+      mock: mock.on ? { ends: mock.ends, given: mock.given, half: mock.half } : null
     });
     writeSessions(list);
   }
@@ -3243,7 +3244,7 @@ footer .v { font-family: var(--mono); }
 
   function describeSession(s) {
     if (s.retakeOf) return "the ones missed in " + s.retakeOf;
-    if (s.mock) return "a mock exam";
+    if (s.mock) return s.mock.half ? "a half mock exam" : "a mock exam";
     if (s.drill) {
       var row = null;
       DATA.sections.forEach(function (sec) {
@@ -3292,6 +3293,7 @@ footer .v { font-family: var(--mono); }
     mock.on = false;
     if (s.mock) {
       mock.given = s.mock.given || {};
+      mock.half = !!s.mock.half;
       mock.ends = s.mock.ends;
       if (Date.now() >= mock.ends) {
         // The clock ran out while the tab was closed. The paper is marked as it
@@ -3504,11 +3506,20 @@ footer .v { font-family: var(--mono); }
   // Sixty-five questions in a hundred and thirty minutes, drawn in the same
   // proportions the real paper uses, with nothing marked until the end. The
   // point is to find out where you stand, which you cannot do while being told
-  // the answer after every question.
-  var mock = { on: false, ends: 0, given: {}, tick: null, plan: null };
+  // the answer after every question. A half mock is the same paper cut in
+  // half, questions and minutes both, so the pace stays the real one.
+  var mock = { on: false, half: false, ends: 0, given: {}, tick: null, plan: null };
   var mockBar = document.getElementById("mockBar");
 
-  function mockPlan() {
+  // How many questions and minutes a full or a half paper gets.
+  function mockShape(half) {
+    var paper = DATA.paper;
+    if (!half) return { questions: paper.questions, minutes: paper.minutes };
+    var n = Math.ceil(paper.questions / 2);
+    return { questions: n, minutes: Math.round(paper.minutes * n / paper.questions) };
+  }
+
+  function mockPlan(total) {
     var paper = DATA.paper;
     var usable = DATA.questions.filter(function (q) {
       return q.opts && q.opts.length >= 2 && !(q.flag && q.flag.kind === "wrong");
@@ -3522,8 +3533,8 @@ footer .v { font-family: var(--mono); }
       // The last domain takes whatever is left, so rounding never leaves the
       // paper a question short or a question over.
       want[d] = (n === names.length - 1)
-        ? paper.questions - running
-        : Math.round(paper.questions * paper.weights[d] / 100);
+        ? total - running
+        : Math.round(total * paper.weights[d] / 100);
       running += want[d];
     });
 
@@ -3535,27 +3546,30 @@ footer .v { font-family: var(--mono); }
     });
     // If a domain cannot fill its share, make the paper up to length from
     // anything else rather than handing over a short exam.
-    if (picked.length < paper.questions) {
+    if (picked.length < total) {
       var seen = {};
       picked.forEach(function (q) { seen[q.id] = 1; });
       var rest = shuffle(usable.filter(function (q) { return !seen[q.id]; }));
-      picked = picked.concat(rest.slice(0, paper.questions - picked.length));
+      picked = picked.concat(rest.slice(0, total - picked.length));
     }
     return { questions: shuffle(picked), want: want, short: short };
   }
 
-  function startMock() {
-    var paper = DATA.paper;
-    var ask = "Sit a mock exam?\n\n" + paper.questions + " questions in " + paper.minutes +
+  function startMock(half) {
+    half = half === true;
+    var shape = mockShape(half);
+    var ask = "Sit a " + (half ? "half " : "") + "mock exam?\n\n" + shape.questions +
+      " questions in " + shape.minutes +
       " minutes, drawn in the same proportions as the real paper. Nothing is marked " +
       "until the end. Your answers still count towards your progress.";
     if (!window.confirm(ask)) return;
 
     newSession();
-    mock.plan = mockPlan();
+    mock.plan = mockPlan(shape.questions);
     mock.on = true;
+    mock.half = half;
     mock.given = {};
-    mock.ends = Date.now() + paper.minutes * 60000;
+    mock.ends = Date.now() + shape.minutes * 60000;
     drilling = null;
     queue = mock.plan.questions;
     qi = 0;
@@ -3579,7 +3593,8 @@ footer .v { font-family: var(--mono); }
       mins + ":" + (secs < 10 ? "0" : "") + secs));
     var done = Object.keys(mock.given).length;
     box.appendChild(el("span", "said",
-      "Mock exam · " + done + " of " + queue.length + " answered"));
+      (mock.half ? "Half mock exam · " : "Mock exam · ") + done + " of " +
+      queue.length + " answered"));
     var stop = el("button", "btn", "Finish now");
     stop.addEventListener("click", function () { finishMock(false); });
     box.appendChild(stop);
@@ -3623,7 +3638,8 @@ footer .v { font-family: var(--mono); }
 
     qhost.textContent = "";
     var card = el("div", "card result");
-    card.appendChild(el("h2", "sub", ranOut ? "Time is up" : "Mock exam marked"));
+    card.appendChild(el("h2", "sub", ranOut ? "Time is up" :
+      (mock.half ? "Half mock exam marked" : "Mock exam marked")));
     card.appendChild(el("div", "score", String(scaled)));
     card.appendChild(el("p", "verdict " + (passed ? "pass" : "fail"),
       (passed ? "Above" : "Below") + " the " + paper.pass + " needed to pass · " +
@@ -3654,7 +3670,8 @@ footer .v { font-family: var(--mono); }
 
     var again = el("button", "btn primary", "Sit another");
     again.style.marginTop = "16px";
-    again.addEventListener("click", startMock);
+    var wasHalf = mock.half;
+    again.addEventListener("click", function () { startMock(wasHalf); });
     card.appendChild(again);
     var back = el("button", "btn", "Back to practice");
     back.style.marginTop = "16px";
@@ -3672,9 +3689,11 @@ footer .v { font-family: var(--mono); }
   // Guessing at a length or a pass mark would teach someone the wrong target,
   // which is worse than not offering one, so the button simply is not there.
   if (DATA.paper && DATA.paper.questions) {
-    document.getElementById("mockBtn").addEventListener("click", startMock);
+    document.getElementById("mockBtn").addEventListener("click", function () { startMock(false); });
+    document.getElementById("halfMockBtn").addEventListener("click", function () { startMock(true); });
   } else {
     document.getElementById("mockBtn").hidden = true;
+    document.getElementById("halfMockBtn").hidden = true;
   }
   function drillMisses() {
     var list = dueQuestions();
