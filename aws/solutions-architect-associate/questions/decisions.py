@@ -143,6 +143,9 @@ DECISIONS: list[dict] = [
                                                                "same database"),
         ],
         "traps": [
+            "Moving RDS for MySQL or PostgreSQL to Aurora is a routine, low-effort "
+            "move: make an Aurora read replica of the running database and promote "
+            "it, or restore a snapshot into Aurora. It counts as no code change.",
             "Aurora is still relational. A question wanting to leave SQL behind wants "
             "DynamoDB, not Aurora.",
             "Multi-AZ is not a read scaler for an RDS DB instance: its standby serves "
@@ -298,9 +301,10 @@ DECISIONS: list[dict] = [
 
     {
         "id": "read-scale",
-        "stem": r"report(ing)? quer|read (traffic|queries|load|performance)|without (affecting|impacting)|offload|read-heavy|same quer|repeated(ly)? (read|quer)|latency of (the )?(read|quer)",
+        "stem": r"report(ing)? quer|read (traffic|queries|load|performance)|without (affecting|impacting)|offload|read-heavy|same quer|repeated(ly)? (read|quer)|latency of (the )?(read|quer)|write load|heavy write|writes? (spike|increase)",
         "choices": [
             r"read replica",
+            r"Aurora Serverless",
             r"ElastiCache",
             r"\bDAX\b",
             r"reader endpoint",
@@ -315,6 +319,8 @@ DECISIONS: list[dict] = [
             ("readers in another Region", "A cross-Region read replica"),
             ("sessions shared between servers", "ElastiCache for Redis"),
             ("writes are the problem, not reads", "A bigger instance, or sharding"),
+            ("heavy writes in sudden spikes, no code changes", "Aurora Serverless, "
+                                                               "with max ACUs set for the peak"),
         ],
         "traps": [
             "ElastiCache does not fetch from the database for you. The application "
@@ -324,6 +330,11 @@ DECISIONS: list[dict] = [
             "one that fails over on its own.",
             "DAX serves eventually consistent reads only; a strongly consistent read "
             "goes to the table.",
+            "Heavy write load: a cache or more EC2 servers will not help, because a "
+            "cache only serves reads and more servers send more writes. Moving RDS "
+            "for MySQL or PostgreSQL to Aurora Serverless is not extreme: it speaks "
+            "the same language, so the application only needs a new connection "
+            "address, which is configuration, not code.",
         ],
     },
 

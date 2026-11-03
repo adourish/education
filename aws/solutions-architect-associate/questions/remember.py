@@ -91,7 +91,7 @@ REMEMBER: dict[str, str] = {
     "Amazon RDS": "SQL, joins, an existing app, SQL Server or Oracle: RDS. Multi-AZ for failover, replicas for reads.",
     "Amazon Aurora": "SQL, faster, survives a Region: Aurora. Still relational.",
     "Aurora Global Database": "Relational and global: Aurora Global Database. 'Relational' rules out DynamoDB.",
-    "Aurora Serverless": "Load comes and goes, or dev and test: Aurora Serverless v2. Set the max ACUs for the peak.",
+    "Aurora Serverless": "Spiky load or heavy writes, no code changes: Aurora Serverless v2, max ACUs for the peak. Migrating from RDS is routine.",
     "RDS Multi-AZ": "Failover, no reads. The standby serves nothing.",
     "RDS read replica": "Reads, in Region or across. Promoted by hand, so not a failover.",
     "Aurora Replica": "Aurora Replicas: up to 15, same Region, reads and automatic failover. Never another Region.",
