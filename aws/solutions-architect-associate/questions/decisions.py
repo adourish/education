@@ -131,6 +131,11 @@ DECISIONS: list[dict] = [
         "area": "database",
         "rows": [
             ("joins, transactions, existing SQL", "RDS"),
+            ("Oracle or SQL Server, kept as it is", "RDS (Aurora only does MySQL and "
+                                                    "PostgreSQL)"),
+            ("SQL Server, but cut cost or licences", "Aurora PostgreSQL with "
+                                                     "Babelfish"),
+            ("MySQL or PostgreSQL, best performance or MOST available", "Aurora"),
             ("the same, but faster and surviving a Region", "Aurora"),
             ("key-value, any scale, single-digit milliseconds", "DynamoDB"),
             ("the load comes and goes, or is unknown", "Aurora Serverless, or "

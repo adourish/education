@@ -90,6 +90,8 @@ REMEMBER: dict[str, str] = {
     # ---------------- databases ----------------
     "Amazon RDS": "SQL, joins, an existing app, SQL Server or Oracle: RDS. Multi-AZ for failover, replicas for reads.",
     "Amazon Aurora": "SQL, faster, survives a Region: Aurora. Still relational.",
+    "Babelfish for Aurora PostgreSQL": "SQL Server, cut cost or licences, keep the T-SQL: Aurora PostgreSQL with Babelfish.",
+    "RDS vs Aurora vs DynamoDB": "Relational? No: DynamoDB. Yes: Oracle or least change is RDS; best, global or spiky is Aurora; SQL Server to save cost is Babelfish."
     "Aurora Global Database": "Relational and global: Aurora Global Database. 'Relational' rules out DynamoDB.",
     "Aurora Serverless": "Spiky load or heavy writes, no code changes: Aurora Serverless v2, max ACUs for the peak. Migrating from RDS is routine.",
     "RDS Multi-AZ": "Failover, no reads. The standby serves nothing.",
