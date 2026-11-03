@@ -3263,7 +3263,8 @@ footer .v { font-family: var(--mono); }
 
   function describeSession(s) {
     if (s.retakeOf) return "the ones missed in " + s.retakeOf;
-    if (s.mock) return "a " + MOCK_SIZES[mockSizeOf(s.mock)].name.toLowerCase();
+    if (s.mock) return "a " + MOCK_SIZES[mockSizeOf(s.mock)].name.toLowerCase() +
+      (s.src && s.src !== "__all" ? " from " + (SRC_LABELS[s.src] || s.src) : "");
     if (s.drill) {
       var row = null;
       DATA.sections.forEach(function (sec) {
@@ -3562,11 +3563,18 @@ footer .v { font-family: var(--mono); }
     return { questions: n, minutes: Math.round(paper.minutes * n / paper.questions) };
   }
 
+  // The questions a mock can draw on: whichever set is chosen under From,
+  // so a mock can be all Cert Empire, reviewed only, and so on.
+  function mockPool() {
+    return DATA.questions.filter(function (q) {
+      return inChosenSource(q) && q.opts && q.opts.length >= 2 &&
+        !(q.flag && q.flag.kind === "wrong");
+    });
+  }
+
   function mockPlan(total) {
     var paper = DATA.paper;
-    var usable = DATA.questions.filter(function (q) {
-      return q.opts && q.opts.length >= 2 && !(q.flag && q.flag.kind === "wrong");
-    });
+    var usable = mockPool();
     var byDom = {};
     usable.forEach(function (q) { (byDom[q.dom] = byDom[q.dom] || []).push(q); });
 
@@ -3601,14 +3609,30 @@ footer .v { font-family: var(--mono); }
   function startMock(size) {
     if (!MOCK_SIZES[size]) size = "full";
     var shape = mockShape(size);
-    var ask = "Sit a " + MOCK_SIZES[size].name.toLowerCase() + "?\n\n" + shape.questions +
-      " questions in " + shape.minutes +
+    var setName = SRC_LABELS[srcSel.value] || "Every set";
+    var have = mockPool().length;
+    if (!have) {
+      window.alert("There are no questions to sit from " + setName +
+        ". Pick another set under From.");
+      return;
+    }
+    var cut = "";
+    if (have < shape.questions) {
+      // Too few in the set for this size: sit all of them, at the same pace.
+      cut = "\n\n" + setName + " only has " + have + " questions, so the paper is cut to " +
+        have + " and the time to match.";
+      shape = { questions: have,
+                minutes: Math.max(1, Math.round(DATA.paper.minutes * have / DATA.paper.questions)) };
+    }
+    var ask = "Sit a " + MOCK_SIZES[size].name.toLowerCase() + " from " + setName + "?\n\n" +
+      shape.questions + " questions in " + shape.minutes +
       " minutes, drawn in the same proportions as the real paper. " +
       (settings.mockReveal === "hide"
         ? "Nothing is marked until the end."
         : "Each answer is shown as you pick it; switch to exam conditions in the settings to hide them.") +
       " You can pause the clock and pick it up later." +
-      " Your answers still count towards your progress.";
+      " Your answers still count towards your progress." +
+      "\n\nTo use a different set of questions, change From before starting." + cut;
     if (!window.confirm(ask)) return;
 
     newSession();
@@ -3664,7 +3688,8 @@ footer .v { font-family: var(--mono); }
     box.appendChild(el("span", "clock" + (left < 600000 ? " low" : ""),
       mins + ":" + (secs < 10 ? "0" : "") + secs));
     var done = Object.keys(mock.given).length;
-    var said = (mock.paused ? "Paused · " : "") + MOCK_SIZES[mock.size].name + " · " +
+    var said = (mock.paused ? "Paused · " : "") + MOCK_SIZES[mock.size].name +
+      (srcSel.value !== "__all" ? " from " + (SRC_LABELS[srcSel.value] || srcSel.value) : "") + " · " +
       done + " of " + queue.length + " answered";
     if (settings.mockReveal !== "hide" && done) {
       var gotRight = 0;
