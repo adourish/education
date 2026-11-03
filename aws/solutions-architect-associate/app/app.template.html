@@ -1751,6 +1751,16 @@ footer .v { font-family: var(--mono); }
     </div>
   </div>
   <div class="setrow">
+    <span class="lab">Answers in a mock exam</span>
+    <span class="hint">Show each answer as soon as you pick, the same as practice, or keep
+      to exam conditions and see nothing until the paper is marked. Either way the clock
+      runs and the mark at the end is the same.</span>
+    <div class="pick" role="group" data-setting="mockReveal">
+      <button type="button" data-value="show">Show as I go</button>
+      <button type="button" data-value="hide">Exam conditions</button>
+    </div>
+  </div>
+  <div class="setrow">
     <span class="lab">Reading ruler</span>
     <span class="hint">Marks the line you are pointing at with a bar down its left, the way
       a ruler under a line of print stops the eye dropping to the wrong one. Nothing is
@@ -3560,8 +3570,11 @@ footer .v { font-family: var(--mono); }
     var shape = mockShape(half);
     var ask = "Sit a " + (half ? "half " : "") + "mock exam?\n\n" + shape.questions +
       " questions in " + shape.minutes +
-      " minutes, drawn in the same proportions as the real paper. Nothing is marked " +
-      "until the end. Your answers still count towards your progress.";
+      " minutes, drawn in the same proportions as the real paper. " +
+      (settings.mockReveal === "hide"
+        ? "Nothing is marked until the end."
+        : "Each answer is shown as you pick it; switch to exam conditions in the settings to hide them.") +
+      " Your answers still count towards your progress.";
     if (!window.confirm(ask)) return;
 
     newSession();
@@ -3592,9 +3605,14 @@ footer .v { font-family: var(--mono); }
     box.appendChild(el("span", "clock" + (left < 600000 ? " low" : ""),
       mins + ":" + (secs < 10 ? "0" : "") + secs));
     var done = Object.keys(mock.given).length;
-    box.appendChild(el("span", "said",
-      (mock.half ? "Half mock exam · " : "Mock exam · ") + done + " of " +
-      queue.length + " answered"));
+    var said = (mock.half ? "Half mock exam · " : "Mock exam · ") + done + " of " +
+      queue.length + " answered";
+    if (settings.mockReveal !== "hide" && done) {
+      var gotRight = 0;
+      Object.keys(mock.given).forEach(function (id) { if (mock.given[id] === true) gotRight++; });
+      said += " · " + gotRight + " right so far";
+    }
+    box.appendChild(el("span", "said", said));
     var stop = el("button", "btn", "Finish now");
     stop.addEventListener("click", function () { finishMock(false); });
     box.appendChild(stop);
@@ -4233,7 +4251,7 @@ footer .v { font-family: var(--mono); }
 
     var reveal = el("div", "reveal");
     reveal.hidden = true;
-    if (mock.on) reveal.style.display = "none";
+    if (mock.on && settings.mockReveal === "hide") reveal.style.display = "none";
     reveal.appendChild(el("h4", null, "Answer"));
     var ansbox = textBlock(q.a, "ansbox", "div");
     reveal.appendChild(ansbox);
@@ -4375,6 +4393,15 @@ footer .v { font-family: var(--mono); }
             }
           }
           record(q, ok, o.src || null);
+          if (mock.on && settings.mockReveal !== "hide") {
+            // Shown as it goes: marked and explained here, the same as
+            // practice, and Next moves on (or marks the paper after the last).
+            mock.given[q.id] = ok;
+            renderMockBar();
+            reveal.hidden = false;
+            nextBtn.hidden = false;
+            return;
+          }
           if (mock.on) {
             // Under exam conditions you answer and move on. Nothing is
             // marked, nothing is revealed, and the last answer ends the
@@ -4410,11 +4437,17 @@ footer .v { font-family: var(--mono); }
           answered = true;
           good.disabled = bad.disabled = true;
           record(q, pair[1]);
+          // A mock counts these too, or a choose-two question would be
+          // marked wrong at the end however it was answered.
+          if (mock.on) { mock.given[q.id] = pair[1]; renderMockBar(); }
           nextBtn.hidden = false;
         });
       });
       marks.appendChild(good); marks.appendChild(bad);
       showBtn.addEventListener("click", function () {
+        // Marking yourself needs the answer in front of you, even under
+        // exam conditions.
+        reveal.style.display = "";
         reveal.hidden = false;
         marks.hidden = false;
         showBtn.hidden = true;
@@ -4461,7 +4494,9 @@ footer .v { font-family: var(--mono); }
     nextBtn.hidden = !alreadyDone[qi];
     nextBtn.style.marginTop = "14px";
     nextBtn.addEventListener("click", function () {
-      qi++; renderQuestion(); renderBoard();
+      qi++;
+      if (mock.on && qi >= queue.length) { finishMock(false); return; }
+      renderQuestion(); renderBoard();
       if (drilling) renderDrillBanner();
     });
     card.appendChild(nextBtn);
@@ -5584,7 +5619,10 @@ footer .v { font-family: var(--mono); }
     // it is what makes the reading ruler usable on a phone, so it is what a
     // browser starts with. One tap is a tap away in the settings.
     confirm: { attr: null,          fallback: "confirm" },
-    bullets: { attr: null,          fallback: "off" }
+    bullets: { attr: null,          fallback: "off" },
+    // A mock shows each answer as it goes unless exam conditions are asked
+    // for: being told straight away is how a wrong pick gets corrected.
+    mockReveal: { attr: null,       fallback: "show" }
   };
   var settings = {};
 
