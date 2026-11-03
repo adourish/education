@@ -1577,6 +1577,7 @@ footer .v { font-family: var(--mono); }
         <button class="btn" id="shuffleBtn">Shuffle &amp; restart</button>
         <button class="btn" id="mockBtn">Sit a mock exam</button>
         <button class="btn" id="halfMockBtn">Sit a half mock exam</button>
+        <button class="btn" id="quarterMockBtn">Sit a quarter mock exam</button>
       </div>
       <div id="resumeBar" hidden></div>
       <div id="drillBanner" hidden></div>
@@ -3105,6 +3106,14 @@ footer .v { font-family: var(--mono); }
     sessionId = newId();
     sessionStartedOn = deviceName();
     retakeOf = null;
+    // Starting something else leaves a mock where it was, to be picked up
+    // again from the list, rather than its clock and bar running on top.
+    if (mock.on) {
+      mock.on = false;
+      mock.paused = false;
+      if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+      renderMockBar();
+    }
   }
 
   // The questions got wrong in one run, by its id. Taken from the log rather
@@ -3130,7 +3139,6 @@ footer .v { font-family: var(--mono); }
     newSession();
     retakeOf = label || null;
     drilling = null;
-    mock.on = false;
     queue = shuffle(list);
     qi = 0;
     alreadyDone = {};
@@ -3218,7 +3226,8 @@ footer .v { font-family: var(--mono); }
       area: areaSel.value,
       src: srcSel.value,
       drill: drilling ? drilling.id : null,
-      mock: mock.on ? { ends: mock.ends, given: mock.given, half: mock.half } : null
+      mock: mock.on ? { ends: mock.ends, given: mock.given, size: mock.size,
+                        paused: mock.paused, left: mock.left } : null
     });
     writeSessions(list);
   }
@@ -3254,7 +3263,8 @@ footer .v { font-family: var(--mono); }
 
   function describeSession(s) {
     if (s.retakeOf) return "the ones missed in " + s.retakeOf;
-    if (s.mock) return s.mock.half ? "a half mock exam" : "a mock exam";
+    if (s.mock) return "a " + MOCK_SIZES[mockSizeOf(s.mock)].name.toLowerCase() +
+      (s.src && s.src !== "__all" ? " from " + (SRC_LABELS[s.src] || s.src) : "");
     if (s.drill) {
       var row = null;
       DATA.sections.forEach(function (sec) {
@@ -3303,9 +3313,16 @@ footer .v { font-family: var(--mono); }
     mock.on = false;
     if (s.mock) {
       mock.given = s.mock.given || {};
-      mock.half = !!s.mock.half;
+      mock.size = mockSizeOf(s.mock);
+      mock.paused = !!s.mock.paused;
+      mock.left = s.mock.left || 0;
       mock.ends = s.mock.ends;
-      if (Date.now() >= mock.ends) {
+      // A paused clock was stopped on purpose, so time away does not count.
+      if (mock.paused) {
+        mock.on = true;
+        if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+        renderMockBar();
+      } else if (Date.now() >= mock.ends) {
         // The clock ran out while the tab was closed. The paper is marked as it
         // stood, because pretending otherwise would hand back time that the
         // real exam would not.
@@ -3314,10 +3331,11 @@ footer .v { font-family: var(--mono); }
         document.getElementById("tab-practice").click();
         finishMock(true);
         return;
+      } else {
+        mock.on = true;
+        if (mock.tick) clearInterval(mock.tick);
+        mock.tick = setInterval(renderMockBar, 1000);
       }
-      mock.on = true;
-      if (mock.tick) clearInterval(mock.tick);
-      mock.tick = setInterval(renderMockBar, 1000);
     }
 
     hideResume();
@@ -3435,7 +3453,10 @@ footer .v { font-family: var(--mono); }
 
   // How much of a mock is left, in words, or that it has run out.
   function mockClockText(s) {
-    var secs = Math.max(0, Math.round((s.mock.ends - Date.now()) / 1000));
+    var paused = !!s.mock.paused;
+    var secs = Math.max(0, Math.round((paused ? s.mock.left || 0 : s.mock.ends - Date.now()) / 1000));
+    if (paused) return "The clock is paused with " +
+      (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") + " left.";
     if (!secs) return "The clock has run out, so it will be marked as it stands.";
     return "There " + (secs < 120 ? "is" : "are") + " " +
       (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") +
@@ -3518,22 +3539,42 @@ footer .v { font-family: var(--mono); }
   // point is to find out where you stand, which you cannot do while being told
   // the answer after every question. A half mock is the same paper cut in
   // half, questions and minutes both, so the pace stays the real one.
-  var mock = { on: false, half: false, ends: 0, given: {}, tick: null, plan: null };
+  // A quarter is the same again, cut in four.
+  var mock = { on: false, size: "full", paused: false, left: 0, ends: 0, given: {},
+               tick: null, plan: null };
+  var MOCK_SIZES = {
+    full:    { div: 1, name: "Mock exam" },
+    half:    { div: 2, name: "Half mock exam" },
+    quarter: { div: 4, name: "Quarter mock exam" }
+  };
+  // Mocks saved before there were sizes said half or nothing.
+  function mockSizeOf(m) {
+    if (m && MOCK_SIZES[m.size]) return m.size;
+    return m && m.half ? "half" : "full";
+  }
   var mockBar = document.getElementById("mockBar");
 
-  // How many questions and minutes a full or a half paper gets.
-  function mockShape(half) {
+  // How many questions and minutes each size of paper gets, at the real pace.
+  function mockShape(size) {
     var paper = DATA.paper;
-    if (!half) return { questions: paper.questions, minutes: paper.minutes };
-    var n = Math.ceil(paper.questions / 2);
+    var div = (MOCK_SIZES[size] || MOCK_SIZES.full).div;
+    if (div === 1) return { questions: paper.questions, minutes: paper.minutes };
+    var n = Math.ceil(paper.questions / div);
     return { questions: n, minutes: Math.round(paper.minutes * n / paper.questions) };
+  }
+
+  // The questions a mock can draw on: whichever set is chosen under From,
+  // so a mock can be all Cert Empire, reviewed only, and so on.
+  function mockPool() {
+    return DATA.questions.filter(function (q) {
+      return inChosenSource(q) && q.opts && q.opts.length >= 2 &&
+        !(q.flag && q.flag.kind === "wrong");
+    });
   }
 
   function mockPlan(total) {
     var paper = DATA.paper;
-    var usable = DATA.questions.filter(function (q) {
-      return q.opts && q.opts.length >= 2 && !(q.flag && q.flag.kind === "wrong");
-    });
+    var usable = mockPool();
     var byDom = {};
     usable.forEach(function (q) { (byDom[q.dom] = byDom[q.dom] || []).push(q); });
 
@@ -3565,22 +3606,41 @@ footer .v { font-family: var(--mono); }
     return { questions: shuffle(picked), want: want, short: short };
   }
 
-  function startMock(half) {
-    half = half === true;
-    var shape = mockShape(half);
-    var ask = "Sit a " + (half ? "half " : "") + "mock exam?\n\n" + shape.questions +
-      " questions in " + shape.minutes +
+  function startMock(size) {
+    if (!MOCK_SIZES[size]) size = "full";
+    var shape = mockShape(size);
+    var setName = SRC_LABELS[srcSel.value] || "Every set";
+    var have = mockPool().length;
+    if (!have) {
+      window.alert("There are no questions to sit from " + setName +
+        ". Pick another set under From.");
+      return;
+    }
+    var cut = "";
+    if (have < shape.questions) {
+      // Too few in the set for this size: sit all of them, at the same pace.
+      cut = "\n\n" + setName + " only has " + have + " questions, so the paper is cut to " +
+        have + " and the time to match.";
+      shape = { questions: have,
+                minutes: Math.max(1, Math.round(DATA.paper.minutes * have / DATA.paper.questions)) };
+    }
+    var ask = "Sit a " + MOCK_SIZES[size].name.toLowerCase() + " from " + setName + "?\n\n" +
+      shape.questions + " questions in " + shape.minutes +
       " minutes, drawn in the same proportions as the real paper. " +
       (settings.mockReveal === "hide"
         ? "Nothing is marked until the end."
         : "Each answer is shown as you pick it; switch to exam conditions in the settings to hide them.") +
-      " Your answers still count towards your progress.";
+      " You can pause the clock and pick it up later." +
+      " Your answers still count towards your progress." +
+      "\n\nTo use a different set of questions, change From before starting." + cut;
     if (!window.confirm(ask)) return;
 
     newSession();
     mock.plan = mockPlan(shape.questions);
     mock.on = true;
-    mock.half = half;
+    mock.size = size;
+    mock.paused = false;
+    mock.left = 0;
     mock.given = {};
     mock.ends = Date.now() + shape.minutes * 60000;
     drilling = null;
@@ -3594,9 +3654,32 @@ footer .v { font-family: var(--mono); }
     mock.tick = setInterval(renderMockBar, 1000);
   }
 
+  function pauseMock() {
+    if (!mock.on || mock.paused) return;
+    mock.left = Math.max(0, mock.ends - Date.now());
+    mock.paused = true;
+    if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+    saveSession();
+    renderMockBar();
+  }
+
+  function resumeMock() {
+    if (!mock.on || !mock.paused) return;
+    mock.ends = Date.now() + mock.left;
+    mock.paused = false;
+    mock.left = 0;
+    saveSession();
+    renderMockBar();
+    if (mock.tick) clearInterval(mock.tick);
+    mock.tick = setInterval(renderMockBar, 1000);
+  }
+
   function renderMockBar() {
+    // While paused the question is put away, so the clock cannot be beaten
+    // by reading ahead with it stopped.
+    qhost.hidden = !!(mock.on && mock.paused);
     if (!mock.on) { mockBar.hidden = true; mockBar.textContent = ""; return; }
-    var left = Math.max(0, mock.ends - Date.now());
+    var left = mock.paused ? mock.left : Math.max(0, mock.ends - Date.now());
     if (left === 0) { finishMock(true); return; }
     var mins = Math.floor(left / 60000), secs = Math.floor((left % 60000) / 1000);
     mockBar.hidden = false;
@@ -3605,14 +3688,19 @@ footer .v { font-family: var(--mono); }
     box.appendChild(el("span", "clock" + (left < 600000 ? " low" : ""),
       mins + ":" + (secs < 10 ? "0" : "") + secs));
     var done = Object.keys(mock.given).length;
-    var said = (mock.half ? "Half mock exam · " : "Mock exam · ") + done + " of " +
-      queue.length + " answered";
+    var said = (mock.paused ? "Paused · " : "") + MOCK_SIZES[mock.size].name +
+      (srcSel.value !== "__all" ? " from " + (SRC_LABELS[srcSel.value] || srcSel.value) : "") + " · " +
+      done + " of " + queue.length + " answered";
     if (settings.mockReveal !== "hide" && done) {
       var gotRight = 0;
       Object.keys(mock.given).forEach(function (id) { if (mock.given[id] === true) gotRight++; });
       said += " · " + gotRight + " right so far";
     }
     box.appendChild(el("span", "said", said));
+    var hold = el("button", "btn" + (mock.paused ? " primary" : ""),
+      mock.paused ? "Resume" : "Pause");
+    hold.addEventListener("click", function () { if (mock.paused) resumeMock(); else pauseMock(); });
+    box.appendChild(hold);
     var stop = el("button", "btn", "Finish now");
     stop.addEventListener("click", function () { finishMock(false); });
     box.appendChild(stop);
@@ -3628,6 +3716,7 @@ footer .v { font-family: var(--mono); }
           " still unanswered and will be marked wrong.")) return;
     }
     mock.on = false;
+    mock.paused = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
     if (sessionId) putAside(sessionId, true);
     renderMockBar();
@@ -3657,7 +3746,7 @@ footer .v { font-family: var(--mono); }
     qhost.textContent = "";
     var card = el("div", "card result");
     card.appendChild(el("h2", "sub", ranOut ? "Time is up" :
-      (mock.half ? "Half mock exam marked" : "Mock exam marked")));
+      MOCK_SIZES[mock.size].name + " marked"));
     card.appendChild(el("div", "score", String(scaled)));
     card.appendChild(el("p", "verdict " + (passed ? "pass" : "fail"),
       (passed ? "Above" : "Below") + " the " + paper.pass + " needed to pass · " +
@@ -3688,8 +3777,8 @@ footer .v { font-family: var(--mono); }
 
     var again = el("button", "btn primary", "Sit another");
     again.style.marginTop = "16px";
-    var wasHalf = mock.half;
-    again.addEventListener("click", function () { startMock(wasHalf); });
+    var sameSize = mock.size;
+    again.addEventListener("click", function () { startMock(sameSize); });
     card.appendChild(again);
     var back = el("button", "btn", "Back to practice");
     back.style.marginTop = "16px";
@@ -3707,11 +3796,13 @@ footer .v { font-family: var(--mono); }
   // Guessing at a length or a pass mark would teach someone the wrong target,
   // which is worse than not offering one, so the button simply is not there.
   if (DATA.paper && DATA.paper.questions) {
-    document.getElementById("mockBtn").addEventListener("click", function () { startMock(false); });
-    document.getElementById("halfMockBtn").addEventListener("click", function () { startMock(true); });
+    document.getElementById("mockBtn").addEventListener("click", function () { startMock("full"); });
+    document.getElementById("halfMockBtn").addEventListener("click", function () { startMock("half"); });
+    document.getElementById("quarterMockBtn").addEventListener("click", function () { startMock("quarter"); });
   } else {
     document.getElementById("mockBtn").hidden = true;
     document.getElementById("halfMockBtn").hidden = true;
+    document.getElementById("quarterMockBtn").hidden = true;
   }
   function drillMisses() {
     var list = dueQuestions();
