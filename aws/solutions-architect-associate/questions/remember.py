@@ -101,7 +101,7 @@ REMEMBER: dict[str, str] = {
     "Amazon DynamoDB": "Key-value, any scale, milliseconds, no joins: DynamoDB. Unpredictable: on-demand.",
     "DynamoDB capacity modes": "Spiky or unknown: on-demand. Steady and predictable: provisioned plus auto scaling. Reserved only cuts the bill.",
     "DynamoDB read and write capacity units": "RCU: 4 KB strong, or two eventual. WCU: 1 KB. Strong reads cost double.",
-    "DynamoDB Accelerator (DAX)": "The same DynamoDB reads, microseconds: DAX. Reads only.",
+    "DynamoDB Accelerator (DAX)": "DynamoDB reads in microseconds, hot items, almost no code change: DAX. Reads only, DynamoDB only.",
     "DynamoDB Global Tables": "Two Regions, both writing: global tables. Needs Streams on.",
     "Amazon ElastiCache": "The same reads over and over, sessions: ElastiCache for Redis. The app writes the cache (lazy loading).",
     "Redshift Advisor": "Make a Redshift cluster quicker or cheaper from its own queries: Redshift Advisor.",
@@ -113,7 +113,8 @@ REMEMBER: dict[str, str] = {
     "Amazon DocumentDB": "MongoDB wording: DocumentDB.",
     "Amazon QLDB": "A tamper-proof ledger with full history, one owner: QLDB.",
     "AWS DMS": "Move a database while the old one keeps running: DMS. Engine changes too: add SCT.",
-    "RDS Proxy": "Too many connections, Lambda opening them: RDS Proxy.",
+    "RDS Proxy vs DAX vs ElastiCache": "Connections run out: RDS Proxy. DynamoDB reads: DAX. Repeated RDS queries or sessions: ElastiCache.",
+    "RDS Proxy": "Too many connections, Lambda opening them, faster failover: RDS Proxy. Adds no capacity.",
     "AWS Schema Conversion Tool": "The engine changes (Oracle to PostgreSQL): SCT rewrites the schema, DMS moves the data.",
 
     # ---------------- networking ----------------

@@ -335,6 +335,9 @@ DECISIONS: list[dict] = [
             "one that fails over on its own.",
             "DAX serves eventually consistent reads only; a strongly consistent read "
             "goes to the table.",
+            "RDS Proxy fixes too many connections, not too much load: it adds no "
+            "capacity and caches nothing. DAX is for DynamoDB only; for RDS the cache "
+            "is ElastiCache.",
             "Heavy write load: a cache or more EC2 servers will not help, because a "
             "cache only serves reads and more servers send more writes. Moving RDS "
             "for MySQL or PostgreSQL to Aurora Serverless is not extreme: it speaks "
@@ -1213,6 +1216,7 @@ DECISIONS: list[dict] = [
         "area": "database",
         "rows": [
             ("too many connections, Lambda opening them", "RDS Proxy"),
+            ("failover must be quicker without reconnecting", "RDS Proxy"),
             ("upgrade with a rehearsal and a quick switch", "Blue/green deployment"),
             ("the load comes and goes", "Aurora Serverless v2"),
             ("the bill is mostly I/O", "Aurora I/O-Optimized"),
