@@ -102,6 +102,8 @@ REMEMBER: dict[str, str] = {
     "Amazon ElastiCache": "The same reads over and over, sessions: ElastiCache for Redis. The app writes the cache (lazy loading).",
     "Redshift Advisor": "Make a Redshift cluster quicker or cheaper from its own queries: Redshift Advisor.",
     "Amazon Redshift": "Reporting over a great deal of history: Redshift. Files in S3 too: Redshift Spectrum.",
+    "pgvector (vector search in PostgreSQL)": "Already on Aurora PostgreSQL and need vectors, cheapest: pgvector. No new cluster.",
+    "Vector storage on AWS": "Vectors go where the data already is: PostgreSQL pgvector, OpenSearch, DocumentDB, Neptune Analytics. New cluster is never cheapest.",
     "Amazon Neptune": "Relationships, graph, fraud rings: Neptune.",
     "Amazon Timestream": "Telemetry, readings over time, IoT: Timestream. Not DynamoDB, not Neptune.",
     "Amazon DocumentDB": "MongoDB wording: DocumentDB.",

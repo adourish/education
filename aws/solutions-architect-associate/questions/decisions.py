@@ -116,7 +116,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "db-engine",
-        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series",
+        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series|vector|embedding",
         "choices": [
             r"Aurora",
             r"DynamoDB",
@@ -139,6 +139,8 @@ DECISIONS: list[dict] = [
             ("relationships between things, graph wording", "Neptune"),
             ("reporting across a great deal of history", "Redshift"),
             ("readings over time, from devices", "Timestream"),
+            ("AI vectors, already on Aurora or RDS PostgreSQL", "pgvector on the "
+                                                               "same database"),
         ],
         "traps": [
             "Aurora is still relational. A question wanting to leave SQL behind wants "
@@ -148,6 +150,9 @@ DECISIONS: list[dict] = [
             "reads.",
             "DynamoDB global tables are the active-active answer across Regions. An "
             "Aurora global database has one writer.",
+            "Vector storage at the lowest cost on an existing PostgreSQL database is "
+            "pgvector. OpenSearch, DocumentDB and Neptune all store vectors too, but "
+            "each is a new cluster to pay for.",
         ],
     },
 
