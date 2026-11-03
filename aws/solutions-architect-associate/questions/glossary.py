@@ -18,35 +18,138 @@ say which option is correct, because a hint that answers the question for you
 teaches nothing.
 """
 
+import re
+
+
 GLOSSARY: dict[str, tuple[str, str]] = {
 
     # ---------------- compute ----------------
     "Amazon EC2": (r"\bEC2\b|Elastic Compute Cloud",
         "Virtual servers rented by the second. You pick size, OS and disk, and you patch it yourself."),
     "AWS Lambda": (r"\bLambda\b(?!@)",
-        "Runs your code on a trigger with no server to manage. Billed per request and millisecond, capped at 15 minutes."),
+        "Runs your code on a trigger with no server to manage. Billed per "
+        "request and millisecond, capped at 15 minutes. It can run a container "
+        "image as well as a zip, but only an image built for Lambda, so an "
+        "ordinary containerized app that must change as little as possible goes "
+        "to ECS instead. Nothing to patch and no cluster, which makes it the "
+        "least to manage of anything that runs code."),
+    "Provisioned concurrency": (r"provisioned concurrency",
+        "A number of Lambda instances kept started and warm in advance, so requests never wait for a cold start (the delay while a new instance loads the code). The answer when a question says 'consistently low latency' or 'cold starts are hurting' for a Lambda function. You pay for it whether it is used or not, so for a known busy period schedule it with Application Auto Scaling. It is about speed, not about limits."),
+    "Reserved concurrency": (r"reserved concurrency",
+        "A share of the account's Lambda concurrency (1,000 at once by default) set aside for one function. It is both a guarantee and a ceiling: the function can always run that many at once, and never more. Use it to stop one function starving the others, or to protect a database behind it from too many connections. Set to zero, it switches the function off. It costs nothing and does nothing about cold starts."),
+    "Provisioned vs reserved concurrency": (r"provisioned concurrency|reserved concurrency",
+        "Provisioned is about speed: instances warm in advance, so no cold starts and steady low latency; it costs money. Reserved is about limits: a guaranteed slice of concurrency that is also a cap, to protect other functions or a database; it is free and does not warm anything. A question asking for consistent low latency at peak wants provisioned. A question about one function using up the account's capacity, or overwhelming what it calls, wants reserved. Reserved concurrency can make latency worse at peak, because requests over the cap are throttled."),
     "Lambda@Edge": (r"Lambda@Edge",
         "Lambda functions that run at CloudFront edge locations, close to the viewer, so a request can be changed or answered without reaching your origin."),
+    "Lambda container image": (r"container image|image to Lambda|Lambda[^.]{0,40}container",
+        "Lambda can run a container image, up to 10 GB, instead of a zip of "
+        "code, but not just any container. The image must include the Lambda "
+        "runtime interface client and answer one event at a time through a "
+        "handler. An ordinary containerized app, such as a web server listening "
+        "on a port or a worker that is always running, does not work that way, "
+        "so moving it to Lambda means rewriting how it starts. That is a change "
+        "to the application. So: 'willing to change the image' and a job under "
+        "15 minutes can be Lambda; 'minimal changes to the application' for an "
+        "existing container is ECS, on Fargate for no servers. Nothing persists "
+        "between runs, and a Lambda function attached to a VPC already runs "
+        "across the subnets it is given, so it needs no minimum count to be "
+        "highly available. Application Auto Scaling on Lambda only sets "
+        "provisioned concurrency (instances kept warm), which does nothing for "
+        "Availability Zones."),
+    "Choosing where a container runs": (r"container|Docker",
+        "Least to manage first. Lambda, where there is no cluster at all, if "
+        "the job finishes inside 15 minutes. Then ECS on Fargate: no servers, "
+        "but a cluster, a task definition and a service to set up. Then EKS on "
+        "Fargate, which is that plus Kubernetes. Then ECS or EKS on EC2, where "
+        "the instances are yours to patch and scale. Work down the list and "
+        "stop at the first one that fits. What pushes you down it: a job longer "
+        "than 15 minutes, something that must stay running, a need for "
+        "Kubernetes by name, or a need for particular hardware such as a GPU."),
     "Amazon ECS": (r"\bECS\b|Elastic Container Service",
-        "AWS's own container orchestrator: it runs and schedules Docker containers for you."),
+        "AWS's own container orchestrator: it runs and schedules Docker "
+        "containers for you. Simpler than Kubernetes and the one to reach for "
+        "unless a question names Kubernetes. Run it on Fargate for no servers, "
+        "or on EC2 when you need to choose the hardware."),
     "Amazon EKS": (r"\bEKS\b|Elastic Kubernetes",
-        "Managed Kubernetes. Pick this when the question says Kubernetes or kubectl, or when a team already runs Kubernetes elsewhere."),
+        "Managed Kubernetes. Pick this when the question says Kubernetes or "
+        "kubectl, or when a team already runs Kubernetes elsewhere. AWS runs "
+        "the control plane, but Kubernetes itself is still yours, so it is more "
+        "to manage than ECS and is rarely the least-overhead answer."),
     "Amazon EKS Anywhere": (r"EKS Anywhere",
         "Kubernetes managed the same way, but running on hardware you have rather than in an AWS Region, including on Snowball Edge Compute Optimized devices. The answer when a question wants a Kubernetes cluster somewhere with no reliable connection."),
     "AWS Fargate": (r"\bFargate\b",
-        "Runs containers without you managing any servers underneath. You give it a container and it finds somewhere to run it."),
+        "Runs containers without you managing any servers underneath. You give "
+        "it a container and it finds somewhere to run it. There is still a "
+        "cluster, a task definition and a service to set up, so it is more to "
+        "manage than Lambda and far less than owning the instances. The answer "
+        "when the work runs longer than 15 minutes or has to stay up."),
     "Amazon ECR": (r"\bECR\b|Elastic Container Registry",
         "A private store for your container images. Images live in one region, so using them elsewhere means copying them."),
     "AWS Elastic Beanstalk": (r"Elastic Beanstalk",
-        "You upload code and AWS builds the servers, load balancer and scaling around it. You still own the resources it creates."),
+        "You upload code and AWS builds the servers, load balancer and scaling "
+        "around it. You still own the resources it creates, and you still pay "
+        "for them. It also owns how a new version goes out, which is where the "
+        "marks are: pick the deployment policy that matches what the question "
+        "is willing to risk."),
+    "Beanstalk deployment policies": (r"Elastic Beanstalk",
+        "How a new version replaces the old, in rising order of care and cost. "
+        "All at once is quickest and drops the service while it happens. "
+        "Rolling goes in batches and runs short of capacity meanwhile. Rolling "
+        "with an additional batch adds a batch first so full capacity is kept. "
+        "Immutable builds a whole new set of instances and throws them away if "
+        "anything is wrong. Traffic splitting is immutable plus a trial on real "
+        "traffic. Pick the first one that meets what the question will not give "
+        "up."),
+    "Beanstalk traffic splitting": (r"traffic.split",
+        "The canary. A set percentage of live traffic goes to the new version "
+        "on new instances for a stated time, and if it stays healthy the rest "
+        "follows and the old instances go. The answer whenever a question wants "
+        "a new version tried on a slice of real users with the least work, "
+        "because it is a setting rather than something to wire up: shifting "
+        "traffic by hand with load balancer rules does the same job and is more "
+        "to manage."),
+    "Immutable deployment": (r"\bimmutable\b",
+        "A whole new set of instances is built alongside the old ones, and only "
+        "when they are healthy does traffic move. If anything is wrong they are "
+        "thrown away and nothing was ever changed, which is why it is the "
+        "safest and the easiest to undo. It is the slowest, and briefly pays "
+        "for twice the instances."),
+    "Blue/green deployment": (r"blue.?green",
+        "Two complete environments, one live and one new. You test the new one, "
+        "then send traffic to it, and go back by sending it to the old one "
+        "again. In Elastic Beanstalk that is a URL swap between two "
+        "environments. The answer when going back has to be quick, or when the "
+        "change is too big to make in place."),
     "AWS Batch": (r"AWS Batch",
-        "Runs large numbers of batch jobs, working out how much compute to start and when."),
+        "Runs large numbers of batch jobs, working out how much compute to "
+        "start and when. It queues them and runs them on Fargate or EC2 "
+        "underneath, so it adds a scheduler rather than removing the choice. "
+        "Worth it for many jobs with dependencies between them, not for one job "
+        "that runs in three minutes."),
+    "Warm pool": (r"warm pool",
+        "Instances kept ready beside an Auto Scaling group, stopped or running but not yet in service, so they can be put to work in seconds. The answer when a question says an instance takes a long time to start up -- a big application to install, a long boot, a cache to fill -- and scaling out therefore arrives too late. A stopped instance in the pool costs only its disk."),
     "EC2 Auto Scaling": (r"Auto Scaling|scaling polic|launch template|launch configuration",
         "Adds and removes EC2 instances automatically to match demand, keeping the count between a minimum and a maximum you set."),
     "Amazon Machine Image (AMI)": (r"\bAMI\b|Amazon Machine Image",
         "A saved template of a disk, used to launch instances that all start identical. An AMI belongs to one region and must be copied to be used in another."),
+    "Spreading Spot across instance types": (r"instance type|divers|capacity[- ]optimized|allocation strategy|Spot Fleet|EC2 Fleet|mixed instance",
+        "Spot capacity is not one pool but one for each instance type in each "
+        "zone. Asking for a single type in a single zone means a single pot, "
+        "and when that runs dry the instances go. Naming several types the work "
+        "could run on, across several zones, is the usual answer to a question "
+        "about making Spot more reliable: all of those pots have to run dry at "
+        "once before anything stops. An Auto Scaling group takes a list of "
+        "types for exactly this, and the capacity-optimized allocation strategy "
+        "then draws from whichever has the most to spare. It is about the "
+        "chance of being interrupted, not about the two minutes' notice, which "
+        "you get either way."),
     "Spot Instances": (r"\bSpot\b",
-        "Spare EC2 capacity at up to about 90% off, which AWS can take back with two minutes' warning. Only suitable for work that can be interrupted and retried."),
+        "Spare EC2 capacity at up to about 90 per cent off, which AWS can take "
+        "back with two minutes' warning. Only for work that can be interrupted "
+        "and tried again. The spare capacity is counted separately for every "
+        "instance type in every zone, so asking for one type in one zone is "
+        "asking from one pot: name several types across several zones and it "
+        "takes all of them running dry at once to stop you."),
     "Reserved Instances": (r"Reserved Instance",
         "A one or three year commitment to a certain amount of EC2 usage, for up to about 72% off the on-demand price."),
     "Savings Plans": (r"Savings Plan",
@@ -111,8 +214,23 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "gp3 is the general-purpose default. io1 and io2 are for guaranteed high IOPS. st1 is cheap sequential throughput, sc1 is the coldest and cheapest."),
     "EBS snapshot": (r"snapshot",
         "A point-in-time backup of a disk, stored in S3 and tied to one region. Copying a snapshot is how you move a volume between zones or regions."),
+    "EFS throughput mode": (r"throughput mode|Bursting throughput|Elastic throughput",
+        "How much an EFS file system will carry, and how it is charged for. "
+        "Bursting goes by how much is stored, about 50 KiB a second for every "
+        "GiB, and builds up credit while it sits under that which it can spend "
+        "going over; so a small file system meeting a sudden load runs the "
+        "credit down and slows to its baseline. Elastic works the other way "
+        "about: it rises and falls with whatever the work is actually doing and "
+        "charges for what was moved, which is what a spike nobody can size in "
+        "advance wants. Provisioned is a figure you name and pay for whether it "
+        "is used or not, for a steady known demand on a small amount of data. "
+        "Elastic needs the General Purpose performance mode, which is the one "
+        "to use anyway: Max I/O is the old one and costs latency."),
     "Amazon EFS": (r"\bEFS\b|Elastic File System",
-        "A shared file system many Linux servers can mount at once, over NFS. It spans Availability Zones and grows and shrinks on its own."),
+        "A shared file system many Linux servers can mount at once, over NFS. "
+        "It spans Availability Zones and grows and shrinks on its own. How fast "
+        "it goes is a separate choice from how big it is: see the throughput "
+        "mode."),
     "Amazon FSx": (r"\bFSx\b",
         "Managed file systems, and which one matters: FSx for Windows File Server for Windows and SMB, FSx for Lustre for speed. Picking the family is never the answer; picking the right one is."),
     "FSx for Windows File Server": (r"FSx for Windows",
@@ -133,6 +251,26 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Rugged devices AWS posts to you. They do two jobs, not one: moving data the network would take too long to carry, and running compute where there is no usable network at all. Reading one of these questions as being about data transfer when it is really about running something in a disconnected place is the way to get it wrong."),
     "AWS Snowcone": (r"Snowcone",
         "The smallest of them, 8 or 14 TB, light enough to carry and able to run on a battery. It runs EC2 instances too, for a drone, a vehicle or a backpack."),
+    "SFTP": (r"\bSFTP\b|\bFTPS?\b",
+        "File transfer over SSH, on port 22: the way other companies have "
+        "sent each other files for twenty years, with a client on their side "
+        "and a server on yours. On the exam the server is the problem: one "
+        "EC2 instance running SFTP is a single point of failure that cannot "
+        "scale. An Application Load Balancer cannot help, because SFTP is not "
+        "web traffic; a Network Load Balancer could carry it but only spreads "
+        "it across instances you still own and patch. The answer to 'reliable "
+        "and scalable SFTP' is AWS Transfer Family, which keeps the partners' "
+        "clients and the DNS name and removes the server."),
+    "AWS Transfer Family": (r"Transfer Family|Transfer for SFTP|AWS Transfer\b",
+        "SFTP, FTPS and FTP as a managed service, writing straight into S3 or "
+        "EFS. No instance, no patching, no cron job to move the files "
+        "afterwards: they land in the bucket as they arrive. Highly available "
+        "and scaling on its own, so it is the answer whenever a question has "
+        "an SFTP server on EC2 and wants reliability or scale, or wants "
+        "partners to keep using SFTP while the data goes to a data lake. Point "
+        "the existing DNS name at the server's endpoint and the partners "
+        "notice nothing. File Gateway is the distractor: it is a file share "
+        "(NFS or SMB) backed by a bucket, not an SFTP endpoint."),
     "AWS DataSync": (r"DataSync",
         "Copies files between your datacentre and AWS over the network, on a schedule, repeatedly. The online alternative to shipping a Snowball."),
     "AWS Backup": (r"AWS Backup",
@@ -148,6 +286,8 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Managed relational databases: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server and Aurora. AWS handles patching and backups; you get no access to the operating system."),
     "Amazon Aurora": (r"Aurora",
         "AWS's MySQL and PostgreSQL-compatible database. Six copies across three AZs, up to 128 TiB."),
+    "Aurora Global Database": (r"Aurora global database|global database",
+        "One Aurora database spread across Regions: a primary Region that takes writes and up to ten secondary Regions with read copies, kept about a second behind. Users everywhere read nearby, and a secondary can be promoted in about a minute if the primary Region fails. The answer when a question says relational (SQL) and global, low latency or survive a Region. If it says relational, DynamoDB global tables are ruled out however global they are, because DynamoDB is not a relational database."),
     "Aurora Serverless": (r"Aurora Serverless",
         "Aurora that scales its capacity up and down automatically, so an idle database costs very little."),
     "RDS Multi-AZ": (r"Multi-AZ",
@@ -156,16 +296,41 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "An asynchronous readable copy that takes read load off the main database. Can be cross-region; promoted by hand."),
     "Amazon DynamoDB": (r"DynamoDB",
         "A serverless key-value database, single-digit milliseconds at any size. You design around a partition key, not joins."),
+    "DynamoDB capacity modes": (r"capacity mode|on-demand capacity|on demand capacity|provisioned (?:capacity|throughput|mode)|reserved capacity|\bRCUs?\b|\bWCUs?\b|(?:read|write) capacity units?",
+        "Two ways to pay for a table's throughput. On-demand: nothing to set, you pay per request, and the table follows the traffic up and down by itself; the answer for spiky, unpredictable or new workloads, or 'stop the throttling with least effort'. Provisioned: you set read and write capacity units, pay for them by the hour whether used or not, and requests above them are throttled; add auto scaling to move the numbers with steady, predictable changes, though it reacts in minutes and so can still throttle a sudden spike. Reserved capacity is a one- or three-year discount on provisioned capacity: it lowers the bill and adds no throughput. You can switch a table between the two modes."),
+    "DynamoDB read and write capacity units": (r"\bRCUs?\b|\bWCUs?\b|(?:read|write) capacity units?",
+        "One read capacity unit (RCU) is one strongly consistent read a second of an item up to 4 KB, or two eventually consistent reads. One write capacity unit (WCU) is one write a second of an item up to 1 KB. Transactions cost twice as much. So switching to strongly consistent reads uses twice the capacity and makes throttling worse, not better."),
     "DynamoDB Accelerator (DAX)": (r"\bDAX\b",
         "An in-memory cache in front of DynamoDB that brings reads down to microseconds. It helps reads only, not writes."),
     "DynamoDB Global Tables": (r"Global Table",
         "The same DynamoDB table kept in several regions at once, writable in all of them."),
     "Amazon ElastiCache": (r"ElastiCache|Memcached|\bRedis\b",
         "Managed in-memory caching. Redis adds persistence, failover and data structures; Memcached is a simpler multi-threaded cache."),
+    "Redshift Advisor": (r"Redshift Advisor",
+        "Tailored suggestions for making a Redshift cluster quicker or cheaper, "
+        "worked out from what your own queries have been doing: compress this "
+        "table, change that distribution key, this cluster is bigger than it "
+        "needs to be. It is advice about performance and cost, and only that. "
+        "It does not check a cluster against your security policy and it does "
+        "not report compliance, so an option offering it for either is the "
+        "wrong tool rather than the wrong setting. That job belongs to AWS "
+        "Config."),
     "Amazon Redshift": (r"Redshift",
         "A data warehouse for analytics over large structured datasets. Built for reporting, not transactions."),
     "Amazon Neptune": (r"Neptune",
         "A graph database, for data that is mostly about relationships: social networks, fraud rings, recommendations."),
+    "Amazon Timestream": (r"Timestream",
+        "A database built for readings stamped with a time: sensor values, "
+        "telemetry from vehicles or devices, metrics, anything that arrives as "
+        "a steady stream of measurements and is asked about by time range. It "
+        "takes in millions of points a minute, keeps recent data in memory and "
+        "moves older data to cheaper storage on its own, and has no servers to "
+        "size. The full name is Timestream for LiveAnalytics. When a question "
+        "says telemetry, IoT or time series and asks where to store it, this is "
+        "the purpose-built one; DynamoDB can hold the rows but is not made for "
+        "asking what happened between two times, and Neptune is for "
+        "relationships, not readings. QuickSight connects to it directly for "
+        "reports."),
     "Amazon DocumentDB": (r"DocumentDB",
         "A managed document database that speaks MongoDB's API."),
     "Amazon QLDB": (r"\bQLDB\b|Quantum Ledger",
@@ -191,20 +356,75 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Lets servers in a private subnet reach the internet to fetch updates, while stopping anything on the internet from starting a connection to them."),
     "Internet gateway": (r"internet gateway",
         "The VPC's door to the internet. A subnet is only public if its route table points at one."),
+    "Route table": (r"route table",
+        "The list that says where a subnet's traffic goes: this range stays "
+        "local, everything else goes to the internet gateway, or to the NAT "
+        "gateway, or to an endpoint. Every subnet uses exactly one route "
+        "table, but one table can be shared by several subnets."),
+    "Shared route table": (r"shared route table|route table for each|one route table per|route table per|each private subnet",
+        "The trap in the NAT gateway questions. A route has one target, so if "
+        "every private subnet shares one route table, all of them send their "
+        "internet traffic to one NAT gateway, in one Availability Zone. Lose "
+        "that zone and every private subnet loses the internet, and the "
+        "others pay to cross zones on the way. The fix is one route table per "
+        "private subnet, each pointing at the NAT gateway in its own zone. "
+        "'Shared route table' in an option is the wrong answer whenever the "
+        "question has NAT gateways in more than one zone; 'one route table "
+        "for each private subnet' is the right one."),
     "VPC peering": (r"VPC peering",
         "A private link between two VPCs. It is not transitive, so A to B and B to C does not give A to C, and the address ranges must not overlap."),
     "AWS Transit Gateway": (r"Transit Gateway",
         "A hub that connects many VPCs and on-premises networks to each other, which peering cannot do once there are more than a few."),
     "AWS PrivateLink": (r"PrivateLink",
-        "Exposes a service privately to another VPC, without peering and without the traffic crossing the internet."),
+        "A private door into one building, not the road that gets you there. It gives you a private address inside a VPC for one specific service, with no peering and without crossing the internet. It creates no network path and assumes you already have one. The trap: when a question says the solution must not use the public internet, this option looks right on the word private alone. Ask whether the option gives you a wire out of your own building. Direct Connect and Site-to-Site VPN do. This does not, so from a data centre it still needs one of them underneath."),
     "VPC endpoint": (r"VPC endpoint|gateway endpoint|interface endpoint",
-        "A private route to an AWS service, so traffic never leaves AWS. Gateway endpoints serve S3 and DynamoDB and are free; everything else is an interface endpoint."),
+        "A private route to an AWS service, so traffic never leaves AWS. Gateway endpoints serve S3 and DynamoDB and are free, but they are a route inside one VPC only: they cannot be reached from your own network over Direct Connect or a VPN, and they do not do IPv6. An interface endpoint is a network card in your subnet, charged by the hour and by the traffic, and it is the kind that on-premises systems can reach. Everything other than S3 and DynamoDB is an interface endpoint anyway."),
     "AWS Direct Connect": (r"Direct Connect",
-        "A dedicated physical line into AWS. Steady bandwidth, but weeks or months to install."),
+        "The road. A dedicated physical circuit between your data centre and AWS, which creates a network path that did not exist before. Latency is consistent because the circuit is yours, and traffic never touches the public internet. That combination, steady low latency and no internet, is what only this can give you. It takes weeks or months to install, so a question in a hurry wants a VPN instead."),
+    "AWS Client VPN": (r"Client VPN",
+        "An encrypted tunnel for one person at a time, from a laptop into a VPC. It is for staff who need to reach private resources while away from the office, not for joining two networks: there is no site at the other end, and it runs over the public internet. Whenever a question is about a data centre rather than people, this is the wrong shape."),
     "Site-to-Site VPN": (r"Site-to-Site VPN|virtual private gateway|customer gateway",
-        "An encrypted tunnel from your network to AWS over the ordinary internet. Much quicker to set up than Direct Connect."),
+        "An encrypted tunnel from your network to AWS over the ordinary internet. The right shape for joining two sites, and up the same day, which is why it wins whenever cost or speed of setup is the point. But it rides the public internet, so latency varies with whatever else is happening out there. That rules it out when a question asks for consistent or predictable latency, and it is often run as the backup for a Direct Connect line."),
+    "Route 53 Resolver endpoints": (r"Route 53 Resolver|Resolver (inbound|outbound|endpoint)|DNS forwarder|resolve (the )?(internal|on-premises|private) domain|name resolution",
+        "The piece that lets DNS cross between a VPC and your own building. "
+        "Every VPC already has a resolver for AWS names; it cannot see your "
+        "on-premises DNS server and your server cannot see it. An outbound "
+        "endpoint sends questions out of the VPC: a forwarding rule says "
+        "'anything ending in corp.example goes to this on-premises server', "
+        "over the VPN or Direct Connect. The three steps are the exam's shape: "
+        "make the outbound endpoint in the VPC, make the forwarding rule "
+        "naming the on-premises domain and the DNS server addresses, and "
+        "associate the rule with every VPC that needs it, which is the one "
+        "the VPN is attached to. A rule not associated with the VPC does "
+        "nothing for it. An inbound endpoint takes questions in, so machines "
+        "on premises can resolve private names in the VPC. "
+        "This is the answer to 'name resolution errors after migrating' and "
+        "'resolve internal domain names'. Running your own DNS forwarder on "
+        "EC2 works but is yours to patch; a public hosted zone is for the "
+        "internet; a network ACL does not forward anything."),
+    "Route 53 routing policies": (r"routing policy|weighted routing|latency-based|latency policy|geolocation|geoproximity|multivalue|multi-value|simple routing",
+        "How Route 53 decides what to answer with. Simple returns the values on "
+        "one record. Weighted gives each a share, which is what a staged "
+        "release needs. Latency sends each person to the quickest Region, "
+        "geolocation sends them by where they are, geoproximity by distance "
+        "with a thumb on the scale. Failover is one live and one waiting. "
+        "Multivalue answer returns several at once, up to eight."),
+    "Simple against multivalue answer": (r"multivalue|multi-value|simple routing|simple record",
+        "Both can hand back more than one address, and only one of them checks "
+        "whether those addresses are up. Simple returns everything on the "
+        "record whether it is healthy or not, because a simple record cannot "
+        "carry a health check. Multivalue answer gives each record its own "
+        "health check and leaves out the ones that are failing, up to eight at "
+        "a time. So a question that wants traffic spread about and wants "
+        "nothing sent to a Region that is down is asking for multivalue, and "
+        "simple is the trap beside it. Neither is a load balancer: the client "
+        "picks from what it is given."),
     "Amazon Route 53": (r"Route ?53",
-        "AWS's DNS. Routes by latency, geography or weight, and away from anything failing a health check."),
+        "AWS's DNS. It can answer differently depending who is asking: by "
+        "latency, by geography, by weight, or with several records at once, and "
+        "it can leave out anything failing a health check. An alias record "
+        "points at an AWS resource, costs nothing to resolve, and works at the "
+        "root of a domain where a CNAME cannot."),
     "Amazon CloudFront": (r"CloudFront",
         "A content delivery network. It caches your content at edge locations around the world so users are served from somewhere near them."),
     "AWS Global Accelerator": (r"Global Accelerator",
@@ -214,7 +434,25 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Network Load Balancer (NLB)": (r"Network Load Balancer|\bNLB\b",
         "A load balancer that works at the TCP and UDP level. Extremely fast, and it can have a fixed IP address."),
     "VPC Flow Logs": (r"Flow Logs",
-        "A record of which traffic was allowed and which was rejected in your VPC. The first place to look when a connection is being blocked and you do not know why."),
+        "A record of which traffic was allowed and which was rejected at the "
+        "network interfaces in your VPC: addresses, ports, bytes, accept or "
+        "reject. The first place to look when a connection is being blocked "
+        "and you do not know why. They are written to CloudWatch Logs or to "
+        "S3, and from CloudWatch Logs a subscription filter can hand them to "
+        "Data Firehose, which delivers them to OpenSearch for searching. They "
+        "are not API calls, so CloudTrail has nothing to do with them."),
+    "IPv4 and IPv6": (r"IPv6|IPv4|dual-stack|egress-only|NAT64|DNS64",
+        "Two kinds of address, and the gateways are not the same for both. "
+        "Every IPv6 address is public, so there is no NAT for IPv6: a private "
+        "subnet that must reach out over IPv6 uses an egress-only internet "
+        "gateway, which lets traffic out and never in. A NAT gateway is for "
+        "IPv4; it can also do NAT64 so an IPv6-only host can reach an IPv4 "
+        "service. Gateway endpoints and Elastic IPs are IPv4 only. The "
+        "internet gateway, both load balancers, VPC peering, transit gateways "
+        "and Direct Connect carry both. Security group and network ACL rules "
+        "are written per family: allowing 0.0.0.0/0 does nothing for IPv6, "
+        "which needs ::/0. A question that says IPv6 and offers a NAT gateway "
+        "is pointing at the egress-only internet gateway instead."),
     "Elastic IP": (r"[Ee]lastic IP",
         "A fixed public address you own and can move between instances."),
     "CIDR block": (r"\bCIDR\b",
@@ -234,7 +472,15 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "AWS Control Tower": (r"Control Tower",
         "Sets up new AWS accounts with guard rails and logging already in place."),
     "Amazon Cognito": (r"Cognito",
-        "Handles sign-up and sign-in for your application's users, and can swap a social or corporate login for temporary AWS credentials."),
+        "Sign-up and sign-in for the users of your own application, as opposed "
+        "to people using AWS itself, who are IAM or Identity Center. A user pool "
+        "is the login: it holds users, or federates with Google, Facebook, "
+        "Active Directory Federation Services or any SAML or OpenID provider, "
+        "and an Application Load Balancer can demand that login before it "
+        "forwards a request. An identity pool is the other half: it swaps a "
+        "login for temporary AWS credentials, so an app can reach S3 or "
+        "DynamoDB directly. Directory Service and AD Connector are not a "
+        "substitute: they join servers and desktops to a domain."),
     "AWS KMS": (r"\bKMS\b|Key Management Service|customer master key|\bCMK\b",
         "Creates and controls encryption keys, and is wired into nearly every AWS service. It encrypts up to 4 KB directly; anything larger uses a data key it hands out."),
     "AWS CloudHSM": (r"CloudHSM",
@@ -247,18 +493,69 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "A free place to keep configuration values, with an encrypted option. No built-in rotation."),
     "AWS Certificate Manager (ACM)": (r"\bACM\b|Certificate Manager",
         "Issues and renews TLS certificates at no cost. A certificate for CloudFront must be created in the us-east-1 region."),
+    "WAF IP set": (r"IP set|IP rule set|IP match",
+        "A list of addresses and ranges that a WAF rule either allows or "
+        "refuses, holding up to ten thousand each, and a web ACL can use "
+        "several. That is what makes it the answer when a question has "
+        "thousands of addresses to let through: a network ACL stops at about "
+        "twenty rules and forty at the very most, and a security group at "
+        "sixty, so neither can hold a list that long. Changing the list is an "
+        "edit to the set, with nothing redeployed."),
+    "AWS Network Firewall": (r"Network Firewall",
+        "A managed firewall for the traffic going in and out of a VPC, placed "
+        "in its own subnet so that traffic passes through it. Its rules are "
+        "about addresses, ports, protocols and domain names, and it can "
+        "inspect packets for known bad patterns. It is not a web application "
+        "firewall: it does not read a web request's headers, paths or form "
+        "fields, and it does not attach to a load balancer. A question that "
+        "wants to block web requests by rule wants AWS WAF on an ALB, CloudFront "
+        "or API Gateway. Network Firewall is the answer when the question is "
+        "about filtering or inspecting all of a VPC's traffic, or traffic "
+        "between VPCs and the internet, by where it is going."),
     "AWS WAF": (r"\bWAF\b",
-        "A firewall for web traffic. It blocks things like SQL injection and cross-site scripting, and can rate-limit a single address."),
+        "A firewall for web traffic, attached to a load balancer, a CloudFront "
+        "distribution or an API, and checked at the edge before the request "
+        "reaches anything of yours. It blocks things like SQL injection and "
+        "cross-site scripting, can rate-limit a single address, and can allow "
+        "or refuse by IP address using an IP set."),
     "AWS Shield": (r"\bShield\b",
         "Protection against traffic floods. Standard is on for everyone at no charge. Advanced is paid, and is the one the exam means when it talks about a response team, cost protection for the bill a flood runs up, or protection beyond the network layer."),
     "AWS Shield Advanced": (r"Shield Advanced",
         "The paid tier. Adds a response team you can call, refunds the scaling charges an attack causes, and covers application-layer floods alongside AWS WAF. The answer when a question mentions a dedicated team, a refund, or a service-level guarantee during an attack."),
+    "Shield Advanced protection group": (r"protection group|aggregation type|Select (Sum|Mean|Max) as",
+        "A set of resources that Shield Advanced watches as one, so an attack "
+        "spread thinly across several of them still shows up, and so a planned "
+        "shift of traffic between them does not look like one. The aggregation "
+        "type says how their traffic is added up to make the baseline, and "
+        "picking it is the whole question. Sum adds every resource's traffic "
+        "together: for resources that share a load between them, such as the "
+        "old and new load balancer in a blue/green deployment, because the "
+        "total stays the same while the traffic moves across. Mean takes the "
+        "average: for resources that each carry about the same traffic, like "
+        "a fleet of similar instances, where one of them jumping is what you "
+        "want to notice. Max takes the busiest one as the measure: for "
+        "resources that differ a lot, such as a CloudFront distribution and "
+        "the origin behind it. Mean sounds the most reasonable and is the trap "
+        "for a blue/green shift: as traffic leaves the old balancer and lands "
+        "on the new one, the average barely moves and the new one's rise "
+        "reads as an attack. Sum is the one that sees the pair as one."),
     "Amazon GuardDuty": (r"GuardDuty",
         "Watches your logs for signs of compromise, such as unusual API calls or crypto-mining. It detects; it does not scan software."),
     "Amazon Inspector": (r"Inspector",
         "Scans your EC2 instances, container images and Lambda functions for known software vulnerabilities."),
-    "Amazon Macie": (r"Macie",
-        "Looks through S3 for sensitive data such as personal details or card numbers."),
+    "Amazon Macie": (r"Macie|sensitive data discovery",
+        "Looks through S3 for sensitive data: personal details, card numbers, "
+        "credentials. Two ways to run it. Automated sensitive data discovery "
+        "watches every bucket continuously and samples objects as they arrive, "
+        "which is the answer when a question says monitor continuously or "
+        "datasets keep landing. A classification job scans named buckets once "
+        "or on a schedule. Either way Macie only finds and reports: each "
+        "finding goes to EventBridge and Security Hub, and anything that must "
+        "happen next, such as removing or masking the data, is an EventBridge "
+        "rule that invokes a Lambda function. To hand one application a copy "
+        "with the personal data masked, with no second object, that is S3 "
+        "Object Lambda, not Macie. Macie is S3 only; it does not look inside "
+        "databases or instances."),
     "AWS Security Hub": (r"Security Hub",
         "Collects findings from GuardDuty, Inspector, Macie, Config and others into one list, and scores you against standards."),
     "Amazon Detective": (r"Detective",
@@ -282,9 +579,19 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Dead-letter queue": (r"dead-letter|dead letter",
         "Where a message goes after failing to be processed a set number of times, so one bad message does not block the queue."),
     "Amazon SNS": (r"\bSNS\b|Simple Notification Service",
-        "Publishes one message to many subscribers at once: queues, functions, email addresses, phone numbers or web endpoints."),
+        "Publishes one message to many subscribers at once: queues, functions, email addresses, phone numbers or web endpoints. It pushes and keeps nothing, so a subscriber that is down misses the message unless an SQS queue sits in front of it. Each subscriber can filter on the message's attributes."),
+    "SNS fan-out to SQS": (r"fan[- ]?out",
+        "One SNS topic with an SQS queue subscribed for each downstream system. Every system gets its own copy, and each works through its queue at its own pace without losing anything. The usual answer when a question wants both 'many receivers' and 'nothing lost'."),
     "Amazon EventBridge": (r"EventBridge|CloudWatch Events",
-        "Routes events between services based on what is inside the event, and can run things on a schedule. Also receives events from outside SaaS products."),
+        "An event bus that routes events by rules matching any field inside the event. AWS services already send their events to it, and SaaS partners such as Zendesk or Datadog can too. It can send events to another account or Region, and archive and replay them. Like SNS it pushes rather than holds, so slow workers need an SQS queue behind it. It cannot send email itself; that goes through SNS. Events arrive on one of three kinds of bus: the default bus for AWS services' own events, a custom bus for your own, and a partner bus for a SaaS product's."),
+    "EventBridge default event bus": (r"default (?:event )?bus",
+        "The bus every AWS account already has. AWS services send their state-change events to it, such as an EC2 instance stopping, a GuardDuty finding or an S3 event once switched on, with nothing to set up. AWS management events arrive at no charge. Your own application's events belong on a custom bus instead."),
+    "EventBridge custom event bus": (r"custom (?:event )?bus",
+        "A bus you create for your own application's events, kept apart from the AWS events on the default bus. Another account can be allowed to send to it with a resource policy, which is how one central bus collects events from many accounts. Since September 2026 AWS offers two kinds: the enhanced custom bus, for organisation-wide use, shared across accounts, with more than 10,000 subscriptions, ordered delivery and built-in storage, billed by data volume; and the custom bus (classic), the original from 2019, billed per event in 64 KB chunks. The SAA-C03 exam predates the split, so on the exam a custom bus is simply 'your own events'."),
+    "EventBridge partner event bus": (r"partner (?:event )?(?:bus|source)|SaaS partner",
+        "A bus that receives events from a third-party SaaS product, such as Zendesk, Datadog, Shopify or Auth0. The partner offers an event source to your account; you accept it and it becomes a partner event bus, with rules on it like any other. The answer when a question says events from another company's software must start something in AWS with no code of your own polling for them."),
+    "EventBridge Scheduler": (r"EventBridge Scheduler|cron expression|rate expression|scheduled (?:rule|event)",
+        "Runs a target, such as a Lambda function, on a cron or a fixed rate, or once at a set time. What took the place of scheduled CloudWatch Events rules."),
     "AWS Step Functions": (r"Step Functions",
         "Strings several steps into one workflow, handling the retries, branches and waiting for you, so your code does not have to."),
     "Amazon MQ": (r"Amazon MQ",
@@ -297,6 +604,35 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Delivers a stream straight into S3, Redshift, OpenSearch or Splunk with no code. It buffers for about a minute, so it is near-real-time rather than instant."),
     "Amazon API Gateway": (r"API Gateway",
         "A managed front door for an API. It handles authentication, throttling and caching in front of Lambda or any other backend."),
+    "API Gateway HTTP API": (r"HTTP API",
+        "The newer, plainer kind of API Gateway API: cheaper, quicker, and the "
+        "only one that can check a JWT by itself. Point it at your identity "
+        "provider and it validates the signature and the claims with no code of "
+        "yours in the way. It gives up the extras to do it: no API keys or "
+        "usage plans, no request validation, no caching, no AWS WAF, no "
+        "resource policies and no private endpoint."),
+    "API Gateway REST API": (r"REST API",
+        "The full-featured kind of API Gateway API. API keys and usage plans, "
+        "request validation, caching, AWS WAF, resource policies and a private "
+        "endpoint inside a VPC all belong to this one. For tokens it has a "
+        "Cognito user pool authorizer or a Lambda authorizer, but no built-in "
+        "JWT check, so a token from somebody else's identity provider means "
+        "writing a Lambda authorizer."),
+    "JWT": (r"\bJWT\b|JSON Web Token|bearer token",
+        "A signed ticket the caller carries, saying who they are and what they "
+        "may do. Whatever receives it checks the signature and reads the claims "
+        "inside, rather than calling the identity provider on every request. An "
+        "HTTP API can do that check on its own; a REST API needs a Lambda "
+        "authorizer unless the token came from a Cognito user pool."),
+    "Lambda authorizer": (r"Lambda authorizer|custom authorizer",
+        "A function API Gateway calls to decide whether a request may go on. "
+        "The answer whenever the checking is yours to define, or the token is "
+        "of a kind the API cannot check for itself. The verdict is cached, so "
+        "it is not run on every single call."),
+    "API Gateway WebSocket API": (r"WebSocket API",
+        "A connection the client and the server both keep open, so the server "
+        "can push without being asked. For chat, live scores and anything else "
+        "where the news comes from the server's side."),
     "AWS AppSync": (r"AppSync",
         "A managed GraphQL API, with offline syncing for mobile applications."),
 
@@ -313,34 +649,78 @@ GLOSSARY: dict[str, tuple[str, str]] = {
     "Amazon OpenSearch Service": (r"OpenSearch|Elasticsearch",
         "Full-text search and log analytics, with dashboards."),
     "Amazon QuickSight": (r"QuickSight",
-        "Business intelligence dashboards for non-technical readers."),
+        "Business intelligence dashboards for non-technical readers. It draws "
+        "charts and reports from data held elsewhere: Athena, Redshift, RDS, "
+        "Timestream, S3. It is the answer to 'visualise' or 'visual reports'. "
+        "Athena is a query tool, not a drawing one, so an option that visualises "
+        "with Athena has the two the wrong way round."),
+    "Amazon SageMaker": (r"SageMaker",
+        "The AWS service for machine learning: building, training and running "
+        "models, with notebooks, managed training jobs and hosted endpoints to "
+        "call a model from. When a question says machine learning, predict, or "
+        "train a model, and the options differ in which service does that part, "
+        "SageMaker is the one built for it. It reads its data from S3 and from "
+        "databases it is given permission to, which is why an option pairs it "
+        "with a role or a grant rather than a copy of the data."),
 
     # ---------------- management ----------------
     "Amazon CloudWatch": (r"CloudWatch",
         "Collects metrics, logs and alarms, and tells you how things are performing. Memory and disk space are not collected unless you install the agent."),
+    "CloudWatch Container Insights": (r"Container Insights",
+        "CloudWatch's ready-made monitoring for containers on EKS, ECS and Kubernetes on EC2. It collects, aggregates and summarises metrics and logs from the cluster, its nodes, pods and services, and shows them on built-in dashboards. On EKS it is installed as an add-on that runs the CloudWatch agent and Fluent Bit on every node. The answer when a question wants metrics and logs from containers or microservices in one place, most operationally efficiently. The plain CloudWatch agent collects from a server, but does not understand pods and services or summarise them, so it is more to build. CloudTrail records API calls, not application logs."),
+    "EKS logging": (r"(?:EKS|Kubernetes)[\s\S]{0,300}?\blogs?\b|control plane log|Fluent ?Bit|Fluentd",
+        "Logs from an EKS cluster come from two places. The control plane (the part AWS runs: the API server, audit, authenticator, controller manager and scheduler) sends its logs to CloudWatch Logs once you switch each type on, in the console or with aws eks update-cluster-config --logging; they are off by default and nothing is installed. Node and application logs come from the cluster itself: Fluent Bit (or the older Fluentd) runs on every node as a DaemonSet (one copy per node) and sends container logs to CloudWatch Logs. CloudWatch Container Insights sets that up for you and adds metrics and dashboards, which makes it the least-effort answer for 'collect, aggregate and summarise metrics and logs'."),
     "AWS CloudTrail": (r"CloudTrail",
         "Records who called which AWS API, when, and from where. The audit trail, as opposed to CloudWatch's performance view."),
     "AWS Config": (r"AWS Config",
-        "Records how your resources were configured over time and checks them against rules, so you can see what changed and whether it is compliant."),
+        "Records how your resources were configured over time and checks them "
+        "against rules, so you can see what changed and whether it is allowed. "
+        "It is the answer whenever a question asks whether something is set up "
+        "the way the policy says, and whether somebody should be told when it "
+        "is not. A custom rule is a function of yours that returns compliant or "
+        "not, for the policies no built-in rule covers."),
     "AWS CloudFormation": (r"CloudFormation",
         "Describes your infrastructure in a template file so the same stack can be built again identically."),
     "AWS Systems Manager": (r"Systems Manager|\bSSM\b",
         "A toolbox for running and maintaining instances: shell access without opening ports, patching, running commands across a fleet, and storing parameters."),
+    "Systems Manager State Manager": (r"State Manager",
+        "Keeps managed servers in a set configuration, such as software installed or settings applied, by re-applying it on a schedule. An association can also run one of AWS's ready-made runbooks, such as AWS-StartRdsInstance and AWS-StopRdsInstance, on a cron against resources picked by tag, with no code. On the exam, though, State Manager is the answer for keeping servers configured, not for a time-of-day schedule; that is EventBridge."),
+    "Starting and stopping on a schedule": (r"business hours|on a schedule|start and stop|stop .{0,30}(?:nights|weekends)",
+        "Run something at set times, such as starting development databases at 8 am and stopping them at 6 pm: an EventBridge schedule (a rule or EventBridge Scheduler, with a cron or rate expression) that invokes a Lambda function, which finds the resources by tag and starts or stops them. A CloudWatch alarm cannot do it, because an alarm fires when a metric crosses a line, never on a clock. Trusted Advisor only reports. Systems Manager State Manager can technically run start and stop runbooks on a cron with no code, so it is a fair argument for least overhead, but the exam's key follows the EventBridge pattern. Pick Systems Manager when the question is about managed servers: patching, settings or running commands."),
     "Session Manager": (r"Session Manager",
         "Gives a shell on an instance with no open inbound port, no SSH key and no bastion host, and records the whole session."),
     "AWS Trusted Advisor": (r"Trusted Advisor",
-        "Checks your account against best practice in five areas: cost, performance, fault tolerance, security and service limits."),
+        "Checks your account against best practice in five areas: cost, performance, fault tolerance, security and service limits. It only reports; it never starts, stops or schedules anything."),
     "AWS Compute Optimizer": (r"Compute Optimizer",
         "Looks at real usage and tells you where an instance or volume is bigger than it needs to be."),
     "AWS Cost Explorer": (r"Cost Explorer",
         "Shows and forecasts your spending, broken down by service, tag or account."),
+    "Budget action": (r"budget action|Budgets action|action in the (alert|budget)|budget.{0,40}\baction\b",
+        "What a budget does when its threshold is passed, rather than only who "
+        "it tells. Three kinds: apply an IAM policy, apply a service control "
+        "policy, or stop EC2 or RDS instances. It can be set to run on its own "
+        "or to wait for someone to approve it. The instances are ones you name "
+        "when you set it up, not every instance in the account."),
+    "Forecasted against actual spend": (r"forecast",
+        "A budget alert can watch what has been spent, or what AWS thinks will "
+        "be spent by the end of the period. Actual fires once the money has "
+        "gone; forecast fires before it does. So a question about stopping "
+        "waste before it happens wants forecast, and a question about not "
+        "acting until it is real wants actual. Forecasting needs some weeks of "
+        "history to go on, so a brand new account has nothing to forecast from."),
     "AWS Budgets": (r"AWS Budgets",
-        "Alerts you when spending or usage passes a threshold you set."),
+        "Watches what an account is spending against a figure you set, and "
+        "tells you when it passes it. It can also do something about it, which "
+        "is the part worth remembering: a budget action can apply an IAM policy "
+        "or a service control policy to take permissions away, or stop EC2 or "
+        "RDS instances you have nominated. Anything that bolts SNS and a Lambda "
+        "function onto a budget to do the same job is doing by hand what it "
+        "already does."),
     "AWS X-Ray": (r"X-Ray",
         "Traces a single request as it passes through several services, so you can see which step is slow or failing."),
     "AWS OpsWorks": (r"OpsWorks",
         "Managed Chef and Puppet servers. The answer only when a team already runs Chef or Puppet and is bringing it with them."),
-    "AWS CLI": (r"AWS CLI|command line interface",
+    "AWS CLI": (r"AWS CLI\b|command line interface",
         "The command line tool for AWS. Worth noting when a question contrasts doing something by script against doing it in the console."),
     "AWS Service Catalog": (r"Service Catalog",
         "A list of approved infrastructure templates teams can deploy for themselves without raising a ticket."),
@@ -378,6 +758,51 @@ def compile_glossary():
     items.sort(key=lambda t: -len(t[0]))
     return items
 
+
+
+# --------------------------------------------------------------------------
+# Patterns that cannot match, caught here rather than noticed later.
+#
+# A pattern written without the r prefix turns \b into a backspace character.
+# It still compiles, still runs, and matches nothing, so the only sign is a
+# term that quietly never appears. That has happened twice: once to a term for
+# an exam option worth three questions, and once to a pair of service names.
+# Both were found by counting matches by hand, which is luck rather than a
+# process, so the same three checks the diagram library makes are made here.
+# --------------------------------------------------------------------------
+def _audit_patterns() -> None:
+    control, doubled, broken, empty = [], [], [], []
+    for name, (pattern, what) in GLOSSARY.items():
+        if any(ord(c) < 32 for c in pattern + what):
+            control.append(name)
+        if "\\\\" in pattern:
+            doubled.append(name)
+        if not pattern.strip() or not what.strip():
+            empty.append(name)
+            continue
+        try:
+            re.compile(pattern)
+        except re.error as e:
+            broken.append(f"{name} ({e})")
+
+    trouble = []
+    if control:
+        trouble.append(
+            "a control character, which means a missing r prefix on the "
+            "string: " + ", ".join(control))
+    if doubled:
+        trouble.append(
+            "a doubled backslash, which matches a real backslash and so "
+            "matches nothing: " + ", ".join(doubled))
+    if broken:
+        trouble.append("a pattern that will not compile: " + ", ".join(broken))
+    if empty:
+        trouble.append("nothing to match, or nothing to say: " + ", ".join(empty))
+    if trouble:
+        raise AssertionError("glossary: " + "; ".join(trouble))
+
+
+_audit_patterns()
 
 if __name__ == "__main__":
     print(f"{len(GLOSSARY)} terms defined")

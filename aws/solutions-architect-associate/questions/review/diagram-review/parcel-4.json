@@ -1,0 +1,693 @@
+[
+ {
+  "diagram": {
+   "id": "alb-waf",
+   "title": "A firewall in front of the load balancer",
+   "when": [
+    "ALB",
+    "WAF"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "w",
+     "AWS WAF",
+     "edge"
+    ],
+    [
+     "alb",
+     "Application Load Balancer",
+     "edge"
+    ],
+    [
+     "app",
+     "Application",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "w",
+     ""
+    ],
+    [
+     "w",
+     "alb",
+     "clean traffic"
+    ],
+    [
+     "alb",
+     "app",
+     ""
+    ]
+   ],
+   "note": "WAF reads the request itself, so it can stop SQL injection and cross-site scripting, and rate-limit one address."
+  },
+  "matches_in_total": 12,
+  "sample": [
+   {
+    "id": "et-213",
+    "question": "A company is developing a new mobile app. The company must implement proper traffic filtering to protect its Application Load Balancer (ALB) against common application-level attacks, such as cross-site scripting or SQL injection. The company has minimal infrastructure and operational staff. The company needs to reduce its share of the responsibility in managing, updating, and securing servers for its AWS environment. What should a solutions architect recommend to meet these requirements?",
+    "answer": "A. Configure AWS WAF rules and associate them with the ALB."
+   },
+   {
+    "id": "ce-233",
+    "question": "A company is building a web application. The company needs a load balancing solution that supports HTTPS header-based routing. The company's security team also requires a rules-based method of blocking specific incoming requests to decrease the effects of malicious activity. Which solution will meet these requirements?",
+    "answer": "B. Create an Application Load Balancer (ALB). Integrate the ALB with AWS WAF. Configure the security team's required rules."
+   },
+   {
+    "id": "ce-20",
+    "question": "A company has an application that serves clients that are deployed in more than 20.000 retail storefront locations around the world. The application consists of backend web services that are exposed over HTTPS on port 443 The application is hosted on Amazon EC2 Instances behind an Application Load Balancer (ALB). The retail locations communicate with the web application over the public internet. The company allows each retail location to register the IP address that the retail location has been allocated by its local ISP. The company's security team recommends to increase the security of the application endpoint by restricting access to only the IP addresses registered by the retail location",
+    "answer": "A. Associate an AWS WAF web ACL with the ALB Use IP rule sets on the ALB to filter traffic Update the IP addresses in the rule to Include the registered IP addresses"
+   },
+   {
+    "id": "ce-460",
+    "question": "A solutions architect is designing a web application that will run on Amazon EC2 instances behind an Application Load Balancer (ALB). The company strictly requires that the application be resilient against malicious internet activity and attacks, and protect against new common vulnerabilities and exposures. What should the solutions architect recommend?",
+    "answer": "B. Deploy an appropriate managed rule for AWS WAF and associate it with the ALB."
+   },
+   {
+    "id": "ce-90",
+    "question": "A company hosts an application on Amazon EC2 instances that are part of a target group behind an Application Load Balancer (ALB). The company has attached a security group to the ALB. During a recent review of application logs, the company found many unauthorized login attempts from IP addresses that belong to countries outside the company's normal user base. The company wants to allow traffic only from the United States and Australia.",
+    "answer": "B. Create a geographic match rule in AWS WAF. Attach the rule to the ALB."
+   },
+   {
+    "id": "ce-192",
+    "question": "A developer creates a web application that runs on Amazon EC2 instances behind an Application Load Balancer (ALB). The instances are in an Auto Scaling group. The developer reviews the deployment and notices some suspicious traffic to the application. The traffic is malicious and is coming from a single public IP address. A solutions architect must block the public IP address. Which solution will meet this requirement?",
+    "answer": "D. Add the malicious IP address to an IP set in AWS WAF. Create a web ACL. Include an IP set rule with the action set to BLOCK. Associate the web ACL with the ALB."
+   },
+   {
+    "id": "et-437",
+    "question": "A company operates an ecommerce website on Amazon EC2 instances behind an Application Load Balancer (ALB) in an Auto Scaling group. The site is experiencing performance issues related to a high request rate from illegitimate external systems with changing IP addresses. The security team is worried about potential DDoS attacks against the website. The company must block the illegitimate incoming requests in a way that has a minimal impact on legitimate users. What should a solutions architect recommend?",
+    "answer": "B. Deploy AWS WAF, associate it with the ALB, and configure a rate-limiting rule."
+   },
+   {
+    "id": "et-340",
+    "question": "A media company hosts its website on AWS. The website application’s architecture includes a fleet of Amazon EC2 instances behind an Application Load Balancer (ALB) and a database that is hosted on Amazon Aurora. The company’s cybersecurity team reports that the application is vulnerable to SQL injection. How should the company resolve this issue?",
+    "answer": "A. Use AWS WAF in front of the ALB. Associate the appropriate web ACLs with AWS WAF."
+   },
+   {
+    "id": "ce-99",
+    "question": "A finance company has a web application that generates credit reports for customers. The company hosts the frontend of the web application on a fleet of Amazon EC2 instances that is associated with an Application Load Balancer (ALB). The application generates reports by running queries on an Amazon RDS for SQL Server database. The company recently discovered that malicious traffic from around the world is abusing the application by submitting unnecessary requests. The malicious traffic is consuming significant compute resources. The company needs to address the malicious traffic. Which solution will meet this requirement?",
+    "answer": "B. Use AWS WAF to create a web ACL. Associate the web ACL with the ALB. Use the AWS WAF Bot Control managed rule feature."
+   },
+   {
+    "id": "ce-393",
+    "question": "A company is moving a legacy data processing application to the AWS Cloud. The application needs to run on Amazon EC2 instances behind an Application Load Balancer (ALB). The application must handle incoming traffic spikes and continue to work in the event of an application fault in one Availability Zone. The company requires that a Web Application Firewall (WAF) must be attached to the ALB. Which solution will meet these requirements?",
+    "answer": "B. Deploy the application to EC2 instances in an Auto Scaling group across multiple Availability Zones. Use an ALB to distribute traffic. Use AWS WAF."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "rds-multiaz",
+   "title": "A database that survives losing a zone",
+   "when": [
+    "RDS",
+    "MultiAZ"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "app",
+     "Application",
+     "compute"
+    ],
+    [
+     "p",
+     "Primary, zone A",
+     "store"
+    ],
+    [
+     "s",
+     "Standby, zone B",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "p",
+     "one endpoint"
+    ],
+    [
+     "p",
+     "s",
+     "synchronous copy"
+    ]
+   ],
+   "note": "The standby takes nothing from you and serves no reads. It exists to take over, and the endpoint stays the same when it does."
+  },
+  "matches_in_total": 20,
+  "sample": [
+   {
+    "id": "ce-411",
+    "question": "An ecommerce company is preparing to deploy a web application on AWS to ensure continuous service for customers. The architecture includes a web application that the company hosts on Amazon EC2 instances, a relational database in Amazon RDS, and static assets that the company stores in Amazon S3. The company wants to design a robust and resilient architecture for the application.",
+    "answer": "B. Deploy Amazon EC2 instances in an Auto Scaling group across multiple Availability Zones. Deploy a Multi-AZ RDS DB instance. Use Amazon CloudFront to distribute static assets."
+   },
+   {
+    "id": "dt-401",
+    "question": "You are running a successful multitier web application on AWS and your marketing department has asked you to add a reporting tier to the application. The reporting tier will aggregate and publish status reports every 30 minutes from user-generated information that is being stored in your web application s database. You are currently running a Multi-AZ RDS MySQL instance for the database tier. You also have implemented Elasticache as a database caching layer between the application tier and database tier. Please select the answer that will allow you to successful ly implement the reporting tier with as little impact as possible to your database.",
+    "answer": "C. Launch a RDS Read Replica connected to your Multi-AZ master database and generate reports by querying the Read Replica."
+   },
+   {
+    "id": "et-236",
+    "question": "A company has a three-tier application for image sharing. The application uses an Amazon EC2 instance for the front-end layer, another EC2 instance for the application layer, and a third EC2 instance for a MySQL database. A solutions architect must design a scalable and highly available solution that requires the least amount of change to the application. Which solution meets these requirements?",
+    "answer": "D. Use load-balanced Multi-AZ AWS Elastic Beanstalk environments for the front-end layer and the application layer. Move the database to an Amazon RDS Multi-AZ DB instance. Use Amazon S3 to store and serve users’ images."
+   },
+   {
+    "id": "ce-439",
+    "question": "A company is running a business-critical web application on Amazon EC2 instances behind an Application Load Balancer. The EC2 instances are in an Auto Scaling group. The application uses an Amazon Aurora PostgreSQL database that is deployed in a single Availability Zone. The company wants the application to be highly available with minimum downtime and minimum loss of data. Which solution will meet these requirements with the LEAST operational effort?",
+    "answer": "B. Configure the Auto Scaling group to use multiple Availability Zones. Configure the database as Multi-AZ. Configure an Amazon RDS Proxy instance for the database."
+   },
+   {
+    "id": "et-353",
+    "question": "A company hosts a three-tier web application on Amazon EC2 instances in a single Availability Zone. The web application uses a self-managed MySQL database that is hosted on an EC2 instance to store data in an Amazon Elastic Block Store (Amazon EBS) volume. The MySQL database currently uses a 1 TB Provisioned IOPS SSD (io2) EBS volume. The company expects traffic of 1,000 IOPS for both reads and writes at peak traffic. The company wants to minimize any disruptions, stabilize performance, and reduce costs while retaining the capacity for double the IOPS. The company wants to move the database tier to a fully managed solution that is highly available and fault tolerant. Which solution will meet",
+    "answer": "B. Use a Multi-AZ deployment of an Amazon RDS for MySQL DB instance with a General Purpose SSD (gp2) EBS volume."
+   },
+   {
+    "id": "ce-244",
+    "question": "A company is migrating its workloads to AWS. The company has sensitive and critical data in on- premises relational databases that run on SQL Server instances. The company wants to use the AWS Cloud to increase security and reduce operational overhead for the databases. Which solution will meet these requirements?",
+    "answer": "B. Migrate the databases to a Multi-AZ Amazon RDS for SQL Server DB instance. Use an AWS Key Management Service (AWS KMS) AWS managed key for encryption."
+   },
+   {
+    "id": "dt-753",
+    "question": "A company is setting up an application to use an Amazon RDS MySQL DB instance. The database must be architected for high availability across Availability Zones and AWS Regions with minimal downtime. How should a solutions architect meet this requirement?",
+    "answer": "B. Set up an RDS MySQL Multi-AZ DB instance. Configure a read replica in a different Region."
+   },
+   {
+    "id": "et-537",
+    "question": "A company runs a three-tier web application in the AWS Cloud that operates across three Availability Zones. The application architecture has an Application Load Balancer, an Amazon EC2 web server that hosts user session states, and a MySQL database that runs on an EC2 instance. The company expects sudden increases in application traffic. The company wants to be able to scale to meet future application capacity demands and to ensure high availability across all three Availability Zones. Which solution will meet these requirements?",
+    "answer": "A. Migrate the MySQL database to Amazon RDS for MySQL with a Multi-AZ DB cluster deployment. Use Amazon ElastiCache for Redis with high availability to store session data and to cache reads. Migrate the web server to an Auto Scaling group that is in three Availability Zones."
+   },
+   {
+    "id": "ce-432",
+    "question": "An ecommerce company is redesigning a web application to run on the AWS Cloud. The application needs to store static website content and must use a Microsoft SQL Server database to store customer data. The company needs to deploy the application in a resilient way across multiple Availability Zones. Which solution will meet these requirements?",
+    "answer": "B. Use an Amazon S3 bucket to store static content. Create an Amazon RDS for SQL Server Multi-AZ deployment for the database."
+   },
+   {
+    "id": "dt-190",
+    "question": "A 3-tier e-commerce web application is current deployed on-premises and will be migrated to AWS for greater scalability and elasticity The web server currently shares read-only data using a network distributed file system The app server tier uses a clustering mechanism for discovery and shared session state that depends on I P multicast The database tier uses shared-storage clustering to provide database fail over capability, and uses several read slaves for scaling Data on all servers and the distributed file system directory is backed up weekly to off-site tapes. Which AWS storage and database architecture meets the requirements of the application?",
+    "answer": "C. Web servers: store read-only data in S3, and copy from S3 to root volume at boot time. App servers: share state using a combination of DynamoDB and IP unicast. Database: use RDS with multi-AZ deployment and one or more Read Replicas. Backup: web and app servers backed up weekly via AMIs, database backed up via DB snapshots."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "kms-envelope",
+   "title": "Data encrypted with a key that is itself encrypted",
+   "when": [
+    "KMS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "svc",
+     "S3, EBS, RDS",
+     "store"
+    ],
+    [
+     "dk",
+     "Data key",
+     "net"
+    ],
+    [
+     "kms",
+     "KMS key",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "svc",
+     "dk",
+     "encrypts the data"
+    ],
+    [
+     "dk",
+     "kms",
+     "and is itself encrypted by"
+    ]
+   ],
+   "note": "The key that encrypts your data is kept beside it, encrypted by a key that never leaves KMS. Rotation changes the outer key, so nothing has to be written again."
+  },
+  "matches_in_total": 39,
+  "sample": [
+   {
+    "id": "ce-300",
+    "question": "The company must encrypt finance reports that are stored in an Amazon S3 bucket. An AWS Lambda function must be able to decrypt the reports dynamically. An IAM group that the company's security administrators use must manage the encryption keys. The IAM group must manage key rotation, deletion, and creation. The company must grant access to the keys according to the principle of least privilege. Which solution will meet these requirements?",
+    "answer": "B. Use customer managed AWS KMS keys to encrypt the reports in the S3 bucket. Use IAM policies to grant the Lambda function execution role permissions to decrypt the files. Use IAM policies to grant the security administrator IAM group permissions to perform only kms:CreateKey, kms:DeleteKey, and kms:RotateKey actions on KMS keys."
+   },
+   {
+    "id": "ce-225",
+    "question": "A home security company is expanding its business globally. The company needs to encrypt customer data. The company does not want to manage its own keys. The company needs the keys to be usable in multiple AWS Regions and needs to control access to the keys. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use AWS Key Management Service (AWS KMS) to create multi-Region keys. Apply tags to identify each key. Use attribute-based access control (ABAC) condition keys to control access to the keys."
+   },
+   {
+    "id": "et-645",
+    "question": "A company is required to use cryptographic keys in its on-premises key manager. The key manager is outside of the AWS Cloud because of regulatory and compliance requirements. The company wants to manage encryption and decryption by using cryptographic keys that are retained outside of the AWS Cloud and that support a variety of external key managers from different vendors. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Use an AWS Key Management Service (AWS KMS) external key store backed by an external key manager."
+   },
+   {
+    "id": "et-564",
+    "question": "A company is building an ecommerce application and needs to store sensitive customer information. The company needs to give customers the ability to complete purchase transactions on the website. The company also needs to ensure that sensitive customer data is protected, even from database administrators. Which solution meets these requirements?",
+    "answer": "B. Store sensitive data in Amazon RDS for MySQL. Use AWS Key Management Service (AWS KMS) client-side encryption to encrypt the data."
+   },
+   {
+    "id": "et-336",
+    "question": "A company hosts a multi-tier web application that uses an Amazon Aurora MySQL DB cluster for storage. The application tier is hosted on Amazon EC2 instances. The company’s IT security guidelines mandate that the database credentials be encrypted and rotated every 14 days. What should a solutions architect do to meet this requirement with the LEAST operational effort?",
+    "answer": "A. Create a new AWS Key Management Service (AWS KMS) encryption key. Use AWS Secrets Manager to create a new secret that uses the KMS key with the appropriate credentials. Associate the secret with the Aurora DB cluster. Configure a custom rotation period of 14 days."
+   },
+   {
+    "id": "ce-177",
+    "question": "A solutions architect is storing sensitive data generated by an application in Amazon S3. The solutions architect wants to encrypt the data at rest. A company policy requires an audit trail of when the AWS KMS key was used and by whom. Which encryption option will meet these requirements?",
+    "answer": "B. Server-side encryption with AWS KMS managed keys (SSE-KMS)"
+   },
+   {
+    "id": "et-330",
+    "question": "A company is planning to store data on Amazon RDS DB instances. The company must encrypt the data at rest. What should a solutions architect do to meet this requirement?",
+    "answer": "A. Create a key in AWS Key Management Service (AWS KMS). Enable encryption for the DB instances."
+   },
+   {
+    "id": "ce-221",
+    "question": "A home security company is expanding globally and needs to encrypt customer data. The company does not want to manage encryption keys. The keys must be usable in multiple AWS Regions, and access to the keys must be controlled. Which solution meets these requirements with the least operational overhead?",
+    "answer": "A. Use AWS KMS multi-Region keys. Apply tags and use ABAC condition keys for access control."
+   },
+   {
+    "id": "et-550",
+    "question": "A company is using AWS Key Management Service (AWS KMS) keys to encrypt AWS Lambda environment variables. A solutions architect needs to ensure that the required permissions are in place to decrypt and use the environment variables. Which steps must the solutions architect take to implement the correct permissions? (Choose two.)",
+    "answer": "B. Add AWS KMS permissions in the Lambda execution role."
+   },
+   {
+    "id": "ce-244",
+    "question": "A company is migrating its workloads to AWS. The company has sensitive and critical data in on- premises relational databases that run on SQL Server instances. The company wants to use the AWS Cloud to increase security and reduce operational overhead for the databases. Which solution will meet these requirements?",
+    "answer": "B. Migrate the databases to a Multi-AZ Amazon RDS for SQL Server DB instance. Use an AWS Key Management Service (AWS KMS) AWS managed key for encryption."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "cw-alarm-action",
+   "title": "A measurement that sets something off",
+   "when": null,
+   "words": "alarm|CloudWatch metric|custom metric",
+   "nodes": [
+    [
+     "src",
+     "What is being watched",
+     "compute"
+    ],
+    [
+     "cw",
+     "CloudWatch metric",
+     "store"
+    ],
+    [
+     "al",
+     "Alarm",
+     "net"
+    ],
+    [
+     "act",
+     "Notify or scale",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "src",
+     "cw",
+     "sends the number"
+    ],
+    [
+     "cw",
+     "al",
+     "crosses the line"
+    ],
+    [
+     "al",
+     "act",
+     "does something"
+    ]
+   ],
+   "note": "Memory used and disk space left are not there until the agent is installed; processor use and network are. An alarm can notify, scale a group, or stop or restart an instance."
+  },
+  "matches_in_total": 11,
+  "sample": [
+   {
+    "id": "ce-632",
+    "question": "A company runs game applications on AWS. The company needs to collect, visualize, and analyze telemetry data from the company's game servers. The company wants to gain insights into the behavior, performance, and health of game servers in near real time. Which solution will meet these requirements?",
+    "answer": "A. Use Amazon Kinesis Data Streams to collect telemetry data. Use Amazon Managed Service for Apache Flink to process the data in near real time and publish custom metrics to Amazon CloudWatch. Use Amazon CloudWatch to create dashboards and alarms from the custom metrics."
+   },
+   {
+    "id": "ce-473",
+    "question": "A company runs a non-production application on an Amazon EC2 instance that has the Amazon CloudWatch agent installed. The CloudWatch agent monitors application processes and sends custom metrics to CloudWatch. The application has a critical bug that causes crashes that require an instance reboot. The company does not currently have the resources to address the bug, but the server needs to remain as operational as possible. The company manually reboots the instance several times each day. The company needs a solution to automate the instance reboots until the company can address the root cause of the bug. Which solution will meet this requirement with the LEAST amount of operational overhead?",
+    "answer": "A. Use a CloudWatch alarm state change event to invoke Amazon EventBridge to run AWS Systems Manager Run Command to restart the instance."
+   },
+   {
+    "id": "et-232",
+    "question": "A company runs demonstration environments for its customers on Amazon EC2 instances. Each environment is isolated in its own VPC. The company’s operations team needs to be notified when RDP or SSH access to an environment has been established.",
+    "answer": "C. Publish VPC flow logs to Amazon CloudWatch Logs. Create the required metric filters. Create a CloudWatch metric alarm with a notification action for when the alarm is in the ALARM state."
+   },
+   {
+    "id": "ce-879",
+    "question": "A company hosts a web application on Amazon EC2 instances that are part of an Auto Scaling group behind an Application Load Balancer (ALB). The application experiences spikes in requests that come through the ALB throughout each day. The traffic spikes last between 15 and 20 minutes. The company needs a solution that uses a standard or custom metric to scale the EC2 instances based on the number of requests that come from the ALB. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "A. Configure an Amazon CloudWatch alarm to monitor the ALB RequestCount metric. Configure a simple scaling policy to scale the EC2 instances in response to the metric."
+   },
+   {
+    "id": "dt-273",
+    "question": "Your firm has uploaded a large amount of aerial image data to S3. In the past, in your on-premises environment, you used a dedicated group of servers to often process this data and used Rabbit MQ, an open source messaging system to get job information to the servers. Once processed, the data would go to tape and be shipped offsite. Your manager told you to stay with the current design, and leverage AWS archival storage and messaging services to minimize cost. Which is correct?",
+    "answer": "D. Use SNS to pass job messages. Use Cloud Watch alarms to terminate spot worker instances when they become idle. Once data is processed, change the storage class of the S3 object to Glacier."
+   },
+   {
+    "id": "ce-507",
+    "question": "A company hosts its multi-tier, public web application in the AWS Cloud. The web application runs on Amazon EC2 instances, and its database runs on Amazon RDS. The company is anticipating a large increase in sales during an upcoming holiday weekend. A solutions architect needs to build asolution to analyze the performance of the web application with a granularity of no more than 2 minutes. What should the solutions architect do to meet this requirement?",
+    "answer": "B. Enable detailed monitoring on all EC2 instances. Use Amazon CloudWatch metrics to perform further analysis."
+   },
+   {
+    "id": "ce-583",
+    "question": "A solutions architect manages a web application for a company. The application runs on Amazon EC2 instances in an Auto Scaling group. The Auto Scaling group configuration includes a minimum of 3 instances and a maximum of 300 instances. The maximum helps handle unpredictable, short-lived traffic surges. The application must scale to meet demand. However, to help manage costs, the number of running instances should not exceed 180 for longer than 1 continuous hour. Which solution will meet these requirements?",
+    "answer": "D. Add a step scaling policy that uses an Amazon CloudWatch alarm. Trigger the alarm when the Auto Scaling group includes more than 180 instances for longer than 1 hour. Configure the alarm to reduce the group capacity to 180 when triggered."
+   },
+   {
+    "id": "dt-412",
+    "question": "A user wants to use an EBS-backed Amazon EC2 instance for a temporary job. Based on the input data, the job is most likely to finish within a week. Which of the following steps should be followed to terminate the instance automatically once the job is finished?",
+    "answer": "C. Configure the Cloud Watch alarm on the instance that should perform the termination action once the instance is idle."
+   },
+   {
+    "id": "et-303",
+    "question": "A company is launching a new application deployed on an Amazon Elastic Container Service (Amazon ECS) cluster and is using the Fargate launch type for ECS tasks. The company is monitoring CPU and memory usage because it is expecting high traffic to the application upon its launch. However, the company wants to reduce costs when utilization decreases. What should a solutions architect recommend?",
+    "answer": "D. Use AWS Application Auto Scaling with target tracking policies to scale when ECS metric breaches trigger an Amazon CloudWatch alarm."
+   },
+   {
+    "id": "ce-613",
+    "question": "A solutions architect creates an Auto Scaling group for a memory-intensive application. The solutions architect wants to scale up and scale down based on memory usage. Which solution will meet this requirement?",
+    "answer": "B. Install and configure the Amazon CloudWatch agent. Create a target tracking policy to scale based on the memusedpercent CloudWatch metric."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "datasync-move",
+   "title": "Moving files in, over the network",
+   "when": null,
+   "words": "DataSync|Transfer Family|\\bSFTP\\b",
+   "nodes": [
+    [
+     "src",
+     "On-premises storage",
+     "actor"
+    ],
+    [
+     "ag",
+     "Agent or endpoint",
+     "net"
+    ],
+    [
+     "dst",
+     "S3, EFS or FSx",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "src",
+     "ag",
+     "reads"
+    ],
+    [
+     "ag",
+     "dst",
+     "writes, and checks it arrived"
+    ]
+   ],
+   "note": "DataSync is for moving a lot of files once or on a schedule. Transfer Family is for carrying on speaking SFTP to something that is now a bucket."
+  },
+  "matches_in_total": 14,
+  "sample": [
+   {
+    "id": "et-482",
+    "question": "A company wants to migrate 100 GB of historical data from an on-premises location to an Amazon S3 bucket. The company has a 100 megabits per second (Mbps) internet connection on premises. The company needs to encrypt the data in transit to the S3 bucket. The company will store new data directly in Amazon S3. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Use AWS DataSync to migrate the data from the on-premises location to an S3 bucket"
+   },
+   {
+    "id": "et-500",
+    "question": "A company has multiple Windows file servers on premises. The company wants to migrate and consolidate its files into an Amazon FSx for Windows File Server file system. File permissions must be preserved to ensure that access rights do not change. Which solutions will meet these requirements? (Choose two.)",
+    "answer": "A. Deploy AWS DataSync agents on premises. Schedule DataSync tasks to transfer the data to the FSx for Windows File Server file system."
+   },
+   {
+    "id": "et-188",
+    "question": "A company uses Amazon S3 as its data lake. The company has a new partner that must use SFTP to upload data files. A solutions architect needs to implement a highly available SFTP solution that minimizes operational overhead. Which solution will meet these requirements?",
+    "answer": "A. Use AWS Transfer Family to configure an SFTP-enabled server with a publicly accessible endpoint. Choose the S3 data lake as the destination."
+   },
+   {
+    "id": "et-334",
+    "question": "A company wants to give a customer the ability to use on-premises Microsoft Active Directory to download files that are stored in Amazon S3. The customer’s application uses an SFTP client to download the files. Which solution will meet these requirements with the LEAST operational overhead and no changes to the customer’s application?",
+    "answer": "A. Set up AWS Transfer Family with SFTP for Amazon S3. Configure integrated Active Directory authentication."
+   },
+   {
+    "id": "et-445",
+    "question": "A company is storing 700 terabytes of data on a large network-attached storage (NAS) system in its corporate data center. The company has a hybrid environment with a 10 Gbps AWS Direct Connect connection. After an audit from a regulator, the company has 90 days to move the data to the cloud. The company needs to move the data efficiently and without disruption. The company still needs to be able to access and update the data during the transfer window. Which solution will meet these requirements?",
+    "answer": "A. Create an AWS DataSync agent in the corporate data center. Create a data transfer task Start the transfer to an Amazon S3 bucket."
+   },
+   {
+    "id": "et-426",
+    "question": "A company needs to store data from its healthcare application. The application’s data frequently changes. A new regulation requires audit access at all levels of the stored data. The company hosts the application on an on-premises infrastructure that is running out of storage capacity. A solutions architect must securely migrate the existing data to AWS while satisfying the new regulation. Which solution will meet these requirements?",
+    "answer": "A. Use AWS DataSync to move the existing data to Amazon S3. Use AWS CloudTrail to log data events."
+   },
+   {
+    "id": "ce-399",
+    "question": "A finance company hosts a data lake in Amazon S3. The company receives financial data records over SFTP each night from several third parties. The company runs its own SFTP server on an Amazon EC2 instance in a public subnet of a VPC. After the files are uploaded, they are moved to the data lake by a cron job that runs on the same instance. The SFTP server is reachable on DNS sftp.example.com through the use of Amazon Route 53. What should a solutions architect do to improve the reliability and scalability of the SFTP solution?",
+    "answer": "B. Migrate the SFTP server to AWS Transfer for SFTP. Update the DNS record sftp.example.com in Route 53 to point to the server endpoint hostname."
+   },
+   {
+    "id": "ce-732",
+    "question": "A solutions architect needs to copy files from an Amazon S3 bucket to an Amazon EFS file system and another S3 bucket. The files must be copied continuously. New files are added to the original S3 bucket consistently. The copied files should be overwritten only if the source file changes. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Create an AWS DataSync location for both the destination S3 bucket and the EFS file system. Create a task for the destination S3 bucket and the EFS file system. Set the transfer mode to transfer only data that has changed."
+   },
+   {
+    "id": "ce-951",
+    "question": "A company has an on-premises application that uses SFTP to collect financial data from multiple vendors. The company is migrating to the AWS Cloud. The company has created an application that uses Amazon S3 APIs to upload files from vendors. Some vendors run their systems on legacy applications that do not support S3 APIs. The vendors want to continue to use SFTP-based applications to upload dat a. The company wants to use managed services for the needs of the vendors that use legacy applications. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Create an AWS Transfer Family endpoint for vendors that use legacy applications."
+   },
+   {
+    "id": "et-421",
+    "question": "A company runs a highly available SFTP service. The SFTP service uses two Amazon EC2 Linux instances that run with elastic IP addresses to accept traffic from trusted IP sources on the internet. The SFTP service is backed by shared storage that is attached to the instances. User accounts are created and managed as Linux users in the SFTP servers. The company wants a serverless option that provides high IOPS performance and highly configurable security. The company also wants to maintain control over user permissions. Which solution will meet these requirements?",
+    "answer": "B. Create an encrypted Amazon Elastic File System (Amazon EFS) volume. Create an AWS Transfer Family SFTP service with elastic IP addresses and a VPC endpoint that has internet-facing access. Attach a security group to the endpoint that allows only trusted IP addresses. Attach the EFS volume to the SFTP service endpoint. Grant users access to the SFTP service."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "placement-groups",
+   "title": "Where instances sit in relation to each other",
+   "when": null,
+   "words": "placement group",
+   "nodes": [
+    [
+     "c",
+     "Cluster: packed, one zone",
+     "compute"
+    ],
+    [
+     "s",
+     "Spread: apart, several zones",
+     "compute"
+    ],
+    [
+     "p",
+     "Partition: in groups of racks",
+     "compute"
+    ]
+   ],
+   "edges": [],
+   "note": "Cluster is for speed between them and is one zone, so it is wrong wherever losing a zone matters. Spread allows seven per zone. Partition suits systems that already cope with losing a part."
+  },
+  "matches_in_total": 9,
+  "sample": [
+   {
+    "id": "wl-5",
+    "question": "You are creating several EC2 instances for a new application. For better performance of the application, both low network latency and high network throughput are required for the EC2 instances. All instances should be launched in a single availability zone. How would you configure this?",
+    "answer": "A. Launch all EC2 instances in a placement group using a Cluster placement strategy."
+   },
+   {
+    "id": "ce-759",
+    "question": "A company runs code compilation tasks that span many virtual machines (VMs) in its on-premises data center. These tasks require low latency and high bandwidth between servers. The company wants to migrate this workload to run on Amazon EC2 instances in the AWS Cloud. After the migration, the workload must maintain low latency and high bandwidth between EC2 instances. Which solution will meet these requirements?",
+    "answer": "A. Deploy Amazon EC2 instances in a cluster placement group. Enable enhanced networking on the EC2 instances."
+   },
+   {
+    "id": "dt-78",
+    "question": "Your company produces customer commissioned one-of-a-kind skiing helmets combining high fashion with custom technical enhancements. Customers can show off their Individuality on the ski slopes and have access to head-up-displays. GPS rear-view cams and any other technical innovation they wish to embed in the helmet. The current manufacturing process is data rich and complex including assessments to ensure that the custom electronics and materials used to assemble the helmets are to the highest standards. Assessments are a mixture of human and automated assessments you need to add a new set of assessment to model the failure modes of the custom electronics using GPUs with CUDA, across a clust",
+    "answer": "B. Use Amazon Simple Workflow (SWF) to manages assessments, movement of data & meta-data Use an auto-scaling group of G2 instances in a placement group."
+   },
+   {
+    "id": "ce-647",
+    "question": "A solutions architect needs to design a solution for a high performance computing (HPC) workload. The solution must include multiple Amazon EC2 instances. Each EC2 instance requires 10 Gbps of bandwidth individually for single-flow traffic. The EC2 instances require an aggregate throughput of 100 Gbps of bandwidth across all EC2 instances. Communication between the EC2 instances must have low latency. Which solution will meet these requirements?",
+    "answer": "A. Place the EC2 instances in a single subnet of a VPC. Configure a cluster placement group. Ensure that the latest Elastic Fabric Adapter (EFA) drivers are installed on the EC2 instances with a supported operating system."
+   },
+   {
+    "id": "ce-586",
+    "question": "A company has an industrial application that controls a process in real time. The company plans to rearchitect the application to distribute jobs across several Amazon EC2 instances in a VPC. The solution needs to maximize the network throughput and minimize the network latency between the instances.",
+    "answer": "D. Place the instances in a cluster placement group. Choose instance types that support enhanced networking."
+   },
+   {
+    "id": "dt-348",
+    "question": "You have multiple Amazon EC2 instances running in a cluster across multiple Availability Zones within the same region. What combination of the following should be used to ensure the highest network performance (packets per second), lowest latency, and lowest jitter? (Choose 3 answers)",
+    "answer": "A. Amazon EC2 placement groups.; B. Enhanced networking.; D. Amazon HVM AMI."
+   },
+   {
+    "id": "et-306",
+    "question": "A company wants to run an in-memory database for a latency-sensitive application that runs on Amazon EC2 instances. The application processes more than 100,000 transactions each minute and requires high network throughput. A solutions architect needs to provide a cost- effective network design that minimizes data transfer charges. Which solution meets these requirements?",
+    "answer": "A. Launch all EC2 instances in the same Availability Zone within the same AWS Region. Specify a placement group with cluster strategy when launching EC2 instances."
+   },
+   {
+    "id": "ce-492",
+    "question": "A company plans to run a high performance computing (HPC) workload on Amazon EC2 Instances The workload requires low-latency network performance and high network throughput with tightly coupled node-to-node communication. Which solution will meet these requirements?",
+    "answer": "A. Configure the EC2 instances to be part of a cluster placement group"
+   },
+   {
+    "id": "ce-372",
+    "question": "A company is building a critical data processing application that will run on Amazon EC2 instances. The company must not run any two nodes on the same underlying hardware. The company requires at least 99.99% availability for the application. Which solution will meet these requirements?",
+    "answer": "B. Deploy the application to three Availability Zones by using a spread placement group strategy."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "alb-route53",
+   "title": "A name pointing at a load balancer",
+   "when": [
+    "ALB",
+    "Route53"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "r53",
+     "Route 53",
+     "edge"
+    ],
+    [
+     "alb",
+     "Load balancer",
+     "edge"
+    ],
+    [
+     "app",
+     "Targets",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "r53",
+     "looks up the name"
+    ],
+    [
+     "r53",
+     "alb",
+     "alias record"
+    ],
+    [
+     "alb",
+     "app",
+     ""
+    ]
+   ],
+   "note": "An alias record points at an AWS resource, costs nothing to resolve, and can sit at the root of a domain where a CNAME cannot."
+  },
+  "matches_in_total": 5,
+  "sample": [
+   {
+    "id": "et-545",
+    "question": "A company wants to direct its users to a backup static error page if the company's primary website is unavailable. The primary website's DNS records are hosted in Amazon Route 53. The domain is pointing to an Application Load Balancer (ALB). The company needs a solution that minimizes changes and infrastructure overhead. Which solution will meet these requirements?",
+    "answer": "B. Set up a Route 53 active-passive failover configuration. Direct traffic to a static error page that is hosted in an Amazon S3 bucket when Route 53 health checks determine that the ALB endpoint is unhealthy."
+   },
+   {
+    "id": "ce-42",
+    "question": "A company is building an application in the AWS Cloud. The application is hosted on Amazon EC2 instances behind an Application Load Balancer (ALB). The company uses Amazon Route 53 for the DNS. The company needs a managed solution with proactive engagement to detect against DDoS attacks. Which solution will meet these requirements?",
+    "answer": "D. Subscribe to AWS Shield Advanced. Configure hosted zones in Route 53 Add ALB resources as protected resources."
+   },
+   {
+    "id": "ce-272",
+    "question": "A company hosts an application on Amazon EC2 instances behind an Application Load Balancer ALB. The company wants the application to be accessible only from inside the VPC that hosts the ALB. The company creates an alias record of example.com in Amazon Route 53. The DNS record for the application must be resolvable only in the VPC where the application runs. Which solution will meet these requirements?",
+    "answer": "D. Use an internal ALB. Create a Route 53 private hosted zone for the application DNS name."
+   },
+   {
+    "id": "ce-501",
+    "question": "A company is implementing a new application on AWS. The company will run the application on multiple Amazon EC2 instances across multiple Availability Zones within multiple AWS Regions. The application will be available through the internet. Users will access the application from around the world. The company wants to ensure that each user who accesses the application is sent to the EC2 instances that are closest to the user's location. Which solution will meet these requirements?",
+    "answer": "A. Implement an Amazon Route 53 geolocation routing policy. Use an internet-facing Application Load Balancer to distribute the traffic across all Availability Zones within the same Region."
+   },
+   {
+    "id": "et-264",
+    "question": "A company has a web application hosted over 10 Amazon EC2 instances with traffic directed by Amazon Route 53. The company occasionally experiences a timeout error when attempting to browse the application. The networking team finds that some DNS queries return IP addresses of unhealthy instances, resulting in the timeout error. What should a solutions architect implement to overcome these timeout errors?",
+    "answer": "D. Create an Application Load Balancer (ALB) with a health check in front of the EC2 instances. Route to the ALB from Route 53."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "ecs-efs",
+   "title": "Containers sharing one file system",
+   "when": [
+    "ECS",
+    "EFS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "t1",
+     "Task",
+     "compute"
+    ],
+    [
+     "t2",
+     "Task",
+     "compute"
+    ],
+    [
+     "efs",
+     "EFS file system",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "t1",
+     "efs",
+     "mounted"
+    ],
+    [
+     "t2",
+     "efs",
+     "mounted"
+    ]
+   ],
+   "note": "A container's own storage goes when the task does. EFS is what keeps anything that has to outlive it, and lets tasks share it."
+  },
+  "matches_in_total": 2,
+  "sample": [
+   {
+    "id": "ce-404",
+    "question": "A company runs an application that uses Docker containers in an on-premises data center. The application runs on a container host that stores persistent data files in a local volume. Container instances use the stored persistent data. The company wants to migrate the application to fully managed AWS services. Which solution will meet these requirements?",
+    "answer": "B. Use Amazon Elastic Container Service (Amazon ECS) with the AWS Fargate launch type. Create an Amazon Elastic File System (Amazon EFS) volume. Mount the EFS volume on the containers to provide persistent storage."
+   },
+   {
+    "id": "ce-770",
+    "question": "A company has developed a new content-sharing application that runs on Amazon ECS. The application runs on Amazon Linux Docker tasks that use the Amazon EC2 launch type. The application requires a storage solution that has the following characteristics: • Accessibility for multiple ECS tasks through bind mounts • Resiliency across Availability Zones • Burstable throughput of up to 3 Gbps • Ability to scale up over time Which storage solution meets these requirements?",
+    "answer": "B. Create an Amazon EFS file system. Configure the ECS task definitions to mount the EFS file-system volume at launch."
+   }
+  ]
+ }
+]

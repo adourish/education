@@ -1,0 +1,685 @@
+[
+ {
+  "diagram": {
+   "id": "s3-event-lambda",
+   "title": "An upload sets work going",
+   "when": [
+    "S3",
+    "Lambda"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Upload",
+     "actor"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ],
+    [
+     "fn",
+     "Lambda",
+     "compute"
+    ],
+    [
+     "out",
+     "Result",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "s3",
+     "puts an object"
+    ],
+    [
+     "s3",
+     "fn",
+     "event notification"
+    ],
+    [
+     "fn",
+     "out",
+     "writes"
+    ]
+   ],
+   "note": "The bucket tells something to run when an object arrives. Events can go to Lambda, SQS, SNS or EventBridge, but not to a FIFO queue."
+  },
+  "matches_in_total": 22,
+  "sample": [
+   {
+    "id": "ce-539",
+    "question": "A company provides a trading platform to customers. The platform uses an Amazon API Gateway REST API, AWS Lambda functions, and an Amazon DynamoDB table. Each trade that the platform processes invokes a Lambda function that stores the trade data in Amazon DynamoDB. The company wants to ingest trade data into a data lake in Amazon S3 for near real-time analysis. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use Amazon DynamoDB Streams to capture the trade data changes. Configure DynamoDB Streams to invoke a Lambda function that writes the data to Amazon S3."
+   },
+   {
+    "id": "et-513",
+    "question": "A social media company wants to allow its users to upload images in an application that is hosted in the AWS Cloud. The company needs a solution that automatically resizes the images so that the images can be displayed on multiple device types. The application experiences unpredictable traffic patterns throughout the day. The company is seeking a highly available solution that maximizes scalability. What should a solutions architect do to meet these requirements?",
+    "answer": "A. Create a static website hosted in Amazon S3 that invokes AWS Lambda functions to resize the images and store the images in an Amazon S3 bucket."
+   },
+   {
+    "id": "et-289",
+    "question": "A company has an AWS Lambda function that needs read access to an Amazon S3 bucket that is located in the same AWS account. Which solution will meet these requirements in the MOST secure manner?",
+    "answer": "B. Apply an IAM role to the Lambda function. Apply an IAM policy to the role to grant read access to the S3 bucket."
+   },
+   {
+    "id": "ce-527",
+    "question": "How can trade data from DynamoDB be ingested into an S3 data lake for near real-time analysis?",
+    "answer": "B. Use DynamoDB Streams to invoke a Lambda function that writes to Data Firehose, which writes to S3."
+   },
+   {
+    "id": "ce-738",
+    "question": "A company is developing a photo sharing web application on AWS. The application allows users to upload, durably store, and share photos. The application processes uploaded photos into a variety of sizes. The company needs to ensure that the application can handle thousands of uploads each hour. The company wants to decouple upload operations from processing operations. Which solution will meet these requirements with the LEAST operational effort?",
+    "answer": "B. Use an Amazon S3 bucket to store uploaded images. Use an S3 event notification to invoke an AWS Lambda function to process each image. Store the processed images in a second S3 bucket."
+   },
+   {
+    "id": "ce-296",
+    "question": "A company uses an organization in AWS Organizations to manage multiple AWS accounts. The company is building a product that spans multiple accounts. Developers at the company who work in multiple accounts need to give AWS Lambda functions access to write logs to an Amazon S3 bucket that is in a central logging account. Which solution will meet this requirement in the MOST secure way?",
+    "answer": "A. Create an IAM role in the central logging account that has write access to the S3 bucket. Create a trust policy that allows AWS Lambda functions in accounts within the organization to assume the IAM role."
+   },
+   {
+    "id": "et-393",
+    "question": "A payment processing company records all voice communication with its customers and stores the audio files in an Amazon S3 bucket. The company needs to capture the text from the audio files. The company must remove from the text any personally identifiable information (PII) that belongs to customers. What should a solutions architect do to meet these requirements?",
+    "answer": "C. Configure an Amazon Transcribe transcription job with PII redaction turned on. When an audio file is uploaded to the S3 bucket, invoke an AWS Lambda function to start the transcription job. Store the output in a separate S3 bucket."
+   },
+   {
+    "id": "ce-944",
+    "question": "A company runs its infrastructure on AWS and has a registered base of 700,000 users for its document management application. The company intends to create a product that converts large PDF files to JPG image files. The PDF files average 5 MB in size. The company needs to store the original files and the converted files. A solutions architect must design a scalable solution to accommodate demand that will grow rapidly over time. Which solution meets these requirements MOST cost-effectively?",
+    "answer": "A. Save the PDF files to Amazon S3. Configure an S3 PUT event to invoke an AWS Lambda function to convert the files to JPG format and store them back in Amazon S3."
+   },
+   {
+    "id": "ce-146",
+    "question": "An ecommerce company stores terabytes of customer data in the AWS Cloud. The data contains personally identifiable information (PII). The company wants to use the data in three applications. Only one of the applications needs to process the PII. The PII must be removed before the other two applications process the data. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Store the data in an Amazon S3 bucket. Process and transform the data by using S3 Object Lambda before returning the data to the requesting application."
+   },
+   {
+    "id": "ce-805",
+    "question": "A company is designing a new application that uploads files to an Amazon S3 bucket. The uploaded files are processed to extract metadata. Processing must take less than 5 seconds. The volume and frequency of the uploads vary from a few files each hour to hundreds of concurrent uploads. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "B. Configure a new object created S3 event notification within the bucket to invoke an AWS Lambda function to process the files."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "s3-crr",
+   "title": "Objects copied to another Region",
+   "when": [
+    "S3",
+    "Replication"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "a",
+     "Bucket, Region A",
+     "store"
+    ],
+    [
+     "b",
+     "Bucket, Region B",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "a",
+     "b",
+     "replication rule"
+    ]
+   ],
+   "note": "Versioning has to be on in both buckets. It copies what arrives after the rule is made, not what is already there, unless a batch job is run."
+  },
+  "matches_in_total": 10,
+  "sample": [
+   {
+    "id": "ce-388",
+    "question": "An ecommerce company hosts an analytics application on AWS. The company deployed the application to one AWS Region. The application generates 300 MB of data each month. The application stores the data in JSON format. The data must be accessible in milliseconds when needed. The company must retain the data for 30 days. The company requires a disaster recovery solution to back up the data.",
+    "answer": "B. Deploy an Amazon S3 bucket in the primary Region and in a second Region. Enable versioning on both buckets. Use the Standard storage class. Configure S3 Lifecycle policies to expire objects after 30 days. Configure S3 Cross-Region Replication from the bucket in the primary bucket to the backup bucket."
+   },
+   {
+    "id": "dt-698",
+    "question": "A company is building an application in the AWS Cloud. The application will store data in Amazon S3 buckets in two AWS Regions. The company must use an AWS Key Management Service (AWS KMS) customer managed key to encrypt all data that is stored in the S3 buckets. The data in both S3 buckets must be encrypted and decrypted with the same KMS key. The data and the key must be stored in each of the two Regions. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "B. Create a customer managed multi-Region KMS key. Create an S3 bucket in each Region. Configure replication between the S3 buckets. Configure the application to use the KMS key with client-side encryption."
+   },
+   {
+    "id": "ce-395",
+    "question": "A company hosts an application on AWS that uses an Amazon S3 bucket and an Amazon Aurora database. The company wants to implement a multi-Region disaster recovery (DR) strategy that minimizes potential data loss. Which solution will meet these requirements?",
+    "answer": "D. Migrate the database to an Aurora global database. Create a second S3 bucket in a second Region. Configure Cross-Region Replication."
+   },
+   {
+    "id": "ce-195",
+    "question": "A company has multiple AWS accounts with applications deployed in the us-west-2 Region. Application logs are stored within Amazon S3 buckets in each account. The company wants to build a centralized log analysis solution that uses a single S3 bucket. Logs must not leave us-west-2, and the company wants to incur minimal operational overhead.",
+    "answer": "B. Use S3 Same-Region Replication to replicate logs from the S3 buckets to another S3 bucket in us- west-2. Use this S3 bucket for log analysis."
+   },
+   {
+    "id": "et-621",
+    "question": "An online photo-sharing company stores its photos in an Amazon S3 bucket that exists in the us-west-1 Region. The company needs to store a copy of all new photos in the us-east-1 Region. Which solution will meet this requirement with the LEAST operational effort?",
+    "answer": "A. Create a second S3 bucket in us-east-1. Use S3 Cross-Region Replication to copy photos from the existing S3 bucket to the second S3 bucket."
+   },
+   {
+    "id": "ce-396",
+    "question": "A global company runs a data lake application in the us-east-1 Region and the eu-west-1 Region in an active-passive configuration. Application data is stored locally in Amazon S3 buckets in each AWS Region. The bucket in us-east-1 is the primary active bucket that handles all writes. The company needs to ensure that the application has Regional fault tolerance. The company also needs the storage layer to provide a highly available active-active capability for reads across Regions. The storage layer must provide low latency access through a single global endpoint.",
+    "answer": "D. Create an S3 Multi-Region Access Point. Configure cross-Region replication."
+   },
+   {
+    "id": "ce-362",
+    "question": "A company has a three-tier web application. An Application Load Balancer (ALB) is in front of Amazon EC2 instances that are in the ALB target group. An Amazon S3 bucket stores documents. The company requires the application to meet a recovery time objective (RTO) of 60 seconds. Which solution will meet this requirement?",
+    "answer": "D. Replicate S3 objects to a second AWS Region. Create a second ALB and a minimum set of EC2 instances in the second Region. Ensure that the EC2 instances in the second Region are running. Configure Amazon Route 53 to fail over to the secondary Region based on health checks."
+   },
+   {
+    "id": "ce-391",
+    "question": "A global ecommerce company is planning to enhance its AWS data storage architecture to improve system availability and resilience. The company handles millions of daily transactions in relational form. It stores unstructured data in the form of images over 4 MB in size. The solution must provide continuous operation in multiple geographic locations, minimize downtime/data loss, and support both transactional and unstructured data. Which solution will meet these requirements?",
+    "answer": "B. Use an Amazon Aurora global database for transaction data. Use Amazon S3 with Cross-Region Replication for unstructured data."
+   },
+   {
+    "id": "ce-385",
+    "question": "A company runs its critical storage application in the AWS Cloud. The application uses Amazon S3 in two AWS Regions. The company wants the application to send remote user data to the nearest S3 bucket with no public network congestion. The company also wants the application to fail over with the least amount of management of Amazon S3. Which solution will meet these requirements?",
+    "answer": "D. Set up Amazon S3 to use Multi-Region Access Points in an active-active configuration with a single global endpoint. Configure S3 Cross-Region Replication."
+   },
+   {
+    "id": "ce-86",
+    "question": "A healthcare provider is planning to store patient data on AWS as PDF files. To comply with regulations, the company must encrypt the data and store the files in multiple locations. The data must be available for immediate access from any environment.",
+    "answer": "A. Store the files in an Amazon S3 bucket. Use the Standard storage class. Enable server-side encryption with Amazon S3 managed keys (SSE-S3) on the bucket. Configure cross-Region replication on the bucket."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "ec2-s3-role",
+   "title": "An instance reaching a bucket without any keys",
+   "when": [
+    "EC2",
+    "S3"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "ec2",
+     "EC2 instance",
+     "compute"
+    ],
+    [
+     "role",
+     "Instance role",
+     "net"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "ec2",
+     "role",
+     "temporary credentials"
+    ],
+    [
+     "role",
+     "s3",
+     "allows the call"
+    ]
+   ],
+   "note": "A role attached to the instance is the answer whenever a question mentions access keys on a server. Nothing is stored, and the credentials rotate on their own."
+  },
+  "matches_in_total": 10,
+  "sample": [
+   {
+    "id": "ce-821",
+    "question": "A company's expense tracking application gives users the ability to upload images of receipts. The application analyzes the receipts to extract information and stores the raw images in Amazon S3. The application is written in Java and runs on Amazon EC2 On-Demand Instances in an Auto Scaling group behind an Application Load Balancer. The compute costs and storage costs have increased with the popularity of the application. Which solution will provide the MOST cost savings without affecting application performance?",
+    "answer": "D. Purchase a Compute Savings Plan for the minimum number of necessary EC2 instances. Use On- Demand Instances for peak scaling. Set up S3 Lifecycle policies to archive the raw images to lower- cost storage tiers after 30 days."
+   },
+   {
+    "id": "ce-828",
+    "question": "A company is migrating a data processing application to AWS. The application processes several short-lived batch jobs that cannot be disrupted. The process generates data after each batch job finishes running. The company accesses the data for 30 days following data generation. After 30 days, the company stores the data for 2 years. The company wants to optimize costs for the application and data storage. Which solution will meet these requirements?",
+    "answer": "D. Use Amazon EC2 On-Demand Instances to run the application. Store the data in Amazon S3 Standard. Move the data to S3 Glacier Deep Archive after 30 days. Configure an S3 Lifecycle configuration to delete the data after 2 years."
+   },
+   {
+    "id": "et-299",
+    "question": "A research laboratory needs to process approximately 8 TB of data. The laboratory requires sub-millisecond latencies and a minimum throughput of 6 GBps for the storage subsystem. Hundreds of Amazon EC2 instances that run Amazon Linux will distribute and process the data. Which solution will meet the performance requirements?",
+    "answer": "B. Create an Amazon S3 bucket to store the raw data. Create an Amazon FSx for Lustre file system that uses persistent SSD storage. Select the option to import data from and export data to Amazon S3. Mount the file system on the EC2 instances."
+   },
+   {
+    "id": "ce-138",
+    "question": "A company is setting up a development environment on AWS for a team of developers. The team needs to access multiple Amazon S3 buckets to store project dat a. The team also needs to use Amazon EC2 to run development instances. The company needs to ensure that the developers have access only to specific Amazon S3 buckets and EC2 instances. Access permissions must be assigned according to each developer's role on the team. The company wants to minimize the use of permanent credentials and to ensure access is securely managed according to the principle of least privilege. Which solution will meet these requirements?",
+    "answer": "B. Create IAM roles that have fine-grained permissions for Amazon S3 and Amazon EC2. Configure AWS IAM Identity Center to manage credentials for the developers."
+   },
+   {
+    "id": "et-208",
+    "question": "A company needs to move data from an Amazon EC2 instance to an Amazon S3 bucket. The company must ensure that no API calls and no data are routed through public internet routes. Only the EC2 instance can have access to upload data to the S3 bucket. Which solution will meet these requirements?",
+    "answer": "A. Create an interface VPC endpoint for Amazon S3 in the subnet where the EC2 instance is located. Attach a resource policy to the S3 bucket to only allow the EC2 instance's IAM role for access."
+   },
+   {
+    "id": "dt-244",
+    "question": "Your customer wishes to deploy an enterprise application to AWS which will consist of several web servers, several application servers and a small (50GB) Oracle database information is stored, both in the database and the file systems of the various servers. The backup system must support database recovery whole server and whole disk restores, and individual file restores with a recovery time of no more than two hours. They have chosen to use RDS Oracle as the database. Which backup architecture will meet these requirements?",
+    "answer": "A. Backup RDS using automated daily DB backups Backup the EC2 instances using AMIs and supplement with file-level backup to S3 using traditional enterprise backup software to provide file level restore."
+   },
+   {
+    "id": "dt-599",
+    "question": "How should the application use AWS credentials to access the S3 bucket securely?",
+    "answer": "C. Create an IAM role for EC2 that allows list access to objects in the S3 bucket. Launch the instance with the role, and retrieve the role's credentials from the EC2 Instance metadata."
+   },
+   {
+    "id": "ce-748",
+    "question": "A research laboratory needs to process a multi-terabyte dataset multiple times each day. The laboratory requires sub-millisecond latency while processing the data. Hundreds of Amazon EC2 Linux instances will process the data from the source and store the data in a different location. Which solution will meet these requirements?",
+    "answer": "B. Create an Amazon S3 bucket to store the raw data. Create an Amazon FSx for Lustre file system that uses persistent SSD storage. Configure the FSx for Lustre file system to import data from and export data to Amazon S3. Mount the file system on the EC2 instances."
+   },
+   {
+    "id": "ce-283",
+    "question": "A company hosts customer data in an Amazon S3 bucket. The company wants to ensure that only specific applications that run on Amazon EC2 instances in a private subnet have access to the S3 bucket. The applications must not require long-term AWS access keys. The company needs to log all access to S3 objects for auditing purposes. Which solution will meet these requirements?",
+    "answer": "B. Create an IAM role that has access to the S3 bucket. Attach the IAM role to the EC2 instances. Update the bucket policy to allow access only for the role. Use AWS CloudTrail to log data events for the bucket."
+   },
+   {
+    "id": "et-17",
+    "question": "A company is implementing a new business application. The application runs on two Amazon EC2 instances and uses an Amazon S3 bucket for document storage. A solutions architect needs to ensure that the EC2 instances can access the S3 bucket. What should the solutions architect do to meet this requirement?",
+    "answer": "A. Create an IAM role that grants access to the S3 bucket. Attach the role to the EC2 instances."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "cross-account-role",
+   "title": "Reaching into another account without a second login",
+   "when": null,
+   "words": "cross-account|another account|assume|AssumeRole|trust polic",
+   "nodes": [
+    [
+     "u",
+     "User in account A",
+     "actor"
+    ],
+    [
+     "role",
+     "Role in account B",
+     "net"
+    ],
+    [
+     "res",
+     "Resources in B",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "role",
+     "assumes it"
+    ],
+    [
+     "role",
+     "res",
+     "temporary credentials"
+    ]
+   ],
+   "note": "The role in B says who may assume it; the policy in A says its people may ask. No keys are copied anywhere, and the credentials expire on their own."
+  },
+  "matches_in_total": 17,
+  "sample": [
+   {
+    "id": "dt-129",
+    "question": "An enterprise wants to use a third-party SaaS application. The SaaS application needs to have access to issue several API commands to discover Amazon EC2 resources running within the enterprise's account The enterprise has internal security policies that require any outside access to their environment must conform to the principles of least privilege and there must be controls in place to ensure that the credentials used by the 5aa5 vendor cannot be used by any other third party. Which of the following would meet all of these conditions?",
+    "answer": "C. Create an IAM role for cross-account access allows the SaaS provider's account to assume the role and assign it a policy that allows only the actions required by the SaaS application."
+   },
+   {
+    "id": "dt-150",
+    "question": "You are looking to migrate your Development (Dev) and Test environments to AWS. You have decided to use separate AWS accounts to host each environment. You plan to link each accounts bill to a Master AWS account using Consolidated Billing. To make sure you Keep within budget you would like to implement a way for administrators in the Master account to have access to stop, delete and/or terminate resources in both the Dev and Test accounts. Identify which option will allow you to achieve this goal.",
+    "answer": "C. Create IAM users in the Master account Create cross-account roles in the Dev and Test accounts that have full Admin permissions and grant the Master."
+   },
+   {
+    "id": "dt-666",
+    "question": "A company has two AWS accounts: Production and Development. There are code changes ready in the Development account to push to the Production account. In the alpha phase, only two senior developers on the development team need access to the Production account. In the beta phase, more developers might need access to perform testing as well. What should a solutions architect recommend?",
+    "answer": "C. Create an IAM role in the Production account with the trust policy that specifies the Development account. Allow developers to assume the role."
+   },
+   {
+    "id": "ce-102",
+    "question": "A company is implementing a new policy to enhance the security of its AWS environment. The policy requires all administrative actions that users perform on the AWS Management Console to be secured by multi-factor authentication (MFA). Which solution will allow the company to enforce this policy in the MOST operationally efficient way?",
+    "answer": "B. Create an IAM policy that requires MFA to be enabled for the IAM roles that administrators assume to perform administrative actions."
+   },
+   {
+    "id": "dt-114",
+    "question": "A corporate web application is deployed within an Amazon Virtual Private Cloud (VPC) and is connected to the corporate data center via an IPsec VPN. The application must authenticate against the on-premises LDAP server. After authentication, each logged-in user can only access an Amazon Simple Storage Space (S3) keyspace specific to that user. Which two approaches can satisfy these objectives? (Choose 2 answers)",
+    "answer": "B. The application authenticates against LDAP and retrieves the name of an IAM role associated with the user. The application then calls the IAM Security Token Service to assume that IAM role. The application can use the temporary credentials to access the appropriate S3 bucket.; C. Develop an identity broker that authenticates against LDAP and then calls IAM Security Token Service to get IAM fede"
+   },
+   {
+    "id": "dt-155",
+    "question": "You are designing a photo sharing mobile app. The application will store all pictures in a single Amazon S3 bucket. Users will upload pictures from their mobile device directly to Amazon S3 and will be able to view and download their own pictures directly from Amazon S3. You want to configure security to handle potentially millions of users in the most secure manner possible. What should your server-side application do when a new user registers on the photo sharing mobile application?",
+    "answer": "D. Record the user's information in Amazon RDS and create a role in IAM with appropriate permissions. When the user uses their mobile app, create temporary credentials using the AWS Security Token Service `AssumeRole` function. Store these credentials in the mobile app's memory and use them to access Amazon S3. Generate new credentials the next time the user runs the mobile app."
+   },
+   {
+    "id": "et-634",
+    "question": "A company collects 10 GB of telemetry data daily from various machines. The company stores the data in an Amazon S3 bucket in a source data account. The company has hired several consulting agencies to use this data for analysis. Each agency needs read access to the data for its analysts. The company must share the data from the source data account by choosing a solution that maximizes security and operational efficiency. Which solution will meet these requirements?",
+    "answer": "C. Configure cross-account access for the S3 bucket to the accounts that the agencies own."
+   },
+   {
+    "id": "dt-478",
+    "question": "Company B is launching a new game app for mobile devices. Users will log into the game using their existing social media account to streamline data capture. Company B would like to directly save player data and scoring information from the mobile app to a DynamoDB table named Score Data. When a user saves their game, the progress data will be stored to the Game State S3 bucket. What is the best approach for storing data to DynamoDB and S3?",
+    "answer": "B. Use temporary security credentials that assume a role providing access to the Score Data DynamoDB table and the Game State S3 bucket using web identity federation."
+   },
+   {
+    "id": "ce-109",
+    "question": "A company stores sensitive customer data in an Amazon DynamoDB table. The company frequently updates the dat a. The company wants to use the data to personalize offers for customers. The company's analytics team has its own AWS account. The analytics team runs an application on Amazon EC2 instances that needs to process data from the DynamoDB tables. The company needs to follow security best practices to create a process to regularly share data from DynamoDB to the analytics team. Which solution will meet these requirements?",
+    "answer": "D. Create a cross-account IAM role. Create an IAM policy that allows the AWS account ID of the analytics team to access the DynamoDB table. Attach the IAM policy to the IAM role. Establish a trust relationship between accounts."
+   },
+   {
+    "id": "ce-235",
+    "question": "A company is developing a new application that uses Amazon EC2, Amazon S3, and AWS Lambda resources. The company wants to allow employees to access the AWS Management Console by using existing credentials that the company stores and manages in an on-premises Microsoft Active Directory. Each employee must have a specific level of access to the AWS resources that is based on the employee's role. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Configure AWS Directory Service to create an Active Directory in AWS Managed Microsoft AD. Establish a trust relationship with the on-premises Active Directory. Configure IAM roles and trust policies to give the employees access to the AWS resources."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "read-scaling",
+   "title": "Taking reads off the main database",
+   "when": null,
+   "words": "read replica|reader endpoint|read traffic",
+   "nodes": [
+    [
+     "app",
+     "Application",
+     "compute"
+    ],
+    [
+     "w",
+     "Writer",
+     "store"
+    ],
+    [
+     "r",
+     "Readers",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "w",
+     "writes"
+    ],
+    [
+     "app",
+     "r",
+     "reads"
+    ],
+    [
+     "w",
+     "r",
+     "copied across"
+    ]
+   ],
+   "note": "For load, not for failure. Aurora has one endpoint for writing and another that spreads reads across the replicas."
+  },
+  "matches_in_total": 23,
+  "sample": [
+   {
+    "id": "dt-660",
+    "question": "A company that runs its application on AWS uses an Amazon Aurora DB cluster as its database. During peak usage hours when multiple users access and read the data, the monitoring system shows degradation of database performance for write queries. The company wants to increase the scalability of the application to meet peak usage demands. Which solution will meet these requirements MOST cost effectively?",
+    "answer": "C. Create an Aurora read replica in the existing Aurora DB cluster. Update the application to use the replica endpoint for read only queries and to use the cluster endpoint for write queries."
+   },
+   {
+    "id": "gh-241",
+    "question": "n online learning company is migrating to the AWS Cloud. The company maintains its student records in a PostgreSQL database. The company needs a solution in which its data is available and online across multiple AWS Regions at all times. Which solution will meet these requirements with the LEAST amount of operational overhead?",
+    "answer": "C. Migrate the PostgreSQL database to an Amazon RDS for PostgreSQL DB instance. Create a read replica in another Region."
+   },
+   {
+    "id": "dt-380",
+    "question": "A read only news reporting site with a combined web and application tier and a database tier that receives large and unpredictable traffic demands must be able to respond to these traffic fluctuations automatically. What AWS services should be used meet these requirements?",
+    "answer": "A. Stateless instances for the web and application tier synchronized using Elasticache Memcached in an autoscaimg group monitored with CloudWatch. And RDSwith read replicas."
+   },
+   {
+    "id": "et-269",
+    "question": "An ecommerce company has noticed performance degradation of its Amazon RDS based web application. The performance degradation is attributed to an increase in the number of read-only SQL queries triggered by business analysts. A solutions architect needs to solve the problem with minimal changes to the existing web application. What should the solutions architect recommend?",
+    "answer": "C. Create a read replica of the primary database and have the business analysts run their queries."
+   },
+   {
+    "id": "et-590",
+    "question": "A company migrated a MySQL database from the company's on-premises data center to an Amazon RDS for MySQL DB instance. The company sized the RDS DB instance to meet the company's average daily workload. Once a month, the database performs slowly when the company runs queries for a report. The company wants to have the ability to run reports and maintain the performance of the daily workloads. Which solution will meet these requirements?",
+    "answer": "A. Create a read replica of the database. Direct the queries to the read replica."
+   },
+   {
+    "id": "dt-735",
+    "question": "An application allows users at a company's headquarters to access product data. The product data is stored in an Amazon RDS MySQL DB instance. The operations team has isolated an application performance slowdown and wants to separate read traffic from write traffic. A solutions architect needs to optimize the application's performance quickly. What should the solutions architect recommend?",
+    "answer": "D. Create read replicas for the database. Configure the read replicas with the same compute and storage resources as the source database."
+   },
+   {
+    "id": "et-337",
+    "question": "A company has deployed a web application on AWS. The company hosts the backend database on Amazon RDS for MySQL with a primary DB instance and five read replicas to support scaling needs. The read replicas must lag no more than 1 second behind the primary DB instance. The database routinely runs scheduled stored procedures. As traffic on the website increases, the replicas experience additional lag during periods of peak load. A solutions architect must reduce the replication lag as much as possible. The solutions architect must minimize changes to the application code and must minimize ongoing operational overhead. Which solution will meet these requirements?",
+    "answer": "A. Migrate the database to Amazon Aurora MySQL. Replace the read replicas with Aurora Replicas, and configure Aurora Auto Scaling. Replace the stored procedures with Aurora MySQL native functions."
+   },
+   {
+    "id": "et-420",
+    "question": "A company wants to use an Amazon RDS for PostgreSQL DB cluster to simplify time-consuming database administrative tasks for production database workloads. The company wants to ensure that its database is highly available and will provide automatic failover support in most scenarios in less than 40 seconds. The company wants to offload reads off of the primary instance and keep costs as low as possible. Which solution will meet these requirements?",
+    "answer": "D. Use an Amazon RDS Multi-AZ DB cluster deployment. Point the read workload to the reader endpoint."
+   },
+   {
+    "id": "dt-515",
+    "question": "My Read Replica appears 'stuck' after a Multi-AZ failover and is unable to obtain or apply updates from the source DB Instance. What do I do?",
+    "answer": "A. You will need to delete the Read Replica and create a new one to rep lace it."
+   },
+   {
+    "id": "et-536",
+    "question": "A company wants to provide data scientists with near real-time read-only access to the company's production Amazon RDS for PostgreSQL database. The database is currently configured as a Single-AZ database. The data scientists use complex queries that will not affect the production database. The company needs a solution that is highly available. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "Change the setup from Single-AZ to a Multi-AZ DB cluster deployment and give the data scientists the cluster's reader endpoint."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "sg-vs-nacl",
+   "title": "Two places traffic is allowed or refused",
+   "when": null,
+   "words": "network ACL|\\bNACL\\b",
+   "nodes": [
+    [
+     "net",
+     "Traffic",
+     "actor"
+    ],
+    [
+     "nacl",
+     "Network ACL, on the subnet",
+     "net"
+    ],
+    [
+     "sg",
+     "Security group, on the instance",
+     "net"
+    ],
+    [
+     "ec2",
+     "Instance",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "net",
+     "nacl",
+     "allow and deny, in order"
+    ],
+    [
+     "nacl",
+     "sg",
+     "allow only"
+    ],
+    [
+     "sg",
+     "ec2",
+     ""
+    ]
+   ],
+   "note": "A security group remembers the conversation, so a reply is always allowed back. A network ACL does not, and is the only one of the two that can refuse a single address."
+  },
+  "matches_in_total": 7,
+  "sample": [
+   {
+    "id": "wl-11",
+    "question": "Which of the following statements are true with respect to VPC? (choose multiple)",
+    "answer": "B. A network ACL can be associated with multiple subnets.; D. Subnet’s IP CIDR block can be same as the VPC CIDR block."
+   },
+   {
+    "id": "dt-250",
+    "question": "You have a load balancer configured for VPC, and all back-end Amazon EC2 instances are in service. However, your web browser times out when connecting to the load balancer's DNS name. Which options are probable causes of this behavior? (Choose 2 answers)",
+    "answer": "A. The load balancer was not configured to use a public subnet with an Internet gateway configured.; C. The security groups or network ACLs are not properly configured for web traffic."
+   },
+   {
+    "id": "et-509",
+    "question": "A company operates a two-tier application for image processing. The application uses two Availability Zones, each with one public subnet and one private subnet. An Application Load Balancer (ALB) for the web tier uses the public subnets. Amazon EC2 instances for the application tier use the private subnets. Users report that the application is running more slowly than expected. A security audit of the web server log files shows that the application is receiving millions of illegitimate requests from a small number of IP addresses. A solutions architect needs to resolve the immediate performance problem while the company investigates a more permanent solution. What should the solutions archit",
+    "answer": "B. Modify the network ACL for the web tier subnets. Add an inbound deny rule for the IP addresses that are consuming resources."
+   },
+   {
+    "id": "wl-27",
+    "question": "Which of the following statements are true in terms of allowing/denying traffic from/to VPC assuming the default rules are not in effect? (choose multiple)",
+    "answer": "B. In a Network ACL, for a successful HTTPS connection, you must add an inbound; C. In a Security Group, for a successful HTTPS connection, add an inbound rule with"
+   },
+   {
+    "id": "dt-610",
+    "question": "A benefits enrollment company is hosting a 3-tier web application running in a VPC on AWS which includes a NAT (Network Address Translation) instance in the public Web tier. There is enough provisioned capacity for the expected workload for the new fiscal year benefit enrollment period plus some extra overhead. Enrollment proceeds nicely for two days and then the web tier becomes unresponsive. Upon investigation using CloudWatch and other monitoring tools it is discovered that there is an extremely large and unanticipated amount of inbound traffic coming from a set of 15 specific IP addresses over port 80 from a country where the benefits company has no customers. The web tier instances are ",
+    "answer": "D. Create an inbound NACL (Network Access control list) associated with the web tier subnet with deny rules to block the attacking IP addresses."
+   },
+   {
+    "id": "ce-185",
+    "question": "A company runs multiple applications on Amazon EC2 instances in a VPC. Application A runs in a private subnet that has a custom route table and network ACL. Application B runs in a second private subnet in the same VPC. The company needs to prevent Application A from sending traffic to Application B. Which solution will meet this requirement?",
+    "answer": "D. Add a deny outbound rule to the custom network ACL for the Application A subnet. Configure the rule to prevent Application A from sending traffic to IP addresses that are associated with the Application B subnet."
+   },
+   {
+    "id": "dt-51",
+    "question": "An instance is launched into a VPC subnet with the network ACL configured to allow all inbound traffic and deny all outbound traffic. The instance's security group is configured to allow SSH from any IP address and deny all outbound traffic. What changes need to be made to allow SSH access to the instance?",
+    "answer": "B. The outbound network ACL needs to be modified to allow outbound traffic."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "ec2-rds",
+   "title": "An application and its database, in separate subnets",
+   "when": [
+    "EC2",
+    "RDS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "app",
+     "EC2, private subnet",
+     "compute"
+    ],
+    [
+     "db",
+     "RDS, private subnet",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "db",
+     "security group to security group"
+    ]
+   ],
+   "note": "The database security group allows the application's security group, not an address range. Neither subnet needs a route to the internet."
+  },
+  "matches_in_total": 6,
+  "sample": [
+   {
+    "id": "ce-224",
+    "question": "A company is designing a secure solution to grant access to its Amazon RDS for PostgreSQL database. Applications that run on Amazon EC2 instances must be able to securely authenticate to the database without storing long-term credentials. Which solution will meet these requirements?",
+    "answer": "D. Use IAM roles to assign permissions to the EC2 instances. Configure the applications to obtain a token from the RDS database to authenticate by using IAM authentication."
+   },
+   {
+    "id": "ce-787",
+    "question": "A company is migrating its databases to Amazon RDS for PostgreSQL. The company is migrating its applications to Amazon EC2 instances. The company wants to optimize costs for long-running workloads. Which solution will meet this requirement MOST cost-effectively?",
+    "answer": "D. Purchase Reserved Instances for a 3 year term with the All Upfront option for the Amazon RDS for PostgreSQL workloads. Purchase a 3 year EC2 Instance Savings Plan with the All Upfront option for the EC2 instances."
+   },
+   {
+    "id": "dt-469",
+    "question": "A user has launched one EC2 instance in the US East region and one in the US West region. The user has launched an RDS instance in the US East region. How can the user configure access from both the EC2 instances to RDS?",
+    "answer": "C. Configure the security group of the US East region to allow traffic from the US West region's instance and configure the RDS security group's ingress rule for the US East EC2 group."
+   },
+   {
+    "id": "ce-155",
+    "question": "A company runs an application on Amazon EC2 instances. The application needs to access an Amazon RDS database. The company wants to grant the EC2 instances access permissions to the RDS database while following the principle of least privilege. Which solution will meet these requirements?",
+    "answer": "D. Create an IAM role that has a policy that grants the minimum required permissions to access the RDS database. Attach the IAM role to an EC2 instance profile. Associate the instance profile with the instances."
+   },
+   {
+    "id": "dt-244",
+    "question": "Your customer wishes to deploy an enterprise application to AWS which will consist of several web servers, several application servers and a small (50GB) Oracle database information is stored, both in the database and the file systems of the various servers. The backup system must support database recovery whole server and whole disk restores, and individual file restores with a recovery time of no more than two hours. They have chosen to use RDS Oracle as the database. Which backup architecture will meet these requirements?",
+    "answer": "A. Backup RDS using automated daily DB backups Backup the EC2 instances using AMIs and supplement with file-level backup to S3 using traditional enterprise backup software to provide file level restore."
+   },
+   {
+    "id": "ce-148",
+    "question": "A solutions architect is designing the architecture for a two-tier web application. The web application consists of an internet-facing Application Load Balancer (ALB) that forwards traffic to an Auto Scaling group of Amazon EC2 instances. The EC2 instances must be able to access an Amazon RDS database. The company does not want to rely solely on security groups or network ACLs. Only the minimum resources that are necessary should be routable from the internet. Which network design meets these requirements?",
+    "answer": "B. Place the ALB in public subnets. Place the EC2 instances and RDS database in private subnets."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "lambda-vpc-rds",
+   "title": "A function reaching a private database",
+   "when": [
+    "Lambda",
+    "RDS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "fn",
+     "Lambda in the VPC",
+     "compute"
+    ],
+    [
+     "px",
+     "RDS Proxy",
+     "net"
+    ],
+    [
+     "db",
+     "RDS, private subnet",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "fn",
+     "px",
+     "pooled connections"
+    ],
+    [
+     "px",
+     "db",
+     ""
+    ]
+   ],
+   "note": "Many functions at once would open many connections and exhaust the database. The proxy holds a pool between them. A function in a VPC also loses its route to the internet unless a NAT gateway gives it one."
+  },
+  "matches_in_total": 4,
+  "sample": [
+   {
+    "id": "ce-691",
+    "question": "A company's ecommerce website has unpredictable traffic and uses AWS Lambda functions to directly access a private Amazon RDS for PostgreSQL DB instance. The company wants to maintain predictable database performance and ensure that the Lambda invocations do not overload the database with too many connections. What should a solutions architect do to meet these requirements?",
+    "answer": "B. Point the client driver at an RDS Proxy endpoint. Deploy the Lambda functions inside a VPC."
+   },
+   {
+    "id": "gh-653",
+    "question": "A company maintains an Amazon RDS database that maps users to cost centers. The company has accounts in an organization in AWS Organizations. The company needs a solution that will tag all resources that are created in a speci c AWS account in the organization. The solution must tag each resource with the cost center ID of the user who created the resource. Which solution will meet these requirements?",
+    "answer": "Answer: B) Create a Lambda function triggered by EventBridge (via CloudTrail) to tag resources based on the RDS cost center DB."
+   },
+   {
+    "id": "ce-386",
+    "question": "A company has a web application that uses Amazon API Gateway to route HTTPS requests to AWS Lambda functions. The application uses an Amazon Aurora MySQL database for its data storage. The application has experienced unpredictable surges in traffic that overwhelm the database with too many connection requests. The company wants to implement a scalable solution that is more resilient to database failures. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "A. Create an Amazon RDS proxy for the database. Replace the database endpoint with the proxy endpoint in the Lambda functions."
+   },
+   {
+    "id": "ce-798",
+    "question": "A company has multiple Amazon RDS DB instances that run in a development AWS account. All the instances have tags to identify them as development resources. The company needs the development DB instances to run on a schedule only during business hours. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "D. Create an Amazon EventBridge rule that invokes AWS Lambda functions to start and stop the RDS instances."
+   }
+  ]
+ }
+]

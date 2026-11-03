@@ -49,14 +49,31 @@ def die(msg: str) -> None:
     sys.exit("stopped: " + msg)
 
 
+EXAM_ID = json.loads((Path(__file__).parent / "app-data.json")
+                     .read_text(encoding="utf-8")).get("examId", "saa-c03")
+
+
 def load_export(path: Path) -> dict:
     try:
         d = json.loads(path.read_text(encoding="utf-8-sig"))
     except Exception as e:
         die(f"{path.name} is not readable as JSON ({e})")
-    if d.get("app") != "SAA-C03 Recall Board":
+    if d.get("app") not in ("Recall Board", "SAA-C03 Recall Board"):
         die(f"{path.name} says it came from {d.get('app')!r}, not the recall board")
-    prog = d.get("progress")
+
+    # A format 2 file holds every exam the browser had work for, each under its
+    # own id. The seed is this exam's progress, so take that one and leave the
+    # rest alone. An older file has only ever been this exam, so it is used as
+    # it stands.
+    exams = d.get("exams")
+    if isinstance(exams, dict):
+        want = exams.get(EXAM_ID)
+        if not isinstance(want, dict):
+            die(f"{path.name} holds {', '.join(exams) or 'no exams'}, "
+                f"and this build is {EXAM_ID}")
+        prog = want.get("progress")
+    else:
+        prog = d.get("progress")
     if not isinstance(prog, dict):
         die(f"{path.name} has no progress in it")
     for k in COUNTED:

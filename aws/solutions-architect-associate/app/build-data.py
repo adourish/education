@@ -35,8 +35,11 @@ OUT = HERE / "app-data.json"
 # The glossary lives with the questions, so import it from there.
 sys.path.insert(0, str(HERE.parent / "questions"))
 from glossary import GLOSSARY  # noqa: E402
+from remember import REMEMBER, _check as _check_remember  # noqa: E402
+_check_remember()
 from domains import EXAM_WEIGHTS, DOMAIN_NAMES  # noqa: E402
-from diagrams import DIAGRAMS, diagrams_for  # noqa: E402
+from diagrams import DIAGRAMS, diagrams_for, as_is_for  # noqa: E402
+from decisions import DECISIONS, decisions_for  # noqa: E402, as_is_for
 
 # Bumped when the question set itself changes, separately from the app.
 VERSION = "1.8.0"
@@ -102,17 +105,20 @@ def main() -> None:
     # can explain the services a question names without revealing which is right.
     gloss = [(name, re.compile(pat, re.I)) for name, (pat, _) in GLOSSARY.items()]
 
-    def terms_in(text: str) -> list[str]:
-        """Matched terms, most specific first.
+    # How many questions each term turns up in, so the rare ones can go first.
+    term_count: dict[str, int] = {}
 
-        A hint is capped at nine entries, and truncating in dictionary order
+    def terms_in(text: str) -> list[str]:
+        """Matched terms, rarest first.
+
+        A hint is capped at twelve entries, and truncating in dictionary order
         could drop the term the question is actually about: one whose whole
-        point is Intelligent-Tiering would keep the generic "Amazon S3" and
-        lose the specific one. Longer names are the more specific ones, so
-        they go first and survive the cut.
+        point is SFTP would keep the generic "Amazon EC2" and lose the specific
+        one. A term that turns up in few questions is the specific one, so it
+        goes first and survives the cut; length breaks ties.
         """
         hit = [name for name, rx in gloss if rx.search(text)]
-        return sorted(hit, key=lambda n: (-len(n), n))
+        return sorted(hit, key=lambda n: (term_count.get(n, 0), -len(n), n))
 
     # ---- poster rows, grouped by the section they sit in --------------------
     html = POSTER.read_text(encoding="utf-8")
@@ -187,6 +193,11 @@ def main() -> None:
                     flags.pop(a, None)
 
     bank = json.loads(BANK.read_text(encoding="utf-8"))
+    for r in bank:
+        text = (r["question"] + " " + " ".join(r.get("options") or []) + " " + r["answer"])
+        for name, rx in gloss:
+            if rx.search(text):
+                term_count[name] = term_count.get(name, 0) + 1
     questions = []
     for r in bank:
         q = r["question"].strip()
@@ -200,7 +211,7 @@ def main() -> None:
             "area": r["area"],
             "dom": r.get("domain", ""),
             "c": tag(f"{q} {a}"),
-            "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:9],
+            "t": terms_in(q + " " + " ".join(r.get("options") or []) + " " + a)[:12],
             "src": SOURCES.get(r.get("source"), UNKNOWN_SOURCE)[0],
             # A star means a person has checked this question, not a scraper.
             "star": bool(r.get("reviewed")),
@@ -211,6 +222,15 @@ def main() -> None:
             # Which shared pictures fit this answer. Matched on the answer so a
             # diagram can never show an architecture the question rejects.
             "dg": diagrams_for(a) or None,
+            # What the question says they have already, which is a different
+            # arrangement from the one the answer proposes. Kept apart from the
+            # answer's picture so it can be looked at without being told the
+            # answer, and left out when the two are the same.
+            "dgnow": as_is_for(q, diagrams_for(a)),
+            # The choices this question is putting in front of you, worked out
+            # from what its options span rather than from the right answer, so
+            # it is just as useful before you have picked one.
+            "dec": decisions_for(q, r.get("options")) or None,
         })
 
     # How many questions touch each poster line. A line nothing covers is a gap
@@ -226,18 +246,40 @@ def main() -> None:
     data = {
         "version": VERSION,
         "built": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        # Short, stable, and never shown: it is what names this exam's own
+        # corner of the browser's storage, so two exams on the same site
+        # cannot read or overwrite each other. Changing it would orphan
+        # everything a person has answered, so it does not change.
+        "examId": "saa-c03",
         "exam": "SAA-C03",
+        "examName": "AWS Solutions Architect Associate (SAA-C03)",
         "guide": "Exam guide version 1.1",
+        # The other exams published alongside this one, linked in the
+        # footer. Each keeps its own answers under its own name, and one
+        # exported file covers every one of them.
+        "otherExams": [
+            {"id": "cca-f", "name": "Claude Certified Architect",
+             "href": "cca-f/"},
+        ],
         "sections": sections,
         "questions": questions,
         "concepts": {k: {"tier": tiers.get(k, 0)} for k in concepts},
         "glossary": {name: what for name, (_, what) in GLOSSARY.items()},
+        # One line per term to memorise; the entry above explains it.
+        "remember": REMEMBER,
         "sources": dict(SOURCES.values()),
         # Drawn by the app at display time, in the colours of whichever theme is
         # chosen, so one picture serves every question that shares the pattern.
         "diagrams": {d["id"]: {"title": d["title"], "nodes": d["nodes"],
                                "edges": d["edges"], "note": d["note"]}
                      for d in DIAGRAMS},
+        # The dozen choices the exam keeps asking, each as a list of branches
+        # rather than a flowchart: a decision that fans seven ways is
+        # unreadable on a phone as boxes and arrows.
+        "decisions": [{"id": d["id"], "title": d["title"], "area": d["area"],
+                       "rows": [list(r) for r in d["rows"]],
+                       "traps": d["traps"]}
+                      for d in DECISIONS],
         # What the real paper is made of, so a mock can be drawn in the same
         # proportions rather than in whatever proportions the question sets
         # happen to hold. Kept apart from "exam", which is the exam's name.
@@ -269,7 +311,9 @@ def main() -> None:
     print(f"  {sum(1 for q in questions if q['agree'] > 1)} carried by two or more publishers")
     print(f"  {sum(1 for q in questions if q['flag'])} flagged by review")
     withdg = sum(1 for q in questions if q["dg"])
+    withnow = sum(1 for q in questions if q["dgnow"])
     print(f"  {withdg} questions have a diagram, from {len(DIAGRAMS)} shared pictures")
+    print(f"  {withnow} of those also show what the question says they have now")
     withterms = sum(1 for q in questions if q["t"])
     avg = sum(len(q["t"]) for q in questions) / max(len(questions), 1)
     print(f"  {withterms} questions have glossary terms, {avg:.1f} on average")

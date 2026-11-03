@@ -11,6 +11,9 @@ recall under time pressure, not first-time learning.
 | Path | Subject |
 |---|---|
 | `aws/solutions-architect-associate/` | AWS Certified Solutions Architect – Associate (SAA-C03) |
+| `anthropic/claude-certified-architect/` | Claude Certified Architect (CCA-F) — exam-guide samples only so far |
+| `site/` | Build script for the published study app |
+| `planning/` | What the app does, the journeys through it, and the backlog |
 
 ## Layout of a subject folder
 

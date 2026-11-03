@@ -26,17 +26,26 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).parent
-TEMPLATE = HERE / "app.template.html"
-DATA = HERE / "app-data.json"
-OUT = HERE / "app.html"
-OUT_STANDALONE = HERE / "saa-c03-recall-board.html"
-SEED = HERE / "progress-seed.json"
 
-APP_VERSION = "1.23.0"
+# The page is one template filled with one exam's data. A second exam is the
+# same template and a different data file, so the folder to build can be given
+# on the command line and the template is shared rather than copied:
+#
+#     python build-app.py                        the AWS exam, in this folder
+#     python build-app.py ../../../anthropic/claude-certified-architect/app
+#
+TEMPLATE = HERE / "app.template.html"
+APP_DIR = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else HERE
+DATA = APP_DIR / "app-data.json"
+OUT = APP_DIR / "app.html"
+SEED = APP_DIR / "progress-seed.json"
+
+APP_VERSION = "1.50.0"
 
 # SHA-256 of the board's password. The hash rather than the word, so the
 # password is not sitting in the published file in plain text. This is a
@@ -86,6 +95,12 @@ def main() -> None:
     build_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     html = html.replace("__DATA__", data)
+    # Whichever exam this build is, in the heading, the tab title and the way
+    # in. These used to be written into the template, so a second exam called
+    # itself SAA-C03 everywhere except the small chip beside the heading.
+    exam_short = json.loads(data).get("exam", "Exam")
+    html = html.replace("__EXAM_SHORT__", exam_short)
+    html = html.replace("__EXAM_FULL__", exam_short + " Recall Board")
     html = html.replace("__APP_VERSION__", APP_VERSION)
     html = html.replace("__BUILD_DATE__", build_date)
 
@@ -101,28 +116,29 @@ def main() -> None:
     html = html.replace("__PASS_SHA__", hashlib.sha256(PASSWORD.encode()).hexdigest())
 
     for left in ("__DATA__", "__APP_VERSION__", "__BUILD_DATE__",
-             "__PASS_SHA__", "__SEED__"):
+             "__PASS_SHA__", "__SEED__", "__EXAM_SHORT__", "__EXAM_FULL__"):
         if left in html:
             raise SystemExit(f"placeholder {left} was left unreplaced")
     if False:
         raise SystemExit("A placeholder was left unreplaced.")
 
-    OUT.write_text(html, encoding="utf-8")
-    OUT_STANDALONE.write_text(STANDALONE_HEAD + html + STANDALONE_FOOT, encoding="utf-8")
-
     parsed = json.loads(DATA.read_text(encoding="utf-8"))
+    out_standalone = APP_DIR / (parsed.get("examId", "exam") + "-recall-board.html")
+
+    OUT.write_text(html, encoding="utf-8")
+    out_standalone.write_text(STANDALONE_HEAD + html + STANDALONE_FOOT, encoding="utf-8")
     print(f"v{APP_VERSION}, built {build_date}")
     print(f"  {len(parsed['questions'])} questions, "
           f"{sum(len(s['rows']) for s in parsed['sections'])} recall rows "
           f"in {len(parsed['sections'])} sections")
-    for f, what in ((OUT, "artifact fragment"), (OUT_STANDALONE, "standalone, saveable")):
+    for f, what in ((OUT, "artifact fragment"), (out_standalone, "standalone, saveable")):
         print(f"  {f.name:30} {f.stat().st_size // 1024:5} KB   {what}")
 
     if OUT.stat().st_size // 1024 > 15000:
         print("  WARNING: approaching the 16 MB artifact limit")
 
     # The standalone build is useless without these two, so fail loudly.
-    sa = OUT_STANDALONE.read_text(encoding="utf-8")
+    sa = out_standalone.read_text(encoding="utf-8")
     for needed in ("<!doctype html>", '<meta charset="utf-8">'):
         if needed not in sa:
             raise SystemExit(f"standalone build is missing {needed}")
@@ -132,7 +148,7 @@ def main() -> None:
     # backslash escape that a build step read as a number: once as NUL, once as
     # U+0015 from a CSS escape that began with a backslash and two digits. So
     # check for every control character rather than only the one that bit first.
-    for f in (OUT, OUT_STANDALONE):
+    for f in (OUT, out_standalone):
         for n, line in enumerate(f.read_text(encoding='utf-8').split(chr(10)), 1):
             for ch in line:
                 if ord(ch) < 32 and ch not in (chr(13), chr(9)):

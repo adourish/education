@@ -1,0 +1,709 @@
+[
+ {
+  "diagram": {
+   "id": "s3-vpce",
+   "title": "Reaching a bucket without crossing the internet",
+   "when": [
+    "S3",
+    "VPCe"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "ec2",
+     "Private subnet",
+     "compute"
+    ],
+    [
+     "ep",
+     "Gateway endpoint",
+     "net"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "ec2",
+     "ep",
+     "route table entry"
+    ],
+    [
+     "ep",
+     "s3",
+     "stays on the AWS network"
+    ]
+   ],
+   "note": "A gateway endpoint is free and serves S3 and DynamoDB. It also removes the NAT gateway charges that bucket traffic would otherwise run up."
+  },
+  "matches_in_total": 21,
+  "sample": [
+   {
+    "id": "et-4",
+    "question": "An application runs on an Amazon EC2 instance in a VPC. The application processes logs that are stored in an Amazon S3 bucket. The EC2 instance needs to access the S3 bucket without connectivity to the internet. Which solution will provide private network connectivity to Amazon S3?",
+    "answer": "A. Create a gateway VPC endpoint to the S3 bucket."
+   },
+   {
+    "id": "et-208",
+    "question": "A company needs to move data from an Amazon EC2 instance to an Amazon S3 bucket. The company must ensure that no API calls and no data are routed through public internet routes. Only the EC2 instance can have access to upload data to the S3 bucket. Which solution will meet these requirements?",
+    "answer": "A. Create an interface VPC endpoint for Amazon S3 in the subnet where the EC2 instance is located. Attach a resource policy to the S3 bucket to only allow the EC2 instance's IAM role for access."
+   },
+   {
+    "id": "dt-662",
+    "question": "A company runs a web application on multiple Amazon EC2 instances in a VPC. The application needs to write sensitive data to an Amazon S3 bucket. The data cannot be sent over the public internet. Which solution will meet these requirements?",
+    "answer": "A. Create a gateway VPC endpoint for Amazon S3. Create a route in the VPC route table to the endpoint."
+   },
+   {
+    "id": "ce-164",
+    "question": "A company is designing an IPv6 application that is hosted on Amazon EC2 instances in a private subnet within a VPC. The application will store user-uploaded content in Amazon S3 buckets. The application will save each S3 object's URL link and metadata in Amazon DynamoDB. The company must not use public internet connections to transmit user-uploaded content or metadata. Which solution will meet these requirements?",
+    "answer": "B. Implement interface VPC endpoints for both Amazon S3 and Amazon DynamoDB."
+   },
+   {
+    "id": "ce-945",
+    "question": "A company runs a non-production Oracle database on an Amazon EC2 instance. The database contains 1 TB of data. The EC2 instance runs in a private subnet of a VPC. A backup of the EC2 instance is taken every day and uploaded to an Amazon S3 bucket. The current backup process uses a NAT gateway to access the S3 bucket. The company does not want the backup process to use public IP addresses. Which solution will meet this requirement MOST cost-effectively?",
+    "answer": "A. Create a gateway endpoint for Amazon S3 in the VPC. Update the route tables."
+   },
+   {
+    "id": "gh-667",
+    "question": "A company is moving its data and applications to AWS during a multiyear migration project. The company wants to securely access data on Amazon S3 from the company's AWS Region and from the company's on-premises location. The data must not traverse the internet. The company has established an AWS Direct Connect connection between its Region and its on-premises location. Which solution will meet these requirements?",
+    "answer": "Create interface VPC endpoints (AWS PrivateLink) for Amazon S3."
+   },
+   {
+    "id": "ce-199",
+    "question": "A company runs its legacy web application on AWS. The web application server runs on an Amazon EC2 instance in the public subnet of a VPC. The web application server collects images from customers and stores the image files in a locally attached Amazon Elastic Block Store (Amazon EBS) volume. The image files are uploaded every night to an Amazon S3 bucket for backup. A solutions architect discovers that the image files are being uploaded to Amazon S3 through the public endpoint. The solutions architect needs to ensure that traffic to Amazon S3 does not use the public endpoint.",
+    "answer": "A. Create a gateway VPC endpoint for the S3 bucket that has the necessary permissions for the VPC. Configure the subnet route table to use the gateway VPC endpoint."
+   },
+   {
+    "id": "et-497",
+    "question": "A company has a service that reads and writes large amounts of data from an Amazon S3 bucket in the same AWS Region. The service is deployed on Amazon EC2 instances within the private subnet of a VPC. The service communicates with Amazon S3 over a NAT gateway in the public subnet. However, the company wants a solution that will reduce the data output costs. Which solution will meet these requirements MOST cost-effectively?",
+    "answer": "C. Provision a VPC gateway endpoint. Configure the route table for the private subnet to use the gateway endpoint as the route for all S3 traffic."
+   },
+   {
+    "id": "dt-655",
+    "question": "A solutions architect is creating an application. The application will run on Amazon EC2 instances in private subnets across multiple Availability Zones in a VPC. The EC2 instances will frequently access large files that contain confidential information. These files are stored in Amazon S3 buckets for processing. The solutions architect must optimize the network architecture to minimize data transfer costs. What should the solutions architect do to meet these requirements?",
+    "answer": "A. Create a gateway endpoint for Amazon S3 in the VPC. In the route tables for the private subnets, add an entry for the gateway endpoint."
+   },
+   {
+    "id": "et-610",
+    "question": "A company deploys Amazon EC2 instances that run in a VPC. The EC2 instances load source data into Amazon S3 buckets so that the data can be processed in the future. According to compliance laws, the data must not be transmitted over the public internet. Servers in the company's on- premises data center will consume the output from an application that runs on the EC2 instances. Which solution will meet these requirements?",
+    "answer": "B. Deploy a gateway VPC endpoint for Amazon S3. Set up an AWS Direct Connect connection between the on-premises network and the VPC."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "dx-vpn-hybrid",
+   "title": "Joining your own network to AWS",
+   "when": [
+    "DX"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "dc",
+     "Your datacentre",
+     "actor"
+    ],
+    [
+     "dx",
+     "Direct Connect",
+     "net"
+    ],
+    [
+     "vpc",
+     "VPC",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "dc",
+     "dx",
+     "private line"
+    ],
+    [
+     "dx",
+     "vpc",
+     "virtual interface"
+    ]
+   ],
+   "note": "Steady bandwidth and steady latency, but weeks to put in. A Site-to-Site VPN is the one that can be working the same day."
+  },
+  "matches_in_total": 14,
+  "sample": [
+   {
+    "id": "dt-653",
+    "question": "A company has primary and secondary data centers that are 500 miles (804.7 km) apart and interconnected with high-speed fiber-optic cable. The company needs a highly available and secure network connection between its data centers and a VPC on AWS for a mission-critical workload. A solutions architect must choose a connection solution that provides maximum resiliency. Which solution meets these requirements?",
+    "answer": "C. Two AWS Direct Connect connections from each of the primary and secondary data centers terminating at two Direct Connect locations on two separate devices."
+   },
+   {
+    "id": "dt-561",
+    "question": "Is there any way to own a direct connection to Amazon Web Services?",
+    "answer": "D. Yes, it's called Direct Connect."
+   },
+   {
+    "id": "ce-609",
+    "question": "A company needs to connect its on-premises data center network to a new VPC. The data center network has a 100 Mbps symmetrical internet connection. An application that is running on premises will transfer multiple gigabytes of data each day. The application will use an Amazon Data Firehose delivery stream for processing. What should a solutions architect recommend for maximum performance?",
+    "answer": "D. Use AWS PrivateLink to create an interface VPC endpoint for Firehose in the VPC. Set up a 1 Gbps AWS Direct Connect connection between the on-premises network and AWS. Use the PrivateLink endpoint to send the data from on premises to Firehose."
+   },
+   {
+    "id": "dt-87",
+    "question": "You are designing the network infrastructure for an application server in Amazon VPC. Users will access all the application instances from the Internet as well as from an on-premises network. The on-premises network is connected to your VPC over an AWS Direct Connect link. How would you design routing to meet the above requirements?",
+    "answer": "A. Configure a single routing Table with a default route via the Internet gateway. Propagate a default route via BGP on the AWS Direct Connect customer router. Associate the routing table with all VPC subnets."
+   },
+   {
+    "id": "et-43",
+    "question": "A company has an on-premises application that generates a large amount of time-sensitive data that is backed up to Amazon S3. The application has grown and there are user complaints about internet bandwidth limitations. A solutions architect needs to design a long-term solution that allows for both timely backups to Amazon S3 and with minimal impact on internet connectivity for internal users. Which solution meets these requirements?",
+    "answer": "B. Establish a new AWS Direct Connect connection and direct backup traffic through this new connection."
+   },
+   {
+    "id": "et-374",
+    "question": "A company is running several business applications in three separate VPCs within the us-east-1 Region. The applications must be able to communicate between VPCs. The applications also must be able to consistently send hundreds of gigabytes of data each day to a latency- sensitive application that runs in a single on-premises data center. A solutions architect needs to design a network connectivity solution that maximizes cost-effectiveness. Which solution meets these requirements?",
+    "answer": "D. Set up one AWS Direct Connect connection from the data center to AWS. Create a transit gateway, and attach each VPC to the transit gateway. Establish connectivity between the Direct Connect connection and the transit gateway."
+   },
+   {
+    "id": "dt-334",
+    "question": "Which two methods increases the fault tolerance of the connection to VPC-1? (Choose 2 answers)",
+    "answer": "B. Establish a hardware VPN over the internet between VPC-1 and the on-premises network.; E. Establish a new AWS Direct Connect connection and private virtual interface in the same AWS region as VPC-1."
+   },
+   {
+    "id": "ce-520",
+    "question": "A finance company is migrating its trading platform to AWS. The trading platform processes a high volume of market data and processes stock trades. The company needs to establish a consistent, low- latency network connection from its on-premises data center to AWS. The company will host resources in a VPC. The solution must not use the public internet. Which solution will meet these requirements?",
+    "answer": "B. Use AWS Direct Connect to set up a connection from the on-premises data center to AWS"
+   },
+   {
+    "id": "dt-305",
+    "question": "You are tasked with moving a legacy application from a virtual machine running Inside your datacenter to an Amazon VPC Unfortunately this app requires access to a number of on-premises services and no one who configured the app still works for your company. Even worse there's no documentation for it. What will allow the application running inside the VPC to reach back and access its internal dependencies without being reconfigured? (Choose 3 answers)",
+    "answer": "A. An AWS Direct Connect link between the VPC and the network housing the internal services.; D. An IP address space that does not conflict with the one on-premises.; F. A VM Import of the current virtual machine."
+   },
+   {
+    "id": "et-499",
+    "question": "A company needs to minimize the cost of its 1 Gbps AWS Direct Connect connection. The company's average connection utilization is less than 10%. A solutions architect must recommend a solution that will reduce the cost without compromising security. Which solution will meet these requirements?",
+    "answer": "D. Contact an AWS Direct Connect Partner to order a 200 Mbps hosted connection for an existing AWS account."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "ddb-stream-s3",
+   "title": "Every change to a table, sent somewhere else",
+   "when": [
+    "DynamoDB",
+    "S3"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "d",
+     "DynamoDB table",
+     "store"
+    ],
+    [
+     "st",
+     "DynamoDB Streams",
+     "queue"
+    ],
+    [
+     "fn",
+     "Lambda",
+     "compute"
+    ],
+    [
+     "s3",
+     "S3 bucket",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "d",
+     "st",
+     "every item change"
+    ],
+    [
+     "st",
+     "fn",
+     "reads in order"
+    ],
+    [
+     "fn",
+     "s3",
+     "writes"
+    ]
+   ],
+   "note": "Streams carry the before and after of every change for 24 hours. Time to live removes old items at no charge and shows the deletion in the stream."
+  },
+  "matches_in_total": 13,
+  "sample": [
+   {
+    "id": "ce-164",
+    "question": "A company is designing an IPv6 application that is hosted on Amazon EC2 instances in a private subnet within a VPC. The application will store user-uploaded content in Amazon S3 buckets. The application will save each S3 object's URL link and metadata in Amazon DynamoDB. The company must not use public internet connections to transmit user-uploaded content or metadata. Which solution will meet these requirements?",
+    "answer": "B. Implement interface VPC endpoints for both Amazon S3 and Amazon DynamoDB."
+   },
+   {
+    "id": "dt-478",
+    "question": "Company B is launching a new game app for mobile devices. Users will log into the game using their existing social media account to streamline data capture. Company B would like to directly save player data and scoring information from the mobile app to a DynamoDB table named Score Data. When a user saves their game, the progress data will be stored to the Game State S3 bucket. What is the best approach for storing data to DynamoDB and S3?",
+    "answer": "B. Use temporary security credentials that assume a role providing access to the Score Data DynamoDB table and the Game State S3 bucket using web identity federation."
+   },
+   {
+    "id": "ce-661",
+    "question": "A company needs a solution to integrate transaction data from several Amazon DynamoDB tables into an existing Amazon Redshift data warehouse. The solution must maintain the provisioned throughput of DynamoDB. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Create an Amazon S3 bucket. Configure DynamoDB to export to the bucket on a regular schedule. Use an Amazon Redshift COPY command to read from the S3 bucket."
+   },
+   {
+    "id": "ce-865",
+    "question": "A company is developing a photo-hosting application in the us-east-1 Region. The application gives users across multiple countries the ability to upload and view photos. Some photos are heavily viewed for months, while other photos are viewed for less than a week. The application allows users to upload photos that are up to 20 MB in size. The application uses photo metadata to determine which photos to display to each user. The company needs a cost-effective storage solution to support the application.",
+    "answer": "B. Store the photos in the Amazon S3 Intelligent-Tiering storage class. Store the photo metadata and the S3 location URLs in Amazon DynamoDB."
+   },
+   {
+    "id": "et-278",
+    "question": "A company wants to create an application to store employee data in a hierarchical structured relationship. The company needs a minimum-latency response to high-traffic queries for the employee data and must protect any sensitive data. The company also needs to receive monthly email messages if any financial information is present in the employee data. Which combination of steps should a solutions architect take to meet these requirements? (Choose two.)",
+    "answer": "B. Use Amazon DynamoDB to store the employee data in hierarchies. Export the data to Amazon S3 every month."
+   },
+   {
+    "id": "ce-528",
+    "question": "How can DynamoDB data be made available for long-term analytics with minimal operational overhead?",
+    "answer": "A. Configure DynamoDB incremental exports to S3."
+   },
+   {
+    "id": "et-490",
+    "question": "A gaming company uses Amazon DynamoDB to store user information such as geographic location, player data, and leaderboards. The company needs to configure continuous backups to an Amazon S3 bucket with a minimal amount of coding. The backups must not affect availability of the application and must not affect the read capacity units (RCUs) that are defined for the table. Which solution meets these requirements?",
+    "answer": "B. Export the data directly from DynamoDB to Amazon S3 with continuous backups. Turn on point-in-time recovery for the table."
+   },
+   {
+    "id": "ce-540",
+    "question": "A company has a large amount of data in an Amazon DynamoDB table. A large batch of data is appended to the table once each day. The company wants a solution that will make all the existing and future data in DynamoDB available for analytics on a long-term basis. Which solution meets these requirements with the LEAST operational overhead?",
+    "answer": "A. Configure DynamoDB incremental exports to Amazon S3."
+   },
+   {
+    "id": "ce-653",
+    "question": "A company wants to migrate an Oracle database to AWS. The database consists of a single table that contains millions of geographic information systems (GIS) images that are high resolution and are identified by a geographic code. When a natural disaster occurs, tens of thousands of images get updated every few minutes. Each geographic code has a single image or row that is associated with it. The company wants a solution that is highly available and scalable during such events.",
+    "answer": "B. Store the images in Amazon S3 buckets. Use Amazon DynamoDB with the geographic code as the key and the image S3 URL as the value."
+   },
+   {
+    "id": "ce-527",
+    "question": "How can trade data from DynamoDB be ingested into an S3 data lake for near real-time analysis?",
+    "answer": "B. Use DynamoDB Streams to invoke a Lambda function that writes to Data Firehose, which writes to S3."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "resource-policy",
+   "title": "A rule attached to the thing itself",
+   "when": null,
+   "words": "bucket policy|resource-based polic|resource polic|key polic",
+   "nodes": [
+    [
+     "other",
+     "Another account or service",
+     "actor"
+    ],
+    [
+     "pol",
+     "Policy on the resource",
+     "net"
+    ],
+    [
+     "res",
+     "Bucket, queue or key",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "other",
+     "pol",
+     "asks"
+    ],
+    [
+     "pol",
+     "res",
+     "allows or refuses"
+    ]
+   ],
+   "note": "A policy on the resource says who may use it and must name who. An identity policy says what one person may do. Across accounts you need both ends."
+  },
+  "matches_in_total": 22,
+  "sample": [
+   {
+    "id": "ce-217",
+    "question": "A company stores data in a centralized S3 bucket in Account A. It needs to grant Account B access to this bucket. Both accounts belong to the company. Which solution meets this requirement?",
+    "answer": "D. Create a bucket policy granting Account B access to the bucket in Account A."
+   },
+   {
+    "id": "et-612",
+    "question": "A company has an application that runs on Amazon EC2 instances in a private subnet. The application needs to process sensitive information from an Amazon S3 bucket. The application must not use the internet to connect to the S3 bucket. Which solution will meet these requirements?",
+    "answer": "D. Configure a VPC endpoint. Update the S3 bucket policy to allow access from the VPC endpoint. Update the application to use the new VPC endpoint."
+   },
+   {
+    "id": "dt-493",
+    "question": "You are signed in as root user on your account but there is an Amazon S3 bucket under your account that you cannot access. What is a possible reason for this?",
+    "answer": "A. An IAM user assigned a bucket policy to an Amazon S3 bucket and didn't specify the root user as a principal"
+   },
+   {
+    "id": "ce-35",
+    "question": "A solutions architect wants to design a data warehouse by using an Amazon Redshift cluster in the eu-west-1 Region. The data warehouse will initially ingest data from Amazon DynamoDB tables in eu- west-1. The VPC that the Redshift cluster will be deployed in must not connect to the internet. Which solution will securely load data MOST cost-effectively?",
+    "answer": "A. Create a DynamoDB gateway VPC endpoint within the VPC. Add a route from the VPC subnets to the DynamoDB prefix list by using the gateway endpoint. Add a resource policy to the endpoint to allow the Redshift cluster to access the specific workload tables."
+   },
+   {
+    "id": "et-478",
+    "question": "A law firm needs to share information with the public. The information includes hundreds of files that must be publicly readable. Modifications or deletions of the files by anyone before a designated future date are prohibited. Which solution will meet these requirements in the MOST secure way?",
+    "answer": "B. Create a new Amazon S3 bucket with S3 Versioning enabled. Use S3 Object Lock with a retention period in accordance with the designated date. Configure the S3 bucket for static website hosting. Set an S3 bucket policy to allow read-only access to the objects."
+   },
+   {
+    "id": "ce-307",
+    "question": "A company hosts a website on Amazon EC2 instances. The website processes classified data. The company stores the processed data in an Amazon S3 bucket. Because of security concerns, the company must ensure that traffic between the EC2 instances and the S3 bucket does not use public IP addresses. Which solution will meet these requirements?",
+    "answer": "A. Create a gateway endpoint for Amazon S3. Configure an S3 bucket policy to allow access from the endpoint."
+   },
+   {
+    "id": "et-364",
+    "question": "A hospital is designing a new application that gathers symptoms from patients. The hospital has decided to use Amazon Simple Queue Service (Amazon SQS) and Amazon Simple Notification Service (Amazon SNS) in the architecture. A solutions architect is reviewing the infrastructure design. Data must be encrypted at rest and in transit. Only authorized personnel of the hospital should be able to access the data. Which combination of steps should the solutions architect take to meet these requirements? (Choose two.)",
+    "answer": "B. Turn on server-side encryption on the SNS components by using an AWS Key Management Service (AWS KMS) customer managed key. Apply a key policy to restrict key usage to a set of authorized principals."
+   },
+   {
+    "id": "dt-80",
+    "question": "You need to configure an Amazon S3 bucket to serve static assets for your public-facing web application. Which methods ensure that all objects uploaded to the bucket are set to public read? (Choose 2 answers)",
+    "answer": "A. Set permissions on the object to public read during upload.; C. Configure the bucket policy to set all objects to public read."
+   },
+   {
+    "id": "et-205",
+    "question": "A company hosts a marketing website in an on-premises data center. The website consists of static documents and runs on a single server. An administrator updates the website content infrequently and uses an SFTP client to upload new documents. The company decides to host its website on AWS and to use Amazon CloudFront. The company’s solutions architect creates a CloudFront distribution. The solutions architect must design the most cost-effective and resilient architecture for website hosting to serve as the CloudFront origin. Which solution will meet these requirements?",
+    "answer": "Create a private Amazon S3 bucket. Use an S3 bucket policy that allows access only from the CloudFront distribution (Origin Access Control). Upload website content by using the AWS CLI."
+   },
+   {
+    "id": "dt-42",
+    "question": "Which features can be used to restrict access to data in S3? (Choose 2 answers)",
+    "answer": "A. Set an S3 ACL on the bucket or the object.; C. Set an S3 bucket policy."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "sts-federation",
+   "title": "Signing in with a directory you already have",
+   "when": null,
+   "words": "federat|\\bSAML\\b|Identity Center|Single Sign-On|directory",
+   "nodes": [
+    [
+     "u",
+     "Staff",
+     "actor"
+    ],
+    [
+     "idp",
+     "Your directory",
+     "net"
+    ],
+    [
+     "sts",
+     "Temporary credentials",
+     "net"
+    ],
+    [
+     "aws",
+     "AWS accounts",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "idp",
+     "signs in once"
+    ],
+    [
+     "idp",
+     "sts",
+     "vouches for them"
+    ],
+    [
+     "sts",
+     "aws",
+     "a role, for a while"
+    ]
+   ],
+   "note": "Nobody gets a user of their own in each account. The answer whenever a question says people already have company logins and there are many accounts."
+  },
+  "matches_in_total": 19,
+  "sample": [
+   {
+    "id": "ce-235",
+    "question": "A company is developing a new application that uses Amazon EC2, Amazon S3, and AWS Lambda resources. The company wants to allow employees to access the AWS Management Console by using existing credentials that the company stores and manages in an on-premises Microsoft Active Directory. Each employee must have a specific level of access to the AWS resources that is based on the employee's role. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Configure AWS Directory Service to create an Active Directory in AWS Managed Microsoft AD. Establish a trust relationship with the on-premises Active Directory. Configure IAM roles and trust policies to give the employees access to the AWS resources."
+   },
+   {
+    "id": "dt-692",
+    "question": "A company is migrating applications to AWS. The applications are deployed in different accounts. The company manages the accounts centrally by using AWS Organizations. The company's security team needs a single sign-on (SSO) solution across all the company's accounts. The company must continue managing the users and groups in its on-premises self-managed Microsoft Active Directory. Which solution will meet these requirements?",
+    "answer": "B. Enable AWS Single Sign-On (AWS SSO) from the AWS SSO console. Create a two-way forest trust to connect the company's self-managed Microsoft Active Directory with AWS SSO by using AWS Directory Service for Microsoft Active Directory."
+   },
+   {
+    "id": "dt-574",
+    "question": "A company needs to deploy virtual desktops to its customers in a virtual private cloud, leveraging existing security controls. Which set of AWS services and features will meet the company's requirements?",
+    "answer": "C. AWS Directory Service, Amazon Workspaces, and AWS Identity and Access Management."
+   },
+   {
+    "id": "ce-181",
+    "question": "A multinational company operates in multiple AWS Regions. The company must ensure that its developers and administrators have secure, role-based access to AWS resources. The roles must be specific to each user's geographic location and job responsibilities. The company wants to implement a solution to ensure that each team can access only resources within the team's Region. The company wants to use its existing directory service to manage user access. The existing directory service organizes users into roles based on location. The system must be capable of integrating seamlessly with multi-factor authentication (MFA). Which solution will meet these requirements?",
+    "answer": "B. Configure AWS IAM Identity Center with federated access. Integrate IAM Identity Center with the directory service to set up Region-specific IAM roles."
+   },
+   {
+    "id": "dt-114",
+    "question": "A corporate web application is deployed within an Amazon Virtual Private Cloud (VPC) and is connected to the corporate data center via an IPsec VPN. The application must authenticate against the on-premises LDAP server. After authentication, each logged-in user can only access an Amazon Simple Storage Space (S3) keyspace specific to that user. Which two approaches can satisfy these objectives? (Choose 2 answers)",
+    "answer": "B. The application authenticates against LDAP and retrieves the name of an IAM role associated with the user. The application then calls the IAM Security Token Service to assume that IAM role. The application can use the temporary credentials to access the appropriate S3 bucket.; C. Develop an identity broker that authenticates against LDAP and then calls IAM Security Token Service to get IAM fede"
+   },
+   {
+    "id": "ce-63",
+    "question": "A company is migrating applications from an on-premises Microsoft Active Directory that the company manages to AWS. The company deploys the applications in multiple AWS accounts. The company uses AWS Organizations to manage the accounts centrally. The company's security team needs a single sign-on solution across all the company's AWS accounts. The company must continue to manage users and groups that are in the on-premises Active Directory Which solution will meet these requirements?",
+    "answer": "B. Enable AWS IAM Identity Center. Configure a two-way forest trust relationship to connect the company's self-managed Active Directory with IAM Identity Center by using AWS Directory Service for Microsoft Active Directory."
+   },
+   {
+    "id": "ce-144",
+    "question": "A company wants to provide users with access to AWS resources. The company has 1,500 users and manages their access to on-premises resources through Active Directory user groups on the corporate network. However, the company does not want users to have to maintain another identity to access the resources. A solutions architect must manage user access to the AWS resources while preserving access to the on-premises resources. What should the solutions architect do to meet these requirements?",
+    "answer": "D. Configure Security Assertion Markup Language (SAML) 2.0-based federation. Create roles with the appropriate policies attached. Map the roles to the Active Directory groups."
+   },
+   {
+    "id": "ce-746",
+    "question": "A company has a video editing application that requires consistent sub-millisecond latency and high throughput to access media objects that are updated frequently. The company currently has an Amazon S3 bucket that uses the S3 Standard storage class. The company needs to improve performance while maintaining Amazon S3 API compatibility. The company needs to access the media objects within a single Availability Zone. Which storage solution will meet these requirements?",
+    "answer": "B. Create an S3 directory bucket that uses the S3 Express One Zone storage class."
+   },
+   {
+    "id": "dt-554",
+    "question": "Which technique can be used to integrate AWS IAM (Identity and Access Management) with an on-premise LDAP (Lightweight Directory Access Protocol) directory service?",
+    "answer": "B. Use SAML (Security Assertion Markup Language) to enable single sign-on between AWS and LDAP."
+   },
+   {
+    "id": "dt-82",
+    "question": "You are developing a new mobile application and are considering storing user preferences in AWS. This would provide a more uniform cross-device experience to users using multiple mobile devices to access the application. The preference data for each user is estimated to be 50KB in size. Additionally, 5 million customers are expected to use the application on a regular basis. The solution needs to be cost-effective, highly available, scalable and secure. How would you design a solution to meet the above requirements?",
+    "answer": "B. Setup a DynamoDB table with an item for each user having the necessary attributes to hold the user preferences. The mobile application will query the user preferences directly from the DynamoDB table. Utilize STS, Web Identity Federation, and DynamoDB Fine Grained Access Control to authenticate and authorize access."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "apigw-lambda-sqs",
+   "title": "A queue between the front door and the work",
+   "when": [
+    "APIGW",
+    "Lambda",
+    "SQS"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "u",
+     "Users",
+     "actor"
+    ],
+    [
+     "api",
+     "API Gateway",
+     "edge"
+    ],
+    [
+     "q",
+     "SQS queue",
+     "queue"
+    ],
+    [
+     "fn",
+     "Lambda",
+     "compute"
+    ]
+   ],
+   "edges": [
+    [
+     "u",
+     "api",
+     "requests"
+    ],
+    [
+     "api",
+     "q",
+     "accepts and returns"
+    ],
+    [
+     "q",
+     "fn",
+     "polled"
+    ]
+   ],
+   "note": "The front door answers at once and the work happens behind the queue, so a rush of requests queues up instead of being lost."
+  },
+  "matches_in_total": 6,
+  "sample": [
+   {
+    "id": "ce-455",
+    "question": "A company is building an ecommerce web service on AWS. The web service sends information about new orders to an Amazon API Gateway REST API for processing. The company wants to eliminate duplicate orders within a 5-minute processing window. Which solution will meet this requirement with the LEAST amount of development effort?",
+    "answer": "B. Configure API Gateway to send a message to an Amazon SQS FIFO queue when API Gateway receives an order. Include a MessageDeduplicationId token in the order requests. Configure the queue to invoke an AWS Lambda function for processing."
+   },
+   {
+    "id": "et-10",
+    "question": "A company is building an ecommerce web application on AWS. The application sends information about new orders to an Amazon API Gateway REST API to process. The company wants to ensure that orders are processed in the order that they are received. Which solution will meet these requirements?",
+    "answer": "B. Use an API Gateway integration to send a message to an Amazon Simple Queue Service (Amazon SQS) FIFO queue when the application receives an order. Configure the SQS FIFO queue to invoke an AWS Lambda function for processing."
+   },
+   {
+    "id": "ce-339",
+    "question": "A company has an ecommerce application that users access through multiple mobile apps and web applications. The company needs a solution that will receive requests from the mobile apps and web applications through an API. Request traffic volume varies significantly throughout each day. Traffic spikes during sales events. The solution must be loosely coupled and ensure that no requests are lost.",
+    "answer": "B. Set up an Amazon API Gateway REST API with an integration to an Amazon Simple Queue Service (Amazon SQS) queue. Configure a dead-letter queue. Create an AWS Lambda function to poll the queue to process the requests."
+   },
+   {
+    "id": "ce-511",
+    "question": "A company tracks customer satisfaction by using surveys that the company hosts on its website. The surveys sometimes reach thousands of customers every hour. Survey results are currently sent in email messages to the company so company employees can manually review results and assess customer sentiment. The company wants to automate the customer survey process. Survey results must be available for the previous 12 months. Which solution will meet these requirements in the MOST scalable way?",
+    "answer": "A. Send the survey results data to an Amazon API Gateway endpoint that is connected to an Amazon Simple Queue Service (Amazon SQS) queue. Create an AWS Lambda function to poll the SQS queue, call Amazon Comprehend for sentiment analysis, and save the results to an Amazon DynamoDB table. Set the TTL for all records to 365 days in the future."
+   },
+   {
+    "id": "ce-547",
+    "question": "A company is using microservices to build an ecommerce application on AWS. The company wants to preserve customer transaction information after customers submit orders. The company wants to store transaction data in an Amazon Aurora database. The company expects sales volumes to vary throughout each year.",
+    "answer": "A. Use an Amazon API Gateway REST API to invoke an AWS Lambda function to send transaction data to the Aurora database. Send transaction data to an Amazon Simple Queue Service (Amazon SQS) queue that has a dead-letter queue. Use a second Lambda function to read from the SQS queue and to update the Aurora database."
+   },
+   {
+    "id": "ce-730",
+    "question": "An ecommerce company runs a transaction processing system within a large application on a set of Amazon EC2 instances behind an Application Load Balancer ALB. The transaction process handles order creation, payment initiation, and inventory updates. The company has observed performance issues in the transaction workflow as the volume of transactions has increased. The company wants to re-architect the transaction process to introduce horizontal scalability and to improve cost efficiency. Which solution will meet these requirements?",
+    "answer": "A. Decouple the transaction system into microservices that run on AWS Lambda functions. Expose the microservices through a central Amazon API Gateway REST API. Use Amazon SQS queues to decouple order creation and payment processing."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "dynamodb-dax",
+   "title": "A key-value store with a cache in front",
+   "when": [
+    "DAX"
+   ],
+   "words": null,
+   "nodes": [
+    [
+     "app",
+     "Application",
+     "compute"
+    ],
+    [
+     "c",
+     "Cache",
+     "store"
+    ],
+    [
+     "d",
+     "DynamoDB",
+     "store"
+    ]
+   ],
+   "edges": [
+    [
+     "app",
+     "c",
+     "reads"
+    ],
+    [
+     "c",
+     "d",
+     "on a miss"
+    ]
+   ],
+   "note": "DAX is the one built for DynamoDB and turns milliseconds into microseconds without the application changing how it reads."
+  },
+  "matches_in_total": 6,
+  "sample": [
+   {
+    "id": "et-561",
+    "question": "A company's website handles millions of requests each day, and the number of requests continues to increase. A solutions architect needs to improve the response time of the web application. The solutions architect determines that the application needs to decrease latency when retrieving product details from the Amazon DynamoDB table. Which solution will meet these requirements with the LEAST amount of operational overhead?",
+    "answer": "A. Set up a DynamoDB Accelerator (DAX) cluster. Route all read requests through DAX."
+   },
+   {
+    "id": "et-361",
+    "question": "A company hosts a multiplayer gaming application on AWS. The company wants the application to read data with sub-millisecond latency and run one-time queries on historical data. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "C. Use Amazon DynamoDB with DynamoDB Accelerator (DAX) for data that is frequently accessed. Export the data to an Amazon S3 bucket by using DynamoDB table export. Run one-time queries on the data in Amazon S3 by using Amazon Athena."
+   },
+   {
+    "id": "et-472",
+    "question": "A company has a mobile chat application with a data store based in Amazon DynamoDB. Users would like new messages to be read with as little latency as possible. A solutions architect needs to design an optimal solution that requires minimal application changes. Which method should the solutions architect select?",
+    "answer": "A. Configure Amazon DynamoDB Accelerator (DAX) for the new messages table. Update the code to use the DAX endpoint."
+   },
+   {
+    "id": "ce-122",
+    "question": "A company discovers that an Amazon DynamoDB Accelerator (DAX) cluster for the company's web application workload is not encrypting data at rest. The company needs to resolve thesecurity issue. Which solution will meet this requirement?",
+    "answer": "B. Delete the existing DAX cluster. Recreate the DAX cluster, and configure the new cluster to encrypt the data at rest."
+   },
+   {
+    "id": "et-578",
+    "question": "A company deployed a serverless application that uses Amazon DynamoDB as a database layer. The application has experienced a large increase in users. The company wants to improve database response time from milliseconds to microseconds and to cache requests to the database. Which solution will meet these requirements with the LEAST operational overhead?",
+    "answer": "A. Use DynamoDB Accelerator (DAX)."
+   },
+   {
+    "id": "ce-643",
+    "question": "A city's weather forecast team is using Amazon DynamoDB in the data tier for an application. The application has several components. The analysis component of the application requires repeated reads against a large dataset. The application has started to temporarily consume all the read capacity in the DynamoDB table and is negatively affecting other applications that need to access the same data. Which solution will resolve this issue with the LEAST development effort?",
+    "answer": "A. Use DynamoDB Accelerator (DAX)."
+   }
+  ]
+ },
+ {
+  "diagram": {
+   "id": "ecs-roles",
+   "title": "Two different roles on one container",
+   "when": null,
+   "words": "task role|execution role|task definition",
+   "nodes": [
+    [
+     "task",
+     "Task",
+     "compute"
+    ],
+    [
+     "tr",
+     "Task role",
+     "net"
+    ],
+    [
+     "er",
+     "Execution role",
+     "net"
+    ]
+   ],
+   "edges": [
+    [
+     "task",
+     "tr",
+     "what your code may call"
+    ],
+    [
+     "task",
+     "er",
+     "what pulls the image and writes the logs"
+    ]
+   ],
+   "note": "The execution role is for the agent that starts the container. The task role is for the code inside it. Mixing them up is the point of the question."
+  },
+  "matches_in_total": 5,
+  "sample": [
+   {
+    "id": "ce-770",
+    "question": "A company has developed a new content-sharing application that runs on Amazon ECS. The application runs on Amazon Linux Docker tasks that use the Amazon EC2 launch type. The application requires a storage solution that has the following characteristics: • Accessibility for multiple ECS tasks through bind mounts • Resiliency across Availability Zones • Burstable throughput of up to 3 Gbps • Ability to scale up over time Which storage solution meets these requirements?",
+    "answer": "B. Create an Amazon EFS file system. Configure the ECS task definitions to mount the EFS file-system volume at launch."
+   },
+   {
+    "id": "ce-298",
+    "question": "A company is building an application on an Amazon ECS cluster that uses the AWS Fargate launch type. The application must read files from a private Amazon S3 bucket. The company needs to design a security solution to allow ECS tasks to retrieve data from the S3 bucket. Which solution will meet these requirements with the LEAST administrative effort?",
+    "answer": "A. Assign an inline IAM policy to the task role that is configured in the ECS task definition. Configure the policy to grant access to the S3 bucket."
+   },
+   {
+    "id": "et-403",
+    "question": "A developer has an application that uses an AWS Lambda function to upload files to Amazon S3 and needs the required permissions to perform the task. The developer already has an IAM user with valid IAM credentials required for Amazon S3. What should a solutions architect do to grant the permissions?",
+    "answer": "D. Create an IAM execution role with the required permissions and attach the IAM role to the Lambda function."
+   },
+   {
+    "id": "ce-315",
+    "question": "A company has a prototype application that runs in a Linux container on Amazon ECS. The company needs to provide sensitive environment variables to the container before the application starts. What is the MOST secure way to load the environment variables into the running container?",
+    "answer": "D. Add the environment variables to AWS Systems Manager Parameter Store. Update the task execution role to include the ssm:GetParameters permission."
+   },
+   {
+    "id": "et-428",
+    "question": "A serverless application uses Amazon API Gateway, AWS Lambda, and Amazon DynamoDB. The Lambda function needs permissions to read and write to the DynamoDB table. Which solution will give the Lambda function access to the DynamoDB table MOST securely?",
+    "answer": "B. Create an IAM role that includes Lambda as a trusted service. Attach a policy to the role that allows read and write access to the DynamoDB table. Update the configuration of the Lambda function to use the new role as the execution role."
+   }
+  ]
+ }
+]

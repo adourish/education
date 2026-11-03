@@ -1,4 +1,4 @@
-<title>SAA-C03 Recall Board</title>
+<title>__EXAM_FULL__</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 /* ===========================================================================
@@ -293,6 +293,8 @@ body {
 }
 .resume .what { margin-bottom: 10px; line-height: 1.6; }
 .resume .when { margin-bottom: 12px; font-size: 0.88rem; color: var(--ink-2); line-height: 1.7; }
+.resumehead { margin: 0 0 10px; font-size: 0.95rem; font-weight: 500; color: var(--ink-2); }
+#resumeBar .resume + .resume { margin-top: 10px; }
 /* how long this set has been going, kept quiet so it never competes with
    the question itself */
 .sessionline {
@@ -443,16 +445,40 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .qtext.bul { font-size: 1.05rem; }
 .opt .bul { margin: 0; font-size: inherit; }
 .optbul { padding-left: 1.6em; }
-.optbul li.lead::before {
-  content: attr(data-letter);
-  font-weight: 700; color: var(--ink);
-  left: -1.6em;
-}
 .optline { display: flex; align-items: stretch; gap: 8px; }
-.optline .opt { flex: 1; }
+.optline .opt { flex: 1; min-width: 0; }
+
+/* The letter, and under it the button that reads the option aloud. Side by
+   side they took two columns of a phone's width for two things that are
+   pressed rarely; stacked they take one. */
+.optmarks {
+  flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px;
+  align-self: flex-start;
+}
+
+/* The letter, as something to press. It used to sit inside the option text as
+   "A. ", so giving it its own target costs almost none of the width back: a
+   phone has little enough to spare. Pressing it crosses the option off while
+   you think, and pressing it again brings it back. */
+.optletter {
+  width: 36px; min-height: 36px; padding: 0;
+  font: 500 0.95rem/1 var(--mono);
+  background: var(--ground); color: var(--ink-2);
+  border: 1px solid var(--rule); border-radius: 8px; cursor: pointer;
+}
+.optletter:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
+.optletter:disabled { cursor: default; opacity: 0.55; }
+/* Out, said three ways over: the letter becomes a cross, the option is struck
+   through, and the whole row steps back. Never by colour alone. */
+.optletter[aria-pressed="true"] {
+  border-style: dashed; color: var(--ink-3);
+}
+.opt.ruledout {
+  opacity: 0.5; text-decoration: line-through;
+  text-decoration-thickness: 1px; border-style: dashed;
+}
 .optspeak {
-  flex: 0 0 auto; align-self: stretch;
-  width: 40px; min-height: 40px; padding: 0;
+  width: 36px; min-height: 36px; padding: 0;
   font-size: 0.8rem; line-height: 1;
   background: var(--ground); color: var(--ink-2);
 }
@@ -507,13 +533,13 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .tally b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .tally .g { color: var(--cyan); }
 .tally .r { color: var(--magenta); }
-.sec > header .tally {
+.sec > summary .tally {
   font-size: 0.74rem; font-weight: 500;
   padding: 2px 7px; border-radius: 99px;
   background: var(--surface); border: 1px solid var(--rule);
 }
-.sec > header .tagline { margin-left: auto; }
-.sec > header .tally + .tagline { margin-left: 0; }
+.sec > summary .tagline { margin-left: auto; }
+.sec > summary .tally + .tagline { margin-left: 0; }
 
 /* ---------------- shared bits ---------------- */
 
@@ -553,17 +579,25 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   overflow: hidden;
   box-shadow: var(--shadow);
 }
-.sec > header {
+.sec > summary {
   padding: 8px 12px;
   background: var(--surface-2);
   border-bottom: 1px solid var(--rule);
   display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  cursor: pointer; list-style: none;
 }
-.sec > header h3 {
+.sec > summary::-webkit-details-marker { display: none; }
+.sec > summary::before {
+  content: "\203a"; display: inline-block; width: 0.6em;
+  transition: transform .12s ease; color: var(--ink-3); font-weight: 700;
+}
+.sec[open] > summary::before { transform: rotate(90deg); }
+.sec:not([open]) > summary { border-bottom: 0; }
+.sec > summary h3 {
   margin: 0; font-size: 0.95rem; font-weight: 700;
   letter-spacing: .01em; color: var(--cyan);
 }
-.sec > header .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
+.sec > summary .tagline { font-size: 0.74rem; color: var(--ink-3); margin-left: auto; }
 
 .row {
   display: grid;
@@ -753,9 +787,17 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
 .diagrams h5 { margin: 0 0 4px; font-size: 0.9rem; }
 .diagrams .dgnote { margin: 8px 0 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; }
 .diagrams .one + .one { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 16px; }
-.dgsvg { width: 100%; max-width: 560px; height: auto; display: block; margin: 8px 0 0; }
-.dgnode { font: 500 11px var(--ui); fill: var(--ink); }
-.dgedge { font: 400 9px var(--ui); fill: var(--ink-3); }
+/* the arrangement the question starts from, marked apart from the one the
+   answer proposes so the two are never mistaken for each other */
+.diagrams.asis { border-left-color: var(--ink-3); }
+/* Drawn at its own size, never stretched. The width is set in rem when the
+   picture is built, so it still grows with the text-size setting, and
+   max-width only ever shrinks it to fit a narrow screen. Before this the
+   SVG filled the column, and a tall narrow picture was scaled up two or
+   three times over, labels and all. */
+.dgsvg { max-width: 100%; height: auto; display: block; margin: 8px 0 0; }
+.dgnode { font: 500 13px var(--ui); fill: var(--ink); }
+.dgedge { font: 400 10.5px var(--ui); fill: var(--ink-3); }
 .terms {
   margin: 0 0 16px;
   border: 1px solid var(--rule);
@@ -778,6 +820,9 @@ main { max-width: 1680px; margin: 0 auto; padding: 18px 16px 60px; }
   color: var(--ink-2); max-width: 62ch;
 }
 .terms .none { padding: 0 13px 11px; font-size: 0.9rem; color: var(--ink-2); }
+.terms dd .keep { display: block; font-weight: 600; color: var(--ink); margin: 0 0 3px;
+                  padding-left: 9px; border-left: 3px solid var(--cyan); line-height: 1.5; }
+.terms dd .more { display: block; }
 
 /* banner naming the topic being drilled */
 .drill {
@@ -894,6 +939,152 @@ select {
 .bar .bad { background: var(--magenta); }
 .barrow .num { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
+/* Every part of the progress page folds away, so the one being read is not
+   half a screen down past four others. The arrow and the heading are one
+   target, big enough for a thumb. */
+.fold { border-top: 1px solid var(--rule); margin: 0; }
+.fold > summary {
+  cursor: pointer; list-style: none; padding: 15px 2px 14px;
+  display: flex; align-items: baseline; gap: 9px;
+  font-size: 1.02rem; font-weight: 500;
+}
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before {
+  content: "\203a"; display: inline-block; width: 0.7em;
+  transition: transform .12s ease; color: var(--ink-3); font-weight: 700;
+}
+.fold[open] > summary::before { transform: rotate(90deg); }
+.fold > summary:hover { color: var(--cyan); }
+.fold > summary .count {
+  margin-left: auto; font-family: var(--mono); font-size: 0.8rem;
+  color: var(--ink-3); font-weight: 400;
+}
+.fold > summary .count .tally { font-size: 0.84rem; }
+.fold .inner { padding: 0 0 20px; }
+
+/* One go at a set of questions: when, what, and how it went. */
+.runlist { display: grid; gap: 8px; }
+.run {
+  border: 1px solid var(--rule); border-left: 3px solid var(--cyan);
+  border-radius: 7px; background: var(--surface);
+}
+.run.poor { border-left-color: var(--magenta); }
+.run > summary {
+  cursor: pointer; list-style: none; padding: 10px 12px;
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 12px;
+  align-items: baseline;
+}
+.run > summary::-webkit-details-marker { display: none; }
+.run .what { font-size: 0.95rem; }
+.run .when { font-size: 0.82rem; color: var(--ink-3); grid-column: 1; }
+.run .score {
+  font-family: var(--mono); font-size: 0.9rem; font-weight: 500;
+  grid-row: 1 / span 2; align-self: center; white-space: nowrap;
+}
+.run .inner { padding: 2px 12px 12px; }
+.run .barrow { font-size: 0.86rem; }
+.runmore { margin-top: 10px; }
+
+#ioBox.dropping { border-color: var(--cyan); background: var(--cyan-soft); }
+
+/* A choice the exam keeps asking, as a branch per line.
+   Deliberately not a flowchart: the same decision drawn as boxes and arrows
+   fans seven ways, and at the width of a phone the conditions on the arrows,
+   which are the only part that matters, shrink to nothing. */
+#decList { columns: 3; column-gap: 18px; margin-top: 4px; }
+@media (max-width: 1180px) { #decList { columns: 2; } }
+@media (max-width: 720px)  { #decList { columns: 1; } }
+
+/* On the poster each choice is a card of its own, the way a section is.
+   Beside a question they stay a plain run, because there are only ever one or
+   two and a card inside a card reads as clutter. */
+#decList .dec {
+  break-inside: avoid; page-break-inside: avoid;
+  background: var(--surface); border: 1px solid var(--rule);
+  border-left: 3px solid var(--cyan); border-radius: var(--radius);
+  margin: 0 0 14px; padding: 12px 14px; box-shadow: var(--shadow);
+}
+#decList .dec + .dec { border-top: 0; margin-top: 0; padding-top: 12px; }
+
+.decs { margin: 10px 0 0; padding: 12px 14px; border-radius: 8px;
+        background: var(--surface); border: 1px solid var(--rule);
+        border-left: 3px solid var(--cyan); }
+.dec + .dec { margin-top: 16px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.dec h5 { margin: 0 0 2px; font-size: 0.95rem; }
+.dec .asked { margin: 0 0 8px; font-size: 0.8rem; color: var(--ink-3); }
+.decrow { padding: 8px 0; border-top: 1px solid var(--rule); }
+.decrow:first-of-type { border-top: 0; padding-top: 2px; }
+.decrow .when { font-size: 0.88rem; color: var(--ink-2); line-height: 1.55; }
+.decrow .when::before { content: "If "; color: var(--ink-3); }
+.decrow .then { font-size: 0.95rem; font-weight: 500; line-height: 1.55; }
+.decrow .then::before { content: "then "; color: var(--ink-3); font-weight: 400; }
+.dec .missedof { margin: -4px 0 8px; font-size: 0.8rem; font-weight: 500;
+                 color: var(--magenta); }
+.dectraps { margin: 12px 0 0; padding: 10px 12px; border-radius: 7px;
+            border: 1px solid var(--rule); border-left: 3px solid var(--magenta);
+            background: var(--surface-2); }
+.dectraps h6 { margin: 0 0 6px; font-size: 0.82rem; font-weight: 500;
+               color: var(--magenta); }
+.dectraps ul { margin: 0; padding-left: 18px; }
+.dectraps li { font-size: 0.86rem; color: var(--ink-2); line-height: 1.6;
+               margin-bottom: 6px; }
+.dectraps li:last-child { margin-bottom: 0; }
+
+/* MAPS-CSS-START */
+
+/* The maps: one picture per part of the exam. Boxes two across at any width,
+   so a phone gets the same shape as a desk. */
+.netmap { margin: 4px 0 0; }
+.netmap *, .netmap *::before { box-sizing: border-box; }
+.netmap .lede { font-size: 0.86rem; margin: 0 0 8px; }
+.nm-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+.nm-row + .nm-row, .nm-zone + .nm-row, .nm-row + .nm-zone, .nm-zone + .nm-zone { margin-top: 6px; }
+.nm-row > * { flex: 1 1 140px; min-width: 0; }
+.nm-box { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface);
+          padding: 6px 8px; }
+.nm-box h4 { margin: 0 0 1px; font-size: 0.9rem; font-weight: 600; line-height: 1.3;
+             display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.nm-box h4 .tally { font-size: 0.72rem; font-weight: 500; flex: none; }
+.nm-box p { margin: 0; font-size: 0.8rem; color: var(--ink-2); line-height: 1.45; }
+/* The pick is underlined as well as coloured, so it never rests on colour alone. */
+.nm-box .pick { color: var(--magenta); font-weight: 600;
+                text-decoration: underline dotted; text-underline-offset: 3px;
+                text-decoration-thickness: 1px; }
+.nm-box.edge { border-left: 4px solid var(--cyan); }
+.nm-box.hub  { border-left: 4px solid var(--magenta); }
+.nm-box.home { border-left: 4px solid var(--amber); }
+.nm-zone { border: 2px dashed var(--rule); border-radius: 10px; padding: 7px; margin: 0; }
+.nm-zone > h3 { margin: 0 0 5px; font-size: 0.86rem; font-weight: 600; color: var(--ink-2); }
+.nm-zone.vpc { background: var(--cyan-soft); border-color: var(--cyan); }
+.nm-zone.sub { background: var(--surface); border-style: solid; border-color: var(--rule); }
+.nm-zone.sub > h3 { color: var(--ink-3); font-size: 0.78rem; margin-bottom: 4px; }
+.nm-zone.home { background: var(--amber-soft); border-color: var(--amber); }
+.nm-arrow { text-align: center; color: var(--ink-3); font-size: 0.78rem; padding: 2px 0; line-height: 1.35; }
+.nm-arrow b { color: var(--ink-2); font-weight: 600; }
+.nm-arrow::before { content: "↓"; display: block; font-size: 1.05rem; color: var(--cyan); line-height: 1; }
+.nm-key { margin: 8px 0 0; padding: 5px 8px; border-radius: 7px; background: var(--surface-2);
+          font-size: 0.76rem; color: var(--ink-2); line-height: 1.45; }
+.nm-key span { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin: 0 4px 0 1px; vertical-align: middle; }
+
+/* MAPS-CSS-END */
+
+/* A new version is ready. It waits to be taken rather than reloading on its
+   own, because being thrown out of a question you are halfway through reading
+   is worse than running a version that is ten minutes old. */
+.newver {
+  position: fixed; left: 12px; right: 12px; z-index: 40;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  padding: 12px 14px; border-radius: 10px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--cyan); border-left: 4px solid var(--cyan);
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
+  font-size: 0.95rem;
+}
+.newver .btn { margin-bottom: 0; }
+.newver .later { background: none; border-color: transparent; color: var(--ink-3); }
+@media (min-width: 620px) { .newver { left: auto; right: 18px; max-width: 26rem; } }
+
 .weak { display: grid; gap: 6px; }
 .weakrow {
   display: flex; gap: 10px; align-items: baseline; justify-content: space-between;
@@ -982,7 +1173,7 @@ footer .v { font-family: var(--mono); }
   <div class="topbar-in">
     <div class="topline">
       <div class="brand">
-        <h1>SAA-C03<span class="long"> Recall Board</span></h1>
+        <h1>__EXAM_SHORT__<span class="long"> Recall Board</span></h1>
         <span class="exam" id="examTag"></span>
       </div>
       <button class="misschip" id="missChip" hidden></button>
@@ -1028,9 +1219,349 @@ footer .v { font-family: var(--mono); }
     <div class="picker">
       <button class="btn" id="posterFilterAll">Show all rows</button>
       <button class="btn" id="posterFilterMissed">Only what I missed</button>
+      <button class="btn" id="foldsOpen">Open all</button>
+      <button class="btn" id="foldsClose">Close all</button>
       <span class="scorebar" id="posterSummary"></span>
     </div>
+    <details class="fold" id="fold-dec" data-fold="dec" open>
+      <summary>Compare the choices<span class="count" id="decCount"></span></summary>
+      <div class="inner">
+        <p class="lede">The choices the exam keeps asking. Eighteen hundred
+          questions are not eighteen hundred decisions: most come back to one of
+          these. Each is a list of if and then, with what the question is really
+          testing underneath. The ones you have missed questions on come first.</p>
+        <div id="decList"></div>
+      </div>
+    </details>
+
+<!-- MAPS-HTML-START -->
+    <details class="fold map" id="fold-map-networking" data-fold="map-networking">
+      <summary>The networking map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Cue on the left, pick on the right. The user at the edge, your VPC, the ways out.</p>
+<div class="nm-row">
+<div class="nm-box edge" data-rx="Route ?53|latency(-based)? (routing )?polic|geolocation|failover (routing )?polic|weighted|multivalue"><h4><span>Route 53</span></h4><p>Fastest Region for each user: <span class="pick">latency</span>. By country: <span class="pick">geolocation</span>. A standby: <span class="pick">failover + health check</span>. Several healthy servers, no load balancer: <span class="pick">multivalue</span>. A share: <span class="pick">weighted</span>.</p></div>
+<div class="nm-box edge" data-rx="CloudFront"><h4><span>CloudFront</span></h4><p>Users everywhere, content cacheable: <span class="pick">one Region + CloudFront</span>, not many Regions. Only files: <span class="pick">S3 + CloudFront</span>. ALB origin too.</p></div>
+<div class="nm-box edge" data-rx="Global Accelerator"><h4><span>Global Accelerator</span></h4><p><span class="pick">UDP or TCP, gaming, VoIP, live video, fixed IPs, many Regions</span>: Global Accelerator. Caches nothing; NLBs or ALBs as endpoints.</p></div>
+<div class="nm-box edge" data-rx="WAF"><h4><span>WAF</span></h4><p><span class="pick">Rules on web requests</span>: SQL injection, bots, rate limits, IP sets. On CloudFront, ALB, API Gateway. <span class="pick">Never an NLB.</span></p></div>
+<div class="nm-box edge" data-rx="Shield"><h4><span>Shield Advanced</span></h4><p>DDoS on an <span class="pick">NLB, Elastic IP</span>, CloudFront, ALB, Route 53. Team to call, bill refunded. "Attacks on an NLB, minimal change": <span class="pick">Shield Advanced</span>.</p></div>
+</div>
+<div class="nm-arrow">In through the VPC's one door</div>
+<div class="nm-zone vpc"><h3>Your VPC</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="internet gateway(?! .{0,10}egress)|(?&lt;!egress-only )Internet Gateway"><h4><span>Internet gateway</span></h4><p><span class="pick">One per VPC, no zone, in and out.</span> A subnet is public only if its route table points here. One per zone or per subnet: wrong.</p></div>
+<div class="nm-box" data-rx="Application Load Balancer|\bALB\b|Network Load Balancer|\bNLB\b"><h4><span>Load balancer</span></h4><p>Paths, headers, cookies, WAF, <span class="pick">Cognito login</span>: <span class="pick">ALB</span>. Fixed IP, TCP or UDP, PrivateLink, on-premises IP targets: <span class="pick">NLB</span>. Both sit in <span class="pick">public subnets</span>; servers and database in private.</p></div>
+<div class="nm-box" data-rx="NAT gateway|NAT instance"><h4><span>NAT gateway</span></h4><p>Private out, never in. Production: <span class="pick">one per zone</span>. Test: <span class="pick">one shared</span>. IPv6: <span class="pick">egress-only internet gateway</span> instead.</p></div>
+<div class="nm-box" data-rx="route table"><h4><span>Route tables</span></h4><p><span class="pick">One per private subnet</span>, each to its own zone's NAT. One shared table sends every zone through one gateway. Public subnet: a route to the internet gateway.</p></div>
+<div class="nm-box" data-rx="security group|network ACL|\bNACL\b"><h4><span>Security group vs network ACL</span></h4><p>Allow only, stateful, per instance, <span class="pick">from another group by id</span>: <span class="pick">security group</span>. <span class="pick">Deny</span>, stateless, per subnet, <span class="pick">block one subnet or address</span>: <span class="pick">network ACL</span>.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Private things reaching out, privately</div>
+<div class="nm-row">
+<div class="nm-box" data-rx="gateway (VPC )?endpoint|VPC gateway endpoint|endpoint polic"><h4><span>Gateway endpoint</span></h4><p><span class="pick">S3 and DynamoDB only</span>, free, a route. "Private bucket, no public endpoint, least privilege": <span class="pick">gateway endpoint + endpoint policy</span> naming the roles. Cuts the NAT bill.</p></div>
+<div class="nm-box" data-rx="interface (VPC )?endpoint|VPC interface endpoint|PrivateLink|VPC endpoint for (Amazon )?(SQS|SNS|Kinesis|Secrets|KMS)"><h4><span>Interface endpoint (PrivateLink)</span></h4><p><span class="pick">Any other AWS service</span> (SQS, Kinesis, Secrets Manager): interface endpoint, a private address, by the hour. <span class="pick">Another company's service on AWS</span>: PrivateLink. <span class="pick">Offer yours</span>: NLB + endpoint service. "Stay within the company's private IP space" over a VPN: this.</p></div>
+<div class="nm-box" data-rx="Lambda.{0,60}(VPC|private subnet)|(VPC|private subnet).{0,60}Lambda"><h4><span>Lambda in a VPC</span></h4><p>Needs something private: <span class="pick">attach the function to the subnets</span> with a security group. Not a VPN, not an endpoint. Then it has no internet: NAT gateway or endpoints.</p></div>
+<div class="nm-box" data-rx="IPv6|IPv4|egress-only|dual-stack|NAT64|DNS64"><h4><span>IPv4 or IPv6</span></h4><p>Every IPv6 address is public: private-but-outbound is the <span class="pick">egress-only internet gateway</span>. NAT gateway: IPv4 (NAT64 for IPv6-only hosts). Gateway endpoint, Elastic IP: IPv4 only. Everything else: both. Rules per family: <span class="pick">::/0 is not 0.0.0.0/0</span>.</p></div>
+<div class="nm-box" data-rx="Flow Logs|Network Monitor|Reachability Analyzer"><h4><span>Seeing the traffic</span></h4><p>Which traffic was allowed or rejected: <span class="pick">VPC Flow Logs</span>, to CloudWatch Logs, then <span class="pick">Firehose to OpenSearch</span>. Is the path to on premises up: <span class="pick">CloudWatch Network Monitor</span>. Why a packet cannot get there: <span class="pick">Reachability Analyzer</span>.</p></div>
+</div>
+<div class="nm-arrow">Out to other networks</div>
+<div class="nm-row">
+<div class="nm-box hub" data-rx="Transit Gateway"><h4><span>Transit gateway</span></h4><p><span class="pick">Hundreds of VPCs, many accounts, many sites</span>: transit gateway. Keep spokes apart: <span class="pick">a route table per attachment</span>. Share across accounts: RAM.</p></div>
+<div class="nm-box hub" data-rx="VPC peering|peering connection|[Pp]eer (each|the|all|every)"><h4><span>VPC peering</span></h4><p><span class="pick">Exactly two VPCs</span>, even across accounts (a Lambda reaching another account's EFS). Not transitive, stops at 125.</p></div>
+<div class="nm-box hub" data-rx="Control Tower|Resource Access Manager|\bRAM\b|shared subnet|share the subnet"><h4><span>Many accounts, one network</span></h4><p>Account per workload with <span class="pick">guardrails</span>: <span class="pick">Control Tower</span>. One networking account, <span class="pick">subnets shared with RAM</span>. Transit gateway + inspection VPC: more to run.</p></div>
+</div>
+<div class="nm-zone home"><h3>Your own building</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="Direct Connect(?! gateway)"><h4><span>Direct Connect</span></h4><p><span class="pick">Private line, steady, never the internet.</span> Weeks to set up.</p></div>
+<div class="nm-box" data-rx="Site-to-Site VPN|customer gateway|virtual private gateway"><h4><span>Site-to-Site VPN</span></h4><p><span class="pick">Encrypted over the internet, this week, cheap.</span> A customer gateway at the office, a virtual private gateway on the VPC. Private RDS for an office client: this.</p></div>
+<div class="nm-box" data-rx="Direct Connect.{0,120}VPN|VPN.{0,120}Direct Connect"><h4><span>Both</span></h4><p>Link must not fail: <span class="pick">Direct Connect with the VPN as backup</span>.</p></div>
+<div class="nm-box" data-rx="Direct Connect gateway"><h4><span>One line, many VPCs</span></h4><p><span class="pick">Direct Connect gateway</span>, usually into a transit gateway.</p></div>
+<div class="nm-box" data-rx="Client VPN"><h4><span>One person's laptop</span></h4><p><span class="pick">Client VPN.</span> Not for a whole building.</p></div>
+<div class="nm-box" data-rx="Resolver|forwarding rule"><h4><span>Names across the link</span></h4><p><span class="pick">Route 53 Resolver</span>: outbound endpoint + <span class="pick">forwarding rule</span> + <span class="pick">associate the rule with the VPC</span> that has the VPN. On premises resolving your names: inbound endpoint.</p></div>
+</div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: the edge · <span style="background: var(--magenta)"></span>magenta: joining networks · <span style="background: var(--amber)"></span>amber: your building. Underlined text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-compute" data-fold="map-compute">
+      <summary>The compute map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Cue on the left, pick on the right. Where the code runs, how it grows, Lambda fixes, how you pay.</p>
+<div class="nm-zone vpc"><h3>Where the code runs. Stop at the first that fits</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="\bLambda\b"><h4><span>Lambda</span></h4><p><span class="pick">Under 15 minutes, on a trigger</span>, a zip or a <span class="pick">container image</span> up to 10 GB. Nothing to patch. Event in, Lambda out.</p></div>
+<div class="nm-box" data-rx="Fargate"><h4><span>Fargate</span></h4><p><span class="pick">Containers, no servers</span>, longer than 15 minutes or always on. Nightly job, can be interrupted: <span class="pick">Fargate Spot</span>.</p></div>
+<div class="nm-box" data-rx="(ECS|EKS).{0,80}EC2|EC2 launch type|GPU instance|EKS Anywhere|EKS Connector|Amazon ECS cluster|ECS containers"><h4><span>ECS or EKS on EC2</span></h4><p><span class="pick">A GPU, or you choose the hardware.</span> Kubernetes named: EKS; else ECS. Kubernetes on your own servers: <span class="pick">EKS Anywhere</span>. See every cluster in one place: <span class="pick">EKS Connector</span>.</p></div>
+<div class="nm-box"><h4><span>EC2</span></h4><p>Anything at all, <span class="pick">you patch it</span>. Last resort.</p></div>
+<div class="nm-box" data-rx="AWS Batch"><h4><span>Batch</span></h4><p><span class="pick">Many jobs, hours or days, with an order.</span> Simulations that run for days.</p></div>
+<div class="nm-box" data-rx="Elastic Beanstalk"><h4><span>Elastic Beanstalk</span></h4><p>Hand it the app. New version on a slice of real traffic: <span class="pick">traffic splitting</span>. Safest, undoable: <span class="pick">immutable</span>. Quick rollback: <span class="pick">blue/green</span>.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then how it carries more</div>
+<div class="nm-zone sub"><h3>Growing</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="Auto Scaling group|launch template|AWS Auto Scaling|Application Auto Scaling"><h4><span>Auto Scaling group</span></h4><p><span class="pick">Min, desired, max, across zones</span>, replaces what dies. "Single instance, growing": <span class="pick">ASG min 3 across zones + ALB</span>. Queue-fed workers: <span class="pick">scale on queue length</span>.</p></div>
+<div class="nm-box" data-rx="target tracking|step scaling|scheduled (scaling|action)|predictive scaling"><h4><span>Which policy</span></h4><p>Keep one number: <span class="pick">target tracking</span>, first choice. A time you can name: <span class="pick">scheduled</span>. Weekly pattern: <span class="pick">predictive</span>. Sizes of response: <span class="pick">step</span>.</p></div>
+<div class="nm-box" data-rx="warm pool|fast snapshot restore"><h4><span>Slow to start</span></h4><p>Instances boot slowly, peak known: <span class="pick">max at peak + warm pool</span>. Large AMI: <span class="pick">fast snapshot restore</span> on the snapshot, then a new AMI.</p></div>
+<div class="nm-box" data-rx="CloudWatch agent|memory utili[sz]ation|Container Insights"><h4><span>Memory or disk</span></h4><p>Not there until the <span class="pick">CloudWatch agent</span> is installed. EKS pods and nodes: <span class="pick">Container Insights</span>.</p></div>
+<div class="nm-box" data-rx="larger instance|instance (size|type)|vertical"><h4><span>Bigger, not more</span></h4><p>One job that cannot be split: <span class="pick">a larger instance</span>. A stop and a start, still one machine.</p></div>
+<div class="nm-box" data-rx="Service Auto Scaling|Cluster Autoscaler|Horizontal Pod|task placement"><h4><span>Containers scaling</span></h4><p>ECS tasks across zones: <span class="pick">Service Auto Scaling, min 3, placement spread by zone</span>. EKS pods grow but nodes do not: <span class="pick">Cluster Autoscaler</span>.</p></div>
+<div class="nm-box" data-rx="Image Builder|Service Catalog|ECR.{0,40}scan|scan on push|Parameter Store"><h4><span>Images and config</span></h4><p>Patched AMIs on a schedule: <span class="pick">EC2 Image Builder</span>. Only approved AMIs: <span class="pick">Service Catalog</span>. Scan images for CVEs: <span class="pick">ECR scan on push</span>. Secrets into a container: <span class="pick">Parameter Store + task execution role</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>Lambda, when something is wrong</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="provisioned concurrency|SnapStart"><h4><span>Cold starts</span></h4><p>Peak season, latency: <span class="pick">provisioned concurrency</span>, scheduled for the hour. Java: <span class="pick">SnapStart</span>.</p></div>
+<div class="nm-box" data-rx="reserved concurrency"><h4><span>One function eating all</span></h4><p><span class="pick">Reserved concurrency</span>: a ceiling; zero turns it off.</p></div>
+<div class="nm-box" data-rx="function URL|API Gateway|edge-optimized|HTTP API"><h4><span>Something in front</span></h4><p>One function, one HTTPS address, a webhook, a mainframe calling REST: <span class="pick">function URL</span>. Keys, caching, limits: <span class="pick">API Gateway</span>. Users worldwide: <span class="pick">edge-optimized + caching</span>. JWT: <span class="pick">HTTP API</span>.</p></div>
+<div class="nm-box" data-rx="Lambda.{0,80}\bEFS\b|\bEFS\b.{0,80}Lambda"><h4><span>Big or shared files</span></h4><p>Dependencies too big for a layer: <span class="pick">mount EFS</span>.</p></div>
+<div class="nm-box" data-rx="EventBridge rule.{0,80}Lambda|Lambda.{0,80}EventBridge|Config custom rule|GuardDuty.{0,80}Lambda"><h4><span>Reacting to things</span></h4><p>Start and stop by schedule: <span class="pick">EventBridge rule, Lambda</span>. A finding needs action (GuardDuty mining, a bad Redshift setting): <span class="pick">EventBridge or Config custom rule, Lambda</span>.</p></div>
+<div class="nm-box" data-rx="dead-letter|on-failure destination"><h4><span>Failed events</span></h4><p><span class="pick">A dead-letter queue</span>, or a destination.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Paying for EC2</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="On-Demand"><h4><span>On-Demand</span></h4><p>Short, unknown, dev and test, being measured.</p></div>
+<div class="nm-box" data-rx="\bSpot\b|allocation strategy"><h4><span>Spot</span></h4><p>Can be interrupted, two minutes' warning: <span class="pick">Spot</span>. Capacity keeps failing: <span class="pick">capacity-optimized allocation + more instance types</span>. Stateless web on one instance: <span class="pick">AMI, launch template, Spot Fleet</span>.</p></div>
+<div class="nm-box" data-rx="Reserved Instance|Savings Plan"><h4><span>Reserved or Savings Plan</span></h4><p>Steady baseline, cannot be interrupted: <span class="pick">Reserved for the ASG minimum</span>, Spot or On-Demand above it. Production reserved, <span class="pick">dev and test On-Demand</span>. Type may change: <span class="pick">Savings Plan</span>.</p></div>
+<div class="nm-box" data-rx="Dedicated Host|Dedicated Instance"><h4><span>Dedicated Host</span></h4><p><span class="pick">Licence by socket or core</span>: Dedicated Host. Only off others' hardware: Dedicated Instance.</p></div>
+<div class="nm-box" data-rx="placement group|Elastic Fabric Adapter|\bEFA\b"><h4><span>Placement groups</span></h4><p>Tightly coupled HPC, node to node: <span class="pick">cluster placement group + EFA</span>. Few critical instances apart: <span class="pick">spread</span>. Big distributed system: <span class="pick">partition</span>.</p></div>
+<div class="nm-box" data-rx="Budgets|Instance Scheduler"><h4><span>Spending guard</span></h4><p>Developers leave instances on: <span class="pick">Budgets alert at forecast, action stops them</span>. Office hours only: <span class="pick">Instance Scheduler</span> or EventBridge + Lambda.</p></div>
+</div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: where it runs · <span style="background: var(--amber)"></span>amber: paying. Underlined text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-database" data-fold="map-database">
+      <summary>The database map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Cue on the left, pick on the right. Which engine, then the feature the question is really about.</p>
+<div class="nm-zone vpc"><h3>Which engine</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="\bRDS\b"><h4><span>RDS</span></h4><p><span class="pick">SQL, joins, an existing app</span>, SQL Server, Oracle. Multi-AZ for failover.</p></div>
+<div class="nm-box" data-rx="Aurora(?! Serverless)"><h4><span>Aurora</span></h4><p><span class="pick">SQL, faster, Region-safe.</span> Reporting surges: <span class="pick">Aurora Auto Scaling adds replicas</span>. SQL Server code at PostgreSQL price: <span class="pick">Babelfish</span>. Vectors for AI: <span class="pick">pgvector</span>.</p></div>
+<div class="nm-box" data-rx="Aurora Serverless|capacity units|\bACUs?\b"><h4><span>Aurora Serverless v2</span></h4><p><span class="pick">Load comes and goes</span>, dev and test environments each their own: Serverless v2. Set the <span class="pick">max ACUs</span> high enough for the peak.</p></div>
+<div class="nm-box" data-rx="DynamoDB(?! Streams)"><h4><span>DynamoDB</span></h4><p><span class="pick">Key-value, any scale, milliseconds</span>, session data, ratings, sensor reads. No joins.</p></div>
+<div class="nm-box" data-rx="ElastiCache"><h4><span>ElastiCache</span></h4><p><span class="pick">Same reads over and over</span>, read-only history, a catalog, sessions: Redis. App reads cache, misses, reads database, <span class="pick">writes it in (lazy loading)</span>.</p></div>
+<div class="nm-box" data-rx="DocumentDB|Neptune|Redshift|Timestream|\bQLDB\b|Keyspaces"><h4><span>The odd ones</span></h4><p>MongoDB: <span class="pick">DocumentDB</span>. Graph: <span class="pick">Neptune</span>. Warehouse: <span class="pick">Redshift</span>. Telemetry over time: <span class="pick">Timestream</span>. Tamper-proof ledger: <span class="pick">QLDB</span>. Cassandra: <span class="pick">Keyspaces</span>.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then the feature</div>
+<div class="nm-zone sub"><h3>RDS and Aurora</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="Multi-AZ"><h4><span>Multi-AZ</span></h4><p><span class="pick">Failover</span>, no reads. A standby that serves nothing.</p></div>
+<div class="nm-box" data-rx="read replica|custom endpoint"><h4><span>Read replica</span></h4><p><span class="pick">Reads</span>, in Region or across. Promoted by hand, so not a failover. Reporting on chosen Aurora replicas: <span class="pick">a custom endpoint</span>.</p></div>
+<div class="nm-box" data-rx="global database|cross-Region (read )?replica|snapshot.{0,60}Region"><h4><span>Another Region</span></h4><p>RPO minutes: <span class="pick">Aurora global database</span>, one writer. RPO 24 hours, cheapest: <span class="pick">copy snapshots to the other Region daily</span>. Aurora elsewhere, simplest: <span class="pick">cross-Region read replica</span>.</p></div>
+<div class="nm-box" data-rx="RDS Proxy"><h4><span>RDS Proxy</span></h4><p><span class="pick">Too many connections</span>, Lambda opening them: RDS Proxy.</p></div>
+<div class="nm-box" data-rx="snapshot.{0,80}encrypt|encrypt.{0,80}snapshot"><h4><span>Encrypt an existing one</span></h4><p><span class="pick">Snapshot, copy with encryption, restore.</span> Cannot be switched on in place. DAX the same: <span class="pick">recreate it encrypted</span>.</p></div>
+<div class="nm-box" data-rx="manual (copy|snapshot)|automated backup|retention period"><h4><span>Keeping snapshots</span></h4><p>Keep one past 35 days: <span class="pick">a manual copy</span>. Keep paying less for idle: <span class="pick">snapshot and delete</span>; stop lasts 7 days.</p></div>
+<div class="nm-box" data-rx="storage auto ?scaling|I/O-Optimized|Performance Insights|parameter group"><h4><span>Keep the bill down</span></h4><p>Disk filling: <span class="pick">storage auto scaling</span>. Bill is I/O: <span class="pick">I/O-Optimized</span>. Which query is slow: <span class="pick">Performance Insights</span>. Engine setting: <span class="pick">parameter group</span>.</p></div>
+<div class="nm-box" data-rx="IAM database authentication|IAM authentication|Secrets Manager|key rotation"><h4><span>Who may connect</span></h4><p>No password in the app: <span class="pick">IAM database authentication</span>, a token from a role. A password that must rotate: <span class="pick">Secrets Manager</span>. Key rotation: <span class="pick">KMS automatic rotation</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>DynamoDB</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="on-demand (capacity|mode)|provisioned capacity|DynamoDB auto ?scaling|automatic scaling for the DynamoDB|capacity mode|Standard-Infrequent Access table"><h4><span>Capacity</span></h4><p>Unpredictable or new: <span class="pick">on-demand</span>. Steady: <span class="pick">provisioned + auto scaling at 70%</span>. Rarely read, many Regions: <span class="pick">Standard-IA table class</span>.</p></div>
+<div class="nm-box" data-rx="\bDAX\b"><h4><span>DAX</span></h4><p>Same reads, <span class="pick">microseconds</span>, in front of the table.</p></div>
+<div class="nm-box" data-rx="global tables?"><h4><span>Global tables</span></h4><p><span class="pick">Two Regions, both writing.</span> Needs Streams on.</p></div>
+<div class="nm-box" data-rx="DynamoDB Streams"><h4><span>Streams</span></h4><p><span class="pick">React to every change</span>, into Lambda; to a data lake: <span class="pick">Streams, Lambda, Firehose, S3</span>.</p></div>
+<div class="nm-box" data-rx="Time to Live|\bTTL\b|point-in-time"><h4><span>TTL and PITR</span></h4><p>Rows vanish after a time: <span class="pick">TTL</span>. Back to any second in 35 days: <span class="pick">PITR</span>. Session data for 48 hours, restorable: both.</p></div>
+<div class="nm-box" data-rx="export.{0,40}S3|Glue.{0,40}DynamoDB|DynamoDB.{0,40}Glue"><h4><span>Analyse it</span></h4><p><span class="pick">Export to S3</span>, then Athena or Redshift COPY. Metrics on a schedule: <span class="pick">Glue DynamoDB export connector</span>. Never a scan.</p></div>
+<div class="nm-box" data-rx="PutItem|integration type.{0,40}DynamoDB|API Gateway.{0,80}DynamoDB"><h4><span>Writing to it</span></h4><p>Ratings from a web form, no code: <span class="pick">API Gateway REST, AWS integration, PutItem</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Taking load off</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="ElastiCache"><h4><span>ElastiCache</span></h4><p>Same reads, custom queries on history: <span class="pick">Redis cache</span>. Sessions shared between servers: <span class="pick">Redis</span>.</p></div>
+<div class="nm-box" data-rx="\bDAX\b"><h4><span>DAX</span></h4><p>The same for DynamoDB, <span class="pick">goes to the table itself</span>.</p></div>
+<div class="nm-box" data-rx="read replica"><h4><span>Read replica</span></h4><p><span class="pick">More reads</span> than one instance can serve.</p></div>
+<div class="nm-box" data-rx="shard|larger (DB |database )?instance"><h4><span>Writes are the problem</span></h4><p><span class="pick">A bigger instance, or sharding.</span> A replica does nothing for writes.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub" data-rx="\bDMS\b|Database Migration|Schema Conversion|\bSCT\b|App2Container"><h4><span>Moving in</span></h4><p>Keep the old one running: <span class="pick">DMS</span>. Engine changes: <span class="pick">SCT</span>. Snapshot straight into Aurora. Java monolith with SQL Server: <span class="pick">App2Container to EKS, RDS for SQL Server Multi-AZ</span>.</p></div>
+<div class="nm-box hub" data-rx="AWS Backup"><h4><span>Backups</span></h4><p>EC2 and RDS on one schedule, <span class="pick">with restore testing</span>: AWS Backup.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: which engine · <span style="background: var(--amber)"></span>amber: taking load off · <span style="background: var(--magenta)"></span>magenta: moving in. Underlined text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-storage" data-fold="map-storage">
+      <summary>The storage map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Cue on the left, pick on the right. Which kind, then S3, EFS, EBS, getting data in, keeping it.</p>
+<div class="nm-zone vpc"><h3>Which kind</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="\bS3\b"><h4><span>S3</span></h4><p>Objects by URL, unlimited. <span class="pick">Static site: S3 + CloudFront.</span></p></div>
+<div class="nm-box" data-rx="\bEBS\b"><h4><span>EBS</span></h4><p><span class="pick">One instance, one zone.</span> Multi-Attach: io1/io2 only, same zone.</p></div>
+<div class="nm-box" data-rx="\bEFS\b"><h4><span>EFS</span></h4><p><span class="pick">Linux, many servers, across zones</span>, NFS.</p></div>
+<div class="nm-box" data-rx="FSx for Windows"><h4><span>FSx for Windows</span></h4><p><span class="pick">SMB, Active Directory.</span> Multi-AZ to survive a zone; SSD for 2 GB/s.</p></div>
+<div class="nm-box" data-rx="FSx for Lustre"><h4><span>FSx for Lustre</span></h4><p><span class="pick">HPC, training, sub-millisecond.</span> Linked to a bucket.</p></div>
+<div class="nm-box" data-rx="ONTAP"><h4><span>FSx for ONTAP</span></h4><p><span class="pick">SMB and NFS together</span>, Windows and Linux on one share. Auto tiering.</p></div>
+<div class="nm-box" data-rx="instance store"><h4><span>Instance store</span></h4><p><span class="pick">Scratch, fastest, gone on stop.</span></p></div>
+</div>
+</div>
+<div class="nm-arrow">Then what to do with it</div>
+<div class="nm-zone sub"><h3>S3</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="Intelligent-Tiering|Standard-IA|One Zone-IA|Glacier|Deep Archive|storage class"><h4><span>Retrieval time picks the class</span></h4><p>Milliseconds, once a year: <span class="pick">Glacier Instant</span>. Up to 12 hours: <span class="pick">Flexible</span>. Up to 48 hours, cheapest: <span class="pick">Deep Archive</span>. Pattern unknown or varies, no retrieval cost, minimal management: <span class="pick">Intelligent-Tiering</span>.</p></div>
+<div class="nm-box" data-rx="minimum (storage )?(duration|charge)|minimum of \d+ days"><h4><span>Minimums</span></h4><p>IA <span class="pick">30 days</span>, Glacier <span class="pick">90</span>, Deep Archive <span class="pick">180</span>, 128 KB. Short-lived or tiny: stay in Standard.</p></div>
+<div class="nm-box" data-rx="[Ll]ifecycle (rule|polic|configuration)"><h4><span>Lifecycle rules</span></h4><p><span class="pick">Move after N days, delete after N days.</span> Filter by prefix, tag or <span class="pick">size</span>. Clears incomplete multipart uploads.</p></div>
+<div class="nm-box" data-rx="Object Lock|legal hold|WORM"><h4><span>Cannot be deleted</span></h4><p><span class="pick">Object Lock compliance</span>: not even root. Governance: an admin can. Needs versioning. Public-read-but-locked: Object Lock + CloudFront + bucket policy.</p></div>
+<div class="nm-box" data-rx="MFA Delete|[Vv]ersioning|Block Public Access"><h4><span>Against accidents</span></h4><p><span class="pick">Versioning + MFA Delete.</span> <span class="pick">Block Public Access</span> on the account.</p></div>
+<div class="nm-box" data-rx="bucket polic|aws:Source|access point|Requester Pays|gateway (VPC )?endpoint"><h4><span>Who may reach it</span></h4><p>Another account: <span class="pick">bucket policy</span>. One VPC: <span class="pick">aws:SourceVpc</span>. Named addresses: <span class="pick">IP condition</span>. Many apps: <span class="pick">access point each</span>. Reader pays: <span class="pick">Requester Pays</span>. From instances, privately: <span class="pick">gateway endpoint</span>.</p></div>
+<div class="nm-box" data-rx="origin access|\bOAC\b|\bOAI\b|presigned|pre-signed|signed URL|signed cookie"><h4><span>Three kinds of signed access</span></h4><p>Bucket answers only CloudFront: <span class="pick">origin access control</span>. Paying viewers: <span class="pick">CloudFront signed URL</span>. One person, one object, one upload: <span class="pick">S3 presigned URL</span>.</p></div>
+<div class="nm-box" data-rx="SSE-S3|SSE-KMS|Bucket Key|server-side encryption"><h4><span>Encryption</span></h4><p>Nobody asked who holds the key: <span class="pick">SSE-S3</span>. Control rotation, audit use: <span class="pick">SSE-KMS, customer managed key</span>. KMS bill or request limit: <span class="pick">Bucket Key</span>.</p></div>
+<div class="nm-box" data-rx="Macie|Object Lambda|sensitive data discovery"><h4><span>Personal data (Macie)</span></h4><p>Watch buckets all the time: <span class="pick">Macie automated sensitive data discovery</span>. A one-off look: <span class="pick">a classification job</span>. Act on a finding: <span class="pick">EventBridge rule, Lambda removes it</span>. Serve it to one app with the PII masked, no copy: <span class="pick">Object Lambda</span>. Macie only finds; it never changes an object.</p></div>
+<div class="nm-box" data-rx="Transfer Acceleration|multipart|Express One Zone"><h4><span>Faster</span></h4><p>Uploads from far away: <span class="pick">Transfer Acceleration + multipart</span>. Sub-millisecond reads: <span class="pick">Express One Zone</span>. Downloads everywhere: CloudFront.</p></div>
+<div class="nm-box" data-rx="[Rr]eplication|Multi-Region Access Point|event notification|S3 Event"><h4><span>Copies and events</span></h4><p>Disaster recovery, least loss: <span class="pick">Cross-Region Replication</span>. Logs into one bucket: <span class="pick">Same-Region Replication</span>. One address, nearest bucket: <span class="pick">Multi-Region Access Point</span>. On every upload: <span class="pick">event notification</span> to Lambda, SQS, SNS.</p></div>
+<div class="nm-box" data-rx="Storage Lens|S3 Inventory|Batch Operations"><h4><span>Across many buckets</span></h4><p>Which buckets are idle or unversioned: <span class="pick">Storage Lens</span>. Act on millions of objects: <span class="pick">Inventory + Batch Operations</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>EFS</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="mount target|EFS.{0,60}(Lambda|ECS|Fargate)|VPC sharing"><h4><span>Mounting</span></h4><p><span class="pick">A mount target per zone.</span> Lambda mounts it for big dependencies. Another account: <span class="pick">VPC sharing</span>.</p></div>
+<div class="nm-box" data-rx="throughput mode|elastic throughput|bursting|EFS (Standard-)?Infrequent|Transition into IA|EFS.{0,40}lifecycle"><h4><span>Throughput and cost</span></h4><p>Spike nobody can size: <span class="pick">elastic</span>. Files unused for N days: <span class="pick">lifecycle to Infrequent Access</span>. Another Region: <span class="pick">AWS Backup</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>EBS</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="\bgp3\b|General Purpose SSD|\bio[12]\b|Provisioned IOPS|\bst1\b|\bsc1\b|Throughput Optimized|Cold HDD"><h4><span>Which volume</span></h4><p>Default: <span class="pick">gp3</span> (IOPS set apart from size). Over 16,000 IOPS: <span class="pick">io2</span>; 200,000: <span class="pick">io2 Block Express</span>. Big sequential reads, cheap: <span class="pick">st1</span>. Cold: <span class="pick">sc1</span>. HDDs cannot boot.</p></div>
+<div class="nm-box" data-rx="EBS snapshot|snapshot lifecycle|Data Lifecycle Manager|fast snapshot restore"><h4><span>Snapshots</span></h4><p>Schedule and prune: <span class="pick">Data Lifecycle Manager</span>. Clone production into test: <span class="pick">fast snapshot restore</span>.</p></div>
+<div class="nm-box" data-rx="encrypt(ed|ion) by default|account attribute|Elastic Volumes|Compute Optimizer|block public access for (EBS )?snapshots|Config rule.{0,60}(EBS|volume)"><h4><span>Controls</span></h4><p>Encrypt every new volume: <span class="pick">account setting</span>. Prove they are: <span class="pick">Config rule</span>. No public snapshots: <span class="pick">block at the organization</span>. Grow live: <span class="pick">Elastic Volumes</span>. Right-size: <span class="pick">Compute Optimizer</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Getting data in</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="Snowball|Snowcone|Snowmobile"><h4><span>Snowball Edge</span></h4><p>Too much for the line: <span class="pick">a device</span>. 10 Mbps is about 100 GB a day. Work with no connection: <span class="pick">Compute Optimized</span>.</p></div>
+<div class="nm-box" data-rx="DataSync"><h4><span>DataSync</span></h4><p>Over the network, <span class="pick">repeatedly, only what changed</span>, encrypted. Hundreds of GB on 100 Mbps is this.</p></div>
+<div class="nm-box" data-rx="Storage Gateway|File Gateway|Volume Gateway|Tape Gateway|stored volume|cached volume"><h4><span>Storage Gateway</span></h4><p>NFS or SMB share into a bucket: <span class="pick">File</span>. All data local, backed up: <span class="pick">Volume, stored</span>. Hot data local, rest in S3: <span class="pick">Volume, cached</span>. Tapes into Deep Archive, same backup software: <span class="pick">Tape</span>.</p></div>
+<div class="nm-box" data-rx="Transfer Family|Transfer for SFTP"><h4><span>Transfer Family</span></h4><p>Partners keep <span class="pick">SFTP</span>, files land in S3.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub" data-rx="AWS Backup"><h4><span>AWS Backup</span></h4><p><span class="pick">One plan for every service</span>, retention in years, copy to another Region. Vault lock cannot be undone.</p></div>
+<div class="nm-box hub" data-rx="Athena|Parquet"><h4><span>Querying files</span></h4><p>SQL over S3, no server: <span class="pick">Athena</span>. Cut the scan: <span class="pick">Parquet</span>.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: which kind · <span style="background: var(--amber)"></span>amber: getting data in · <span style="background: var(--magenta)"></span>magenta: keeping it. Underlined text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-security" data-fold="map-security">
+      <summary>The security map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Cue on the left, pick on the right. Who may do what, keys and secrets, who finds what, the defences, many accounts.</p>
+<div class="nm-zone vpc"><h3>Who may do what</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="IAM role|\bSTS\b|Security Token Service"><h4><span>A role</span></h4><p><span class="pick">Assumed, credentials expire.</span> Never an access key on a server. Contractors for a project: <span class="pick">STS temporary credentials on roles that expire</span>.</p></div>
+<div class="nm-box" data-rx="instance profile|instance role|task role|execution role"><h4><span>Instance, task, execution role</span></h4><p>App on an instance: <span class="pick">instance role</span>. Fargate container reading S3: <span class="pick">task role</span>. Lambda decrypting: <span class="pick">execution role</span>, granted on the KMS key.</p></div>
+<div class="nm-box" data-rx="cross-account|trust polic|trust the|Roles Anywhere"><h4><span>Across accounts</span></h4><p><span class="pick">A role in the far account</span>: trust policy there, permission on the caller. A vendor's role: <span class="pick">trust the vendor role</span>. A server outside AWS with certificates: <span class="pick">IAM Roles Anywhere</span>.</p></div>
+<div class="nm-box" data-rx="resource(-based)? polic|bucket polic|queue polic"><h4><span>Resource policy</span></h4><p><span class="pick">An outsider at one bucket or queue</span>, written on the thing itself.</p></div>
+<div class="nm-box" data-rx="aws:SourceIp|aws:RequestedRegion|Condition|CIDR block"><h4><span>Conditions</span></h4><p>Only from the office: <span class="pick">aws:SourceIp</span>. Only these Regions: <span class="pick">aws:RequestedRegion</span>. Only from one VPC: <span class="pick">aws:SourceVpc</span>. A deny with a condition beats an allow.</p></div>
+<div class="nm-box" data-rx="IAM group|Identity Center|\bSSO\b|\bSAML\b|identity broker|MFA|root user"><h4><span>People</span></h4><p>Staff with company logins: <span class="pick">Identity Center</span>. LDAP that is not SAML: <span class="pick">a custom identity broker with STS</span>. Permissions by department: <span class="pick">IAM groups</span>, never policies on users. Root: <span class="pick">MFA, several devices, no daily use</span>.</p></div>
+<div class="nm-box" data-rx="Cognito"><h4><span>Users of your own app</span></h4><p><span class="pick">Cognito user pool</span> for the login (AD FS, Google, SAML), identity pool for AWS credentials. An ALB can demand it.</p></div>
+<div class="nm-box" data-rx="service control polic|\bSCP\b|permissions boundar"><h4><span>A ceiling</span></h4><p>Nobody in the account may: <span class="pick">service control policy</span>, limits, never grants, not the management account. One user: <span class="pick">permissions boundary</span>.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then what protects the data</div>
+<div class="nm-zone sub"><h3>Keys and secrets</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="SSE-S3|SSE-KMS|SSE-C|client-side encryption|customer managed key"><h4><span>Who holds the key</span></h4><p>Nobody asked: <span class="pick">SSE-S3</span>. Who may use it, audit: <span class="pick">SSE-KMS, customer managed key</span>. AWS never sees it: <span class="pick">SSE-C or client-side</span>.</p></div>
+<div class="nm-box" data-rx="\bKMS\b|CloudHSM"><h4><span>KMS</span></h4><p>Encrypts the data key, which encrypts the data. <span class="pick">Automatic rotation</span> changes the outer key only. Your own hardware module: <span class="pick">CloudHSM</span>.</p></div>
+<div class="nm-box" data-rx="Secrets Manager"><h4><span>Secrets Manager</span></h4><p>A password that must <span class="pick">rotate itself</span>; built in to RDS, Aurora, Redshift. Hardcoded credentials in an app: this.</p></div>
+<div class="nm-box" data-rx="Parameter Store"><h4><span>Parameter Store</span></h4><p>A setting, or a secret with <span class="pick">no rotation</span>, free. Env vars for a container.</p></div>
+<div class="nm-box" data-rx="Certificate Manager|\bACM\b|TLS|SSL"><h4><span>Certificates</span></h4><p>In transit: <span class="pick">ACM</span>, free public certificates, DNS validation; CloudFront needs us-east-1. At rest: <span class="pick">KMS</span>. End-to-end ALB to instance: <span class="pick">ACM cert on the ALB, self-signed on the instances</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone sub"><h3>Who finds what</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="GuardDuty"><h4><span>GuardDuty</span></h4><p><span class="pick">Threats</span>: stolen key, mining, odd login. Acts: <span class="pick">EventBridge rule, Lambda</span>.</p></div>
+<div class="nm-box" data-rx="Macie"><h4><span>Macie</span></h4><p><span class="pick">Personal data in S3.</span> Only S3.</p></div>
+<div class="nm-box" data-rx="Inspector"><h4><span>Inspector</span></h4><p><span class="pick">Software flaws</span> on instances, containers, Lambda.</p></div>
+<div class="nm-box" data-rx="AWS Config|Config rule"><h4><span>Config</span></h4><p><span class="pick">A setting that drifted</span>, what changed and whether allowed. Custom rule + Lambda for anything else.</p></div>
+<div class="nm-box" data-rx="CloudTrail"><h4><span>CloudTrail</span></h4><p><span class="pick">Who called what, when.</span> Never flow logs.</p></div>
+<div class="nm-box" data-rx="Access Analyzer|Security Hub|Detective|Trusted Advisor"><h4><span>The rest</span></h4><p>Outsiders who can reach in: <span class="pick">Access Analyzer</span>. Every finding in one place: <span class="pick">Security Hub</span>. Why it happened: <span class="pick">Detective</span>. Cost, limits, best practice: <span class="pick">Trusted Advisor</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>Defences</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="\bWAF\b"><h4><span>WAF</span></h4><p><span class="pick">Rules on web requests</span>: SQL injection, bots (<span class="pick">Bot Control</span>), rate limits, IP sets. On CloudFront, ALB, API Gateway.</p></div>
+<div class="nm-box" data-rx="Shield"><h4><span>Shield</span></h4><p>Standard on and free. <span class="pick">Advanced</span>: big DDoS, a team, cost protection, an NLB or Elastic IP.</p></div>
+<div class="nm-box" data-rx="network ACL|\bNACL\b"><h4><span>Network ACL</span></h4><p>The only one with <span class="pick">deny</span>. Block an address, or one subnet from another.</p></div>
+<div class="nm-box" data-rx="security group"><h4><span>Security group</span></h4><p><span class="pick">Allow only</span>, stateful, instance level. <span class="pick">From another group by id.</span></p></div>
+<div class="nm-box" data-rx="Network Firewall"><h4><span>Network Firewall</span></h4><p>Filters a <span class="pick">VPC's traffic</span> by address, port, domain. Not web requests.</p></div>
+<div class="nm-box" data-rx="Firewall Manager"><h4><span>Firewall Manager</span></h4><p><span class="pick">The same rules in every account.</span> Needs Organizations.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub" data-rx="Organizations|Control Tower|tag polic|Resource Access Manager|\bRAM\b|Budgets"><h4><span>Many accounts</span></h4><p>One bill, shared discounts, chargeback: <span class="pick">Organizations</span>. Stop something everywhere: <span class="pick">SCP on the root OU</span>. New accounts set up right: <span class="pick">Control Tower</span>. Allowed tag values: <span class="pick">tag policy</span>. Share a subnet: <span class="pick">RAM</span>. Overspend: <span class="pick">Budgets actions</span>.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: who may · <span style="background: var(--amber)"></span>amber: defences · <span style="background: var(--magenta)"></span>magenta: many accounts. Underlined text is the pick.</div>
+</div>
+      </div>
+    </details>
+
+    <details class="fold map" id="fold-map-integration" data-fold="map-integration">
+      <summary>The integration map<span class="count">one picture</span></summary>
+      <div class="inner">
+<div class="netmap">
+<p class="lede">Cue on the left, pick on the right. What goes in between, what the queue needs set, the front door, events.</p>
+<div class="nm-zone vpc"><h3>What goes in between</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="\bSQS\b"><h4><span>SQS</span></h4><p><span class="pick">One sender, one worker, nothing lost</span>, at-least-once. Surge at 8 AM Monday: <span class="pick">API, SQS, Lambda with provisioned concurrency</span>. Email results in bulk: <span class="pick">API, SQS, Lambda</span>.</p></div>
+<div class="nm-box" data-rx="\bFIFO\b|MessageDeduplicationId|NumberOfDeduplicatedSentMessages"><h4><span>SQS FIFO</span></h4><p><span class="pick">Order, no duplicates</span>: FIFO with a <span class="pick">MessageDeduplicationId</span>. 300 a second, 3,000 in batches. Are duplicates being dropped: <span class="pick">NumberOfDeduplicatedSentMessages</span>.</p></div>
+<div class="nm-box" data-rx="\bSNS\b"><h4><span>SNS</span></h4><p><span class="pick">One message, many places at once</span>: email, SMS, Lambda, queues. A contact form: <span class="pick">API, Lambda, SNS</span>.</p></div>
+<div class="nm-box" data-rx="SNS.{0,80}SQS|SQS.{0,80}SNS"><h4><span>SNS in front of SQS</span></h4><p><span class="pick">Both</span>: a copy to every subscriber, each queue holds its own work. Containers consuming messages: <span class="pick">SNS topic, SQS queue, Fargate</span>.</p></div>
+<div class="nm-box" data-rx="EventBridge"><h4><span>EventBridge</span></h4><p><span class="pick">Route on what is inside the event</span>, schedules, other companies' products. A custom bus with a Lambda target writing to DynamoDB.</p></div>
+<div class="nm-box" data-rx="Kinesis Data Streams|Apache Flink|\bMSK\b|Kafka"><h4><span>Kinesis and MSK</span></h4><p><span class="pick">A stream several readers can replay</span>: Kinesis Data Streams. Transform on the way: <span class="pick">Managed Service for Apache Flink</span>. Kafka named, real-time dashboards from many schemas: <span class="pick">MSK</span>.</p></div>
+<div class="nm-box" data-rx="Firehose"><h4><span>Data Firehose</span></h4><p><span class="pick">Straight into S3, Redshift, OpenSearch</span>, no code, no replay. A Lambda can transform on the way (mask PII).</p></div>
+<div class="nm-box" data-rx="Step Functions|state machine|log level"><h4><span>Step Functions</span></h4><p><span class="pick">Steps, retries, waiting for a person</span>, jobs of many tasks up to a day. Thousands in parallel: <span class="pick">Map, distributed</span>. Debug a task: <span class="pick">log level ALL</span>.</p></div>
+<div class="nm-box" data-rx="Amazon MQ|ActiveMQ|RabbitMQ"><h4><span>Amazon MQ</span></h4><p>An <span class="pick">existing ActiveMQ or RabbitMQ</span> app, moved as it is.</p></div>
+</div>
+</div>
+<div class="nm-arrow">Then what the queue needs set</div>
+<div class="nm-zone sub"><h3>SQS details</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="visibility timeout"><h4><span>Visibility timeout</span></h4><p>How long a taken message <span class="pick">stays hidden</span>. Longer than the work, or it is done twice.</p></div>
+<div class="nm-box" data-rx="dead-letter"><h4><span>Dead-letter queue</span></h4><p>After <span class="pick">too many failed tries</span>, here, to be looked at.</p></div>
+<div class="nm-box" data-rx="long polling|ReceiveMessageWaitTime"><h4><span>Long polling</span></h4><p><span class="pick">Wait up to 20 seconds</span> for a message: fewer empty answers, less cost.</p></div>
+<div class="nm-box" data-rx="256 KB|Extended Client|retention period"><h4><span>Size and age</span></h4><p><span class="pick">256 KB</span> a message; bigger goes to S3 with a pointer. Kept 4 days, up to 14.</p></div>
+<div class="nm-box" data-rx="queue.{0,80}(Auto Scaling|scal)|ApproximateNumberOfMessages"><h4><span>Scaling the workers</span></h4><p>ASG <span class="pick">target tracking on ApproximateNumberOfMessages</span> per instance.</p></div>
+<div class="nm-box" data-rx="delay queue|delay seconds|DelaySeconds"><h4><span>Delay</span></h4><p>Hide a new message for up to <span class="pick">15 minutes</span>.</p></div>
+</div>
+</div>
+<div class="nm-zone home"><h3>The front door</h3>
+<div class="nm-row">
+<div class="nm-box" data-rx="REST API"><h4><span>API Gateway REST</span></h4><p><span class="pick">Caching, usage plans, API keys, request validation, WAF.</span> Front for a queue: <span class="pick">REST API to SQS, Fargate reads</span>. Writes straight to DynamoDB: <span class="pick">AWS integration, PutItem</span>.</p></div>
+<div class="nm-box" data-rx="HTTP API"><h4><span>API Gateway HTTP</span></h4><p><span class="pick">Cheaper and faster</span>, JWT authorizer built in. None of the above.</p></div>
+<div class="nm-box" data-rx="resource polic|\bWAF\b.{0,60}API|API.{0,60}\bWAF\b"><h4><span>Protecting an API</span></h4><p>SQL injection on a REST API: <span class="pick">WAF</span>. Only these addresses: <span class="pick">a resource policy</span> that denies the rest.</p></div>
+<div class="nm-box" data-rx="function URL"><h4><span>Lambda function URL</span></h4><p><span class="pick">One function, one address</span>, nothing in between. Callers with AWS credentials: <span class="pick">auth type AWS_IAM</span>.</p></div>
+<div class="nm-box" data-rx="WebSocket|AppSync"><h4><span>WebSocket, AppSync</span></h4><p><span class="pick">Two-way, live</span>: WebSocket API. <span class="pick">GraphQL</span>, offline sync: AppSync.</p></div>
+</div>
+</div>
+<div class="nm-row">
+<div class="nm-box hub" data-rx="S3 event|EventBridge rule|event source mapping|destination"><h4><span>Lambda and events</span></h4><p><span class="pick">S3 event, EventBridge schedule, SQS or stream</span> as the trigger. Async calls fail into a <span class="pick">dead-letter queue</span> or a destination.</p></div>
+<div class="nm-box hub" data-rx="\bSES\b|Simple Email"><h4><span>Email</span></h4><p><span class="pick">SES</span> to send at volume or receive and parse attachments. SNS email is for alerts.</p></div>
+</div>
+<div class="nm-key"><span style="background: var(--cyan)"></span>cyan: what goes in between · <span style="background: var(--amber)"></span>amber: the front door · <span style="background: var(--magenta)"></span>magenta: events. Underlined text is the pick.</div>
+</div>
+      </div>
+    </details>
+<!-- MAPS-HTML-END -->
+
     <div class="board" id="board"></div>
+
   </section>
 
   <!-- ============ PRACTICE ============ -->
@@ -1059,34 +1590,66 @@ footer .v { font-family: var(--mono); }
   <section class="view" id="view-progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
     <div class="stats" id="statCards"></div>
 
-    <h2 class="sub">By category</h2>
-    <div class="barlist" id="areaBars"></div>
+    <details class="fold" id="fold-io" data-fold="io">
+      <summary>Your progress file<span class="count">export and merge</span></summary>
+      <div class="inner">
+        <p class="lede">
+          Progress is kept in this browser only &mdash; each browser, each device and each
+          address keeps its own. To work across two machines: <b>Export</b> on one,
+          <b>Merge</b> on the other. Merging adds the two together rather than replacing, so
+          neither machine loses what it did, and a question either of them got wrong stays on
+          your revisit list. One file carries every exam, and every set you are part way
+          through.
+        </p>
+        <div class="picker">
+          <button class="btn primary" id="exportBtn">Export progress</button>
+          <button class="btn" id="chooseBtn">Merge from a file</button>
+          <button class="btn" id="importBtn">Merge what is in the box</button>
+          <button class="btn bad" id="resetBtn">Reset all progress</button>
+        </div>
+        <input type="file" id="ioFile" accept=".json,application/json,text/plain" hidden>
+        <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Choose a file above, drop one on this box, or paste one in."></textarea>
+      </div>
+    </details>
 
-    <h2 class="sub">Questions you got wrong</h2>
-    <p class="lede">Tap one to drill it again. It leaves this list once you get it right.</p>
-    <div id="missList"></div>
+    <details class="fold" id="fold-runs" data-fold="runs" open>
+      <summary>Recent runs<span class="count" id="runCount"></span></summary>
+      <div class="inner">
+        <p class="lede">Each go at a set of questions, newest first. Open one to see how it
+          fell across the categories. Runs are kept from the day this was added, so anything
+          answered before that is in the totals but not here.</p>
+        <div class="runlist" id="runList"></div>
+      </div>
+    </details>
 
-    <h2 class="sub">Every answer, with its time</h2>
-    <p class="lede" id="logLede"></p>
-    <div class="answerlog" id="answerLog"></div>
+    <details class="fold" id="fold-areas" data-fold="areas" open>
+      <summary>By category<span class="count">all time</span></summary>
+      <div class="inner"><div class="barlist" id="areaBars"></div></div>
+    </details>
 
-    <h2 class="sub">Weakest concepts</h2>
-    <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
-    <div class="weak" id="weakList"></div>
+    <details class="fold" id="fold-miss" data-fold="miss">
+      <summary>Questions you got wrong<span class="count" id="missCount"></span></summary>
+      <div class="inner">
+        <p class="lede">Tap one to drill it again. It leaves this list once you get it right.</p>
+        <div id="missList"></div>
+      </div>
+    </details>
 
-    <h2 class="sub">Your progress file</h2>
-    <p class="lede">
-      Progress is kept in this browser only &mdash; each browser, each device and each address
-      keeps its own. To work across two machines: <b>Export</b> on one, <b>Merge</b> on the other.
-      Merging adds the two together rather than replacing, so neither machine loses what it did,
-      and a question either of them got wrong stays on your revisit list.
-    </p>
-    <div class="picker">
-      <button class="btn primary" id="exportBtn">Export progress</button>
-      <button class="btn" id="importBtn">Merge in the box below</button>
-      <button class="btn bad" id="resetBtn">Reset all progress</button>
-    </div>
-    <textarea id="ioBox" spellcheck="false" placeholder="Exported progress appears here. Paste a progress file in and press Import."></textarea>
+    <details class="fold" id="fold-weak" data-fold="weak">
+      <summary>Weakest concepts<span class="count">worst first</span></summary>
+      <div class="inner">
+        <p class="lede">Ranked by how often you have missed them. Fix these before anything else.</p>
+        <div class="weak" id="weakList"></div>
+      </div>
+    </details>
+
+    <details class="fold" id="fold-log" data-fold="log">
+      <summary>Every answer, with its time<span class="count" id="logCount"></span></summary>
+      <div class="inner">
+        <p class="lede" id="logLede"></p>
+        <div class="answerlog" id="answerLog"></div>
+      </div>
+    </details>
   </section>
 </main>
 
@@ -1094,11 +1657,14 @@ footer .v { font-family: var(--mono); }
   <span class="v" id="buildInfo"></span>
   <span id="dataInfo"></span>
   <span>Progress stored in this browser only. Export and merge to move between machines.</span>
+  <span id="otherExams"></span>
 </footer>
+
+<div class="newver" id="newVersion" hidden></div>
 
 <div class="gate" id="gate" hidden>
   <form class="gate-card" id="gateForm">
-    <h2>SAA-C03 Recall Board</h2>
+    <h2>__EXAM_FULL__</h2>
     <p>This board is password protected. Enter the password to carry on.</p>
     <input type="password" id="gatePass" autocomplete="current-password"
            placeholder="Password" aria-label="Password">
@@ -1214,6 +1780,17 @@ footer .v { font-family: var(--mono); }
     </div>
   </div>
   <div class="setrow">
+    <span class="lab">What to call this device</span>
+    <span class="hint">Shown against any half-finished set that was begun somewhere else, so
+      a list of them tells you which is the one from your phone. Guessed from the browser
+      unless you say otherwise. It stays in this browser and in files you export yourself,
+      and is not sent anywhere.</span>
+    <p class="lede"><input type="text" id="deviceName" maxlength="32"
+      style="font: inherit; padding: 7px 10px; border-radius: 8px;
+             border: 1px solid var(--rule); background: var(--surface);
+             color: var(--ink); max-width: 16rem; width: 100%"></p>
+  </div>
+  <div class="setrow">
     <span class="lab">Bullet points</span>
     <span class="hint">Breaks long questions and answers into one point per line.</span>
     <div class="pick" role="group" data-setting="bullets">
@@ -1257,12 +1834,38 @@ footer .v { font-family: var(--mono); }
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
   var APP_VERSION = "__APP_VERSION__";
   var BUILD_DATE  = "__BUILD_DATE__";
-  var STORE_KEY   = "saa-c03-recall-board/v1";
+  // ---------- where this exam's work is kept ----------
+  //
+  // Everything a person has answered lives in the browser's own storage, and
+  // every exam on this site shares that storage. So each exam gets its own
+  // corner of it, named by an id that is never shown and never changes:
+  //
+  //   recall/v2/<exam>/progress    the answers
+  //   recall/v2/<exam>/sessions    the sets left half finished
+  //   recall/v2/index              which exams this browser knows about
+  //   recall/v2/settings           theme, font, size: about the person, so
+  //                                shared by every exam rather than set twice
+  //
+  // The first version kept one exam's work under one key with the exam's name
+  // in it. That key is read once, copied across, and then left alone: it costs
+  // a little room and buys a way back if any of this is wrong.
+  var EXAM        = DATA.examId || "saa-c03";
+  var ROOT        = "recall/v2";
+  var STORE_KEY   = ROOT + "/" + EXAM + "/progress";
+  var SESSIONS_KEY = ROOT + "/" + EXAM + "/sessions";
+  var INDEX_KEY   = ROOT + "/index";
+  var SET_KEY     = ROOT + "/settings";
+  var BULLET_KEY  = ROOT + "/bullets";
+  var TS_KEY      = ROOT + "/textsize";
+  var DEVICE_KEY  = ROOT + "/device";
   var PASS_SHA    = "__PASS_SHA__";
-  var PASS_KEY    = STORE_KEY + "/unlocked";
-  var SEED_KEY    = STORE_KEY + "/seed";
-  var SEED_HAD    = STORE_KEY + "/seed-applied";
+  var PASS_KEY    = ROOT + "/" + EXAM + "/unlocked";
+  var SEED_KEY    = ROOT + "/" + EXAM + "/seed";
+  var SEED_HAD    = ROOT + "/" + EXAM + "/seed-applied";
+  var LOOKBACK_KEY = ROOT + "/" + EXAM + "/lookback";
   var SEED        = __SEED__;
+
+  var OLD_ROOT = "saa-c03-recall-board/v1";
 
   // ---------- storage (always guarded: can throw or return empty) ----------
   // Probe before trusting it. A private window, blocked site data or a full
@@ -1270,13 +1873,125 @@ footer .v { font-family: var(--mono); }
   // back nothing, so the probe reads its own value back.
   var storageOK = (function () {
     try {
-      var k = STORE_KEY + "/probe";
+      var k = ROOT + "/probe";
       localStorage.setItem(k, "1");
       var v = localStorage.getItem(k);
       localStorage.removeItem(k);
       return v === "1";
     } catch (e) { return false; }
   })();
+
+  // Short, random, and only ever compared with another one of its kind. It is
+  // what lets two half-finished sets sit side by side instead of one of them
+  // having to replace the other, and what lets the same set come back from
+  // another device without arriving twice.
+  function newId() {
+    return Math.random().toString(36).slice(2, 8) +
+           Math.random().toString(36).slice(2, 6);
+  }
+
+  // Move the first version's work into this exam's corner, once. Only ever
+  // runs for the exam the old key belonged to, and only when the new corner is
+  // empty, so it can be left in place safely and cannot run twice.
+  (function migrate() {
+    if (!storageOK || EXAM !== "saa-c03") return;
+    try {
+      if (localStorage.getItem(STORE_KEY) !== null) return;
+      var old = localStorage.getItem(OLD_ROOT);
+      if (old === null) return;
+
+      localStorage.setItem(STORE_KEY, old);
+
+      // The one set it could hold becomes a list of one, and is given an id.
+      var s = JSON.parse(localStorage.getItem(OLD_ROOT + "/session") || "null");
+      if (s && s.ids && s.ids.length) {
+        s.id = s.id || newId();
+        s.exam = EXAM;
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify([s]));
+      }
+
+      // These two stop the progress baked into the build being counted a
+      // second time. Carrying them over matters more than the rest: without
+      // them the seed is applied again and every total goes up by it.
+      ["/seed", "/seed-applied", "/unlocked", "/lookback"].forEach(function (part) {
+        var v = localStorage.getItem(OLD_ROOT + part);
+        if (v !== null) localStorage.setItem(ROOT + "/" + EXAM + part, v);
+      });
+
+      // Reading settings are about the person, not the exam, so they come out
+      // from under the exam and are shared from here on.
+      [["/settings", SET_KEY], ["/bullets", BULLET_KEY],
+       ["/textsize", TS_KEY]].forEach(function (pair) {
+        var v = localStorage.getItem(OLD_ROOT + pair[0]);
+        if (v !== null && localStorage.getItem(pair[1]) === null) {
+          localStorage.setItem(pair[1], v);
+        }
+      });
+    } catch (e) { /* nothing moved: the exam simply starts empty */ }
+  })();
+
+  // A note of which exams this browser has work for, so a page that is not
+  // this exam can still say what else is here. Written on every save, which is
+  // cheap, rather than kept in step by hand.
+  function noteExam() {
+    if (!storageOK) return;
+    try {
+      var ix = JSON.parse(localStorage.getItem(INDEX_KEY) || "null") || { exams: {} };
+      if (!ix.exams) ix.exams = {};
+      ix.exams[EXAM] = {
+        name: DATA.examName || DATA.exam || EXAM,
+        dataVersion: DATA.version || null,
+        at: stampNow()
+      };
+      ix.at = stampNow();
+      localStorage.setItem(INDEX_KEY, JSON.stringify(ix));
+    } catch (e) { /* fine: the index is a convenience, not a record */ }
+  }
+
+  // ---------- what to call this machine ----------
+  //
+  // Once sets can come from more than one place, a list of them all saying
+  // "Networking, 8 of 71" is no use: the question is which of them is the one
+  // from your phone. So a set is stamped with where it was begun.
+  //
+  // The guess comes from what the browser says it is running on, which is
+  // coarse but needs nobody to type anything. It can be renamed in settings,
+  // and the name only ever sits in this browser and in files you export
+  // yourself: it is not sent anywhere, and nothing else can read it.
+  function guessDevice() {
+    var ua = navigator.userAgent || "";
+    if (/iPhone/i.test(ua)) return "iPhone";
+    if (/iPad/i.test(ua)) return "iPad";
+    if (/Android/i.test(ua)) return /Mobile/i.test(ua) ? "Android phone" : "Android tablet";
+    if (/Macintosh|Mac OS X/i.test(ua)) return "Mac";
+    if (/Windows/i.test(ua)) return "Windows PC";
+    if (/CrOS/i.test(ua)) return "Chromebook";
+    if (/Linux/i.test(ua)) return "Linux PC";
+    return "This device";
+  }
+
+  function deviceName() {
+    try {
+      var saved = (localStorage.getItem(DEVICE_KEY) || "").trim();
+      if (saved) return saved.slice(0, 32);
+    } catch (e) { /* fall back to the guess */ }
+    return guessDevice();
+  }
+
+  function setDeviceName(name) {
+    try {
+      name = (name || "").trim().slice(0, 32);
+      if (name) localStorage.setItem(DEVICE_KEY, name);
+      else localStorage.removeItem(DEVICE_KEY);
+    } catch (e) { /* nothing to do: the guess stands */ }
+  }
+
+  function knownExams() {
+    try {
+      var ix = JSON.parse(localStorage.getItem(INDEX_KEY) || "null");
+      return (ix && ix.exams) || {};
+    } catch (e) { return {}; }
+  }
 
   var CONCEPT_ROWS = {};   // concept -> [rowId]
   var CONCEPT_SECS = {};   // concept -> [sectionKey]
@@ -1371,6 +2086,7 @@ footer .v { font-family: var(--mono); }
     if (!storageOK) return false;
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(S));
+      noteExam();
       return true;
     } catch (e) {
       storageOK = false;      // quota can fill up mid-session
@@ -1435,7 +2151,6 @@ footer .v { font-family: var(--mono); }
     { days: 14, label: "14 days" },
     { days: 30, label: "30 days" }
   ];
-  var LOOKBACK_KEY = STORE_KEY + "/lookback";
   var lookback = 0;                    // days, 0 meaning all time
   try {
     var savedLb = localStorage.getItem(LOOKBACK_KEY);
@@ -1447,7 +2162,7 @@ footer .v { font-family: var(--mono); }
 
   function scoresFor(days) {
     var out = blankCounts();
-    var cut = days ? Math.floor(Date.now() / 1000) - days * 86400 : -1;
+    var cut = days ? Math.floor(Date.now() / 1000) - days * 86400 : -1;
     // The lump has one date. Either the whole of it is inside the window or
     // none of it is; there is no way to split it, because nothing recorded
     // when any single one of those answers was given.
@@ -1600,7 +2315,6 @@ footer .v { font-family: var(--mono); }
   // Nothing is added and nothing is taken away: every line is a slice of the
   // original words, so what is read is exactly what was written.
 
-  var BULLET_KEY = STORE_KEY + "/bullets";
   var bulletMode = false;
   try { bulletMode = localStorage.getItem(BULLET_KEY) === "1"; } catch (e) { /* off */ }
 
@@ -1693,7 +2407,6 @@ footer .v { font-family: var(--mono); }
   }
 
   // ---------- text size ----------
-  var TS_KEY = STORE_KEY + "/textsize";
   var TS_STEPS = [0.9, 1, 1.15, 1.3, 1.5];
   var tsIdx = 1;
   try {
@@ -1781,8 +2494,12 @@ footer .v { font-family: var(--mono); }
       if (!rows.length && (onlyMissed || (!sec.notes.length && !sec.traps.length))) return;
       if (onlyMissed && !rows.length) return;
 
-      var box = el("div", "sec");
-      var head = el("header");
+      // A section folds like everything else on the poster, and remembers
+      // whether it was left open, so a long board can be read a part at a time.
+      var box = el("details", "sec");
+      box.open = true;
+      bindFold(box, "sec:" + sec.key);
+      var head = el("summary");
       head.appendChild(el("h3", null, sec.title));
       // Questions answered on this block, counted once each however many lines
       // in the block they touched.
@@ -2054,6 +2771,27 @@ footer .v { font-family: var(--mono); }
   function renderDrillBanner() {
     relabelAll();
     drillBanner.textContent = "";
+
+    // A second go at what was missed is not a drill off a poster line, but it
+    // is just as much worth saying out loud: a short set of hard questions
+    // with no explanation would otherwise look like the bank gone strange.
+    if (!drilling && retakeOf) {
+      drillBanner.hidden = false;
+      var rbox = el("div", "drill");
+      rbox.appendChild(el("div", "what",
+        "Going again at what you missed in " + retakeOf));
+      rbox.appendChild(el("span", "count",
+        queue.length + (queue.length === 1 ? " question" : " questions") +
+        " · the run you missed them in is kept, under recent runs"));
+      var out = el("button", "btn", "Back to everything");
+      out.addEventListener("click", function () {
+        retakeOf = null; buildQueue(); renderDrillBanner(); renderQuestion();
+      });
+      rbox.appendChild(out);
+      drillBanner.appendChild(rbox);
+      return;
+    }
+
     if (!drilling) { drillBanner.hidden = true; return; }
     drillBanner.hidden = false;
     var box = el("div", "drill");
@@ -2190,7 +2928,7 @@ footer .v { font-family: var(--mono); }
   }
 
   function drawDiagram(spec, roomAcross) {
-    var BOX_W = 150, BOX_H = 44, GAP_X = 56, GAP_Y = 18, PAD = 6;
+    var BOX_W = 136, BOX_H = 40, GAP_X = 46, GAP_Y = 13, PAD = 4;
 
     // How wide it would be laid out across the page. Past the room available it
     // would be scaled down to fit, and a picture scaled until its labels cannot
@@ -2228,7 +2966,7 @@ footer .v { font-family: var(--mono); }
       stack.forEach(function (n, lane) {
         var offset = PAD + (fullSize - blockSize) / 2 + lane * (downwards ? BOX_W + GAP_X : BOX_H + GAP_Y);
         place[n[0]] = downwards
-          ? { x: offset, y: PAD + step * (BOX_H + GAP_Y + 14), node: n }
+          ? { x: offset, y: PAD + step * (BOX_H + GAP_Y + 10), node: n }
           : { x: PAD + step * (BOX_W + GAP_X), y: offset, node: n };
       });
     });
@@ -2237,7 +2975,7 @@ footer .v { font-family: var(--mono); }
       ? PAD * 2 + tallest * BOX_W + (tallest - 1) * GAP_X
       : across;
     var height = downwards
-      ? PAD * 2 + columnKeys.length * (BOX_H + GAP_Y + 14)
+      ? PAD * 2 + columnKeys.length * (BOX_H + GAP_Y + 10)
       : PAD * 2 + tallest * BOX_H + (tallest - 1) * GAP_Y;
 
     var svg = svgEl("svg", {
@@ -2246,6 +2984,10 @@ footer .v { font-family: var(--mono); }
       "aria-label": spec.title,
       class: "dgsvg"
     });
+    // In rem rather than pixels: at the default text size one unit of the
+    // drawing is one pixel, and at a larger text size the whole picture grows
+    // with everything else instead of staying stubbornly small.
+    svg.style.width = (width / 16) + "rem";
 
     var defs = svgEl("defs");
     var marker = svgEl("marker", {
@@ -2300,11 +3042,11 @@ footer .v { font-family: var(--mono); }
       if (kind.dash) box.setAttribute("stroke-dasharray", kind.dash);
       svg.appendChild(box);
 
-      var lines = wrapLabel(n[1], 22);
+      var lines = wrapLabel(n[1], 17);
       lines.forEach(function (line, i) {
         var tx = svgEl("text", {
           x: at.x + BOX_W / 2,
-          y: at.y + BOX_H / 2 + (lines.length === 1 ? 4 : i * 12 - 2),
+          y: at.y + BOX_H / 2 + (lines.length === 1 ? 4.5 : i * 14 - 3),
           "text-anchor": "middle", class: "dgnode"
         });
         tx.textContent = line;
@@ -2322,10 +3064,14 @@ footer .v { font-family: var(--mono); }
   //
   // Only the question ids are kept, not the questions, so the record stays
   // small and can never disagree with the question bank.
-  var SESSION_KEY = STORE_KEY + "/session";
   var resumeBar = document.getElementById("resumeBar");
   var sessionLine = document.getElementById("sessionLine");
   var sessionReady = false;        // nothing is written until the page is up
+
+  // At most this many half-finished sets are kept. Past that the one left
+  // longest is dropped, so storage cannot grow without limit and the list
+  // stays short enough to read.
+  var SESSION_MAX = 12;
 
   // When this set was begun, when it was last picked back up, and how many
   // times. Kept alongside the place in the set so that coming back to it says
@@ -2333,11 +3079,137 @@ footer .v { font-family: var(--mono); }
   var sessionStarted = null;
   var sessionResumed = null;
   var sessionResumes = 0;
+  var sessionId = null;            // which of the kept sets this one is
+  var sessionStartedOn = null;     // where it was begun
+
+  // What this set is a second go at, where it is one. Kept so the run it
+  // becomes can say so, rather than looking like any other set of that
+  // category and leaving you to work out why it is eight questions long.
+  var retakeOf = null;
 
   function newSession() {
     sessionStarted = stampNow();
     sessionResumed = null;
     sessionResumes = 0;
+    sessionId = newId();
+    sessionStartedOn = deviceName();
+    retakeOf = null;
+  }
+
+  // The questions got wrong in one run, by its id. Taken from the log rather
+  // than from the questions' standing record, because what is wanted is how
+  // they went in that run and not how they have ever gone.
+  function missedInRun(runId) {
+    if (!runId) return [];
+    var last = {};
+    (S.log || []).forEach(function (e) {
+      if (!e || e[3] !== runId) return;
+      last[e[1]] = e[2];
+    });
+    return Object.keys(last).filter(function (id) {
+      return !last[id] && QBYID[id];
+    });
+  }
+
+  // Another go at those, as a run of its own. The one they were missed in is
+  // left exactly as it was: the point of this is to see the two side by side.
+  function retakeMissed(ids, label) {
+    var list = (ids || []).map(function (id) { return QBYID[id]; }).filter(Boolean);
+    if (!list.length) return false;
+    newSession();
+    retakeOf = label || null;
+    drilling = null;
+    mock.on = false;
+    queue = shuffle(list);
+    qi = 0;
+    alreadyDone = {};
+    document.getElementById("tab-practice").click();
+    renderDrillBanner();
+    renderQuestion();
+    updateScore();
+    return true;
+  }
+
+  // Newest worked on first, which is the order they are offered in, and the
+  // order a person thinks about them in.
+  function readSessions() {
+    var list;
+    try {
+      list = JSON.parse(localStorage.getItem(SESSIONS_KEY) || "null");
+    } catch (e) { return []; }
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (s) {
+      return s && s.ids && s.ids.length && s.qi >= 0 && s.qi < s.ids.length;
+    }).map(function (s) {
+      // A set written before sets had ids still has to be usable.
+      if (!s.id) s.id = newId();
+      return s;
+    }).sort(function (a, b) {
+      return stampSeconds(b.at) - stampSeconds(a.at);
+    });
+  }
+
+  function writeSessions(list) {
+    if (!storageOK) return;
+    try {
+      localStorage.setItem(SESSIONS_KEY,
+        JSON.stringify(list.slice(0, SESSION_MAX)));
+    } catch (e) { /* no room: the sets simply will not be kept */ }
+  }
+
+  // The set in progress is written in place of its earlier self, found by id.
+  // Finishing it takes it off the list, because there is nothing left to
+  // resume.
+  function saveSession() {
+    if (!sessionReady || !storageOK) return;
+    var list = readSessions().filter(function (s) { return s.id !== sessionId; });
+
+    // A set is only worth keeping once it has been worked on. Changing the
+    // area or the publisher builds a fresh set each time, and before this
+    // every one of those was written down, so the list filled with sets
+    // sitting at question one that nobody had answered anything in. A mock is
+    // the exception: its clock starts immediately, so it counts from the off.
+    var touched = qi > 0 || mock.on ||
+      (alreadyDone && Object.keys(alreadyDone).length > 0);
+
+    // The run is kept up to date from the first answer onwards, so the
+    // progress page can show how the set in hand is going rather than only
+    // what finished sets did. Reaching the end marks it finished.
+    if (touched && sessionId && queue.length) {
+      recordRun({ id: sessionId, ids: queue.map(function (q) { return q.id; }),
+                  retakeOf: retakeOf,
+                  qi: qi,                     // how far through, which is the
+                                              // only thing that knows about
+                                              // answers given before runs were
+                                              // recorded
+                  started: sessionStarted, at: stampNow(), lastOn: deviceName(),
+                  mock: mock.on ? {} : null, drill: drilling ? drilling.id : null,
+                  area: areaSel.value }, qi >= queue.length);
+    }
+
+    if (!queue.length || qi >= queue.length || !sessionId || !touched) {
+      writeSessions(list);
+      return;
+    }
+    list.unshift({
+      id: sessionId,
+      exam: EXAM,
+      startedOn: sessionStartedOn || deviceName(),
+      lastOn: deviceName(),
+      retakeOf: retakeOf,
+      at: stampNow(),                      // last worked on
+      started: sessionStarted,             // when this set was begun
+      resumed: sessionResumed,             // when it was last picked back up
+      resumes: sessionResumes,
+      ids: queue.map(function (q) { return q.id; }),
+      qi: qi,
+      done: alreadyDone,
+      area: areaSel.value,
+      src: srcSel.value,
+      drill: drilling ? drilling.id : null,
+      mock: mock.on ? { ends: mock.ends, given: mock.given } : null
+    });
+    writeSessions(list);
   }
 
   // "today at 19:04", "yesterday at 22:10", "3 Oct at 08:15". The day in words
@@ -2357,37 +3229,7 @@ footer .v { font-family: var(--mono); }
     return d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) + " at " + clock;
   }
 
-  function saveSession() {
-    if (!sessionReady || !storageOK) return;
-    try {
-      if (!queue.length || qi >= queue.length) {
-        localStorage.removeItem(SESSION_KEY);
-        return;
-      }
-      localStorage.setItem(SESSION_KEY, JSON.stringify({
-        at: stampNow(),                      // last worked on
-        started: sessionStarted,             // when this set was begun
-        resumed: sessionResumed,             // when it was last picked back up
-        resumes: sessionResumes,
-        ids: queue.map(function (q) { return q.id; }),
-        qi: qi,
-        done: alreadyDone,
-        area: areaSel.value,
-        src: srcSel.value,
-        drill: drilling ? drilling.id : null,
-        mock: mock.on ? { ends: mock.ends, given: mock.given } : null
-      }));
-    } catch (e) { /* no room, or no storage: the set simply will not be kept */ }
-  }
 
-  function readSession() {
-    try {
-      var s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-      if (!s || !s.ids || !s.ids.length) return null;
-      if (!(s.qi >= 0) || s.qi >= s.ids.length) return null;
-      return s;
-    } catch (e) { return null; }
-  }
 
   function howLongAgo(when) {
     var mins = (Date.now() - stampSeconds(when) * 1000) / 60000;
@@ -2400,6 +3242,7 @@ footer .v { font-family: var(--mono); }
   }
 
   function describeSession(s) {
+    if (s.retakeOf) return "the ones missed in " + s.retakeOf;
     if (s.mock) return "a mock exam";
     if (s.drill) {
       var row = null;
@@ -2417,7 +3260,7 @@ footer .v { font-family: var(--mono); }
     var byId = {};
     DATA.questions.forEach(function (q) { byId[q.id] = q; });
     var list = s.ids.map(function (id) { return byId[id]; }).filter(Boolean);
-    if (!list.length) { forgetSession(); return; }
+    if (!list.length) { putAside(s.id); return; }
 
     // Rebuilt from ids, so a question dropped from the bank since simply is not
     // there any more. Staying on the same question means counting how many of
@@ -2432,6 +3275,9 @@ footer .v { font-family: var(--mono); }
     sessionStarted = s.started || s.at;
     sessionResumed = stampNow();
     sessionResumes = (s.resumes || 0) + 1;
+    sessionId = s.id || newId();
+    sessionStartedOn = s.startedOn || null;
+    retakeOf = s.retakeOf || null;
 
     drilling = null;
     if (s.drill) {
@@ -2487,9 +3333,87 @@ footer .v { font-family: var(--mono); }
     sessionLine.hidden = false;
   }
 
-  function forgetSession() {
-    try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* fine */ }
-    hideResume();
+  // Take one set off the list for good. Used when a set is finished, when a
+  // question bank no longer holds any of it, and when a person says they are
+  // done with it.
+  // ---------- what each set of questions achieved ----------
+  //
+  // A set disappears once it is finished, and used to take the record of how
+  // it went with it. What is kept here is the score: when it ran, what it was,
+  // how many were right, and how that fell across the categories. The answers
+  // themselves were always safe in the log; this is about being able to look
+  // back at a run as a run.
+  var RUNS_KEY = ROOT + "/" + EXAM + "/runs";
+  var RUN_MAX = 60;
+
+  function readRuns() {
+    try {
+      var list = JSON.parse(localStorage.getItem(RUNS_KEY) || "null");
+      return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+  }
+
+  function writeRuns(list) {
+    if (!storageOK) return;
+    list.sort(function (a, b) { return stampSeconds(b.ended) - stampSeconds(a.ended); });
+    try { localStorage.setItem(RUNS_KEY, JSON.stringify(list.slice(0, RUN_MAX))); }
+    catch (e) { /* no room: the run is simply not kept */ }
+  }
+
+  // Scored from the log rather than from a running tally, so it is right even
+  // when the set was begun yesterday, closed, and picked up this morning.
+  function recordRun(s, finished) {
+    if (!s || !s.id) return;
+    var marks = {}, asked = 0, right = 0;
+    (S.log || []).forEach(function (e) {
+      if (!e || e[3] !== s.id) return;
+      var q = QBYID[e[1]];
+      if (!q) return;
+      asked++;
+      if (e[2]) right++;
+      var a = q.area || "other";
+      var m = marks[a] || (marks[a] = { r: 0, w: 0 });
+      if (e[2]) m.r++; else m.w++;
+    });
+    // How far through the set is, which is known even when none of the
+    // answers carry this run's id -- a set begun before runs were recorded
+    // has a real position and no scored answers of its own.
+    var reached = (s.qi >= 0) ? s.qi : 0;
+    if (!asked && !reached) return;     // nothing has happened in it at all
+
+    var list = readRuns().filter(function (r) { return r.id !== s.id; });
+    list.unshift({
+      id: s.id,
+      exam: EXAM,
+      kind: s.mock ? "mock" : (s.drill ? "drill" : "practice"),
+      label: describeSession(s),
+      started: s.started || s.at,
+      ended: stampNow(),
+      device: s.lastOn || deviceName(),
+      finished: !!finished,
+      of: (s.ids || []).length,
+      reached: reached,
+      // Answers in this set that were given before runs were recorded, and so
+      // cannot be scored against it. Said out loud rather than quietly
+      // shrinking the total.
+      untracked: Math.max(0, reached - asked),
+      asked: asked,
+      right: right,
+      marks: marks
+    });
+    writeRuns(list);
+  }
+
+  // Take a set off the list. The score is written down first, so what was
+  // answered still shows under recent runs: the only thing lost is the place
+  // in the set, and the answers were never in here to begin with.
+  function putAside(id, finished) {
+    var going = readSessions().filter(function (s) { return s.id === id; })[0];
+    if (going) recordRun(going, !!finished);
+    writeSessions(readSessions().filter(function (s) { return s.id !== id; }));
+    if (id === sessionId) sessionId = null;
+    offerResume();
+    if (typeof renderRuns === "function") renderRuns();
   }
 
   function hideResume() {
@@ -2497,48 +3421,85 @@ footer .v { font-family: var(--mono); }
     resumeBar.textContent = "";
   }
 
+  // How much of a mock is left, in words, or that it has run out.
+  function mockClockText(s) {
+    var secs = Math.max(0, Math.round((s.mock.ends - Date.now()) / 1000));
+    if (!secs) return "The clock has run out, so it will be marked as it stands.";
+    return "There " + (secs < 120 ? "is" : "are") + " " +
+      (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") +
+      " left on the clock.";
+  }
+
+  // Every set left half finished, newest worked on first. One of them is
+  // usually the one from five minutes ago and the rest are older; the dates
+  // are there so that is obvious at a glance, because resuming something from
+  // last month is rarely what anyone wants.
   function offerResume() {
-    var s = readSession();
-    if (!s) { hideResume(); return; }
-
-    var box = el("div", "resume");
-    var left = s.ids.length - s.qi;
-    var what = describeSession(s);
-    var line = "You were " + (s.qi + 1) + " of " + s.ids.length + " through " + what +
-      ", " + howLongAgo(s.at) + ".";
-
-    if (s.mock) {
-      var secs = Math.max(0, Math.round((s.mock.ends - Date.now()) / 1000));
-      line += secs > 0
-        ? " There " + (secs < 120 ? "is" : "are") + " " +
-          (secs < 120 ? secs + " seconds" : Math.round(secs / 60) + " minutes") + " left on the clock."
-        : " The clock has run out, so it will be marked as it stands.";
-    }
-
-    box.appendChild(el("div", "what", line));
-
-    var history = el("div", "when");
-    history.appendChild(el("div", null, "Started " + whenText(s.started || s.at)));
-    if (s.resumed) {
-      history.appendChild(el("div", null, "Picked up again " + whenText(s.resumed) +
-        (s.resumes > 1 ? ", " + s.resumes + " times in all" : "")));
-    }
-    history.appendChild(el("div", null, "Last worked on " + whenText(s.at)));
-    box.appendChild(history);
-    var go = el("button", "btn primary", "Carry on");
-    go.addEventListener("click", function () { resumeSession(s); });
-    box.appendChild(go);
-    var drop = el("button", "btn", "Start something else");
-    drop.style.marginLeft = "8px";
-    drop.addEventListener("click", forgetSession);
-    box.appendChild(drop);
+    var all = readSessions().filter(function (s) { return s.id !== sessionId; });
+    if (!all.length) { hideResume(); return; }
 
     resumeBar.textContent = "";
-    resumeBar.appendChild(box);
+
+    if (all.length > 1) {
+      resumeBar.appendChild(el("h4", "resumehead",
+        all.length + " sets left part way through"));
+    }
+
+    all.forEach(function (s) {
+      var box = el("div", "resume");
+      var line = "You were " + (s.qi + 1) + " of " + s.ids.length + " through " +
+        describeSession(s) + ", " + howLongAgo(s.at) + ".";
+      if (s.mock) line += " " + mockClockText(s);
+      box.appendChild(el("div", "what", line));
+
+      var history = el("div", "when");
+      history.appendChild(el("div", null, "Started " + whenText(s.started || s.at)));
+      if (s.resumed) {
+        history.appendChild(el("div", null, "Picked up again " + whenText(s.resumed) +
+          (s.resumes > 1 ? ", " + s.resumes + " times in all" : "")));
+      }
+      history.appendChild(el("div", null, "Last worked on " + whenText(s.at)));
+
+      // Where it was begun, and where it was last touched if that is
+      // somewhere else. Said only when it is not simply here, because
+      // "started on this device" on every row is noise.
+      var here = deviceName();
+      if (s.startedOn && s.startedOn !== here) {
+        history.appendChild(el("div", null, "Started on " + s.startedOn +
+          (s.lastOn && s.lastOn !== s.startedOn
+            ? ", last worked on " + (s.lastOn === here ? "this device" : s.lastOn)
+            : "")));
+      } else if (s.lastOn && s.lastOn !== here) {
+        history.appendChild(el("div", null, "Last worked on " + s.lastOn));
+      }
+      box.appendChild(history);
+
+      var go = el("button", "btn primary", "Carry on");
+      go.addEventListener("click", function () { resumeSession(s); });
+      box.appendChild(go);
+
+      // This used to say "Put this aside", which sounds like keeping it, and
+      // then threw it away. Starting another set is what puts one aside; this
+      // is the one that forgets it, so it says so and asks first.
+      var drop = el("button", "btn", "Forget this one");
+      drop.style.marginLeft = "8px";
+      drop.addEventListener("click", function () {
+        if (!window.confirm(
+            "Forget this set?" + "\n\n" +
+            "You were " + (s.qi + 1) + " of " + s.ids.length + " through " +
+            describeSession(s) + ". Everything you answered in it is kept, and "
+            + "it will still show under recent runs. What goes is your place in "
+            + "the set, and that cannot be undone.")) return;
+        putAside(s.id, false);
+      });
+      box.appendChild(drop);
+
+      resumeBar.appendChild(box);
+    });
+
     resumeBar.hidden = false;
-    // Only the questions left count as unanswered; nothing is scored by this.
-    void left;
   }
+
   // ---------- a mock exam ----------
   // Sixty-five questions in a hundred and thirty minutes, drawn in the same
   // proportions the real paper uses, with nothing marked until the end. The
@@ -2635,7 +3596,7 @@ footer .v { font-family: var(--mono); }
     }
     mock.on = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
-    forgetSession();
+    if (sessionId) putAside(sessionId, true);
     renderMockBar();
     renderMockResult(ranOut);
   }
@@ -2707,7 +3668,14 @@ footer .v { font-family: var(--mono); }
     refreshMissChip();
   }
 
-  document.getElementById("mockBtn").addEventListener("click", startMock);
+  // An exam only offers a mock when we actually know the shape of its paper.
+  // Guessing at a length or a pass mark would teach someone the wrong target,
+  // which is worse than not offering one, so the button simply is not there.
+  if (DATA.paper && DATA.paper.questions) {
+    document.getElementById("mockBtn").addEventListener("click", startMock);
+  } else {
+    document.getElementById("mockBtn").hidden = true;
+  }
   function drillMisses() {
     var list = dueQuestions();
     if (!list.length) {
@@ -2772,7 +3740,7 @@ footer .v { font-family: var(--mono); }
     renderDrillBanner();
   }
 
-  function record(q, ok) {
+  function record(q, ok, picked) {
     alreadyDone[qi] = true;
     // A question the reviewers found wrong teaches nothing, so it is shown but
     // never scored: counting it would put a cross on a line you actually know.
@@ -2783,7 +3751,18 @@ footer .v { font-family: var(--mono); }
     // well would only be a second copy waiting to disagree with the first.
     // The list travels in every export, so the time is written as a readable
     // date rather than a count of seconds.
-    S.log.push([stampNow(), q.id, ok ? 1 : 0]);
+    // The fourth field is which set of questions this answer was part of, so
+    // a run can be scored later, by category, even after the page has been
+    // closed and the set picked up again. Answers given before runs were
+    // recorded simply do not have it.
+    // The fifth is which option was picked, as its letter in the source (the
+    // one the footer line under the answer shows), so a miss can be read back
+    // later: not just that it was wrong, but what seemed right at the time.
+    // The letters on screen are shuffled, so those would say nothing later.
+    var entry = [stampNow(), q.id, ok ? 1 : 0];
+    if (sessionId || picked) entry.push(sessionId || null);
+    if (picked) entry.push(picked);
+    S.log.push(entry);
     recompute();
 
     saveState();
@@ -2798,24 +3777,59 @@ footer .v { font-family: var(--mono); }
     s.textContent = "";
     if (!queue.length) { s.textContent = "Pick a category and press Start."; return; }
 
-    // How it is going in the set being drilled, not across everything ever
-    // answered. A set of one question used to sit under a running total in the
-    // forties, which says nothing about the set in front of you.
+    // Nothing of the kind under exam conditions. A mock is marked at the end,
+    // so a tally here is not this mock's: it is how these same questions went
+    // before, which both reads as a live score and quietly says which of the
+    // ones still to come you have had right. The clock and the count answered
+    // are on the mock's own bar.
+    if (mock.on) return;
+
+    // How it is going in this run, counted from this run's own answers. It
+    // used to read each question's last result ever, so a retake of 41 misses
+    // opened at "Missed 41" and the questions not reached yet went on counting
+    // as misses from the earlier run; a second go at a category did the same
+    // with the first go's results. Only what was answered in this run counts
+    // now, and the rest is "still to go".
+    var inSet = {};
+    queue.forEach(function (q) { inSet[q.id] = true; });
+    var thisRun = {};
+    if (sessionId) {
+      (S.log || []).forEach(function (e) {
+        if (e && e[3] === sessionId && inSet[e[1]]) thisRun[e[1]] = e[2];
+      });
+    }
     var right = 0, missed = 0, fresh = 0;
     queue.forEach(function (q) {
-      var v = V.questions[q.id];
+      var v = thisRun[q.id];
       if (v === 1) right++;
       else if (v === 0) missed++;
       else fresh++;
     });
 
+    // The share right, of what has been answered rather than of the whole
+    // set: a set barely started would otherwise read as a near-total failure
+    // on the strength of the questions nobody has reached yet.
+    var tried = right + missed;
+    function share(n) { return tried ? Math.round(100 * n / tried) + "%" : ""; }
+
+    // A retake is all questions missed before, so say it in those terms:
+    // right this time is a miss put right.
     var parts = [
       ["Question", (Math.min(qi + 1, queue.length)) + " of " + queue.length],
-      ["Right", String(right)],
-      ["Missed", String(missed)]
+      [retakeOf ? "Right this time" : "Right", right + (tried ? " (" + share(right) + ")" : "")],
+      [retakeOf ? "Missed again" : "Missed", missed + (tried ? " (" + share(missed) + ")" : "")]
     ];
     // Only worth saying while some of the set is still untouched.
-    if (fresh && (right || missed)) parts.push(["Not yet tried", String(fresh)]);
+    if (fresh) parts.push(["Still to go", String(fresh)]);
+
+    // What the real paper wants, so the share above has something to be
+    // measured against. Said only once there is enough answered for the
+    // figure to mean anything, and only for an exam whose mark we know.
+    var paper = DATA.paper;
+    if (paper && paper.pass && tried >= 10) {
+      var need = Math.round(100 * paper.pass / 1000);
+      parts.push(["Pass mark", need + "%"]);
+    }
     parts.forEach(function (p) {
       var w = el("span");
       w.appendChild(document.createTextNode(p[0] + " "));
@@ -2916,7 +3930,28 @@ footer .v { font-family: var(--mono); }
           "You worked through " + queue.length +
           " questions. The Poster tab now shows your score against every line you touched."));
       }
-      var again = el("button", "btn primary", drilling ? "Go round again" : "Go again");
+      // The ones just missed, while they are still fresh. A second go at them
+      // is a run of its own, so the one they were missed in stays where it is
+      // and the two can be read side by side.
+      var justMissed = missedInRun(sessionId);
+      if (justMissed.length) {
+        var whatThisWas = retakeOf ? retakeOf
+          : (drilling ? "“" + drilling.cue + "”" : areaName(areaSel.value));
+        var retake = el("button", "btn primary",
+          "Go again at the " + justMissed.length +
+          (justMissed.length === 1 ? " you missed" : " you missed"));
+        retake.addEventListener("click", function () {
+          retakeMissed(justMissed, whatThisWas);
+        });
+        done.appendChild(retake);
+        done.appendChild(el("p", "lede",
+          "Only those, as a run of its own. This one stays under recent runs, so "
+          + "you can see the two next to each other."));
+      }
+
+      var again = el("button", drilling || !justMissed.length ? "btn primary" : "btn",
+        drilling ? "Go round again" : "Go again");
+      if (justMissed.length) again.style.marginRight = "8px";
       again.addEventListener("click", function () {
         if (drilling) { queue = shuffle(queue); qi = 0; renderDrillBanner(); }
         else { buildQueue(); }
@@ -3034,6 +4069,31 @@ footer .v { font-family: var(--mono); }
       tools.appendChild(speakBtn);
     }
 
+    // What the question says they have already. Its own button, because
+    // looking at the arrangement you have been given is not the same as being
+    // shown the one the answer proposes, and should not cost you the answer.
+    if (q.dgnow && DATA.diagrams && DATA.diagrams[q.dgnow]) {
+      var nowSpec = DATA.diagrams[q.dgnow];
+      var nowBox = el("div", "diagrams asis");
+      nowBox.hidden = true;
+      var nowOne = el("div", "one");
+      nowOne.appendChild(el("h5", null, "What they have now · " + nowSpec.title));
+      nowOne.appendChild(drawDiagram(nowSpec, Math.max(280, card.clientWidth - 70)));
+      if (nowSpec.note) nowOne.appendChild(el("p", "dgnote", nowSpec.note));
+      nowBox.appendChild(nowOne);
+
+      var nowBtn = el("button", "btn", "What they have now");
+      nowBtn.setAttribute("aria-expanded", "false");
+      nowBtn.addEventListener("click", function () {
+        var open = nowBox.hidden;
+        nowBox.hidden = !open;
+        nowBtn.setAttribute("aria-expanded", String(open));
+        nowBtn.textContent = open ? "Hide what they have now" : "What they have now";
+      });
+      tools.appendChild(nowBtn);
+      laterBoxes.push(nowBox);
+    }
+
     // The picture of the arrangement this answer describes, shared with every
     // other question that describes the same one. Shown on asking, like the
     // terms are, because it does give away the shape of the answer.
@@ -3051,7 +4111,8 @@ footer .v { font-family: var(--mono); }
       });
 
       var dgBtn = el("button", "btn dgbtn",
-        q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")" : "Show the diagram");
+        q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")"
+                        : (q.dgnow ? "What they should do" : "Show the diagram"));
       dgBtn.setAttribute("aria-expanded", "false");
       dgBtn.addEventListener("click", function () {
         var open = dgBox.hidden;
@@ -3059,7 +4120,8 @@ footer .v { font-family: var(--mono); }
         dgBtn.setAttribute("aria-expanded", String(open));
         dgBtn.textContent = open
           ? "Hide the diagram" + (q.dg.length > 1 ? "s" : "")
-          : (q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")" : "Show the diagram");
+          : (q.dg.length > 1 ? "Show the diagrams (" + q.dg.length + ")"
+                             : (q.dgnow ? "What they should do" : "Show the diagram"));
       });
       tools.appendChild(dgBtn);
       laterBoxes.push(dgBox);
@@ -3076,7 +4138,12 @@ footer .v { font-family: var(--mono); }
         var what = DATA.glossary[name];
         if (!what) return;
         var dt = el("dt", null, name);
-        var dd = el("dd", null, what);
+        // The line to memorise first, in its own weight; the explanation
+        // under it for when the line is not enough.
+        var dd = el("dd");
+        var keep = (DATA.remember || {})[name];
+        if (keep) dd.appendChild(el("b", "keep", keep));
+        dd.appendChild(el("span", "more", what));
         dl.appendChild(dt); dl.appendChild(dd);
       });
       termsBox.appendChild(dl);
@@ -3093,6 +4160,56 @@ footer .v { font-family: var(--mono); }
       tools.appendChild(hint);
       laterBoxes.push(termsBox);
     }
+
+    // The choices this question is putting in front of you. Worked out from
+    // what its options span rather than from the right answer, so it is just
+    // as useful before you have picked one, and it gives nothing away.
+    var decIds = (q.dec || []).filter(function (id) { return DEC_BY_ID[id]; });
+    if (decIds.length) {
+      var decBox = el("div", "decs");
+      decBox.hidden = true;
+      decIds.forEach(function (id) {
+        decBox.appendChild(drawDecision(DEC_BY_ID[id], DEC_ASKED[id],
+                                        decMissed()[id]));
+      });
+      var decBtn = el("button", "btn hintbtn",
+        decIds.length > 1 ? "Compare the choices (" + decIds.length + ")" : "Compare the choices");
+      decBtn.setAttribute("aria-expanded", "false");
+      decBtn.addEventListener("click", function () {
+        var open = decBox.hidden;
+        decBox.hidden = !open;
+        decBtn.setAttribute("aria-expanded", String(open));
+        decBtn.textContent = open ? "Hide the choices"
+          : (decIds.length > 1 ? "Compare the choices (" + decIds.length + ")"
+                               : "Compare the choices");
+      });
+      tools.appendChild(decBtn);
+      laterBoxes.push(decBox);
+    }
+
+    // The map for this question's part of the exam: the same picture as on
+    // the poster, copied in, with its tallies worked out afresh each time it
+    // is opened so they match what has been answered since.
+    var mapSrc = document.querySelector("#fold-map-" + q.area + " .netmap");
+    if (mapSrc) {
+      var mapBox = el("div", "decs qmap");
+      mapBox.hidden = true;
+      var mapCopy = mapSrc.cloneNode(true);
+      mapBox.appendChild(mapCopy);
+      var mapLabel = "Show the " + q.area + " map";
+      var mapBtn = el("button", "btn hintbtn", mapLabel);
+      mapBtn.setAttribute("aria-expanded", "false");
+      mapBtn.addEventListener("click", function () {
+        var open = mapBox.hidden;
+        if (open) tallyMapBoxes(mapCopy);
+        mapBox.hidden = !open;
+        mapBtn.setAttribute("aria-expanded", String(open));
+        mapBtn.textContent = open ? "Hide the map" : mapLabel;
+      });
+      tools.appendChild(mapBtn);
+      laterBoxes.push(mapBox);
+    }
+
     laterBoxes.forEach(function (b) { card.appendChild(b); });
 
     var reveal = el("div", "reveal");
@@ -3148,6 +4265,7 @@ footer .v { font-family: var(--mono); }
 
       var opts = el("div", "opts");
       var optBtns = [];
+      var letterBtns = [];
       var chosen = null;
       // Always in the same place, from the moment the question appears, so the
       // eye learns where it is. It arrives switched off and says what it is
@@ -3163,6 +4281,8 @@ footer .v { font-family: var(--mono); }
       });
       pool.forEach(function (o) {
         var line = el("div", "optline");
+        var marks = el("div", "optmarks");
+        line.appendChild(marks);
         if (speech) {
           var sp = el("button", "btn optspeak", "▶");
           sp.type = "button";
@@ -3175,23 +4295,41 @@ footer .v { font-family: var(--mono); }
             ev.stopPropagation();
             speakWith(sp, "Option " + o.shown + ". " + o.text, "▶");
           });
-          line.appendChild(sp);
+          marks.appendChild(sp);
         }
         var b = el("button", "opt");
+
+        // Pressing the letter rules the option out, and pressing it again
+        // brings it back. It is a note to yourself while you weigh them up, so
+        // a crossed-off option can still be chosen: changing your mind should
+        // not cost two taps, and nothing here is marking your answer.
+        var letter = el("button", "optletter", o.shown);
+        letter.type = "button";
+        letter.setAttribute("aria-pressed", "false");
+        letter.setAttribute("aria-label", "Rule out option " + o.shown);
+        letter.title = "Rule this one out";
+        letter.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          if (answered) return;
+          var out = b.classList.toggle("ruledout");
+          letter.setAttribute("aria-pressed", String(out));
+          letter.textContent = out ? "\u00d7" : o.shown;
+          letter.setAttribute("aria-label",
+            (out ? "Bring back option " : "Rule out option ") + o.shown);
+          letter.title = out ? "Bring this one back" : "Rule this one out";
+        });
+        letterBtns.push(letter);
+        marks.insertBefore(letter, marks.firstChild);
+
         var points = bulletMode ? bulletsFor(o.text) : [];
         if (points.length > 1) {
-          // The letter stands in for the marker on the first point rather than
-          // taking a line of its own. Four options each losing a line is most
-          // of a phone screen back.
           var ul = el("ul", "bul optbul");
-          points.forEach(function (piece, n) {
-            var li = el("li", n === 0 ? "lead" : null, piece);
-            if (n === 0) li.setAttribute("data-letter", o.shown + ".");
-            ul.appendChild(li);
+          points.forEach(function (piece) {
+            ul.appendChild(el("li", null, piece));
           });
           b.appendChild(ul);
         } else {
-          b.textContent = o.shown + ". " + o.text;
+          b.textContent = o.text;
         }
         b.addEventListener("click", function () {
           if (answered) return;
@@ -3211,12 +4349,13 @@ footer .v { font-family: var(--mono); }
           var ok = right ? o === right : false;
           b.classList.add(ok ? "pick-ok" : "pick-bad");
           optBtns.forEach(function (c) { c.disabled = true; });
+          letterBtns.forEach(function (c) { c.disabled = true; });
           if (!ok && right) {
             for (var k = 0; k < optBtns.length; k++) {
               if (pool[k] === right) optBtns[k].classList.add("pick-ok");
             }
           }
-          record(q, ok);
+          record(q, ok, o.src || null);
           if (mock.on) {
             // Under exam conditions you answer and move on. Nothing is
             // marked, nothing is revealed, and the last answer ends the
@@ -3272,6 +4411,9 @@ footer .v { font-family: var(--mono); }
       reveal.hidden = false;
       if (typeof optBtns !== "undefined" && optBtns) {
         optBtns.forEach(function (c) { c.disabled = true; });
+        if (typeof letterBtns !== "undefined" && letterBtns) {
+          letterBtns.forEach(function (c) { c.disabled = true; });
+        }
         if (typeof right !== "undefined" && right && typeof pool !== "undefined") {
           for (var z = 0; z < optBtns.length; z++) {
             if (pool[z] === right) optBtns[z].classList.add("pick-ok");
@@ -3330,7 +4472,335 @@ footer .v { font-family: var(--mono); }
   });
 
   // ---------- progress ----------
+  // ---------- recent runs ----------
+  //
+  // A run is one go at a set of questions. The totals say how you are doing
+  // overall and never say whether this morning went better than last Tuesday,
+  // which is the thing you actually want to know while revising.
+  var RUNS_SHOWN = 5;          // before "show the rest"
+  var runsAllShown = false;
+
+  function pct(right, asked) {
+    return asked ? Math.round((right / asked) * 100) : 0;
+  }
+
+  function areaName(key) {
+    if (key === "__all") return "Every category";
+    if (key === "__weak") return "Your weak spots";
+    return (DATA.areaTitles && DATA.areaTitles[key]) || key;
+  }
+
+  // One bar per category inside a run, so a bad run says which part was bad.
+  function runBreakdown(run) {
+    var host = el("div", "barlist");
+    var keys = Object.keys(run.marks || {}).sort(function (a, b) {
+      var ma = run.marks[a], mb = run.marks[b];
+      return (mb.r + mb.w) - (ma.r + ma.w);
+    });
+    if (!keys.length) {
+      host.appendChild(el("p", "lede", "Nothing recorded against a category yet."));
+      return host;
+    }
+    host.appendChild(el("p", "lede", "Right and wrong in this run, by category:"));
+    keys.forEach(function (k) {
+      var m = run.marks[k];
+      var total = m.r + m.w;
+      var row = el("div", "barrow");
+      row.appendChild(el("div", null, areaName(k)));
+      var bar = el("div", "bar");
+      var ok = el("span", "ok");
+      ok.style.width = (total ? (m.r / total) * 100 : 0) + "%";
+      var bad = el("span", "bad");
+      bad.style.width = (total ? (m.w / total) * 100 : 0) + "%";
+      bar.appendChild(ok); bar.appendChild(bad);
+      row.appendChild(bar);
+      row.appendChild(el("div", "num", m.r + " of " + total));
+      host.appendChild(row);
+    });
+    return host;
+  }
+
+  // One choice, as a list of branches with the traps underneath. Used both
+  // beside a question and on the poster, so the two cannot drift apart.
+  function drawDecision(dec, asked, missed) {
+    var box = el("div", "dec");
+    box.appendChild(el("h5", null, dec.title));
+    if (asked) {
+      box.appendChild(el("p", "asked",
+        asked + (asked === 1 ? " question" : " questions") + " come down to this"));
+    }
+    // Your own record on it, so the choices you keep getting wrong stand out
+    // from the ones you have already got the hang of.
+    if (missed) {
+      box.appendChild(el("p", "missedof",
+        "\u2715 " + missed + " of them standing as missed"));
+    }
+    (dec.rows || []).forEach(function (r) {
+      var row = el("div", "decrow");
+      row.appendChild(el("div", "when", r[0]));
+      row.appendChild(el("div", "then", r[1]));
+      box.appendChild(row);
+    });
+    if ((dec.traps || []).length) {
+      var t = el("div", "dectraps");
+      t.appendChild(el("h6", null, "What the question is really testing"));
+      var ul = document.createElement("ul");
+      dec.traps.forEach(function (s) { ul.appendChild(el("li", null, s)); });
+      t.appendChild(ul);
+      box.appendChild(t);
+    }
+    return box;
+  }
+
+  var DEC_BY_ID = {};
+  (DATA.decisions || []).forEach(function (d) { DEC_BY_ID[d.id] = d; });
+
+  // How many questions each one reaches, counted once rather than per draw.
+  var DEC_ASKED = {};
+  DATA.questions.forEach(function (q) {
+    (q.dec || []).forEach(function (id) {
+      DEC_ASKED[id] = (DEC_ASKED[id] || 0) + 1;
+    });
+  });
+
+  // How many of a choice's questions you last got wrong. Counted when asked
+  // rather than kept, because every answer changes it.
+  function decMissed() {
+    var out = {};
+    DATA.questions.forEach(function (q) {
+      if (V.questions[q.id] !== 0) return;
+      (q.dec || []).forEach(function (id) { out[id] = (out[id] || 0) + 1; });
+    });
+    return out;
+  }
+
+  // Every choice, on the poster. The ones you have missed questions on come
+  // first, most missed at the top; after those, the ones asked about most.
+  function renderDecisions() {
+    var host = document.getElementById("decList");
+    if (!host) return;
+    var missed = decMissed();
+    var all = (DATA.decisions || []).slice().sort(function (a, b) {
+      return ((missed[b.id] || 0) - (missed[a.id] || 0))
+        || ((DEC_ASKED[b.id] || 0) - (DEC_ASKED[a.id] || 0));
+    });
+    var tally = document.getElementById("decCount");
+    if (tally) {
+      var n = Object.keys(missed).length;
+      tally.textContent = all.length + " choices" +
+        (n ? ", " + n + " with misses" : "");
+    }
+    host.textContent = "";
+    all.forEach(function (d) {
+      host.appendChild(drawDecision(d, DEC_ASKED[d.id], missed[d.id]));
+    });
+  }
+
+  function renderRuns() {
+    var host = document.getElementById("runList");
+    if (!host) return;
+    var runs = readRuns();
+    var tally = document.getElementById("runCount");
+    if (tally) tally.textContent = runs.length ? runs.length + " kept" : "none yet";
+
+    host.textContent = "";
+    if (!runs.length) {
+      host.appendChild(el("p", "lede",
+        "No runs yet. Finish a set of questions and it will appear here, with "
+        + "how it went by category."));
+      return;
+    }
+
+    var open = {};
+    readSessions().forEach(function (s) { open[s.id] = s; });
+
+    var show = runsAllShown ? runs : runs.slice(0, RUNS_SHOWN);
+    show.forEach(function (run) {
+      var share = pct(run.right, run.asked);
+      var box = el("details", "run" + (run.asked && share < 60 ? " poor" : ""));
+      var head = el("summary");
+
+      var what = run.label || "a set";
+      if (run.kind === "mock") what = "Mock exam";
+      else if (run.kind === "drill") what = "Drill: " + what;
+
+      // A run whose set is still on the resume list is one you can carry on
+      // with. One that is not either finished, or was forgotten.
+      var live = open[run.id];
+      what += live ? " \u00b7 in progress"
+                   : (run.finished ? " \u00b7 finished" : " \u00b7 not finished");
+      head.appendChild(el("div", "what", what));
+
+      // Where the set has got to comes from the set when there still is one,
+      // so it cannot go stale, and from the run only once the set has gone.
+      var reached = live ? (live.qi || 0) : (run.reached || run.asked);
+      var total = live ? (live.ids || []).length : run.of;
+
+      var when = [];
+      if (total) when.push("Question " + (reached + 1) + " of " + total);
+      when.push((live ? "last worked on " : "") + whenText(run.ended));
+      if (run.device) when.push(run.device);
+      head.appendChild(el("div", "when", when.join(" \u00b7 ")));
+
+      // One number in the corner, and the words for it underneath, rather
+      // than two pairs of numbers side by side meaning different things.
+      var chip = el("div", "score", run.asked ? share + "%" : "not scored");
+      if (run.asked) chip.title = run.right + " right of " + run.asked + " answered";
+      head.appendChild(chip);
+      box.appendChild(head);
+
+      var inner = el("div", "inner");
+      if (run.asked) {
+        inner.appendChild(el("p", "lede",
+          run.right + " right of " + run.asked +
+          (run.asked === 1 ? " answered" : " answered") + " in this run."));
+      }
+
+      // Answers in this set given before runs were recorded. Worked out here
+      // rather than trusted from the run, for the same reason as the position.
+      var missing = Math.max(0, reached - run.asked);
+      if (missing) {
+        inner.appendChild(el("p", "lede",
+          missing + (missing === 1 ? " earlier answer" : " earlier answers")
+          + " in this set came before runs were recorded, so "
+          + (missing === 1 ? "it is" : "they are")
+          + " in your totals but not in the figures here."));
+      }
+
+      if (live) {
+        var go = el("button", "btn primary", "Carry on");
+        go.addEventListener("click", function () { resumeSession(live); });
+        inner.appendChild(go);
+      }
+
+      // Any run with something missed in it can be gone at again, however
+      // long ago it was. The run itself is not touched.
+      var missed = missedInRun(run.id);
+      if (missed.length) {
+        var rt = el("button", "btn" + (live ? "" : " primary"),
+          "Go again at the " + missed.length + " missed");
+        if (live) rt.style.marginLeft = "8px";
+        rt.addEventListener("click", function () {
+          retakeMissed(missed, run.label || "an earlier run");
+        });
+        inner.appendChild(rt);
+      }
+
+      inner.appendChild(runBreakdown(run));
+      box.appendChild(inner);
+      host.appendChild(box);
+    });
+
+    if (runs.length > RUNS_SHOWN) {
+      var more = el("button", "btn runmore",
+        runsAllShown ? "Show just the last " + RUNS_SHOWN
+                     : "Show all " + runs.length + " runs");
+      more.addEventListener("click", function () {
+        runsAllShown = !runsAllShown;
+        renderRuns();
+      });
+      host.appendChild(more);
+    }
+  }
+
+  // Which sections were left open, so the page comes back the way it was left.
+  // Which folds were left open, read once and written on every change. A
+  // function rather than a variable so a section drawn before this point in
+  // the file can still ask.
+  function foldMemory() {
+    if (!foldMemory.map) {
+      try { foldMemory.map = JSON.parse(localStorage.getItem(ROOT + "/folds") || "{}") || {}; }
+      catch (e) { foldMemory.map = {}; }
+    }
+    return foldMemory.map;
+  }
+  function bindFold(d, name) {
+    var open = foldMemory();
+    if (open[name] !== undefined) d.open = !!open[name];
+    d.addEventListener("toggle", function () {
+      open[name] = d.open;
+      try { localStorage.setItem(ROOT + "/folds", JSON.stringify(open)); }
+      catch (e) { /* it simply will not be remembered */ }
+    });
+  }
+
+  // How each map is going for you: missed out of answered, on its summary,
+  // so the parts of the exam that need work say so before they are opened.
+  function renderMapCounts() {
+    var by = {};
+    DATA.questions.forEach(function (q) {
+      var v = V.questions[q.id];
+      if (v === undefined) return;
+      var a = by[q.area] || (by[q.area] = { n: 0, w: 0 });
+      a.n++;
+      if (v === 0) a.w++;
+    });
+    // And each box: the questions whose answer its pattern matches, so the
+    // tally sits on the thing itself rather than on the map as a whole. The
+    // pattern is compiled once and kept on the box.
+    tallyMapBoxes(document);
+
+    Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
+      .forEach(function (d) {
+        var area = (d.getAttribute("data-fold") || "").replace(/^map-/, "");
+        var c = d.querySelector("summary .count");
+        var a = by[area];
+        if (!c) return;
+        // The same tick and cross as a section's header, so it reads the same
+        // way everywhere and never by colour alone.
+        c.textContent = "";
+        if (!a || !a.n) { c.textContent = "one picture"; return; }
+        c.appendChild(tally(a.n - a.w, a.w, false));
+      });
+  }
+
+  // The tally on each box under a root: the poster, or a copy of one map
+  // beside a question. The pattern is compiled once and kept on the box.
+  function tallyMapBoxes(root) {
+    var answered = DATA.questions.filter(function (q) { return V.questions[q.id] !== undefined; });
+    Array.prototype.slice.call(root.querySelectorAll(".nm-box[data-rx]"))
+      .forEach(function (box) {
+        if (!box._rx) {
+          try { box._rx = new RegExp(box.getAttribute("data-rx"), "i"); }
+          catch (e) { box._rx = null; }
+        }
+        var h = box.querySelector("h4");
+        var old = h && h.querySelector(".tally");
+        if (old) h.removeChild(old);
+        if (!box._rx || !h) return;
+        var n = 0, w = 0;
+        answered.forEach(function (q) {
+          if (!box._rx.test(q.a || "")) return;
+          n++;
+          if (V.questions[q.id] === 0) w++;
+        });
+        if (n) h.appendChild(tally(n - w, w, false));
+      });
+  }
+
+  (function rememberFolds() {
+    // The maps are AWS. The other exams share the page but have nothing
+    // for them to show, so they are taken out before the folds are read.
+    if (EXAM !== "saa-c03") {
+      Array.prototype.slice.call(document.querySelectorAll("details.fold.map"))
+        .forEach(function (m) { m.parentNode.removeChild(m); });
+    }
+    Array.prototype.slice.call(document.querySelectorAll("details.fold"))
+      .forEach(function (d) { bindFold(d, d.getAttribute("data-fold")); });
+
+    // The lot at once. Setting open fires each fold's own toggle, so every
+    // one of them is remembered the same as if it had been tapped.
+    function setAll(open) {
+      Array.prototype.slice.call(document.querySelectorAll("#view-poster details"))
+        .forEach(function (d) { d.open = open; });
+    }
+    var oa = document.getElementById("foldsOpen"), ca = document.getElementById("foldsClose");
+    if (oa) oa.addEventListener("click", function () { setAll(true); });
+    if (ca) ca.addEventListener("click", function () { setAll(false); });
+  })();
+
   function renderProgress() {
+    renderRuns();
     var cards = document.getElementById("statCards");
     cards.textContent = "";
     var known = 0, shaky = 0;
@@ -3445,7 +4915,8 @@ footer .v { font-family: var(--mono); }
         hour: "2-digit", minute: "2-digit", hour12: false
       });
       row.appendChild(t);
-      row.appendChild(el("span", "verdict " + (e[2] ? "ok" : "no"), e[2] ? "right" : "missed"));
+      row.appendChild(el("span", "verdict " + (e[2] ? "ok" : "no"),
+        (e[2] ? "right" : "missed") + (e[4] ? ", picked " + e[4] : "")));
       var q = QBYID[e[1]];
       var what = el("span", "qid", e[1] + (q ? "  " + q.q.slice(0, 70) : ""));
       row.appendChild(what);
@@ -3502,6 +4973,9 @@ footer .v { font-family: var(--mono); }
       if (!row.at || stampSeconds(e[0]) > stampSeconds(row.at)) {
         row.at = e[0];
         row.result = e[2] ? "right" : "missed";
+        // The option picked, as its letter in the source, where that was kept.
+        if (e[4]) row.picked = e[4];
+        else delete row.picked;
       }
     });
 
@@ -3515,7 +4989,9 @@ footer .v { font-family: var(--mono); }
     var undated = (S.base && S.base.seen) || 0;
 
     return JSON.stringify({
-      app: "SAA-C03 Recall Board",
+      app: "Recall Board",
+      format: 2,
+      examId: EXAM,
       appVersion: APP_VERSION,
       dataVersion: DATA.version,
       exported: new Date().toISOString(),
@@ -3542,12 +5018,146 @@ footer .v { font-family: var(--mono); }
       questionsAnswered: Object.keys(perQuestion).length,
       questionsWithTimes: dated,
 
-      // The set you are partway through travels too, so stopping on one
-      // machine and carrying on at another is the same as carrying on here.
-      session: readSession(),
+      // Every exam this browser has work for, not only the one being looked
+      // at, because a person studying two of them wants one file rather than
+      // one each. Each exam carries its own answers and its own half-finished
+      // sets, so nothing can be merged into the wrong exam at the other end.
+      exams: allExams(),
 
+      // Kept so a file written here can still be read by a version that only
+      // knows about one exam. Dropped once there is no such version left.
+      session: (readSessions()[0] || null),
       progress: S
     }, null, 1);
+  }
+
+  // This exam from memory, every other one straight out of storage. A page for
+  // one exam has no question bank for another, but it does not need one: the
+  // record is a lump of counts and a log of dated answers, and both travel
+  // without anything to interpret them.
+  function allExams() {
+    var out = {};
+    out[EXAM] = {
+      name: DATA.examName || DATA.exam || EXAM,
+      dataVersion: DATA.version || null,
+      progress: S,
+      sessions: readSessions(),
+      runs: readRuns()
+    };
+    var known = knownExams();
+    Object.keys(known).forEach(function (id) {
+      if (id === EXAM) return;
+      try {
+        var prog = JSON.parse(
+          localStorage.getItem(ROOT + "/" + id + "/progress") || "null");
+        if (!prog) return;
+        var sess = JSON.parse(
+          localStorage.getItem(ROOT + "/" + id + "/sessions") || "null");
+        var rns = JSON.parse(
+          localStorage.getItem(ROOT + "/" + id + "/runs") || "null");
+        out[id] = {
+          name: known[id].name || id,
+          dataVersion: known[id].dataVersion || null,
+          progress: prog,
+          sessions: Array.isArray(sess) ? sess : [],
+          runs: Array.isArray(rns) ? rns : []
+        };
+      } catch (e) { /* that exam is simply left out */ }
+    });
+    return out;
+  }
+
+  // Any progress file, old or new, read as the same shape: exam id to what is
+  // held for it. A file from before exams had ids can only be the one exam
+  // that version knew about, so that is what it becomes.
+  function readPayload(p) {
+    if (!p || typeof p !== "object") return null;
+    if (p.exams && typeof p.exams === "object") return p.exams;
+    var prog = p.progress || p;
+    if (!prog || typeof prog !== "object" || !prog.concepts) return null;
+    var one = {};
+    one[p.examId || "saa-c03"] = {
+      name: p.app || null,
+      dataVersion: p.dataVersion || null,
+      progress: prog,
+      sessions: (p.session && p.session.ids && p.session.ids.length)
+        ? [p.session] : []
+    };
+    return one;
+  }
+
+  // Join two lists of half-finished sets. A set is known by its id, so the
+  // same set carried on in two places is one set and the copy worked on later
+  // wins. Two different sets are two sets, and both are kept. Nothing is
+  // replaced, which is the whole point: the set this machine is part way
+  // through used to be thrown away to make room for the one in the file.
+  function mergeSessions(mine, theirs, exam) {
+    var byId = {};
+    var order = [];
+    (mine || []).concat(theirs || []).forEach(function (s) {
+      if (!s || !s.ids || !s.ids.length) return;
+      if (!(s.qi >= 0) || s.qi >= s.ids.length) return;
+      if (!s.id) s.id = newId();
+      if (!s.exam) s.exam = exam;
+      var had = byId[s.id];
+      if (!had) { byId[s.id] = s; order.push(s.id); return; }
+      if (stampSeconds(s.at) > stampSeconds(had.at)) byId[s.id] = s;
+    });
+    var list = order.map(function (id) { return byId[id]; });
+    list.sort(function (a, b) { return stampSeconds(b.at) - stampSeconds(a.at); });
+    return { list: list.slice(0, SESSION_MAX), count: list.length };
+  }
+
+  // Merge one exam's answers without needing its question bank. Used for every
+  // exam except the one being looked at, which goes through mergeProgress so
+  // that the scores on screen are rebuilt as well.
+  function mergeStored(exam, prog) {
+    var key = ROOT + "/" + exam + "/progress";
+    var mine = null;
+    try { mine = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { mine = null; }
+    if (!mine) {
+      try { localStorage.setItem(key, JSON.stringify(prog)); } catch (e) { return 0; }
+      return (prog.log || []).length;
+    }
+    var seen = {};
+    (mine.log || []).forEach(function (e) { if (e) seen[e[0] + "|" + e[1]] = 1; });
+    var added = 0;
+    (prog.log || []).forEach(function (e) {
+      if (!e || seen[e[0] + "|" + e[1]]) return;
+      seen[e[0] + "|" + e[1]] = 1;
+      (mine.log || (mine.log = [])).push(e);
+      added++;
+    });
+    (mine.log || []).sort(function (a, b) {
+      return stampSeconds(a[0]) - stampSeconds(b[0]);
+    });
+
+    // The lumps of undated answers add, and a question either side got wrong
+    // stays wrong, because a miss not yet put right is the one worth seeing
+    // again. Same rule as the exam on screen, applied by hand here because
+    // there is no bank to replay against.
+    var a = mine.base || (mine.base = { concepts: {}, rows: {}, sections: {},
+                                        questions: {}, seen: 0, right: 0, wrong: 0 });
+    var b = prog.base || {};
+    ["concepts", "rows", "sections"].forEach(function (part) {
+      a[part] = a[part] || {};
+      Object.keys(b[part] || {}).forEach(function (k) {
+        var x = a[part][k] || { r: 0, w: 0 }, y = b[part][k] || { r: 0, w: 0 };
+        a[part][k] = { r: (x.r || 0) + (y.r || 0), w: (x.w || 0) + (y.w || 0) };
+      });
+    });
+    a.questions = a.questions || {};
+    Object.keys(b.questions || {}).forEach(function (qid) {
+      if (a.questions[qid] === undefined) a.questions[qid] = b.questions[qid];
+      else if (a.questions[qid] !== b.questions[qid]) a.questions[qid] = 0;
+    });
+    a.seen = (a.seen || 0) + (b.seen || 0);
+    a.right = (a.right || 0) + (b.right || 0);
+    a.wrong = (a.wrong || 0) + (b.wrong || 0);
+    if (prog.started && prog.started < (mine.started || "9999")) mine.started = prog.started;
+
+    try { localStorage.setItem(key, JSON.stringify(mine)); } catch (e) { /* no room */ }
+    return added;
   }
 
   // Fills the given box with the progress file, and additionally offers a real
@@ -3562,7 +5172,7 @@ footer .v { font-family: var(--mono); }
     function two(n) { return String(n).padStart(2, "0"); }
     var stamp = now.getFullYear() + "-" + two(now.getMonth() + 1) + "-" + two(now.getDate()) +
                 "-" + two(now.getHours()) + two(now.getMinutes());
-    var name = "saa-c03-progress-" + stamp + ".json";
+    var name = EXAM + "-progress-" + stamp + ".json";
 
     // Two ways to hand over a file, tried in order. Inside the claude.ai viewer
     // the sandbox blocks a plain download link, so the runtime has to do it;
@@ -3604,46 +5214,194 @@ footer .v { font-family: var(--mono); }
     exportProgress(ioBox);
   });
 
-  document.getElementById("importBtn").addEventListener("click", function () {
-    var raw = ioBox.value.trim();
-    if (!raw) { ioBox.placeholder = "Paste an exported progress file here first."; return; }
+  // The merge, as a thing that takes text, so the button, a chosen file and a
+  // dropped file all go through exactly the same path and report the same way.
+  function mergeFromText(raw) {
+    raw = (raw || "").trim();
+    if (!raw) { ioBox.placeholder = "Choose a progress file, or paste one here."; return; }
     try {
-      var p = JSON.parse(raw);
-      var prog = p.progress || p;
-      if (!prog || typeof prog !== "object" || !prog.concepts) throw new Error("not a progress file");
+      var payload = readPayload(JSON.parse(raw));
+      if (!payload) throw new Error("not a progress file");
 
-      var r = mergeProgress(prog);
-      saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
+      var report = [];
+      var examIds = Object.keys(payload);
 
-      // A half-finished set comes across as well, unless this machine is in the
-      // middle of one of its own. Taking that away without asking would be
-      // worse than not having the other one.
-      var brought = "";
-      if (p.session && p.session.ids && p.session.ids.length) {
-        var here = readSession();
-        var take = !here;
-        if (here) {
-          take = window.confirm(
-            "That file has a set in progress: " + (p.session.qi + 1) + " of " +
-            p.session.ids.length + ", last worked on " + whenText(p.session.at) + "." +
-            "\n\n" +
-            "This machine is " + (here.qi + 1) + " of " + here.ids.length + " through one " +
-            "of its own. Replace it with the one from the file?");
+      // Which files have already been merged here. The log cannot double up,
+      // but the lump of undated answers is a plain total, so without this,
+      // merging the same export twice adds it twice.
+      var SEEN_KEY = ROOT + "/" + EXAM + "/merged";
+      var stamp = (JSON.parse(raw).exported) || null;
+      var mergedBefore = [];
+      try {
+        mergedBefore = JSON.parse(localStorage.getItem(SEEN_KEY) || "[]") || [];
+      } catch (e) { mergedBefore = []; }
+      var alreadyHad = !!(stamp && mergedBefore.indexOf(stamp) >= 0);
+
+      examIds.forEach(function (id) {
+        var part = payload[id] || {};
+        var sessionsIn = (part.sessions || []).length;
+        if (!part.progress && !sessionsIn) return;
+        var name = (id === EXAM)
+          ? (DATA.examName || DATA.exam || id)
+          : (part.name || (knownExams()[id] || {}).name || id);
+        var lines = [];
+
+        if (!part.progress) {
+          lines.push("no answers in the file for this exam");
+        } else if (id === EXAM) {
+          // The exam on screen, so the scores are rebuilt as well.
+          // Second time around, only what carries its own date is taken.
+          var r = mergeProgress(alreadyHad
+            ? { log: part.progress.log, started: part.progress.started }
+            : part.progress);
+          saveState(); renderBoard(); renderProgress(); refreshMissChip(); updateScore();
+          lines.push(alreadyHad
+            ? "already merged once, so only the sets were looked at again"
+            : r.answers + " answers added");
+          if (r.added) lines.push(r.added + " questions this device had not seen");
+          if (r.disagreed) {
+            lines.push(r.disagreed + " where the two disagreed, now on the revisit list");
+          }
+        } else {
+          // Another exam. Its answers are kept whether or not this device has
+          // a page for it, because it may well be opened tomorrow, and
+          // throwing them away would be the wrong call.
+          var n = mergeStored(id, part.progress);
+          lines.push(n + " answers added");
+          if (!knownExams()[id]) {
+            lines.push("no page for this exam on this device yet, so these are "
+              + "kept and will show up when there is one");
+          }
         }
-        if (take) {
-          try { localStorage.setItem(SESSION_KEY, JSON.stringify(p.session)); } catch (e) { /* fine */ }
-          offerResume();
-          brought = " The set it was partway through came too, and is offered on the practice page.";
+
+        // Half-finished sets join by id, so this device keeps its own and the
+        // file's as well. Only the same set, carried on in both places, is
+        // reconciled, and then the later one wins.
+        var skey = ROOT + "/" + id + "/sessions";
+        var mine;
+        if (id === EXAM) mine = readSessions();
+        else {
+          try { mine = JSON.parse(localStorage.getItem(skey) || "null") || []; }
+          catch (e) { mine = []; }
         }
+        var before = mine.length;
+        var merged = mergeSessions(mine, part.sessions, id);
+        if (merged.count !== before || (part.sessions || []).length) {
+          try { localStorage.setItem(skey, JSON.stringify(merged.list)); }
+          catch (e) { /* no room */ }
+        }
+        // Runs join by id too, so a run from the phone sits beside the
+        // laptop's own rather than one of them winning.
+        var rkey = ROOT + "/" + id + "/runs";
+        var mineRuns = [];
+        try {
+          mineRuns = (id === EXAM) ? readRuns()
+            : (JSON.parse(localStorage.getItem(rkey) || "null") || []);
+        } catch (e) { mineRuns = []; }
+        var runSeen = {}, joined = [];
+        mineRuns.concat(part.runs || []).forEach(function (r) {
+          if (!r || !r.id || runSeen[r.id]) return;
+          runSeen[r.id] = 1;
+          joined.push(r);
+        });
+        joined.sort(function (a, b) {
+          return stampSeconds(b.ended) - stampSeconds(a.ended);
+        });
+        var newRuns = joined.length - mineRuns.length;
+        if (newRuns > 0) {
+          try { localStorage.setItem(rkey, JSON.stringify(joined.slice(0, 60))); }
+          catch (e) { /* no room */ }
+          lines.push(newRuns + (newRuns === 1 ? " run" : " runs") + " came across");
+        }
+
+        var gained = merged.count - before;
+        if (gained > 0) {
+          lines.push(gained + (gained === 1 ? " set" : " sets") +
+            " in progress came across, so there " +
+            (merged.count === 1 ? "is now 1" : "are now " + merged.count));
+        }
+
+        report.push(name + nlJoin(lines));
+      });
+
+      if (!report.length) throw new Error("nothing to merge");
+      if (stamp && !alreadyHad) {
+        try {
+          mergedBefore.push(stamp);
+          localStorage.setItem(SEEN_KEY,
+            JSON.stringify(mergedBefore.slice(-40)));
+        } catch (e) { /* the guard is a convenience, not a record */ }
       }
+      offerResume();
+      if (typeof renderRuns === "function") renderRuns();
 
-      ioBox.value = "Merged. " + r.answers + " answers added, " + r.added +
-        " questions this machine had not seen, and " + r.disagreed +
-        " where the two disagreed are kept on the revisit list." + brought;
+      ioBox.value = (examIds.length > 1
+        ? "Merged " + examIds.length + " exams.\n\n"
+        : "Merged.\n\n") + report.join("\n\n");
     } catch (e) {
-      ioBox.value = "That did not look like a progress file. Paste the whole exported block, including the outer braces.";
+      ioBox.value = "That did not look like a progress file. Choose the file you "
+        + "exported, or paste the whole block including the outer braces.";
     }
+  }
+
+  document.getElementById("importBtn").addEventListener("click", function () {
+    mergeFromText(ioBox.value);
   });
+
+  // Reading a file beats copying and pasting one, especially on a phone, where
+  // opening a .json, selecting all of it and pasting it into a box is several
+  // awkward steps. Export hands you a file; this takes one back.
+  function takeFile(file) {
+    if (!file) return;
+    if (file.size > 25 * 1024 * 1024) {
+      ioBox.value = "That file is larger than any progress file should be, so "
+        + "it has not been read.";
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      ioBox.value = String(reader.result || "");
+      mergeFromText(ioBox.value);
+    };
+    reader.onerror = function () {
+      ioBox.value = "That file could not be read. Try choosing it again, or "
+        + "open it and paste what is inside.";
+    };
+    reader.readAsText(file);
+  }
+
+  (function wireFilePicking() {
+    var picker = document.getElementById("ioFile");
+    var choose = document.getElementById("chooseBtn");
+    if (picker && choose) {
+      choose.addEventListener("click", function () { picker.click(); });
+      picker.addEventListener("change", function () {
+        takeFile(picker.files && picker.files[0]);
+        picker.value = "";          // so the same file can be chosen twice
+      });
+    }
+    // And dropping one onto the box, for anyone on a desktop.
+    ["dragenter", "dragover"].forEach(function (ev) {
+      ioBox.addEventListener(ev, function (e) {
+        e.preventDefault();
+        ioBox.classList.add("dropping");
+      });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      ioBox.addEventListener(ev, function () { ioBox.classList.remove("dropping"); });
+    });
+    ioBox.addEventListener("drop", function (e) {
+      e.preventDefault();
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) takeFile(f);
+    });
+  })();
+
+  // One exam's lines, indented under its name, so a report covering two exams
+  // can be read without working out which number belongs to which.
+  function nlJoin(lines) {
+    return lines.length ? "\n  " + lines.join(".\n  ") + "." : "";
+  }
 
   document.getElementById("resetBtn").addEventListener("click", function () {
     if (!window.confirm("Clear every answer and start again? Export first if you want a copy.")) return;
@@ -3744,7 +5502,7 @@ footer .v { font-family: var(--mono); }
       currentView = t[1];
 
       if (t[0] === "tab-progress") renderProgress();
-      if (t[0] === "tab-poster") renderBoard();
+      if (t[0] === "tab-poster") { renderBoard(); renderDecisions(); renderMapCounts(); }
 
       // Restore after the view has been laid out, or the page has no height to
       // scroll into yet. A timeout rather than requestAnimationFrame, which a
@@ -3809,7 +5567,6 @@ footer .v { font-family: var(--mono); }
     confirm: { attr: null,          fallback: "confirm" },
     bullets: { attr: null,          fallback: "off" }
   };
-  var SET_KEY = STORE_KEY + "/settings";
   var settings = {};
 
   function loadSettings() {
@@ -3888,6 +5645,20 @@ footer .v { font-family: var(--mono); }
   document.addEventListener("keydown", function (ev) {
     if (ev.key === "Escape" && !settingsModal.hidden) closeSettings();
   });
+  (function () {
+    var box = document.getElementById("deviceName");
+    if (!box) return;
+    box.value = deviceName();
+    box.placeholder = guessDevice();
+    // Written as it is typed, so there is no button to forget to press. The
+    // name only ever matters to the sets started after it changes, which is
+    // why the ones already kept are left as they are.
+    box.addEventListener("input", function () {
+      setDeviceName(box.value);
+      offerResume();
+    });
+  })();
+
   document.getElementById("setReset").addEventListener("click", function () {
     Object.keys(SETTINGS).forEach(function (k) { settings[k] = SETTINGS[k].fallback; });
     saveSettings();
@@ -3909,6 +5680,85 @@ footer .v { font-family: var(--mono); }
   loadSettings();
   applySettings();
 
+  // ---------- keeping the page itself ----------
+  //
+  // A service worker is what makes this installable and what makes it open on
+  // a train with no signal. Without one, whether the page is there offline is
+  // down to whatever the browser happened to keep, which is not something to
+  // rely on the morning of an exam.
+  //
+  // The worker answers from its cache at once and fetches a fresh copy behind
+  // that, so the page is always quick and the next version arrives on its own.
+  // Taking it is left to you: swapping the page out mid-question would lose
+  // your place in a set for the sake of a change that can wait a minute.
+  (function keepThePage() {
+    if (!("serviceWorker" in navigator)) return;
+    // Saved to disk and opened from a file there is no origin to register
+    // against, and nothing to update from either.
+    if (location.protocol !== "http:" && location.protocol !== "https:") return;
+
+    var bar = document.getElementById("newVersion");
+    var offered = false;
+
+    function offer(takeIt) {
+      if (!bar || offered) return;
+      offered = true;
+      bar.textContent = "";
+      bar.appendChild(el("span", null, "A new version is ready."));
+      var go = el("button", "btn primary", "Update now");
+      go.addEventListener("click", function () {
+        go.disabled = true;
+        go.textContent = "Updating\u2026";
+        takeIt();
+      });
+      bar.appendChild(go);
+      var later = el("button", "btn later", "Not now");
+      later.addEventListener("click", function () { bar.hidden = true; });
+      bar.appendChild(later);
+      bar.hidden = false;
+    }
+
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      // A worker already waiting means a version was fetched on an earlier
+      // visit and never taken.
+      if (reg.waiting) {
+        offer(function () { reg.waiting.postMessage({ type: "skipWaiting" }); });
+      }
+      reg.addEventListener("updatefound", function () {
+        var fresh = reg.installing;
+        if (!fresh) return;
+        fresh.addEventListener("statechange", function () {
+          // Installed with something already in charge means this is a new
+          // version rather than the first one.
+          if (fresh.state === "installed" && navigator.serviceWorker.controller) {
+            offer(function () { fresh.postMessage({ type: "skipWaiting" }); });
+          }
+        });
+      });
+      // Look again when the tab is brought back, so a version that landed
+      // while it sat in the background is noticed.
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) { try { reg.update(); } catch (e) { /* fine */ } }
+      });
+    }).catch(function () { /* no worker: the page still works, just not offline */ });
+
+    // The worker says when the copy it fetched differs from the one it served.
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      if (e.data && e.data.type === "updated") {
+        offer(function () { location.reload(); });
+      }
+    });
+
+    // Reload once the new worker takes charge, so the page being shown and the
+    // worker behind it are the same version.
+    var reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (reloading) return;
+      reloading = true;
+      location.reload();
+    });
+  })();
+
   // ---------- boot ----------
   // One version in the header, and it is this app's own: a number sitting next
   // to a product name gets read as that product's version. AWS's exam-guide
@@ -3920,6 +5770,26 @@ footer .v { font-family: var(--mono); }
     DATA.questions.length + " questions · " +
     DATA.sections.reduce(function (a, s) { return a + s.rows.length; }, 0) +
     " recall rows · built against " + DATA.guide.replace(/^Exam guide/, "AWS exam guide");
+
+  // The other exams on this site. Each one keeps its own answers and its own
+  // half-finished sets, under its own name in this browser's storage, so
+  // moving between them cannot disturb either. An exported file covers all of
+  // them at once, whichever page it was written from.
+  (function () {
+    var host = document.getElementById("otherExams");
+    var others = (DATA.otherExams || []).filter(function (x) {
+      return x && x.href && x.id !== DATA.examId;
+    });
+    if (!host || !others.length) return;
+    host.appendChild(document.createTextNode("Also here: "));
+    others.forEach(function (x, i) {
+      if (i) host.appendChild(document.createTextNode(", "));
+      var a = document.createElement("a");
+      a.href = x.href;
+      a.textContent = x.name;
+      host.appendChild(a);
+    });
+  })();
 
   // ---------- password gate ----------
   // This keeps the board off a passing stranger's screen. It is not security:
@@ -3966,6 +5836,8 @@ footer .v { font-family: var(--mono); }
   });
 
   renderBoard();
+  renderDecisions();
+  renderMapCounts();
   refreshMissChip();
   updateScore();
 
