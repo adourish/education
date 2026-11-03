@@ -937,6 +937,9 @@ DECISIONS: list[dict] = [
             r"point-in-time recovery|PITR",
             r"Multi-Region Access Point",
             r"global database|Aurora Global",
+            r"cross-Region read replicas?",
+            r"Aurora Replicas?",
+            r"Multi-AZ",
             r"global tables?",
             r"Global Datastore",
             r"Route 53 (health check|failover)|failover routing",
@@ -956,6 +959,10 @@ DECISIONS: list[dict] = [
             ("one place to schedule every backup", "AWS Backup, a plan and a vault"),
             ("a relational database in two Regions", "Aurora global database, "
                                                      "one writer"),
+            ("Aurora in another Region, no global database offered",
+                "Cross-Region read replica, promoted by hand"),
+            ("Aurora reads and failover inside one Region", "Aurora Replicas "
+                                                            "(never another Region)"),
             ("DynamoDB in two Regions, both writing", "Global tables"),
             ("send users to the Region that is up", "Route 53 failover, with "
                                                     "a health check"),
@@ -968,6 +975,8 @@ DECISIONS: list[dict] = [
             "Region on their own. It only helps elsewhere if you copied it there.",
             "An Aurora global database has one writer. Failing over promotes the "
             "secondary in about a minute. Global tables write in both Regions.",
+            "Aurora Replicas and Multi-AZ are both read copies or standbys in the "
+            "same Region. When the question says another Region, they are wrong.",
             "A copy of an encrypted snapshot into another Region needs a KMS key in "
             "that Region. A vault lock in compliance mode cannot be undone, not "
             "even by the root user.",

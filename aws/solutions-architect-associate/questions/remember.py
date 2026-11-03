@@ -94,6 +94,8 @@ REMEMBER: dict[str, str] = {
     "Aurora Serverless": "Load comes and goes, or dev and test: Aurora Serverless v2. Set the max ACUs for the peak.",
     "RDS Multi-AZ": "Failover, no reads. The standby serves nothing.",
     "RDS read replica": "Reads, in Region or across. Promoted by hand, so not a failover.",
+    "Aurora Replica": "Aurora Replicas: up to 15, same Region, reads and automatic failover. Never another Region.",
+    "Aurora Replica vs cross-Region read replica": "Another Region: Global Database first, cross-Region read replica second. Aurora Replicas stay home.",
     "Amazon DynamoDB": "Key-value, any scale, milliseconds, no joins: DynamoDB. Unpredictable: on-demand.",
     "DynamoDB capacity modes": "Spiky or unknown: on-demand. Steady and predictable: provisioned plus auto scaling. Reserved only cuts the bill.",
     "DynamoDB read and write capacity units": "RCU: 4 KB strong, or two eventual. WCU: 1 KB. Strong reads cost double.",
