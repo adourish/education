@@ -116,7 +116,7 @@ DECISIONS: list[dict] = [
 
     {
         "id": "db-engine",
-        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series",
+        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series|vector|embedding",
         "choices": [
             r"Aurora",
             r"DynamoDB",
@@ -131,16 +131,31 @@ DECISIONS: list[dict] = [
         "area": "database",
         "rows": [
             ("joins, transactions, existing SQL", "RDS"),
+            ("Oracle or SQL Server, kept as it is", "RDS (Aurora only does MySQL and "
+                                                    "PostgreSQL)"),
+            ("SQL Server, but cut cost or licences", "Aurora PostgreSQL with "
+                                                     "Babelfish"),
+            ("MySQL or PostgreSQL, best performance or MOST available", "Aurora"),
             ("the same, but faster and surviving a Region", "Aurora"),
             ("key-value, any scale, single-digit milliseconds", "DynamoDB"),
+            ("dev or test databases used a few hours a day", "Aurora Serverless v2, "
+                                                             "one each"),
             ("the load comes and goes, or is unknown", "Aurora Serverless, or "
                                                        "DynamoDB on-demand"),
             ("documents, MongoDB wording", "DocumentDB"),
             ("relationships between things, graph wording", "Neptune"),
             ("reporting across a great deal of history", "Redshift"),
             ("readings over time, from devices", "Timestream"),
+            ("AI vectors, already on Aurora or RDS PostgreSQL", "pgvector on the "
+                                                               "same database"),
         ],
         "traps": [
+            "An RDS instance or a provisioned Aurora cluster bills every hour, used "
+            "or not. Databases busy only a few hours a day are cheapest on Aurora "
+            "Serverless v2, and a test database does not need Multi-AZ.",
+            "Moving RDS for MySQL or PostgreSQL to Aurora is a routine, low-effort "
+            "move: make an Aurora read replica of the running database and promote "
+            "it, or restore a snapshot into Aurora. It counts as no code change.",
             "Aurora is still relational. A question wanting to leave SQL behind wants "
             "DynamoDB, not Aurora.",
             "Multi-AZ is not a read scaler for an RDS DB instance: its standby serves "
@@ -148,6 +163,9 @@ DECISIONS: list[dict] = [
             "reads.",
             "DynamoDB global tables are the active-active answer across Regions. An "
             "Aurora global database has one writer.",
+            "Vector storage at the lowest cost on an existing PostgreSQL database is "
+            "pgvector. OpenSearch, DocumentDB and Neptune all store vectors too, but "
+            "each is a new cluster to pay for.",
         ],
     },
 
@@ -293,9 +311,10 @@ DECISIONS: list[dict] = [
 
     {
         "id": "read-scale",
-        "stem": r"report(ing)? quer|read (traffic|queries|load|performance)|without (affecting|impacting)|offload|read-heavy|same quer|repeated(ly)? (read|quer)|latency of (the )?(read|quer)",
+        "stem": r"report(ing)? quer|read (traffic|queries|load|performance)|without (affecting|impacting)|offload|read-heavy|same quer|repeated(ly)? (read|quer)|latency of (the )?(read|quer)|write load|heavy write|writes? (spike|increase)",
         "choices": [
             r"read replica",
+            r"Aurora Serverless",
             r"ElastiCache",
             r"\bDAX\b",
             r"reader endpoint",
@@ -310,6 +329,8 @@ DECISIONS: list[dict] = [
             ("readers in another Region", "A cross-Region read replica"),
             ("sessions shared between servers", "ElastiCache for Redis"),
             ("writes are the problem, not reads", "A bigger instance, or sharding"),
+            ("heavy writes in sudden spikes, no code changes", "Aurora Serverless, "
+                                                               "with max ACUs set for the peak"),
         ],
         "traps": [
             "ElastiCache does not fetch from the database for you. The application "
@@ -319,6 +340,14 @@ DECISIONS: list[dict] = [
             "one that fails over on its own.",
             "DAX serves eventually consistent reads only; a strongly consistent read "
             "goes to the table.",
+            "RDS Proxy fixes too many connections, not too much load: it adds no "
+            "capacity and caches nothing. DAX is for DynamoDB only; for RDS the cache "
+            "is ElastiCache.",
+            "Heavy write load: a cache or more EC2 servers will not help, because a "
+            "cache only serves reads and more servers send more writes. Moving RDS "
+            "for MySQL or PostgreSQL to Aurora Serverless is not extreme: it speaks "
+            "the same language, so the application only needs a new connection "
+            "address, which is configuration, not code.",
         ],
     },
 
@@ -932,6 +961,9 @@ DECISIONS: list[dict] = [
             r"point-in-time recovery|PITR",
             r"Multi-Region Access Point",
             r"global database|Aurora Global",
+            r"cross-Region read replicas?",
+            r"Aurora Replicas?",
+            r"Multi-AZ",
             r"global tables?",
             r"Global Datastore",
             r"Route 53 (health check|failover)|failover routing",
@@ -951,6 +983,10 @@ DECISIONS: list[dict] = [
             ("one place to schedule every backup", "AWS Backup, a plan and a vault"),
             ("a relational database in two Regions", "Aurora global database, "
                                                      "one writer"),
+            ("Aurora in another Region, no global database offered",
+                "Cross-Region read replica, promoted by hand"),
+            ("Aurora reads and failover inside one Region", "Aurora Replicas "
+                                                            "(never another Region)"),
             ("DynamoDB in two Regions, both writing", "Global tables"),
             ("send users to the Region that is up", "Route 53 failover, with "
                                                     "a health check"),
@@ -963,6 +999,8 @@ DECISIONS: list[dict] = [
             "Region on their own. It only helps elsewhere if you copied it there.",
             "An Aurora global database has one writer. Failing over promotes the "
             "secondary in about a minute. Global tables write in both Regions.",
+            "Aurora Replicas and Multi-AZ are both read copies or standbys in the "
+            "same Region. When the question says another Region, they are wrong.",
             "A copy of an encrypted snapshot into another Region needs a KMS key in "
             "that Region. A vault lock in compliance mode cannot be undone, not "
             "even by the root user.",
@@ -1183,6 +1221,7 @@ DECISIONS: list[dict] = [
         "area": "database",
         "rows": [
             ("too many connections, Lambda opening them", "RDS Proxy"),
+            ("failover must be quicker without reconnecting", "RDS Proxy"),
             ("upgrade with a rehearsal and a quick switch", "Blue/green deployment"),
             ("the load comes and goes", "Aurora Serverless v2"),
             ("the bill is mostly I/O", "Aurora I/O-Optimized"),
