@@ -138,6 +138,8 @@ DECISIONS: list[dict] = [
             ("MySQL or PostgreSQL, best performance or MOST available", "Aurora"),
             ("the same, but faster and surviving a Region", "Aurora"),
             ("key-value, any scale, single-digit milliseconds", "DynamoDB"),
+            ("dev or test databases used a few hours a day", "Aurora Serverless v2, "
+                                                             "one each"),
             ("the load comes and goes, or is unknown", "Aurora Serverless, or "
                                                        "DynamoDB on-demand"),
             ("documents, MongoDB wording", "DocumentDB"),
@@ -148,6 +150,9 @@ DECISIONS: list[dict] = [
                                                                "same database"),
         ],
         "traps": [
+            "An RDS instance or a provisioned Aurora cluster bills every hour, used "
+            "or not. Databases busy only a few hours a day are cheapest on Aurora "
+            "Serverless v2, and a test database does not need Multi-AZ.",
             "Moving RDS for MySQL or PostgreSQL to Aurora is a routine, low-effort "
             "move: make an Aurora read replica of the running database and promote "
             "it, or restore a snapshot into Aurora. It counts as no code change.",
