@@ -9,7 +9,8 @@
 
 **RDS**
 match: \bRDS\b
-*SQL, joins, an existing app*, SQL Server, Oracle. Multi-AZ for failover.
+*SQL, joins, an existing app*, SQL Server, Oracle. SQL Server, no cost goal:
+*RDS for SQL Server, Multi-AZ*. Single point of failure: *modify to Multi-AZ*.
 
 **Aurora**
 match: Aurora(?! Serverless)
@@ -30,11 +31,13 @@ joins.
 **ElastiCache**
 match: ElastiCache
 *Same reads over and over*, read-only history, a catalog, sessions: Redis.
-App reads cache, misses, reads database, *writes it in (lazy loading)*.
+App reads cache, misses, reads database, *writes it in (lazy loading)*. Not
+Memcached on EC2; not DAX, which is DynamoDB only.
 
 **The odd ones**
 match: DocumentDB|Neptune|Redshift|Timestream|\bQLDB\b|Keyspaces
-MongoDB: *DocumentDB*. Graph: *Neptune*. Warehouse: *Redshift*. Telemetry
+MongoDB: *DocumentDB*. Graph: *Neptune*. Reports over history, never a live
+site's database: *Redshift*. Telemetry
 over time: *Timestream*. Tamper-proof ledger: *QLDB*. Cassandra: *Keyspaces*.
 
 ## end
@@ -96,7 +99,8 @@ rotation*.
 **Capacity**
 match: on-demand (capacity|mode)|provisioned capacity|DynamoDB auto ?scaling|automatic scaling for the DynamoDB|capacity mode|Standard-Infrequent Access table
 Unpredictable or new: *on-demand*. Steady: *provisioned + auto scaling at
-70%*. Rarely read, many Regions: *Standard-IA table class*.
+70%*. Storage is the bill, rarely read: *Standard-IA table class*; a busy
+table stays Standard.
 
 **DAX**
 match: \bDAX\b
@@ -119,7 +123,8 @@ Session data for 48 hours, restorable: both.
 **Analyse it**
 match: export.{0,40}S3|Glue.{0,40}DynamoDB|DynamoDB.{0,40}Glue
 *Export to S3*, then Athena or Redshift COPY. Metrics on a schedule: *Glue
-DynamoDB export connector*. Never a scan.
+DynamoDB export connector*. Never a scan. The Athena connector reads the
+live table and spends its capacity; an export spends none.
 
 **Writing to it**
 match: PutItem|integration type.{0,40}DynamoDB|API Gateway.{0,80}DynamoDB

@@ -56,9 +56,11 @@ DECISIONS: list[dict] = [
             ("nobody can say how often", "Intelligent-Tiering"),
             ("rarely, but wanted at once", "Standard-IA"),
             ("rarely, and you could re-create it", "One Zone-IA"),
-            ("archived, wanted in milliseconds", "Glacier Instant Retrieval"),
+            ("read a few times a year, wanted at once", "Glacier Instant Retrieval"),
             ("archived, minutes will do", "Glacier Flexible Retrieval"),
             ("archived, hours will do, cheapest of all", "Glacier Deep Archive"),
+            ("delete after a set time, or by object size", "A lifecycle expiration rule"),
+            ("kept a day, then deleted", "S3 Standard"),
         ],
         "traps": [
             "Infrequent access charges for a minimum of 30 days and Glacier for 90, "
@@ -68,6 +70,9 @@ DECISIONS: list[dict] = [
             "archive.",
             "Where the pattern is unknown, Intelligent-Tiering beats guessing: it "
             "moves each object on its own and charges no retrieval fee.",
+            "Millions of tiny files: bundle them into large objects first. Every object pays per request and per lifecycle move.",
+            "Deleting after a set time is a lifecycle expiration rule. A bucket policy only allows or denies; it never deletes.",
+            "Unknown size is not unknown access: data kept one day and read is Standard. Tiering only pays off over months.",
         ],
     },
 
@@ -85,14 +90,17 @@ DECISIONS: list[dict] = [
         "title": "Where to run a container",
         "area": "compute",
         "rows": [
-            ("it finishes inside 15 minutes, and the image may be rebuilt for Lambda", "Lambda, with a container image"),
+            ("under 15 minutes, willing to change the image", "Lambda, from a container image"),
             ("an existing container, minimal changes to the application", "ECS, on Fargate for no servers"),
             ("longer than that, or always on", "ECS on Fargate"),
             ("highly available across zones, least work", "ECS service, at least one task per zone, spread by Availability Zone"),
             ("the question says Kubernetes", "EKS on Fargate"),
-            ("you must choose the hardware, or need a GPU", "ECS or EKS on EC2"),
-            ("many queued jobs with an order between them", "AWS Batch"),
+            ("needs a GPU, or a chosen instance type", "ECS on EC2, a GPU instance family"),
+            ("many parallel jobs, running hours or days", "AWS Batch"),
             ("it must run on your own hardware", "ECS Anywhere or EKS Anywhere"),
+            ("over 15 minutes, can be interrupted, cheapest", "ECS on Fargate Spot"),
+            ("critical, must not be interrupted", "On-Demand, never Spot or Fargate Spot"),
+            ("see EKS and on-premises clusters in one place", "EKS Connector"),
         ],
         "traps": [
             "Work down the list and stop at the first that fits: each step down is "
@@ -111,16 +119,19 @@ DECISIONS: list[dict] = [
             "a container platform, and Reserved Instances save money, not work.",
             "Fargate still has a cluster, a task definition and a service. It is less "
             "than owning instances and more than Lambda.",
+            "Neither Lambda nor Fargate offers a GPU, so a GPU means EC2 instances underneath, run by ECS or EKS.",
+            "Fargate Spot can be stopped with two minutes' warning, so 'critical' or 'must not be interrupted' rules it out.",
+            "An ECS spread task strategy spreads tasks across zones; an EC2 spread placement group is about racks, not containers.",
         ],
     },
 
     {
         "id": "db-engine",
-        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series|vector|embedding",
+        "stem": r"(new|choose|select|which) .{0,40}database|migrat\w+ .{0,30}database|relational|non-relational|NoSQL|key-value|document database|graph database|time series|vector|embedding|SQL Server|T-SQL|stored procedure|telemetry",
         "choices": [
             r"Aurora",
             r"DynamoDB",
-            r"RDS for (MySQL|PostgreSQL|MariaDB|Oracle|SQL)",
+            r"RDS for (Microsoft )?(MySQL|PostgreSQL|MariaDB|Oracle|SQL)",
             r"DocumentDB",
             r"Neptune",
             r"Redshift",
@@ -148,6 +159,9 @@ DECISIONS: list[dict] = [
             ("readings over time, from devices", "Timestream"),
             ("AI vectors, already on Aurora or RDS PostgreSQL", "pgvector on the "
                                                                "same database"),
+            ("SQL Server, least effort, no cost goal", "RDS for SQL Server, Multi-AZ"),
+            ("telemetry for ML and visual reports", "Timestream, SageMaker, QuickSight"),
+            ("huge sensor writes, read a few times a year", "DynamoDB, Standard-IA table class"),
         ],
         "traps": [
             "An RDS instance or a provisioned Aurora cluster bills every hour, used "
@@ -166,6 +180,8 @@ DECISIONS: list[dict] = [
             "Vector storage at the lowest cost on an existing PostgreSQL database is "
             "pgvector. OpenSearch, DocumentDB and Neptune all store vectors too, but "
             "each is a new cluster to pay for.",
+            "With no cost or licence goal, SQL Server stays on RDS for SQL Server. DynamoDB would mean rewriting the app, never least effort.",
+            "Redshift is for reports over history. It is never the database behind a live website or an order system.",
         ],
     },
 
@@ -179,6 +195,10 @@ DECISIONS: list[dict] = [
             r"Kinesis",
             r"Step Functions",
             r"\bMQ\b|ActiveMQ|RabbitMQ",
+            r'visibility timeout',
+            r'delivery delay|delay queue',
+            r'Apache Flink|Kinesis Data Analytics',
+            r'\bMSK\b|Managed Streaming for (Apache )?Kafka',
         ],
         "title": "How to put something in between",
         "area": "integration",
@@ -190,6 +210,11 @@ DECISIONS: list[dict] = [
             ("a stream several readers can replay", "Kinesis Data Streams"),
             ("straight into S3 or Redshift, no code", "Kinesis Data Firehose"),
             ("steps, retries and waiting for a person", "Step Functions"),
+            ("the same message is processed twice", "Visibility timeout longer than the work"),
+            ("transform or check a stream as it flows", "Managed Service for Apache Flink"),
+            ("many readers, kept for months, strict order", "Data Streams, enhanced fan-out"),
+            ("on-premises databases feeding live dashboards", "Amazon MSK (managed Kafka)"),
+            ("a workflow of steps, each tracked in one place", "SQS to hold, Step Functions to run"),
         ],
         "traps": [
             "A queue holds work for one worker to take. A topic hands a copy to every "
@@ -197,6 +222,11 @@ DECISIONS: list[dict] = [
             "Firehose keeps nothing, so it cannot be replayed or read twice. That is "
             "what separates it from Data Streams.",
             "Order in a Kinesis stream holds within a shard, not across the stream.",
+            "Visibility timeout hides a message while it is worked on. Delivery delay only hides it before first delivery, so it never stops duplicates.",
+            "SQS keeps a message 14 days at most, and SNS, SQS and EventBridge take 256 KB at most. Longer or bigger points to Kinesis Data Streams.",
+            "If the data lands in S3 before it is checked, it is not real time. Real-time work on a stream is Flink.",
+            "EventBridge routes events but tracks no workflow. 'Defined workflow' or 'centrally tracked' is Step Functions.",
+            "Step Functions Express workflows stop at 5 minutes and Lambda at 15, so an hour-long job is neither.",
         ],
     },
 
@@ -216,17 +246,20 @@ DECISIONS: list[dict] = [
             ("in order, exactly once", "SQS FIFO"),
             ("one message to many subscribers at once, fastest fan-out", "SNS"),
             ("tell people by email, text message or mobile push", "SNS"),
-            ("every subscriber must get it and work at its own pace", "SNS, to one SQS queue each"),
+            ("every subscriber gets it, a durable buffer each", "SNS, to one SQS queue each"),
             ("react to an AWS service's event: EC2 state change, GuardDuty finding", "EventBridge"),
             ("route on any field inside the event, many different targets", "EventBridge"),
             ("events from a SaaS partner: Zendesk, Datadog, Shopify", "EventBridge"),
-            ("run something every few minutes, or on a cron", "EventBridge Scheduler"),
-            ("send events to another account or Region, archive and replay them", "EventBridge"),
+            ("on a cron, every few minutes, or business hours", "EventBridge Scheduler"),
+            ("send events to another account or Region", "EventBridge"),
             ("route on content, then hold it for slow workers", "EventBridge, to SQS"),
             ("alert the team when a service reports something", "EventBridge, to SNS"),
             ("which bus: an AWS service's own events", "EventBridge default bus"),
             ("which bus: your own application's events, or one bus for many accounts", "EventBridge custom bus"),
             ("which bus: events from a SaaS product", "EventBridge partner bus"),
+            ("keep every message for 30 days, replay later", "EventBridge archive"),
+            ("Lambda throttled in a burst, TooManyRequests", "SQS in front of the Lambda"),
+            ("process each order the moment it arrives", "An event rule, not polling every minute"),
         ],
         "traps": [
             "Ask: who should hear about this (EventBridge), everyone at once (SNS), "
@@ -237,20 +270,24 @@ DECISIONS: list[dict] = [
             "SNS filters on message attributes. EventBridge filters on any field of "
             "the event itself. Rich content routing, or AWS and SaaS events, means "
             "EventBridge; plain high-volume fan-out from your own app means SNS.",
-            "EventBridge cannot send email itself. Email or a text to a person goes "
-            "through SNS, often as EventBridge to SNS.",
+            "EventBridge cannot send email: an alert to subscribers goes through SNS, and a report to the one user who asked goes through SES.",
             "A schedule is EventBridge, not a CloudWatch alarm. An alarm watches a "
             "metric; it does not run on a clock.",
             "AWS events land on the default bus with no setup, so a rule for an "
             "EC2 or GuardDuty event goes there, not on a bus you create. Many "
             "accounts reporting to one place: each sends to a custom bus in a "
             "central account, allowed by that bus's resource policy.",
+            "SQS never delivers to a person; it holds messages until code pulls them. Email out is SNS, or SES for real mail.",
+            "EventBridge rules straight to each consumer hold nothing. 'Durable buffering for each consumer' needs a queue per consumer.",
+            "TooManyRequestsException from Lambda is throttling. SQS in front soaks up the burst; reserved concurrency only lowers the cap.",
+            "EventBridge cannot write to DynamoDB, so put a Lambda function between them.",
+            "To get an event to an API with no public address, make the target a Lambda function in the same VPC.",
         ],
     },
 
     {
         "id": "balancer",
-        "stem": r"load balanc|distribute (the )?traffic|in front of|static IP|route (the )?requests",
+        "stem": r"load balanc|distribute (the )?traffic|in front of|static IP|route (the |incoming )?requests|microservices?",
         "choices": [
             r"Application Load Balancer|\bALB\b",
             r"Network Load Balancer|\bNLB\b",
@@ -272,23 +309,23 @@ DECISIONS: list[dict] = [
             ("millions of requests, lowest latency", "Network Load Balancer"),
             ("traffic through a firewall appliance", "Gateway Load Balancer"),
             ("fixed addresses and more than one Region", "Global Accelerator"),
-            ("users around the world, content that can be cached", "One Region, "
-                                                                   "with CloudFront "
-                                                                   "in front"),
+            ("users worldwide, dynamic or cached content", "CloudFront, the ALB as its origin"),
             ("a site that is only files: HTML, JavaScript, images", "S3, with "
                                                                     "CloudFront in "
                                                                     "front, no "
                                                                     "servers"),
             ("users must log in before they reach the servers", "ALB, with a "
                                                                 "Cognito user pool"),
+            ("static files and dynamic pages, both faster", "One CloudFront, two origins: S3 and the ALB"),
+            ("users only on some continents, cut cost", "CloudFront, a price class leaving out the rest"),
+            ("route requests to several microservices", "One ALB, a rule per path"),
+            ("EKS, routing to its services", "ALB, from the AWS Load Balancer Controller"),
         ],
         "traps": [
-            "Users around the world is not a reason to deploy in several Regions. "
-            "One Region behind CloudFront is cheaper, faster for cached content, "
-            "and pays nothing to move data from the origin to the edge. Several "
-            "Regions is for writes that must happen locally or data that must "
-            "stay in a country. Global Accelerator caches nothing, so it is not "
-            "the answer when the content can be cached.",
+            "Users worldwide is not, alone, a reason for several Regions: one Region behind CloudFront is cheaper.",
+            "CloudFront speeds up dynamic content too: the user connects at the edge and AWS's own network carries the rest.",
+            "Global users who need the logic and a relational database near them: Fargate in each Region and an Aurora global database.",
+            "Global Accelerator caches nothing, so it is not the answer when the content can be cached.",
             "An internet-facing load balancer sits in the public subnets. The "
             "instances and the database sit in private subnets behind it. Nothing "
             "else of yours belongs in a public subnet but the NAT gateway.",
@@ -306,6 +343,10 @@ DECISIONS: list[dict] = [
             "fixed response, or send to Lambda.",
             "Global Accelerator carries any protocol and caches nothing. CloudFront "
             "caches and is for web traffic.",
+            "CloudFront behaviours match on the path. Choosing an origin by the user's country or a header needs Lambda@Edge.",
+            "API Gateway in front of microservices charges per request on top, so one ALB with path rules is the cheaper router.",
+            "An ALB serves one Region, so spreading traffic across Regions is Route 53, never one ALB with targets in both.",
+            "On Elastic Beanstalk, a slice of live traffic to a new version is the traffic-splitting policy, not ALB rules you edit.",
         ],
     },
 
@@ -319,6 +360,8 @@ DECISIONS: list[dict] = [
             r"\bDAX\b",
             r"reader endpoint",
             r"Multi-AZ",
+            r'RDS Proxy',
+            r'Aurora Auto Scaling|Aurora Replicas?',
         ],
         "title": "How to take load off a database",
         "area": "database",
@@ -331,6 +374,11 @@ DECISIONS: list[dict] = [
             ("writes are the problem, not reads", "A bigger instance, or sharding"),
             ("heavy writes in sudden spikes, no code changes", "Aurora Serverless, "
                                                                "with max ACUs set for the peak"),
+            ("too many connections, not too much load", "RDS Proxy"),
+            ("RDS reads repeated, keep schema, least to run", "ElastiCache, not Memcached on EC2"),
+            ("data that rarely changes, CPU high on searches", "ElastiCache, lazy loading"),
+            ("read surges at known times, MySQL", "Aurora, Auto Scaling of replicas"),
+            ("a shared cache that must persist", "ElastiCache for Redis (Memcached keeps nothing)"),
         ],
         "traps": [
             "ElastiCache does not fetch from the database for you. The application "
@@ -348,6 +396,9 @@ DECISIONS: list[dict] = [
             "for MySQL or PostgreSQL to Aurora Serverless is not extreme: it speaks "
             "the same language, so the application only needs a new connection "
             "address, which is configuration, not code.",
+            "DAX works only with DynamoDB; 'DAX on RDS' does not exist. Memcached you install on EC2 is never least overhead.",
+            "RDS Multi-AZ adds no reads and RDS cannot auto scale replicas. Read surges on MySQL mean Aurora Auto Scaling.",
+            "Instance store is wiped on stop and belongs to one instance, so it is never a shared or lasting cache.",
         ],
     },
 
@@ -368,9 +419,10 @@ DECISIONS: list[dict] = [
             ("a lot, once, and the line is too slow", "Snowball Edge"),
             ("a lot, repeatedly, over the network", "DataSync"),
             ("carry on using SFTP", "Transfer Family"),
-            ("a file share backed by a bucket", "S3 File Gateway"),
-            ("keep working locally, with a copy in AWS", "Volume Gateway, cached"),
-            ("retire a tape library", "Tape Gateway"),
+            ("old app writes to NFS or SMB, AWS reads the files", "S3 File Gateway"),
+            ("local access to ALL the data, backed up to AWS", "Volume Gateway, stored mode"),
+            ("only recent data kept locally, the rest in AWS", "Volume Gateway, cached mode"),
+            ("tapes, and the backup software must not change", "Tape Gateway, then Deep Archive"),
             ("a steady private line for everything", "Direct Connect"),
         ],
         "traps": [
@@ -380,6 +432,9 @@ DECISIONS: list[dict] = [
             "Compute Optimized is for running work where there is no connection.",
             "Direct Connect takes weeks to install, so it is never the answer to "
             "something needed this month.",
+            "Volume Gateway sends disk snapshots to AWS, not files. If something in AWS must read the files, it is File Gateway.",
+            "Cached mode keeps only recent data on site. 'Local access to all the data' means stored mode.",
+            "Partners on SFTP: Transfer Family. File Gateway is an NFS or SMB share, and DMS moves databases, not files.",
         ],
     },
 
@@ -400,9 +455,12 @@ DECISIONS: list[dict] = [
             ("many Linux servers, across zones", "EFS"),
             ("Windows, SMB, Active Directory", "FSx for Windows File Server"),
             ("speed for modelling or training", "FSx for Lustre"),
-            ("an existing NetApp estate", "FSx for NetApp ONTAP"),
+            ("NetApp, or SMB and NFS on the same data", "FSx for NetApp ONTAP"),
             ("one server, one zone, a plain disk", "EBS"),
             ("objects rather than files", "S3"),
+            ("shared Linux files, mostly rarely read", "EFS, lifecycle to Infrequent Access"),
+            ("Lustre that must be highly available or kept", "FSx for Lustre, persistent"),
+            ("give a customer more block storage on request", "EBS Elastic Volumes, grown in place"),
         ],
         "traps": [
             "An EBS volume lives in one zone. Multi-Attach exists but does not cross "
@@ -411,6 +469,10 @@ DECISIONS: list[dict] = [
             "credit; elastic rises with the work and suits a spike nobody can size.",
             "FSx for Lustre links to a bucket and presents the objects as files, which "
             "is what training jobs want.",
+            "S3 is not a file system. An option that mounts a bucket on the servers is the trap; shared files across servers is EFS.",
+            "EFS has its own cheaper class. Lifecycle to Infrequent Access cuts the bill with no change to mount points.",
+            "Lustre scratch is cheapest but keeps no second copy. Highly available or long-lived means persistent.",
+            "One EFS mount target per zone. Each instance mounts through its own zone's target, for the lowest latency.",
         ],
     },
 
@@ -429,11 +491,17 @@ DECISIONS: list[dict] = [
         "area": "cost",
         "rows": [
             ("steady, and running all the time", "Savings Plan, or Reserved Instances"),
-            ("steady, and you may change instance type", "Compute Savings Plan"),
+            ("one plan for EC2 and Fargate or Lambda", "Compute Savings Plan"),
             ("it can be interrupted and tried again", "Spot"),
             ("short, unpredictable, or being measured", "On-Demand"),
             ("a licence counted by socket or core", "Dedicated Host"),
             ("you need it off other tenants' hardware", "Dedicated Instance"),
+            ("known baseline, surges, no interruptions", "RIs for the baseline, On-Demand above"),
+            ("runs part of the day, stopped the rest", "On-Demand"),
+            ("stateless, copes with losing a server", "Spot, in an Auto Scaling group"),
+            ("Spot keeps failing, or fewest interruptions", "Capacity-optimized, more instance types"),
+            ("most cost-effective, upfront allowed", "All Upfront"),
+            ("EMR, and no data may be lost", "Primary and core On-Demand, task nodes Spot"),
         ],
         "traps": [
             "Spot is taken back with two minutes' warning, so it is never the answer "
@@ -441,8 +509,12 @@ DECISIONS: list[dict] = [
             "A Dedicated Host is the one that shows you sockets and cores, which is "
             "what a bring-your-own-licence question needs. A Dedicated Instance does "
             "not.",
-            "A Savings Plan is a pound-per-hour commitment, not a reservation, so it "
-            "keeps paying off when the instance type changes.",
+            "A Savings Plan is a dollars-per-hour commitment, not a reservation, so it keeps paying off when the instance type changes.",
+            "A Reserved Instance is paid every hour whether it runs or not, so anything stopped most of the day is cheaper On-Demand.",
+            "All Upfront gives the biggest discount and No Upfront the smallest, so 'most cost-effective' means All Upfront.",
+            "Capacity-optimized gives the fewest interruptions; price-capacity-optimized also weighs price, so it is not the 'fewest' pick.",
+            "EMR core nodes hold the HDFS data, so only task nodes go on Spot when no data may be lost.",
+            "Wanting the newest instance generation every year rules out a 3-year term and Standard Reserved Instances.",
         ],
     },
 
@@ -483,6 +555,8 @@ DECISIONS: list[dict] = [
                                                             "an outbound endpoint"),
             ("names in the VPC must resolve from on premises", "Route 53 Resolver, "
                                                                "an inbound endpoint"),
+            ("one VPC to on premises, cheapest", "Site-to-Site VPN"),
+            ("one office, two VPCs that must not see each other", "A VPN to each VPC, no peering"),
         ],
         "traps": [
             "Hundreds of VPCs is always the transit gateway. Peering is one link "
@@ -507,6 +581,8 @@ DECISIONS: list[dict] = [
             "on-premises questions in.",
             "Direct Connect reaches a transit gateway only through a Direct "
             "Connect gateway.",
+            "With only one VPC, a transit gateway is cost with no gain. It earns its place at many VPCs or many sites.",
+            "VPCs kept apart means no path between them: no peering, no shared route table. Separate VPNs, or a route table each.",
         ],
     },
 
@@ -530,6 +606,12 @@ DECISIONS: list[dict] = [
             ("you hold the key and AWS never sees it", "SSE-C, or client-side"),
             ("a hardware module you control", "CloudHSM"),
             ("the KMS bill is the problem", "An S3 Bucket Key"),
+            ("you must control key rotation", "A customer managed key"),
+            ("admins manage the keys, an app only decrypts", "Customer managed key; app role gets kms:Decrypt"),
+            ("dedicated hardware, but RDS or S3 uses the key", "KMS custom key store, backed by CloudHSM"),
+            ("every new EBS volume encrypted, none without", "EBS encryption by default, set per Region"),
+            ("an existing unencrypted database or volume", "Snapshot, encrypted copy, restore"),
+            ("uploads must use one key, users cannot change it", "SSE-KMS, bucket policy denying other keys"),
         ],
         "traps": [
             "The data key encrypts the data, and KMS encrypts the data key. Rotation "
@@ -538,6 +620,11 @@ DECISIONS: list[dict] = [
             "use. An AWS managed key does not.",
             "A multi-Region key is for the same key material in two Regions, which is "
             "a different question from who holds it.",
+            "Only a customer managed key lets you control rotation. AWS managed keys rotate yearly on their own; AWS owned keys you never see.",
+            "Least privilege splits the jobs: admins create, rotate and delete; the app role only decrypts. 'Full access' is never it.",
+            "Encryption cannot be switched on for an existing database or volume. Snapshot it, copy the snapshot encrypted, restore.",
+            "An ACM public certificate cannot be installed on an instance. For the hop behind the ALB, self-signed is enough.",
+            "CloudHSM on its own does not plug into RDS or S3. They use it through a KMS custom key store.",
         ],
     },
 
@@ -567,6 +654,10 @@ DECISIONS: list[dict] = [
             ("a ceiling nobody in the account may pass", "A service control policy"),
             ("letting an outsider at one bucket or queue", "A resource-based policy"),
             ("an app user reaching S3 directly", "A Cognito identity pool"),
+            ("code in an ECS task calls S3 or DynamoDB", "The task role"),
+            ("ECS pulls the image or reads a secret at start", "The task execution role"),
+            ("keep everyone to certain Regions", "A policy with aws:RequestedRegion"),
+            ("each team's EMR jobs get only their own access", "EMR runtime roles"),
         ],
         "traps": [
             "A role is assumed and its credentials expire. Anything that copies an "
@@ -581,6 +672,10 @@ DECISIONS: list[dict] = [
             "or OpenID provider, and an ALB can demand that sign-in before it "
             "forwards anything. Directory Service and AD Connector join servers "
             "and desktops to a domain; they do not log users into a web page.",
+            "Task role is what your code uses. Task execution role is what ECS uses to start the task. The app reading S3 is the task role.",
+            "Access denied and the policy has a condition: the condition was not met. Check source IP, Region or MFA first.",
+            "KMS and S3 permissions go on the role the code runs as: the Lambda execution role, the ECS task role. Never on the function.",
+            "An instance profile is shared by every job on the cluster, so it cannot keep one team's access apart from another's.",
         ],
     },
 
@@ -608,6 +703,7 @@ DECISIONS: list[dict] = [
             ("the rush has an hour you can name", "Scheduled scaling"),
             ("the rush cannot be predicted", "A scaling policy on a measurement"),
             ("the work must never be turned away", "A minimum count on the group"),
+            ("growing, and it must be resilient", "Auto Scaling group across zones, ALB"),
         ],
         "traps": [
             "Scaling up means a stop and a start, so it is not a way to meet a spike "
@@ -618,11 +714,13 @@ DECISIONS: list[dict] = [
             "Resilience is about where they sit, not how many.",
             "Nine instances to be safe is the expensive wrong answer: a group with a "
             "sensible minimum does the same job and costs what the traffic costs.",
+            "A group with min, max and desired all set to the baseline can never grow, so it cannot meet a surge.",
         ],
     },
 
     {
         "id": "scaling-policy",
+        "stem": r"start-?up time|initiali[sz]ation latency|slow to (start|boot)|long (time )?to (start|boot|launch)|large AMI",
         "choices": [
             r"target tracking",
             r"step scaling",
@@ -630,6 +728,7 @@ DECISIONS: list[dict] = [
             r"scheduled scaling|scheduled action",
             r"predictive scaling",
             r"warm pool",
+            r'fast snapshot restore|\bFSR\b',
         ],
         "title": "Which scaling policy",
         "area": "compute",
@@ -641,6 +740,8 @@ DECISIONS: list[dict] = [
             ("instances take too long to start", "A warm pool"),
             ("the metric is memory or disk", "The CloudWatch agent, then "
                                              "target tracking"),
+            ("a large AMI is slow on first boot", "EBS fast snapshot restore"),
+            ("slow to start, and the peak must be met", "Warm pool, and max set for the peak"),
         ],
         "traps": [
             "Target tracking is the one to reach for unless the question gives a "
@@ -650,6 +751,8 @@ DECISIONS: list[dict] = [
             "installed. Processor and network are.",
             "A warm pool answers slow starts, not slow scaling decisions: it is "
             "about how long an instance takes to be useful.",
+            "A warm pool never goes past the group's maximum, so set max for the peak or the spare instances have nowhere to go.",
+            "Slow because the disk loads from a big snapshot is fast snapshot restore; slow because the app sets itself up is a warm pool.",
         ],
     },
 
@@ -673,6 +776,7 @@ DECISIONS: list[dict] = [
             ("the same secret needed in several Regions", "Secrets Manager, "
                                                            "replicated"),
             ("no password at all for RDS or Aurora", "IAM database authentication"),
+            ("EC2 to RDS, no long-term credentials", "IAM role, IAM database auth token"),
         ],
         "traps": [
             "Secrets Manager rotates by itself, with a Lambda it writes for you, and "
@@ -683,6 +787,7 @@ DECISIONS: list[dict] = [
             "Parameter Store standard tier is free. Secrets Manager charges per "
             "secret per month. Lowest cost with no rotation is Parameter Store.",
             "KMS holds keys, not secrets. It encrypts what the other two store.",
+            "IAM database authentication replaces the password, so adding Secrets Manager mixes two ideas. The pair is an IAM role plus a token.",
         ],
     },
 
@@ -715,6 +820,9 @@ DECISIONS: list[dict] = [
             ("only over HTTPS, or only from one VPC", "A bucket policy "
                                                       "with a condition"),
             ("many teams, each with their own rules", "S3 Access Points"),
+            ("public may read, nobody may change until a date", "CloudFront with OAC, plus Object Lock"),
+            ("only certain outside IP addresses may read", "A bucket policy with aws:SourceIp"),
+            ("only one AWS service may write, for named accounts", "Bucket policy: that service + aws:SourceAccount"),
         ],
         "traps": [
             "Object Lock needs versioning and is turned on when the bucket is made. "
@@ -725,6 +833,9 @@ DECISIONS: list[dict] = [
             "the old one. Same idea: the bucket answers only CloudFront.",
             "A presigned URL carries the permissions of whoever made it, and "
             "expires. It is how a browser uploads straight to S3.",
+            "'Only from this VPC' is a Deny when aws:SourceVpc does not match. An Allow with a not-equal condition is backwards.",
+            "OAC lets only CloudFront in. It cannot filter callers by IP address; that is a bucket policy condition.",
+            "Compliance mode for regulators, governance mode when an admin may need to lift it. 'Regulatory' means compliance.",
         ],
     },
 
@@ -738,6 +849,7 @@ DECISIONS: list[dict] = [
             r"interface (VPC )?endpoint|VPC interface endpoint",
             r"egress-only",
             r"internet gateway",
+            r'Instance Connect Endpoint|EIC Endpoint',
         ],
         "title": "How a private instance reaches out",
         "area": "networking",
@@ -745,7 +857,7 @@ DECISIONS: list[dict] = [
             ("a private subnet needs the internet", "A NAT gateway in a public "
                                                     "subnet, and a route to it"),
             ("the same, but over IPv6", "An egress-only internet gateway"),
-            ("it only needs S3 or DynamoDB", "A gateway endpoint, which is free"),
+            ("only S3 or DynamoDB, IPv4, from inside the VPC", "A gateway endpoint, which is free"),
             ("any other AWS service, privately", "An interface endpoint"),
             ("it must survive losing a zone", "One NAT gateway per zone, and a "
                                               "route table per zone"),
@@ -754,6 +866,9 @@ DECISIONS: list[dict] = [
                                                                     "private subnet "
                                                                     "routed to it"),
             ("cheapest, and you will manage it yourself", "A NAT instance"),
+            ("S3 or DynamoDB over IPv6, or from on premises", "Interface endpoints, not gateway"),
+            ("the instances may reach only certain buckets", "Gateway endpoint, and the role names the buckets"),
+            ("shell into private instances, no agent, no public IP", "EC2 Instance Connect Endpoint"),
         ],
         "traps": [
             "A NAT gateway costs by the hour whether it carries anything or not. "
@@ -778,6 +893,8 @@ DECISIONS: list[dict] = [
             "private subnet's route table. Questions swap these.",
             "A NAT instance needs source and destination check turned off, and a "
             "security group. A NAT gateway needs neither.",
+            "Gateway endpoints carry IPv4 only and work only inside their own VPC. IPv6, or traffic from on premises, needs interface endpoints.",
+            "Session Manager needs the SSM Agent and a way out to Systems Manager, so 'no agents' means EC2 Instance Connect Endpoint.",
         ],
     },
 
@@ -807,6 +924,10 @@ DECISIONS: list[dict] = [
             ("every finding, in one place", "Security Hub"),
             ("why a finding happened, the whole story", "Detective"),
             ("cost, limits and best practice checks", "Trusted Advisor"),
+            ("log DNS queries and their response codes", "Route 53 query logging"),
+            ("one account sees every account's findings", "A delegated administrator account"),
+            ("check settings against your rules, then fix or tell", "Config rule, then SSM remediation or Lambda"),
+            ("mask personal data before it lands in S3", "Firehose, with a Lambda transform"),
         ],
         "traps": [
             "GuardDuty reads CloudTrail, VPC Flow Logs and DNS logs without you "
@@ -817,6 +938,12 @@ DECISIONS: list[dict] = [
             "Macie is only S3 and only sensitive data. Inspector is only "
             "vulnerabilities. Neither does the other's job.",
             "Security Hub shows findings from the others. It finds nothing itself.",
+            "Config finds and can fix after the fact. It never stops a thing being made: that is an SCP, an IAM policy or an account setting.",
+            "Macie finds personal data and reports it. It never masks or deletes; that is Lambda, run by EventBridge or Firehose.",
+            "Macie, GuardDuty, Security Hub or Access Analyzer across an organization: first name a delegated administrator.",
+            "CloudTrail records API calls, not DNS lookups. What Route 53 answered is query logging.",
+            "Inspector finds flaws but never patches; patched AMIs for an Auto Scaling group come from EC2 Image Builder.",
+            "A Security Hub custom action is a button a person presses, so an automatic response is an EventBridge rule and Lambda.",
         ],
     },
 
@@ -832,6 +959,8 @@ DECISIONS: list[dict] = [
             r"geographic restriction|geo-?restriction|geo-?blocking",
             r"rate-based",
             r"network ACL|\bNACL\b",
+            r'Bot Control',
+            r'IP reputation',
         ],
         "title": "Which defence, and where",
         "area": "security",
@@ -848,11 +977,16 @@ DECISIONS: list[dict] = [
                                                             "Mean"),
             ("resources that differ a lot in size", "Shield Advanced protection "
                                                     "group, Max"),
-            ("the same rules in every account", "Firewall Manager"),
+            ("the same WAF or security group rules in every account", "Firewall Manager"),
             ("block a whole country on a distribution", "CloudFront geographic "
                                                         "restriction"),
             ("inspect traffic inside the VPC", "Network Firewall"),
             ("block one address at the subnet", "A network ACL deny rule"),
+            ("unused or duplicate security group rules", "Firewall Manager, an audit policy"),
+            ("stop subnet A sending to subnet B", "Outbound deny in subnet A's network ACL"),
+            ("automated requests from all over the world", "WAF Bot Control managed rules"),
+            ("SQL injection on API Gateway, least effort", "WAF on the API itself, no CloudFront"),
+            ("new CVEs, known exploits, bad inputs", "WAF, AWS managed rule groups"),
         ],
         "traps": [
             "WAF attaches to CloudFront, an ALB, API Gateway, AppSync or Cognito. "
@@ -866,6 +1000,11 @@ DECISIONS: list[dict] = [
             "In a protection group, Mean sounds the most reasonable and is the "
             "trap for a blue/green shift: the average barely moves while the new "
             "balancer's rise reads as an attack. Sum sees the pair as one load.",
+            "Firewall Manager runs WAF, Shield, security groups and Network Firewall across accounts. Config only watches them.",
+            "WAF reads only the first part of a request body (8 KB on an ALB). Larger bodies follow the rule's oversize setting.",
+            "Bots from everywhere keep changing address, so an IP list misses them. Bot Control spots them by behaviour.",
+            "WAF attaches straight to an API Gateway REST API. Adding CloudFront just to hold WAF is an extra layer.",
+            "Shield stops floods of traffic, not exploits; protection against new vulnerabilities is WAF managed rules, kept updated by AWS.",
         ],
     },
 
@@ -894,6 +1033,7 @@ DECISIONS: list[dict] = [
             ("who may see which columns, across accounts", "Lake Formation"),
             ("search through text or logs", "OpenSearch"),
             ("as the data streams in", "Managed Service for Apache Flink"),
+            ("hot data fast, cold data cheap, same SQL", "Redshift for hot, Spectrum for cold"),
         ],
         "traps": [
             "Athena has no cluster and charges per data scanned. For ad hoc SQL "
@@ -912,6 +1052,40 @@ DECISIONS: list[dict] = [
     },
 
     {
+        "id": "analytics-where",
+        "stem": r"analy[sz]|report|dashboard|visuali[sz]|warehouse|big data|Spark|Hadoop|business intelligence|petabyte|metrics",
+        "choices": [
+            r"Athena",
+            r"Redshift(?! Spectrum)",
+            r"Redshift Spectrum",
+            r"\bEMR\b",
+            r"\bGlue\b",
+            r"OpenSearch",
+            r"QuickSight",
+            r"Apache Flink|Kinesis Data Analytics",
+        ],
+        "title": "Which analytics service",
+        "area": "analytics",
+        "rows": [
+            ("SQL now and then on S3 files, nothing to run", "Athena"),
+            ("reports over years of history, many users", "Redshift"),
+            ("warehouse tables plus S3 files, one query", "Redshift Spectrum"),
+            ("Spark, Hadoop or Hive, a big batch job", "EMR"),
+            ("clean or convert data on a schedule, serverless", "Glue"),
+            ("search text, or look through logs", "OpenSearch"),
+            ("charts and dashboards for people", "QuickSight"),
+            ("live results as the data streams in", "Managed Service for Apache Flink"),
+            ("a website's own searches and pages", "The database plus ElastiCache"),
+        ],
+        "traps": [
+            "Redshift is a warehouse for reports. It is never the database behind a live website or an order system.",
+            "EMR is a cluster you size and look after. 'Least operational overhead' with SQL is Athena or Glue, not EMR.",
+            "Athena queries and QuickSight draws. An option that visualises with Athena has the two the wrong way round.",
+            "Redshift COPY only loads data in. It calculates nothing, so 'use COPY to work out metrics' is not an answer.",
+        ],
+    },
+
+    {
         "id": "api-front",
         "stem": r"\bAPI\b|REST|endpoint|throttl|quota|JWT|webhook|callers?",
         "choices": [
@@ -924,6 +1098,7 @@ DECISIONS: list[dict] = [
             r"usage plan|API key",
             r"resource policy",
             r"WebSocket",
+            r'AWS (service )?integration|integration type',
         ],
         "title": "Which front door for an API",
         "area": "compute",
@@ -932,11 +1107,16 @@ DECISIONS: list[dict] = [
             ("callers in the same Region, or your own CloudFront in front",
              "Regional"),
             ("only from inside a VPC", "Private, with an interface endpoint"),
-            ("cheapest, JWT, a simple pass-through to Lambda", "HTTP API"),
+            ("JWT, cheapest, straight to an ALB or Lambda", "HTTP API"),
             ("caching, usage plans, API keys, request validation, WAF", "REST API"),
-            ("one function, one URL, nothing in between", "A Lambda function URL"),
+            ("one function, one HTTPS URL, a webhook", "A Lambda function URL"),
             ("two-way and live", "WebSocket API"),
             ("a limit per customer", "Usage plans and API keys, REST only"),
+            ("write to DynamoDB or SQS, no code", "AWS service integration, no Lambda"),
+            ("only certain IP addresses or accounts", "A resource policy on the API (REST)"),
+            ("API keys, and the backend scales alone", "REST API to SQS, workers read it"),
+            ("the caller waits minutes for the answer", "Lambda function URL, not API Gateway"),
+            ("smaller replies, faster transfer", "Content encoding (compression)"),
         ],
         "traps": [
             "HTTP API is cheaper and faster but has no caching, no usage plans, no "
@@ -946,8 +1126,13 @@ DECISIONS: list[dict] = [
             "authorizer or a Cognito authorizer instead.",
             "Edge-optimized already uses CloudFront underneath. To put your own "
             "CloudFront in front, make it Regional.",
-            "API Gateway times out at 29 seconds and allows 10,000 requests a second "
-            "by default. Past those, the question is about something else.",
+            "API Gateway gives up after 29 seconds, so a caller that waits minutes for the answer needs a Lambda function URL.",
+            "API Gateway can call DynamoDB, SQS, SNS or Step Functions itself. A Lambda in between is code you did not need.",
+            "API Gateway has no security group, subnet or network ACL. Limit callers by IP with a resource policy.",
+            "A REST API reaches a private load balancer only through an NLB; an HTTP API can reach a private ALB directly.",
+            "API Gateway offers REST, HTTP and WebSocket APIs only; an option offering a gRPC API is a decoy.",
+            "SNS and SQS have no web address a third party can call, so a webhook into Lambda is a function URL.",
+            "Reserved concurrency limits a function and never makes an API faster.",
         ],
     },
 
@@ -991,6 +1176,9 @@ DECISIONS: list[dict] = [
             ("send users to the Region that is up", "Route 53 failover, with "
                                                     "a health check"),
             ("back to any second in the last 35 days", "Point-in-time recovery"),
+            ("S3 in two Regions, one endpoint, nearest bucket", "Multi-Region Access Point, plus CRR"),
+            ("an EFS copy in another Region, managed", "AWS Backup, a copy rule to that Region"),
+            ("Aurora, other Region, RPO 1 min, RTO 5 min", "Aurora global database"),
         ],
         "traps": [
             "RPO is how much data you may lose. RTO is how long you may be down. "
@@ -1004,12 +1192,13 @@ DECISIONS: list[dict] = [
             "A copy of an encrypted snapshot into another Region needs a KMS key in "
             "that Region. A vault lock in compliance mode cannot be undone, not "
             "even by the root user.",
+            "A cross-Region read replica never fails over on its own. An option saying it does is false.",
         ],
     },
 
     {
         "id": "placement",
-        "stem": r"placement|low latency between|tightly coupled|\bHPC\b|high.performance computing|node-to-node|inter-node|not .{0,20}same (rack|hardware)|separate hardware|large distributed|network throughput between",
+        "stem": r"placement|low(est)?( possible)? latency between|tightly coupled|\bHPC\b|high.performance computing|node-to-node|inter-node|not .{0,20}same (rack|hardware)|separate hardware|large distributed|network throughput between",
         "choices": [
             r"cluster placement",
             r"spread placement",
@@ -1028,6 +1217,8 @@ DECISIONS: list[dict] = [
                                                                    "up to 7 per zone"),
             ("a large distributed system: Hadoop, Cassandra, Kafka", "Partition, "
                                                                      "7 partitions per zone"),
+            ("lowest latency between nodes, no cluster offered", "Elastic Fabric Adapter"),
+            ("no two nodes on the same hardware, 99.99%", "Spread, across three zones"),
         ],
         "traps": [
             "Cluster stays in one zone. Spread and partition can cross zones. A "
@@ -1038,6 +1229,8 @@ DECISIONS: list[dict] = [
             "supported instance type. Enhanced networking is already on.",
             "When a cluster group cannot find room, stop every instance in it and "
             "start them together, so they land near each other.",
+            "A spread placement group adds distance for safety, so it never lowers latency between nodes.",
+            "99.99% availability needs two or more zones, so a group in one zone cannot promise it.",
         ],
     },
 
@@ -1103,6 +1296,7 @@ DECISIONS: list[dict] = [
                                                                    "One Zone"),
             ("the reader should pay for the transfer", "Requester Pays"),
             ("a copy near the users in another Region", "Cross-Region Replication"),
+            ("one zone, fastest S3, keep the S3 API", "S3 Express One Zone, a directory bucket"),
         ],
         "traps": [
             "Transfer Acceleration uses the CloudFront edge network to reach the "
@@ -1118,8 +1312,37 @@ DECISIONS: list[dict] = [
     },
 
     {
+        "id": "s3-copy",
+        "stem": r"replicat|copy .{0,40}(bucket|Region)|single (S3 )?bucket|centrali[sz]ed .{0,30}bucket|must not leave|nearest (S3 )?bucket",
+        "choices": [
+            r"Cross-Region Replication|\bCRR\b",
+            r"Same-Region Replication|\bSRR\b",
+            r"Multi-Region Access Point",
+            r"Batch Replication|S3 Batch Operations",
+            r"lifecycle (polic|rule|config)",
+            r"PutObject|Lambda[^.]{0,80}\bcop(y|ies)\b",
+        ],
+        "title": "How to copy S3 objects to another bucket",
+        "area": "storage",
+        "rows": [
+            ("a copy in another Region, least data lost", "Cross-Region Replication"),
+            ("many buckets into one, same Region", "Same-Region Replication"),
+            ("logs from many accounts, must stay in the Region", "Same-Region Replication, cross-account"),
+            ("one endpoint, nearest bucket, fails over itself", "Multi-Region Access Point, plus CRR"),
+            ("objects that were there before replication", "S3 Batch Replication"),
+            ("copied within 15 minutes, with a promise", "Replication Time Control"),
+        ],
+        "traps": [
+            "Replication copies only new objects. Objects already in the bucket need S3 Batch Replication.",
+            "Replication needs versioning turned on in both buckets.",
+            "A lifecycle rule moves or deletes objects in its own bucket. It never copies them anywhere.",
+            "A script or a Lambda that copies objects is the high-effort wrong answer when replication is offered.",
+        ],
+    },
+
+    {
         "id": "many-accounts",
-        "stem": r"accounts|organization|multi-account|landing zone|govern|guardrail|billing|cost (per|by|for each)|chargeback|department|business unit",
+        "stem": r"accounts|organization|multi-account|landing zone|govern|guardrail|billing|cost (per|by|for each)|chargeback|department|business unit|AWS Budgets|forget to stop",
         "choices": [
             r"\bSCP\b|service control polic",
             r"Control Tower",
@@ -1146,6 +1369,9 @@ DECISIONS: list[dict] = [
             ("only allowed tag values", "A tag policy"),
             ("a warning before the money runs out", "Budgets, with an action"),
             ("a developer who may not go past a line", "A permissions boundary"),
+            ("block it before CloudFormation creates it", "A Control Tower proactive control"),
+            ("no EBS snapshot may ever be public", "Block public access for snapshots, org-wide"),
+            ("stop forgotten instances before the bill grows", "Budgets, forecasted, a stop-EC2 action"),
         ],
         "traps": [
             "A service control policy never grants. It only limits, it does not "
@@ -1157,6 +1383,8 @@ DECISIONS: list[dict] = [
             "whole organization under consolidated billing.",
             "Control Tower sits on top of Organizations: guardrails, a landing zone "
             "and Account Factory. An existing organization can be enrolled.",
+            "Control Tower controls come in three: preventive (an SCP), detective (Config), proactive (checked before CloudFormation builds).",
+            "A budget action stops EC2 by itself, so SNS to a Lambda that stops the instances is extra work for the same result.",
         ],
     },
 
@@ -1172,8 +1400,8 @@ DECISIONS: list[dict] = [
             r"point-in-time recovery|PITR",
             r"global tables?",
             r"\bDAX\b",
-            r"export .{0,20}to .{0,10}S3",
-            r"Standard-IA table",
+            r"export .{0,20}to .{0,10}S3|export connector",
+            r"Standard-IA\)? table|Standard-Infrequent Access",
         ],
         "title": "Which DynamoDB feature",
         "area": "database",
@@ -1185,8 +1413,14 @@ DECISIONS: list[dict] = [
             ("back to any point in the last 35 days", "Point-in-time recovery"),
             ("two Regions, both writing", "Global tables"),
             ("the same reads, in microseconds", "DAX"),
-            ("analyse it without a scan", "Export to S3, then Athena"),
-            ("rarely read, keep the bill down", "Standard-IA table class"),
+            ("analyse daily, spare the table's capacity", "Export to S3, then Glue or Athena"),
+            ("huge data, rarely read, storage is the bill", "Standard-IA table class"),
+            ("busy and unpredictable, cheapest", "On-demand, Standard table class"),
+            ("high performance, cheapest, known range", "Auto scaling, target about 70%"),
+            ("continuously available across Regions", "Global tables; settle this first"),
+            ("session data, expires itself, restorable", "TTL plus point-in-time recovery"),
+            ("DAX found not encrypted at rest", "Make a new DAX cluster with it on"),
+            ("changes into an S3 data lake, near real time", "Through Data Firehose, which batches"),
         ],
         "traps": [
             "On-demand is the least to manage but costs more per request. For a "
@@ -1197,6 +1431,13 @@ DECISIONS: list[dict] = [
             "writer wins.",
             "A scan reads every item and is the expensive wrong answer for "
             "analysis. Export to S3 uses no table capacity at all.",
+            "Standard-IA cuts storage cost but makes every read and write dearer. A busy table stays on Standard.",
+            "The Athena DynamoDB connector reads the live table and spends its capacity. An export to S3 spends none.",
+            "An alarm that calls Lambda to raise capacity is auto scaling built by hand. Pick the built-in auto scaling.",
+            "DAX encryption at rest is set when the cluster is made. It cannot be turned on later: make a new cluster.",
+            "Export to S3 needs point-in-time recovery turned on for that table. An export that fails on some tables is that.",
+            "DynamoDB has no read replicas, and reserved capacity only cuts the bill, so throttling on spikes means on-demand.",
+            "Writing each change straight to S3 makes many tiny files, so send changes through Data Firehose, which batches them.",
         ],
     },
 
@@ -1215,7 +1456,7 @@ DECISIONS: list[dict] = [
             r"IAM database authentication",
             r"Multi-AZ",
             r"read replica",
-            r"(take|create) a snapshot",
+            r"(take|create) a snapshot|manual (copy|snapshot)|copy of the snapshot",
         ],
         "title": "Which RDS feature",
         "area": "database",
@@ -1233,6 +1474,9 @@ DECISIONS: list[dict] = [
             ("no password in the app", "IAM database authentication"),
             ("a test database idle most of the week", "Snapshot and delete, "
                                                       "restore when wanted"),
+            ("single point of failure, least effort", "Modify the instance to Multi-AZ"),
+            ("highly available, back within minutes", "Multi-AZ, fails over in 1 to 2 min"),
+            ("keep an automated snapshot past 35 days", "Copy it: the copy is manual, kept"),
         ],
         "traps": [
             "Multi-AZ is for failover and serves no reads. A read replica is for "
@@ -1243,6 +1487,8 @@ DECISIONS: list[dict] = [
             "copy the snapshot with encryption, restore from the copy.",
             "A stopped RDS instance starts itself again after 7 days. To stop paying "
             "for a long time, snapshot and delete.",
+            "Multi-AZ is switched on by changing the running instance. A new instance from a snapshot is more work and loses recent data.",
+            "Automated backups are deleted after 35 days at most. A copy becomes a manual snapshot and stays until you delete it.",
         ],
     },
 
@@ -1270,7 +1516,7 @@ DECISIONS: list[dict] = [
                                                          "the VPC's private subnets, "
                                                          "with a security group"),
             ("cold starts hurt", "Provisioned concurrency"),
-            ("cold starts hurt, and it is Java", "SnapStart"),
+            ("cold starts hurt, Java, cost first", "SnapStart, on a published version"),
             ("stop one function eating all the concurrency", "Reserved concurrency"),
             ("an HTTPS address with nothing in front", "A function URL"),
             ("change a request at the edge, a little", "CloudFront Functions"),
@@ -1299,6 +1545,8 @@ DECISIONS: list[dict] = [
             "can make peak latency worse. With API Gateway in front, Lambda with "
             "provisioned concurrency is also less to run than ECS or EKS behind "
             "a load balancer.",
+            "SnapStart works only on a published version, never on $LATEST, and never together with provisioned concurrency.",
+            "SnapStart copies the start-up memory into every copy, so make unique IDs in the handler, not in the start-up code.",
         ],
     },
 
@@ -1322,6 +1570,7 @@ DECISIONS: list[dict] = [
             ("best for: throughput control, fairness between functions", "Reserved"),
             ("best for: low-latency workloads, a known busy peak", "Provisioned"),
             ("switch the function off", "Reserved, set to zero"),
+            ("a burst at a named hour, TooManyRequests", "SQS buffer, plus provisioned"),
         ],
         "traps": [
             "Provisioned is speed, reserved is a limit. 'Respond consistently with "
@@ -1346,6 +1595,8 @@ DECISIONS: list[dict] = [
             r"simple (routing )?polic|simple record",
             r"IP-based routing",
             r"health check",
+            r'private hosted zone',
+            r'public hosted zone',
         ],
         "title": "Which Route 53 routing policy",
         "area": "networking",
@@ -1360,6 +1611,7 @@ DECISIONS: list[dict] = [
             ("several healthy addresses, no load balancer", "Multivalue answer"),
             ("one name, one target, nothing clever", "Simple"),
             ("answer by the range the user's address falls in", "IP-based"),
+            ("a name that resolves only inside the VPC", "Private hosted zone, internal ALB"),
         ],
         "traps": [
             "Latency is about speed and picks whichever Region answers quickest "
@@ -1375,6 +1627,7 @@ DECISIONS: list[dict] = [
             "Weighted is a percentage you set; it does not look at health or "
             "speed. Multivalue is up to eight healthy answers, the nearest DNS "
             "gets to a load balancer, and it is not one.",
+            "A private hosted zone answers only inside the VPCs joined to it. An internal load balancer is the other half: no public address.",
         ],
     },
 ]

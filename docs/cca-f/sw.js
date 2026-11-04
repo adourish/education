@@ -1,4 +1,4 @@
-/* Recall Board, version 1.57.0 */
+/* Recall Board, version 1.57.2 */
 var CACHE = "recall-cca-f";
 
 // Small things worth having before anything is asked for. The pages

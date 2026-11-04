@@ -17,7 +17,8 @@ match: \bEBS\b
 
 **EFS**
 match: \bEFS\b
-*Linux, many servers, across zones*, NFS.
+*Linux, many servers, across zones*, NFS. Never "mount the bucket": S3 is
+not a file system.
 
 **FSx for Windows**
 match: FSx for Windows
@@ -59,7 +60,7 @@ stay in Standard.
 **Lifecycle rules**
 match: [Ll]ifecycle (rule|polic|configuration)
 *Move after N days, delete after N days.* Filter by prefix, tag or *size*.
-Clears incomplete multipart uploads.
+Clears incomplete multipart uploads. A bucket policy never deletes.
 
 **Cannot be deleted**
 match: Object Lock|legal hold|WORM
@@ -85,7 +86,8 @@ URL*.
 **Encryption**
 match: SSE-S3|SSE-KMS|Bucket Key|server-side encryption
 Nobody asked who holds the key: *SSE-S3*. Control rotation, audit use:
-*SSE-KMS, customer managed key*. KMS bill or request limit: *Bucket Key*.
+*SSE-KMS, customer managed key*; AWS managed keys rotate themselves. KMS bill
+or request limit: *Bucket Key*.
 
 **Personal data (Macie)**
 match: Macie|Object Lambda|sensitive data discovery
@@ -103,7 +105,8 @@ reads: *Express One Zone*. Downloads everywhere: CloudFront.
 match: [Rr]eplication|Multi-Region Access Point|event notification|S3 Event
 Disaster recovery, least loss: *Cross-Region Replication*. Logs into one
 bucket: *Same-Region Replication*. One address, nearest bucket: *Multi-Region
-Access Point*. On every upload: *event notification* to Lambda, SQS, SNS.
+Access Point*. Objects already there: *Batch Replication*; both buckets need
+versioning. On every upload: *event notification* to Lambda, SQS, SNS.
 
 **Across many buckets**
 match: Storage Lens|S3 Inventory|Batch Operations

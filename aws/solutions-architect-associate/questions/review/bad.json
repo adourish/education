@@ -1,0 +1,6 @@
+{
+ "ce-835": "Says the job is critical, yet the answer is Fargate Spot, which can be stopped. ce-931, almost the same question, rules Spot out.",
+ "et-371": "Marked choose two, but only one option is marked right.",
+ "ce-168": "Asks how to reach S3 securely, but every option is a storage class.",
+ "ce-17": "Option B reads 'AWS WAR', and the explanation does not fit the options."
+}
