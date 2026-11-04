@@ -3227,7 +3227,8 @@ footer .v { font-family: var(--mono); }
       src: srcSel.value,
       drill: drilling ? drilling.id : null,
       mock: mock.on ? { ends: mock.ends, given: mock.given, size: mock.size,
-                        paused: mock.paused, left: mock.left } : null
+                        paused: mock.paused, left: mock.left,
+                        total: mock.total, spent: mock.spent } : null
     });
     writeSessions(list);
   }
@@ -3316,6 +3317,8 @@ footer .v { font-family: var(--mono); }
       mock.size = mockSizeOf(s.mock);
       mock.paused = !!s.mock.paused;
       mock.left = s.mock.left || 0;
+      mock.total = s.mock.total || 0;
+      mock.spent = s.mock.spent || {};
       mock.ends = s.mock.ends;
       // A paused clock was stopped on purpose, so time away does not count.
       if (mock.paused) {
@@ -3432,6 +3435,60 @@ footer .v { font-family: var(--mono); }
       marks: marks
     });
     writeRuns(list);
+  }
+
+  // A finished mock writes its marked score and its timings onto its run, so
+  // the Progress page can show them later. The run itself is written first,
+  // when the set is put aside; this only adds to it.
+  function keepMockStats(runId, stats) {
+    if (!runId) return;
+    var list = readRuns();
+    var run = list.filter(function (r) { return r.id === runId; })[0];
+    if (!run) return;
+    run.mockStats = stats;
+    writeRuns(list);
+    if (typeof renderRuns === "function") renderRuns();
+  }
+
+  // The score and the time figures of a finished mock, as rows of words.
+  function mockStatsBox(m) {
+    var box = el("div", "timestats");
+    function row(label, value) {
+      var r = el("p", null);
+      r.appendChild(el("strong", null, label + ": "));
+      r.appendChild(document.createTextNode(value));
+      box.appendChild(r);
+    }
+    var passed = m.scaled >= m.pass;
+    row("Score", m.scaled + " out of 1000 \u00b7 " + (passed ? "above" : "below") + " the " +
+      m.pass + " needed to pass" + (m.ranOut ? " \u00b7 time ran out" : ""));
+    row("Right", m.right + " of " + m.of + " (" + pct(m.right, m.of) + "%)" +
+      (m.spent.length < m.of ? " \u00b7 " + (m.of - m.spent.length) + " left unanswered, marked wrong" : ""));
+    // The fewest right answers that would have passed this paper.
+    var need = Math.ceil(((m.pass - 100) / 900) * m.of);
+    var spare = m.right - need;
+    row("Pass mark for this paper", need + " right of " + m.of + " · " +
+      (spare > 0 ? spare + " more than needed" : spare === 0 ? "you hit it exactly"
+        : (-spare) + " more would have passed"));
+    if (m.set) row("Questions from", m.set);
+    if (m.total) row("Time used", clockText(m.used) + " of " + clockText(m.total));
+    if (m.spent.length) {
+      var all = [], rt = [], wt = [];
+      m.spent.forEach(function (x) { all.push(x[1]); (x[2] ? rt : wt).push(x[1]); });
+      function avg(a) { var t = 0; a.forEach(function (x) { t += x; }); return a.length ? t / a.length : 0; }
+      row("Average time to answer", clockText(avg(all)) + " a question (the real exam allows " +
+        clockText(paceTarget()) + ")");
+      if (m.used > 0) row("Questions a minute", (m.spent.length / (m.used / 60000)).toFixed(1) +
+        ", reading included (the real exam needs " +
+        (DATA.paper.questions / DATA.paper.minutes).toFixed(1) + ")");
+      if (rt.length) row("On the ones you got right", clockText(avg(rt)) + " on average");
+      if (wt.length) row("On the ones you missed", clockText(avg(wt)) + " on average");
+      var slow = m.spent.slice().sort(function (a, b) { return b[1] - a[1]; }).slice(0, 3);
+      row("Slowest", slow.map(function (x) {
+        return x[0] + " " + clockText(x[1]) + (x[2] ? " (right)" : " (missed)");
+      }).join(", "));
+    }
+    return box;
   }
 
   // Take a set off the list. The score is written down first, so what was
@@ -3643,6 +3700,9 @@ footer .v { font-family: var(--mono); }
     mock.left = 0;
     mock.given = {};
     mock.ends = Date.now() + shape.minutes * 60000;
+    mock.total = shape.minutes * 60000;
+    mock.spent = {};
+    mock.shownAt = 0;
     drilling = null;
     queue = mock.plan.questions;
     qi = 0;
@@ -3652,6 +3712,49 @@ footer .v { font-family: var(--mono); }
     renderMockBar();
     if (mock.tick) clearInterval(mock.tick);
     mock.tick = setInterval(renderMockBar, 1000);
+  }
+
+  // Time used on the clock so far. Paused time is not counted, because the
+  // clock was not running.
+  function clockUsed() {
+    if (!mock.total) return 0;
+    var left = mock.paused ? mock.left : Math.max(0, mock.ends - Date.now());
+    return Math.max(0, mock.total - left);
+  }
+
+  // Minutes and seconds, the way a clock shows them.
+  function clockText(ms) {
+    var t = Math.round(ms / 1000);
+    return Math.floor(t / 60) + ":" + (t % 60 < 10 ? "0" : "") + (t % 60);
+  }
+
+  // How long each answered question took, from showing it to answering it.
+  // Reading the explanation afterwards is not counted against it.
+  function noteSpent(q) {
+    if (!mock.on || !mock.spent || (q.id in mock.spent)) return;
+    mock.spent[q.id] = Math.max(0, clockUsed() - (mock.shownAt || 0));
+  }
+
+  // Questions answered for each minute on the clock so far, reading the
+  // explanations included, because that time comes off the real clock too.
+  // Nothing is shown for the first half minute, when the number means little.
+  function questionsPerMinute(done) {
+    var used = clockUsed();
+    if (!done || used < 30000) return 0;
+    return done / (used / 60000);
+  }
+
+  function averageSpent() {
+    var ids = Object.keys(mock.spent || {});
+    if (!ids.length) return 0;
+    var sum = 0;
+    ids.forEach(function (id) { sum += mock.spent[id]; });
+    return sum / ids.length;
+  }
+
+  // The real exam's pace: its minutes shared across its questions.
+  function paceTarget() {
+    return DATA.paper.minutes * 60000 / DATA.paper.questions;
   }
 
   function pauseMock() {
@@ -3690,11 +3793,26 @@ footer .v { font-family: var(--mono); }
     var done = Object.keys(mock.given).length;
     var said = (mock.paused ? "Paused · " : "") + MOCK_SIZES[mock.size].name +
       (srcSel.value !== "__all" ? " from " + (SRC_LABELS[srcSel.value] || srcSel.value) : "") + " · " +
-      done + " of " + queue.length + " answered";
+      done + " of " + queue.length + " answered (" +
+      Math.round(100 * done / Math.max(1, queue.length)) + "%)";
     if (settings.mockReveal !== "hide" && done) {
       var gotRight = 0;
       Object.keys(mock.given).forEach(function (id) { if (mock.given[id] === true) gotRight++; });
-      said += " · " + gotRight + " right so far";
+      var pct = Math.round(100 * gotRight / done);
+      said += " · " + gotRight + " of " + done + " right (" + pct + "%) · on course for " +
+        Math.round(100 + 900 * gotRight / done) + " (" + DATA.paper.pass + " passes)";
+    }
+    if (averageSpent()) {
+      said += " · " + clockText(averageSpent()) + " a question on average (aim for " +
+        clockText(paceTarget()) + ")";
+    }
+    var rate = questionsPerMinute(done);
+    if (rate) {
+      // The pace needed is what is left over the minutes left, so it rises
+      // if you fall behind and falls if you get ahead.
+      var need = (queue.length - done) / Math.max(1, left / 60000);
+      said += " · " + rate.toFixed(1) + " questions a minute (" +
+        (done < queue.length ? need.toFixed(1) + " needed to finish in time" : "all answered") + ")";
     }
     box.appendChild(el("span", "said", said));
     var hold = el("button", "btn" + (mock.paused ? " primary" : ""),
@@ -3718,12 +3836,13 @@ footer .v { font-family: var(--mono); }
     mock.on = false;
     mock.paused = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+    var runId = sessionId;
     if (sessionId) putAside(sessionId, true);
     renderMockBar();
-    renderMockResult(ranOut);
+    renderMockResult(ranOut, runId);
   }
 
-  function renderMockResult(ranOut) {
+  function renderMockResult(ranOut, runId) {
     var paper = DATA.paper;
     var sat = queue.slice();
     var right = 0, byDom = {};
@@ -3755,6 +3874,54 @@ footer .v { font-family: var(--mono); }
       "Scored as a straight proportion across the 100 to 1000 range AWS uses. Their own " +
       "scaling is not published, so read this as roughly where you stand rather than as " +
       "the number you would be given on the day."));
+
+    var spentIds = Object.keys(mock.spent || {}).filter(function (id) {
+      return sat.some(function (q) { return q.id === id; });
+    });
+    keepMockStats(runId, {
+      size: mock.size, scaled: scaled, pass: paper.pass, right: right, of: sat.length,
+      ranOut: !!ranOut,
+      set: srcSel.value !== "__all" ? (SRC_LABELS[srcSel.value] || srcSel.value) : "",
+      total: mock.total || 0,
+      used: mock.total ? Math.min(mock.total, Math.max(0, mock.total -
+        (mock.paused ? mock.left : Math.max(0, mock.ends - Date.now())))) : 0,
+      spent: spentIds.map(function (id) { return [id, mock.spent[id], mock.given[id] === true]; })
+    });
+    if (spentIds.length) {
+      card.appendChild(el("h3", "sub", "Time"));
+      var tl = el("div", "timestats");
+      function timeRow(label, value) {
+        var r = el("p", null);
+        r.appendChild(el("strong", null, label + ": "));
+        r.appendChild(document.createTextNode(value));
+        tl.appendChild(r);
+      }
+      var used = 0;
+      if (mock.total) {
+        used = mock.total - (mock.paused ? mock.left : Math.max(0, mock.ends - Date.now()));
+        timeRow("Time used", clockText(Math.min(mock.total, Math.max(0, used))) + " of " +
+          clockText(mock.total));
+      }
+      var avgAll = averageSpent();
+      timeRow("Average time to answer", clockText(avgAll) + " a question (the real exam allows " +
+        clockText(paceTarget()) + ")");
+      if (used > 0) {
+        timeRow("Questions a minute", (spentIds.length / (Math.min(mock.total, used) / 60000)).toFixed(1) +
+          ", reading included (the real exam needs " +
+          (DATA.paper.questions / DATA.paper.minutes).toFixed(1) + ")");
+      }
+      var rt = [], wt = [];
+      spentIds.forEach(function (id) { (mock.given[id] === true ? rt : wt).push(mock.spent[id]); });
+      function avg(a) { var t = 0; a.forEach(function (x) { t += x; }); return a.length ? t / a.length : 0; }
+      if (rt.length) timeRow("On the ones you got right", clockText(avg(rt)) + " on average");
+      if (wt.length) timeRow("On the ones you missed", clockText(avg(wt)) + " on average");
+      var slow = spentIds.slice().sort(function (a, b) { return mock.spent[b] - mock.spent[a]; })
+        .slice(0, 3);
+      timeRow("Slowest", slow.map(function (id) {
+        return id + " " + clockText(mock.spent[id]) + (mock.given[id] === true ? " (right)" : " (missed)");
+      }).join(", "));
+      card.appendChild(tl);
+    }
 
     card.appendChild(el("h3", "sub", "By domain"));
     var list = el("div", "bydom");
@@ -4340,6 +4507,7 @@ footer .v { font-family: var(--mono); }
 
     laterBoxes.forEach(function (b) { card.appendChild(b); });
 
+    if (mock.on && !(q.id in (mock.given || {}))) mock.shownAt = clockUsed();
     var reveal = el("div", "reveal");
     reveal.hidden = true;
     if (mock.on && settings.mockReveal === "hide") reveal.style.display = "none";
@@ -4487,6 +4655,7 @@ footer .v { font-family: var(--mono); }
           if (mock.on && settings.mockReveal !== "hide") {
             // Shown as it goes: marked and explained here, the same as
             // practice, and Next moves on (or marks the paper after the last).
+            noteSpent(q);
             mock.given[q.id] = ok;
             renderMockBar();
             reveal.hidden = false;
@@ -4497,6 +4666,7 @@ footer .v { font-family: var(--mono); }
             // Under exam conditions you answer and move on. Nothing is
             // marked, nothing is revealed, and the last answer ends the
             // paper rather than leaving it waiting to be told to stop.
+            noteSpent(q);
             mock.given[q.id] = ok;
             qi++;
             if (qi >= queue.length) { finishMock(false); return; }
@@ -4530,7 +4700,7 @@ footer .v { font-family: var(--mono); }
           record(q, pair[1]);
           // A mock counts these too, or a choose-two question would be
           // marked wrong at the end however it was answered.
-          if (mock.on) { mock.given[q.id] = pair[1]; renderMockBar(); }
+          if (mock.on) { noteSpent(q); mock.given[q.id] = pair[1]; renderMockBar(); }
           nextBtn.hidden = false;
         });
       });
@@ -4766,7 +4936,8 @@ footer .v { font-family: var(--mono); }
       var head = el("summary");
 
       var what = run.label || "a set";
-      if (run.kind === "mock") what = "Mock exam";
+      var ms = run.kind === "mock" ? run.mockStats : null;
+      if (run.kind === "mock") what = ms && MOCK_SIZES[ms.size] ? MOCK_SIZES[ms.size].name : "Mock exam";
       else if (run.kind === "drill") what = "Drill: " + what;
 
       // A run whose set is still on the resume list is one you can carry on
@@ -4789,8 +4960,10 @@ footer .v { font-family: var(--mono); }
 
       // One number in the corner, and the words for it underneath, rather
       // than two pairs of numbers side by side meaning different things.
-      var chip = el("div", "score", run.asked ? share + "%" : "not scored");
-      if (run.asked) chip.title = run.right + " right of " + run.asked + " answered";
+      var chip = el("div", "score", ms ? ms.scaled + (ms.scaled >= ms.pass ? " pass" : " below pass")
+                                       : (run.asked ? share + "%" : "not scored"));
+      if (ms) chip.title = "Score out of 1000; " + ms.pass + " passes";
+      else if (run.asked) chip.title = run.right + " right of " + run.asked + " answered";
       head.appendChild(chip);
       box.appendChild(head);
 
@@ -4831,6 +5004,7 @@ footer .v { font-family: var(--mono); }
         inner.appendChild(rt);
       }
 
+      if (ms) inner.appendChild(mockStatsBox(ms));
       inner.appendChild(runBreakdown(run));
       box.appendChild(inner);
       host.appendChild(box);
