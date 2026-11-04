@@ -10,8 +10,8 @@
 **SQS**
 match: \bSQS\b
 *One sender, one worker, nothing lost*, at-least-once. Surge at 8 AM Monday:
-*API, SQS, Lambda with provisioned concurrency*. Email results in bulk:
-*API, SQS, Lambda*.
+*API, SQS, Lambda with provisioned concurrency*. TooManyRequests from Lambda:
+*SQS in front*. Email results in bulk: *API, SQS, Lambda*.
 
 **SQS FIFO**
 match: \bFIFO\b|MessageDeduplicationId|NumberOfDeduplicatedSentMessages
@@ -31,13 +31,15 @@ consuming messages: *SNS topic, SQS queue, Fargate*.
 **EventBridge**
 match: EventBridge
 *Route on what is inside the event*, schedules, other companies' products.
-A custom bus with a Lambda target writing to DynamoDB.
+Holds nothing: a durable buffer each is *SNS to SQS*. A tracked workflow is
+*Step Functions*. Keep and replay: *archive*. Writes to DynamoDB only through
+a Lambda target.
 
 **Kinesis and MSK**
 match: Kinesis Data Streams|Apache Flink|\bMSK\b|Kafka
 *A stream several readers can replay*: Kinesis Data Streams. Transform on the
-way: *Managed Service for Apache Flink*. Kafka named, real-time dashboards
-from many schemas: *MSK*.
+way: *Managed Service for Apache Flink*. Many readers, each low latency:
+*enhanced fan-out*. Kafka named, real-time dashboards from many schemas: *MSK*.
 
 **Data Firehose**
 match: Firehose
@@ -48,6 +50,7 @@ transform on the way (mask PII).
 match: Step Functions|state machine|log level
 *Steps, retries, waiting for a person*, jobs of many tasks up to a day.
 Thousands in parallel: *Map, distributed*. Debug a task: *log level ALL*.
+Express stops at 5 minutes; Standard runs a year.
 
 **Amazon MQ**
 match: Amazon MQ|ActiveMQ|RabbitMQ
@@ -79,6 +82,7 @@ match: long polling|ReceiveMessageWaitTime
 **Size and age**
 match: 256 KB|Extended Client|retention period
 *256 KB* a message; bigger goes to S3 with a pointer. Kept 4 days, up to 14.
+Longer or bigger: *Kinesis Data Streams*.
 
 **Scaling the workers**
 match: queue.{0,80}(Auto Scaling|scal)|ApproximateNumberOfMessages

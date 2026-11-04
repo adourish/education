@@ -14,8 +14,9 @@ for a project: *STS temporary credentials on roles that expire*.
 
 **Instance, task, execution role**
 match: instance profile|instance role|task role|execution role
-App on an instance: *instance role*. Fargate container reading S3: *task
-role*. Lambda decrypting: *execution role*, granted on the KMS key.
+App on an instance: *instance role*. Container code reading S3: *task role*.
+ECS pulling the image or a secret: *task execution role*. Lambda decrypting:
+*execution role*, granted on the KMS key.
 
 **Across accounts**
 match: cross-account|trust polic|trust the|Roles Anywhere
@@ -66,7 +67,8 @@ key*. AWS never sees it: *SSE-C or client-side*.
 **KMS**
 match: \bKMS\b|CloudHSM
 Encrypts the data key, which encrypts the data. *Automatic rotation* changes
-the outer key only. Your own hardware module: *CloudHSM*.
+the outer key only. Rotation you control: *customer managed key*. Your own
+hardware, still used by RDS or S3: *KMS custom key store on CloudHSM*.
 
 **Secrets Manager**
 match: Secrets Manager
@@ -99,12 +101,13 @@ match: Macie
 
 **Inspector**
 match: Inspector
-*Software flaws* on instances, containers, Lambda.
+*Software flaws* on instances, containers, Lambda. Never patches: patched
+AMIs come from *EC2 Image Builder*.
 
 **Config**
 match: AWS Config|Config rule
-*A setting that drifted*, what changed and whether allowed. Custom rule +
-Lambda for anything else.
+*A setting that drifted*, what changed and whether allowed. Finds and fixes
+after; *never prevents* (that is an SCP). Custom rule + Lambda for the rest.
 
 **CloudTrail**
 match: CloudTrail
@@ -114,7 +117,8 @@ match: CloudTrail
 match: Access Analyzer|Security Hub|Detective|Trusted Advisor
 Outsiders who can reach in: *Access Analyzer*. Every finding in one place:
 *Security Hub*. Why it happened: *Detective*. Cost, limits, best practice:
-*Trusted Advisor*.
+*Trusted Advisor*. Any of them across the organization: name a *delegated
+administrator* first.
 
 ## end
 
@@ -125,7 +129,8 @@ Outsiders who can reach in: *Access Analyzer*. Every finding in one place:
 **WAF**
 match: \bWAF\b
 *Rules on web requests*: SQL injection, bots (*Bot Control*), rate limits,
-IP sets. On CloudFront, ALB, API Gateway.
+IP sets. On CloudFront, ALB, API Gateway; straight on the API, no CloudFront
+needed. New exploits: *AWS managed rule groups*.
 
 **Shield**
 match: Shield
@@ -146,7 +151,8 @@ Filters a *VPC's traffic* by address, port, domain. Not web requests.
 
 **Firewall Manager**
 match: Firewall Manager
-*The same rules in every account.* Needs Organizations.
+*The same rules in every account.* Unused or duplicate rules: *an audit
+policy*. Needs Organizations.
 
 ## end
 
@@ -157,7 +163,7 @@ match: Organizations|Control Tower|tag polic|Resource Access Manager|\bRAM\b|Bud
 One bill, shared discounts, chargeback: *Organizations*. Stop something
 everywhere: *SCP on the root OU*. New accounts set up right: *Control Tower*.
 Allowed tag values: *tag policy*. Share a subnet: *RAM*. Overspend: *Budgets
-actions*.
+actions*. Blocked before CloudFormation builds it: *a proactive control*.
 
 ## key
 

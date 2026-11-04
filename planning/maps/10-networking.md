@@ -9,12 +9,14 @@
 match: Route ?53|latency(-based)? (routing )?polic|geolocation|failover (routing )?polic|weighted|multivalue
 Fastest Region for each user: *latency*. By country: *geolocation*. A
 standby: *failover + health check*. Several healthy servers, no load
-balancer: *multivalue*. A share: *weighted*.
+balancer: *multivalue*. A share: *weighted*. A name only inside the VPC:
+*private hosted zone + internal ALB*. Log the DNS queries: *query logging*.
 
 **CloudFront**
 match: CloudFront
 Users everywhere, content cacheable: *one Region + CloudFront*, not many
-Regions. Only files: *S3 + CloudFront*. ALB origin too.
+Regions. Only files: *S3 + CloudFront*. Dynamic pages too: *ALB origin*.
+Users on a few continents: *a smaller price class*.
 
 **Global Accelerator**
 match: Global Accelerator
@@ -55,7 +57,8 @@ servers and database in private.
 **NAT gateway**
 match: NAT gateway|NAT instance
 Private out, never in. Production: *one per zone*. Test: *one shared*. IPv6:
-*egress-only internet gateway* instead.
+*egress-only internet gateway* instead. Admin shell, no agent, no public IP:
+*EC2 Instance Connect Endpoint*.
 
 **Route tables**
 match: route table
@@ -81,7 +84,8 @@ Private things reaching out, privately
 match: gateway (VPC )?endpoint|VPC gateway endpoint|endpoint polic
 *S3 and DynamoDB only*, free, a route. "Private bucket, no public endpoint,
 least privilege": *gateway endpoint + endpoint policy* naming the roles. Cuts
-the NAT bill.
+the NAT bill. IPv4 and its own VPC only; IPv6 or from on premises: *interface
+endpoint*.
 
 **Interface endpoint (PrivateLink)**
 match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink|VPC endpoint for (Amazon )?(SQS|SNS|Kinesis|Secrets|KMS)
@@ -120,12 +124,14 @@ Out to other networks
 **Transit gateway**
 match: Transit Gateway
 *Hundreds of VPCs, many accounts, many sites*: transit gateway. Keep spokes
-apart: *a route table per attachment*. Share across accounts: RAM.
+apart: *a route table per attachment*. Share across accounts: RAM. One VPC
+only: *no transit gateway*, just a VPN.
 
 **VPC peering**
 match: VPC peering|peering connection|[Pp]eer (each|the|all|every)
 *Exactly two VPCs*, even across accounts (a Lambda reaching another
-account's EFS). Not transitive, stops at 125.
+account's EFS). Not transitive, stops at 125. VPCs that must not see each
+other: *no peering*, a VPN to each.
 
 **Many accounts, one network**
 match: Control Tower|Resource Access Manager|\bRAM\b|shared subnet|share the subnet

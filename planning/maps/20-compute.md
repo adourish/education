@@ -15,11 +15,12 @@ Nothing to patch. Event in, Lambda out.
 **Fargate**
 match: Fargate
 *Containers, no servers*, longer than 15 minutes or always on. Nightly job,
-can be interrupted: *Fargate Spot*.
+can be interrupted: *Fargate Spot*. Critical, must not stop: *never Spot*.
 
 **ECS or EKS on EC2**
 match: (ECS|EKS).{0,80}EC2|EC2 launch type|GPU instance|EKS Anywhere|EKS Connector|Amazon ECS cluster|ECS containers
-*A GPU, or you choose the hardware.* Kubernetes named: EKS; else ECS.
+*A GPU, or you choose the hardware.* No GPU on Lambda or Fargate. Kubernetes
+named: EKS; else ECS.
 Kubernetes on your own servers: *EKS Anywhere*. See every cluster in one
 place: *EKS Connector*.
 
@@ -29,7 +30,8 @@ Anything at all, *you patch it*. Last resort.
 
 **Batch**
 match: AWS Batch
-*Many jobs, hours or days, with an order.* Simulations that run for days.
+*Many parallel jobs, hours or days.* Simulations that run for days. Cannot
+stop: On-Demand under it, not Spot.
 
 **Elastic Beanstalk**
 match: Elastic Beanstalk
@@ -100,8 +102,8 @@ match: reserved concurrency
 
 **Something in front**
 match: function URL|API Gateway|edge-optimized|HTTP API
-One function, one HTTPS address, a webhook, a mainframe calling REST:
-*function URL*. Keys, caching, limits: *API Gateway*. Users worldwide:
+One function, one HTTPS address, a webhook, a caller that *waits minutes*:
+*function URL* (API Gateway stops at 29 s). Keys, caching, limits: *API Gateway*. Users worldwide:
 *edge-optimized + caching*. JWT: *HTTP API*.
 
 **Big or shared files**
@@ -131,14 +133,16 @@ Short, unknown, dev and test, being measured.
 **Spot**
 match: \bSpot\b|allocation strategy
 Can be interrupted, two minutes' warning: *Spot*. Capacity keeps failing:
-*capacity-optimized allocation + more instance types*. Stateless web on one
+*capacity-optimized allocation + more instance types*; it also means fewest
+interruptions. EMR, no data lost: *core On-Demand, task nodes Spot*. Stateless web on one
 instance: *AMI, launch template, Spot Fleet*.
 
 **Reserved or Savings Plan**
 match: Reserved Instance|Savings Plan
 Steady baseline, cannot be interrupted: *Reserved for the ASG minimum*,
 Spot or On-Demand above it. Production reserved, *dev and test On-Demand*.
-Type may change: *Savings Plan*.
+Type may change, or EC2 plus Fargate or Lambda: *Compute Savings Plan*.
+Stopped most of the day: *On-Demand*. Most saving: *All Upfront*.
 
 **Dedicated Host**
 match: Dedicated Host|Dedicated Instance
