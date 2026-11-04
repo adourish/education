@@ -287,7 +287,9 @@ def main() -> None:
         # unreadable on a phone as boxes and arrows.
         "decisions": [{"id": d["id"], "title": d["title"], "area": d["area"],
                        "rows": [list(r) for r in d["rows"]],
-                       "traps": d["traps"]}
+                       "traps": d["traps"],
+                       # The sub-types inside the choice, each with what sets it apart.
+                       "kinds": [[g, [list(k) for k in items]] for g, items in d.get("kinds", [])]}
                       for d in DECISIONS],
         # What the real paper is made of, so a mock can be drawn in the same
         # proportions rather than in whatever proportions the question sets

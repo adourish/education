@@ -1029,6 +1029,30 @@ select {
 .dectraps li { font-size: 0.86rem; color: var(--ink-2); line-height: 1.6;
                margin-bottom: 6px; }
 .dectraps li:last-child { margin-bottom: 0; }
+.deckinds { margin: 12px 0 0; padding: 10px 12px; border-radius: 7px;
+            border: 1px solid var(--rule); border-left: 3px solid var(--cyan);
+            background: var(--surface-2); }
+.deckinds h6 { margin: 0 0 4px; font-size: 0.82rem; font-weight: 500; color: var(--cyan); }
+.deckinds h6 + .kgroup { margin-top: 0; }
+.deckinds .kgroup { margin: 10px 0 0; }
+.deckinds .kname { font-size: 0.86rem; font-weight: 600; margin: 0 0 2px; }
+.deckinds .krow { font-size: 0.86rem; line-height: 1.55; padding: 3px 0;
+                  border-top: 1px solid var(--rule); }
+.deckinds .krow:first-of-type { border-top: 0; }
+.deckinds .krow b { font-weight: 600; }
+.deckinds .krow span { color: var(--ink-2); }
+.termfind { width: 100%; box-sizing: border-box; font: inherit; font-size: 0.95rem;
+            padding: 9px 11px; margin: 0 0 12px; border-radius: 7px;
+            border: 1px solid var(--rule); background: var(--surface-2); color: var(--ink); }
+.termlist .term { padding: 9px 0; border-top: 1px solid var(--rule); }
+.termlist .term:first-child { border-top: 0; }
+.termlist .tname { font-weight: 600; font-size: 0.95rem; }
+.termlist .tmiss { font-size: 0.8rem; font-weight: 500; color: var(--magenta); margin-left: 6px; }
+.termlist .tkeep { font-size: 0.9rem; line-height: 1.55; margin: 2px 0 0; }
+.termlist details { margin: 4px 0 0; }
+.termlist details summary { cursor: pointer; font-size: 0.82rem; color: var(--ink-3); }
+.termlist details p { font-size: 0.88rem; line-height: 1.6; color: var(--ink-2); margin: 4px 0 0; }
+.termlist .tnone { color: var(--ink-3); font-size: 0.9rem; }
 
 /* MAPS-CSS-START */
 
@@ -1559,6 +1583,16 @@ footer .v { font-family: var(--mono); }
       </div>
     </details>
 <!-- MAPS-HTML-END -->
+
+    <details class="fold" id="fold-terms" data-fold="terms">
+      <summary>Terms<span class="count" id="termCount"></span></summary>
+      <div class="inner">
+        <p class="lede">Every term, with the one line to remember. The ones in
+          questions you have missed come first. Tap "More" for the full note.</p>
+        <input class="termfind" id="termFind" type="search" placeholder="Find a term" aria-label="Find a term">
+        <div class="termlist" id="termList"></div>
+      </div>
+    </details>
 
     <div class="board" id="board"></div>
 
@@ -4860,6 +4894,24 @@ footer .v { font-family: var(--mono); }
       row.appendChild(el("div", "then", r[1]));
       box.appendChild(row);
     });
+    // The sub-types inside the choice, each with the one thing that sets it
+    // apart, since a question often turns on which kind rather than which service.
+    if ((dec.kinds || []).length) {
+      var kb = el("div", "deckinds");
+      kb.appendChild(el("h6", null, "The kinds, and what sets each apart"));
+      dec.kinds.forEach(function (g) {
+        var grp = el("div", "kgroup");
+        grp.appendChild(el("div", "kname", g[0]));
+        g[1].forEach(function (k) {
+          var r = el("div", "krow");
+          r.appendChild(el("b", null, k[0]));
+          r.appendChild(el("span", null, ": " + k[1]));
+          grp.appendChild(r);
+        });
+        kb.appendChild(grp);
+      });
+      box.appendChild(kb);
+    }
     if ((dec.traps || []).length) {
       var t = el("div", "dectraps");
       t.appendChild(el("h6", null, "What the question is really testing"));
@@ -4914,6 +4966,53 @@ footer .v { font-family: var(--mono); }
       host.appendChild(drawDecision(d, DEC_ASKED[d.id], missed[d.id]));
     });
   }
+
+  // Every term on the poster. Terms in questions you last got wrong come
+  // first, most missed at the top, then the rest A to Z. Drawn when the
+  // section is opened, since it is long and starts closed.
+  function renderTerms() {
+    var host = document.getElementById("termList");
+    if (!host || !DATA.glossary) return;
+    var missed = {};
+    DATA.questions.forEach(function (q) {
+      if (V.questions[q.id] !== 0) return;
+      (q.t || []).forEach(function (n) { missed[n] = (missed[n] || 0) + 1; });
+    });
+    var names = Object.keys(DATA.glossary).sort(function (a, b) {
+      return ((missed[b] || 0) - (missed[a] || 0)) || a.localeCompare(b);
+    });
+    var tally = document.getElementById("termCount");
+    var nMiss = names.filter(function (n) { return missed[n]; }).length;
+    if (tally) tally.textContent = names.length + " terms" + (nMiss ? ", " + nMiss + " in missed questions" : "");
+    var find = document.getElementById("termFind");
+    var want = find ? find.value.trim().toLowerCase() : "";
+    host.textContent = "";
+    var shown = 0;
+    names.forEach(function (n) {
+      var keep = (DATA.remember || {})[n] || "";
+      var what = DATA.glossary[n];
+      if (want && (n + " " + keep + " " + what).toLowerCase().indexOf(want) < 0) return;
+      shown++;
+      var row = el("div", "term");
+      var head = el("div");
+      head.appendChild(el("span", "tname", n));
+      if (missed[n]) head.appendChild(el("span", "tmiss", "\u2715 " + missed[n] + " missed"));
+      row.appendChild(head);
+      if (keep) row.appendChild(el("p", "tkeep", keep));
+      var more = document.createElement("details");
+      more.appendChild(el("summary", null, "More"));
+      more.appendChild(el("p", null, what));
+      row.appendChild(more);
+      host.appendChild(row);
+    });
+    if (!shown) host.appendChild(el("p", "tnone", "No term matches that."));
+  }
+  (function () {
+    var fold = document.getElementById("fold-terms");
+    var find = document.getElementById("termFind");
+    if (fold) fold.addEventListener("toggle", function () { if (fold.open) renderTerms(); });
+    if (find) find.addEventListener("input", renderTerms);
+  })();
 
   function renderRuns() {
     var host = document.getElementById("runList");
@@ -5825,7 +5924,7 @@ footer .v { font-family: var(--mono); }
       currentView = t[1];
 
       if (t[0] === "tab-progress") renderProgress();
-      if (t[0] === "tab-poster") { renderBoard(); renderDecisions(); renderMapCounts(); }
+      if (t[0] === "tab-poster") { renderBoard(); renderDecisions(); renderMapCounts(); renderTerms(); }
 
       // Restore after the view has been laid out, or the page has no height to
       // scroll into yet. A timeout rather than requestAnimationFrame, which a
@@ -6163,6 +6262,7 @@ footer .v { font-family: var(--mono); }
 
   renderBoard();
   renderDecisions();
+  renderTerms();
   renderMapCounts();
   refreshMissChip();
   updateScore();
