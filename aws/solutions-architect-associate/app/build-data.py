@@ -192,6 +192,15 @@ def main() -> None:
                 for a in alias(qid):
                     flags.pop(a, None)
 
+    # Questions judged broken -- a contradictory key, options that do not
+    # answer the question -- are marked bad, and the app leaves them out of
+    # every set, mock and score. Listed by hand in review/bad.json.
+    bad_path = HERE.parent / "questions" / "review" / "bad.json"
+    if bad_path.exists():
+        for qid, why in json.loads(bad_path.read_text(encoding="utf-8")).items():
+            for a in alias(qid):
+                flags[a] = {"kind": "bad", "note": why, "area": "review"}
+
     bank = json.loads(BANK.read_text(encoding="utf-8"))
     for r in bank:
         text = (r["question"] + " " + " ".join(r.get("options") or []) + " " + r["answer"])

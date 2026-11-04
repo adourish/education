@@ -2169,6 +2169,10 @@ footer .v { font-family: var(--mono); }
     if (savedLb !== null) lookback = parseInt(savedLb, 10) || 0;
   } catch (e) { /* no storage: all time, every time */ }
 
+  // A question marked bad (a broken answer key, or options that do not
+  // answer it) is left out of everything. Answers already given to it stay
+  // in the log but no longer count, because nothing can look it up.
+  DATA.questions = DATA.questions.filter(function (q) { return !(q.flag && q.flag.kind === "bad"); });
   var QBYID = {};
   DATA.questions.forEach(function (q) { QBYID[q.id] = q; });
 
