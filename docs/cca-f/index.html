@@ -1868,7 +1868,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.55.0";
+  var APP_VERSION = "1.56.0";
   var BUILD_DATE  = "2026-11-04";
   // ---------- where this exam's work is kept ----------
   //
@@ -3705,6 +3705,15 @@ footer .v { font-family: var(--mono); }
     mock.spent[q.id] = Math.max(0, clockUsed() - (mock.shownAt || 0));
   }
 
+  // Questions answered for each minute on the clock so far, reading the
+  // explanations included, because that time comes off the real clock too.
+  // Nothing is shown for the first half minute, when the number means little.
+  function questionsPerMinute(done) {
+    var used = clockUsed();
+    if (!done || used < 30000) return 0;
+    return done / (used / 60000);
+  }
+
   function averageSpent() {
     var ids = Object.keys(mock.spent || {});
     if (!ids.length) return 0;
@@ -3754,7 +3763,8 @@ footer .v { font-family: var(--mono); }
     var done = Object.keys(mock.given).length;
     var said = (mock.paused ? "Paused · " : "") + MOCK_SIZES[mock.size].name +
       (srcSel.value !== "__all" ? " from " + (SRC_LABELS[srcSel.value] || srcSel.value) : "") + " · " +
-      done + " of " + queue.length + " answered";
+      done + " of " + queue.length + " answered (" +
+      Math.round(100 * done / Math.max(1, queue.length)) + "%)";
     if (settings.mockReveal !== "hide" && done) {
       var gotRight = 0;
       Object.keys(mock.given).forEach(function (id) { if (mock.given[id] === true) gotRight++; });
@@ -3765,6 +3775,14 @@ footer .v { font-family: var(--mono); }
     if (averageSpent()) {
       said += " · " + clockText(averageSpent()) + " a question on average (aim for " +
         clockText(paceTarget()) + ")";
+    }
+    var rate = questionsPerMinute(done);
+    if (rate) {
+      // The pace needed is what is left over the minutes left, so it rises
+      // if you fall behind and falls if you get ahead.
+      var need = (queue.length - done) / Math.max(1, left / 60000);
+      said += " · " + rate.toFixed(1) + " questions a minute (" +
+        (done < queue.length ? need.toFixed(1) + " needed to finish in time" : "all answered") + ")";
     }
     box.appendChild(el("span", "said", said));
     var hold = el("button", "btn" + (mock.paused ? " primary" : ""),
@@ -3847,6 +3865,11 @@ footer .v { font-family: var(--mono); }
       var avgAll = averageSpent();
       timeRow("Average time to answer", clockText(avgAll) + " a question (the real exam allows " +
         clockText(paceTarget()) + ")");
+      if (used > 0) {
+        timeRow("Questions a minute", (spentIds.length / (Math.min(mock.total, used) / 60000)).toFixed(1) +
+          ", reading included (the real exam needs " +
+          (DATA.paper.questions / DATA.paper.minutes).toFixed(1) + ")");
+      }
       var rt = [], wt = [];
       spentIds.forEach(function (id) { (mock.given[id] === true ? rt : wt).push(mock.spent[id]); });
       function avg(a) { var t = 0; a.forEach(function (x) { t += x; }); return a.length ? t / a.length : 0; }
