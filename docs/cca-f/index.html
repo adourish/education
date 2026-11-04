@@ -1868,7 +1868,7 @@ footer .v { font-family: var(--mono); }
   "use strict";
 
   var DATA = JSON.parse(document.getElementById("appdata").textContent);
-  var APP_VERSION = "1.56.0";
+  var APP_VERSION = "1.57.0";
   var BUILD_DATE  = "2026-11-04";
   // ---------- where this exam's work is kept ----------
   //
@@ -3461,6 +3461,60 @@ footer .v { font-family: var(--mono); }
     writeRuns(list);
   }
 
+  // A finished mock writes its marked score and its timings onto its run, so
+  // the Progress page can show them later. The run itself is written first,
+  // when the set is put aside; this only adds to it.
+  function keepMockStats(runId, stats) {
+    if (!runId) return;
+    var list = readRuns();
+    var run = list.filter(function (r) { return r.id === runId; })[0];
+    if (!run) return;
+    run.mockStats = stats;
+    writeRuns(list);
+    if (typeof renderRuns === "function") renderRuns();
+  }
+
+  // The score and the time figures of a finished mock, as rows of words.
+  function mockStatsBox(m) {
+    var box = el("div", "timestats");
+    function row(label, value) {
+      var r = el("p", null);
+      r.appendChild(el("strong", null, label + ": "));
+      r.appendChild(document.createTextNode(value));
+      box.appendChild(r);
+    }
+    var passed = m.scaled >= m.pass;
+    row("Score", m.scaled + " out of 1000 \u00b7 " + (passed ? "above" : "below") + " the " +
+      m.pass + " needed to pass" + (m.ranOut ? " \u00b7 time ran out" : ""));
+    row("Right", m.right + " of " + m.of + " (" + pct(m.right, m.of) + "%)" +
+      (m.spent.length < m.of ? " \u00b7 " + (m.of - m.spent.length) + " left unanswered, marked wrong" : ""));
+    // The fewest right answers that would have passed this paper.
+    var need = Math.ceil(((m.pass - 100) / 900) * m.of);
+    var spare = m.right - need;
+    row("Pass mark for this paper", need + " right of " + m.of + " · " +
+      (spare > 0 ? spare + " more than needed" : spare === 0 ? "you hit it exactly"
+        : (-spare) + " more would have passed"));
+    if (m.set) row("Questions from", m.set);
+    if (m.total) row("Time used", clockText(m.used) + " of " + clockText(m.total));
+    if (m.spent.length) {
+      var all = [], rt = [], wt = [];
+      m.spent.forEach(function (x) { all.push(x[1]); (x[2] ? rt : wt).push(x[1]); });
+      function avg(a) { var t = 0; a.forEach(function (x) { t += x; }); return a.length ? t / a.length : 0; }
+      row("Average time to answer", clockText(avg(all)) + " a question (the real exam allows " +
+        clockText(paceTarget()) + ")");
+      if (m.used > 0) row("Questions a minute", (m.spent.length / (m.used / 60000)).toFixed(1) +
+        ", reading included (the real exam needs " +
+        (DATA.paper.questions / DATA.paper.minutes).toFixed(1) + ")");
+      if (rt.length) row("On the ones you got right", clockText(avg(rt)) + " on average");
+      if (wt.length) row("On the ones you missed", clockText(avg(wt)) + " on average");
+      var slow = m.spent.slice().sort(function (a, b) { return b[1] - a[1]; }).slice(0, 3);
+      row("Slowest", slow.map(function (x) {
+        return x[0] + " " + clockText(x[1]) + (x[2] ? " (right)" : " (missed)");
+      }).join(", "));
+    }
+    return box;
+  }
+
   // Take a set off the list. The score is written down first, so what was
   // answered still shows under recent runs: the only thing lost is the place
   // in the set, and the answers were never in here to begin with.
@@ -3806,12 +3860,13 @@ footer .v { font-family: var(--mono); }
     mock.on = false;
     mock.paused = false;
     if (mock.tick) { clearInterval(mock.tick); mock.tick = null; }
+    var runId = sessionId;
     if (sessionId) putAside(sessionId, true);
     renderMockBar();
-    renderMockResult(ranOut);
+    renderMockResult(ranOut, runId);
   }
 
-  function renderMockResult(ranOut) {
+  function renderMockResult(ranOut, runId) {
     var paper = DATA.paper;
     var sat = queue.slice();
     var right = 0, byDom = {};
@@ -3846,6 +3901,15 @@ footer .v { font-family: var(--mono); }
 
     var spentIds = Object.keys(mock.spent || {}).filter(function (id) {
       return sat.some(function (q) { return q.id === id; });
+    });
+    keepMockStats(runId, {
+      size: mock.size, scaled: scaled, pass: paper.pass, right: right, of: sat.length,
+      ranOut: !!ranOut,
+      set: srcSel.value !== "__all" ? (SRC_LABELS[srcSel.value] || srcSel.value) : "",
+      total: mock.total || 0,
+      used: mock.total ? Math.min(mock.total, Math.max(0, mock.total -
+        (mock.paused ? mock.left : Math.max(0, mock.ends - Date.now())))) : 0,
+      spent: spentIds.map(function (id) { return [id, mock.spent[id], mock.given[id] === true]; })
     });
     if (spentIds.length) {
       card.appendChild(el("h3", "sub", "Time"));
@@ -4896,7 +4960,8 @@ footer .v { font-family: var(--mono); }
       var head = el("summary");
 
       var what = run.label || "a set";
-      if (run.kind === "mock") what = "Mock exam";
+      var ms = run.kind === "mock" ? run.mockStats : null;
+      if (run.kind === "mock") what = ms && MOCK_SIZES[ms.size] ? MOCK_SIZES[ms.size].name : "Mock exam";
       else if (run.kind === "drill") what = "Drill: " + what;
 
       // A run whose set is still on the resume list is one you can carry on
@@ -4919,8 +4984,10 @@ footer .v { font-family: var(--mono); }
 
       // One number in the corner, and the words for it underneath, rather
       // than two pairs of numbers side by side meaning different things.
-      var chip = el("div", "score", run.asked ? share + "%" : "not scored");
-      if (run.asked) chip.title = run.right + " right of " + run.asked + " answered";
+      var chip = el("div", "score", ms ? ms.scaled + (ms.scaled >= ms.pass ? " pass" : " below pass")
+                                       : (run.asked ? share + "%" : "not scored"));
+      if (ms) chip.title = "Score out of 1000; " + ms.pass + " passes";
+      else if (run.asked) chip.title = run.right + " right of " + run.asked + " answered";
       head.appendChild(chip);
       box.appendChild(head);
 
@@ -4961,6 +5028,7 @@ footer .v { font-family: var(--mono); }
         inner.appendChild(rt);
       }
 
+      if (ms) inner.appendChild(mockStatsBox(ms));
       inner.appendChild(runBreakdown(run));
       box.appendChild(inner);
       host.appendChild(box);
