@@ -114,7 +114,15 @@ def parse(md: str) -> dict:
     def close_box():
         nonlocal box
         if box is not None and row is not None:
-            box["body"] = " ".join(box["body"]).strip()
+            # Lines starting "- " are one point each, drawn on lines of their
+            # own; any other line carries on the point or sentence before it.
+            pts = []
+            for ln in box["body"]:
+                if ln.startswith("- ") or not pts:
+                    pts.append(ln[2:] if ln.startswith("- ") else ln)
+                else:
+                    pts[-1] += " " + ln
+            box["body"] = "\n".join(p.strip() for p in pts)
             row.append(box)
         box = None
 
@@ -216,7 +224,7 @@ def draw(items: list) -> str:
                 rx = pattern(b)
                 attr = (' data-rx="%s"' % html.escape(rx, quote=True)) if rx else ""
                 out.append('<div class="nm-box%s"%s><h4><span>%s</span></h4><p>%s</p></div>'
-                           % (cls, attr, inline(b["title"]), inline(b["body"])))
+                           % (cls, attr, inline(b["title"]), inline(b["body"]).replace("\n", "<br>")))
             out.append('</div>')
         elif it["kind"] == "arrow":
             out.append('<div class="nm-arrow">%s</div>' % inline(it["text"]))
