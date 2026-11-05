@@ -15,7 +15,10 @@ balancer: *multivalue*. A share: *weighted*. A name only inside the VPC:
 **CloudFront**
 match: CloudFront
 Users everywhere, content cacheable: *one Region + CloudFront*, not many
-Regions. Only files: *S3 + CloudFront*. Dynamic pages too: *ALB origin*.
+Regions. *Runs entirely in the browser*, only HTML and JavaScript:
+*S3 + CloudFront*, and *the web servers go*: that is the cost cut.
+Servers build the pages: *ALB origin*. CloudFront's certificate: *us-east-1*,
+so the ALB's certificate is never reused.
 Users on a few continents: *a smaller price class*.
 
 **Global Accelerator**
@@ -56,9 +59,22 @@ servers and database in private.
 
 **NAT gateway**
 match: NAT gateway|NAT instance
-Private out, never in. Production: *one per zone*. Test: *one shared*. IPv6:
-*egress-only internet gateway* instead. Admin shell, no agent, no public IP:
-*EC2 Instance Connect Endpoint*.
+- What it does: lets private servers *reach out* to the internet. Nothing
+can reach in.
+- Where it goes: in a *public subnet*. The private subnet's route table
+points at it.
+- Pick it for *IPv4*. For IPv6, pick the *egress-only internet gateway*.
+- Production: *one per zone*. Test: *one shared* to save money.
+- Not for logging in to a server. That is *EC2 Instance Connect Endpoint*.
+
+**Egress-only internet gateway**
+match: egress-only
+- What it does: the same job as a NAT gateway, but for *IPv6*.
+- Where it goes: *in no subnet*. It attaches to the VPC, like an
+internet gateway.
+- The private subnet's route table sends IPv6 traffic (*::/0*) to it.
+- It costs nothing by the hour.
+- Why no NAT for IPv6: every IPv6 address is already public.
 
 **Route tables**
 match: route table
@@ -70,7 +86,7 @@ gateway.
 match: security group|network ACL|\bNACL\b
 Allow only, stateful, per instance, *from another group by id*: *security
 group*. *Deny*, stateless, per subnet, *block one subnet or address*:
-*network ACL*.
+*network ACL*. Both only filter. A path to S3 or DynamoDB: *gateway endpoint*.
 
 ## end
 
@@ -85,7 +101,8 @@ match: gateway (VPC )?endpoint|VPC gateway endpoint|endpoint polic
 *S3 and DynamoDB only*, free, a route. "Private bucket, no public endpoint,
 least privilege": *gateway endpoint + endpoint policy* naming the roles. Cuts
 the NAT bill. IPv4 and its own VPC only; IPv6 or from on premises: *interface
-endpoint*.
+endpoint*. Private Lambda to DynamoDB, *most secure*: *gateway endpoint*.
+Not a security group or NACL: they *filter*, they make *no path*.
 
 **Interface endpoint (PrivateLink)**
 match: interface (VPC )?endpoint|VPC interface endpoint|PrivateLink|VPC endpoint for (Amazon )?(SQS|SNS|Kinesis|Secrets|KMS)
@@ -109,9 +126,11 @@ endpoint, Elastic IP: IPv4 only. Everything else: both. Rules per family:
 
 **Seeing the traffic**
 match: Flow Logs|Network Monitor|Reachability Analyzer
-Which traffic was allowed or rejected: *VPC Flow Logs*, to CloudWatch Logs,
-then *Firehose to OpenSearch*. Is the path to on premises up: *CloudWatch
-Network Monitor*. Why a packet cannot get there: *Reachability Analyzer*.
+- Which traffic was allowed or rejected: *VPC Flow Logs*.
+- To OpenSearch: Flow Logs to *CloudWatch Logs*, then *Firehose*.
+- Never CloudTrail. CloudTrail is API calls, not traffic.
+- Is the path to on premises up: *CloudWatch Network Monitor*.
+- Why a packet cannot get there: *Reachability Analyzer*.
 
 ## end
 

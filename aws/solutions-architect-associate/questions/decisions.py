@@ -370,12 +370,19 @@ DECISIONS: list[dict] = [
             ("users only on some continents, cut cost", "CloudFront, a price class leaving out the rest"),
             ("route requests to several microservices", "One ALB, a rule per path"),
             ("EKS, routing to its services", "ALB, from the AWS Load Balancer Controller"),
+            ("the app runs entirely in the browser, cut cost", "S3 + CloudFront; the web servers go"),
+            ("reuse the ALB's certificate on CloudFront", "No: CloudFront needs one in us-east-1"),
         ],
         "kinds": [
             ("Load balancers", [
                 ("ALB", "HTTP: paths, headers, Cognito login, WAF"),
                 ("NLB", "TCP or UDP, fixed IP, PrivateLink, millions a second"),
                 ("Gateway LB", "third-party firewalls and appliances in the path"),
+            ]),
+            ("CloudFront origins", [
+                ("S3 origin", "only files: HTML, JavaScript, images; no servers to pay for"),
+                ("ALB origin", "pages your servers build; the servers stay"),
+                ("Both", "one distribution, a behaviour per path"),
             ]),
         ],
         "traps": [
@@ -404,6 +411,8 @@ DECISIONS: list[dict] = [
             "API Gateway in front of microservices charges per request on top, so one ALB with path rules is the cheaper router.",
             "An ALB serves one Region, so spreading traffic across Regions is Route 53, never one ALB with targets in both.",
             "On Elastic Beanstalk, a slice of live traffic to a new version is the traffic-splitting policy, not ALB rules you edit.",
+            "'Runs entirely in the browser' means the site is only files. CloudFront in front of the ALB still pays for servers doing nothing. S3 + CloudFront drops them.",
+            "CloudFront only takes a certificate from us-east-1. The ALB's certificate in another Region cannot be reused. Make a new one in us-east-1.",
         ],
     },
 
@@ -1050,6 +1059,11 @@ DECISIONS: list[dict] = [
             ("S3 or DynamoDB over IPv6, or from on premises", "Interface endpoints, not gateway"),
             ("the instances may reach only certain buckets", "Gateway endpoint, and the role names the buckets"),
             ("shell into private instances, no agent, no public IP", "EC2 Instance Connect Endpoint"),
+            ("private Lambda to DynamoDB, no internet, most secure", "A gateway endpoint for DynamoDB"),
+            ("only this one table or bucket may go through it", "An endpoint policy on the gateway endpoint"),
+            ("the bucket or table must refuse every other way in", "Its policy requires aws:sourceVpce"),
+            ("where the NAT gateway goes", "A public subnet; the private route points at it"),
+            ("where the egress-only gateway goes", "On the VPC, in no subnet, like an internet gateway"),
         ],
         "kinds": [
             ("VPC endpoints", [
@@ -1057,10 +1071,16 @@ DECISIONS: list[dict] = [
                 ("Interface", "most services; by the hour; works from on premises"),
                 ("Gateway Load Balancer", "send traffic through appliances"),
             ]),
+            ("A path, or a filter", [
+                ("Gateway endpoint", "the path: private, to S3 or DynamoDB, no internet"),
+                ("Endpoint policy", "what may use the path: which table, which bucket"),
+                ("Security group", "a filter on an instance; makes no path"),
+                ("Network ACL", "a filter on a subnet; makes no path"),
+            ]),
             ("Ways out", [
-                ("NAT gateway", "IPv4, managed, one per zone"),
+                ("NAT gateway", "IPv4; sits in a public subnet; by the hour; one per zone"),
                 ("NAT instance", "an EC2 you run; never the answer now"),
-                ("Egress-only gateway", "IPv6 out, never in"),
+                ("Egress-only gateway", "IPv6; on the VPC, in no subnet; free; out, never in"),
             ]),
         ],
         "traps": [
@@ -1088,6 +1108,11 @@ DECISIONS: list[dict] = [
             "security group. A NAT gateway needs neither.",
             "Gateway endpoints carry IPv4 only and work only inside their own VPC. IPv6, or traffic from on premises, needs interface endpoints.",
             "Session Manager needs the SSM Agent and a way out to Systems Manager, so 'no agents' means EC2 Instance Connect Endpoint.",
+            "A security group or network ACL only filters traffic. It makes no path. With no internet, the Lambda still cannot reach DynamoDB. The gateway endpoint is the path.",
+            "A security group or network ACL sees addresses, not tables. It cannot say 'this table only'. An endpoint policy can.",
+            "DynamoDB and S3 never go inside a VPC. An option that puts the table in your VPC is wrong.",
+            "An egress-only internet gateway goes in no subnet. It attaches to the VPC, like an internet gateway. The private subnet's route sends ::/0 to it.",
+            "Every IPv6 address is public, so there is nothing to translate. IPv6 needs no NAT, only a gateway that refuses connections started from outside.",
         ],
     },
 
@@ -1137,6 +1162,53 @@ DECISIONS: list[dict] = [
             "CloudTrail records API calls, not DNS lookups. What Route 53 answered is query logging.",
             "Inspector finds flaws but never patches; patched AMIs for an Auto Scaling group come from EC2 Image Builder.",
             "A Security Hub custom action is a button a person presses, so an automatic response is an EventBridge rule and Lambda.",
+        ],
+    },
+
+    {
+        "id": "trail-watch",
+        "stem": r"CloudTrail|CloudWatch|Flow Logs|\blogs?\b|metric|alarm|monitor|audit|traffic",
+        "choices": [
+            r"CloudTrail",
+            r"CloudWatch",
+            r"Flow Logs",
+            r"X-Ray",
+            r"access logs?",
+        ],
+        "title": "CloudTrail, CloudWatch or Flow Logs",
+        "area": "security",
+        "rows": [
+            ("who deleted the bucket, who changed the rule", "CloudTrail"),
+            ("CPU, errors, an alarm when it is too high", "CloudWatch"),
+            ("application logs from servers or Lambda", "CloudWatch Logs"),
+            ("network traffic to and from the interfaces", "VPC Flow Logs"),
+            ("traffic logs to OpenSearch, near real time", "Flow Logs to CloudWatch Logs, then Firehose"),
+            ("each web request to the site", "ALB or CloudFront access logs"),
+            ("which step of a request is slow", "X-Ray"),
+            ("memory or disk space on an instance", "The CloudWatch agent"),
+            ("keep the API record for years, tamper-proof", "A CloudTrail trail to S3, log file validation"),
+        ],
+        "kinds": [
+            ("Which record", [
+                ("CloudTrail", "who did what to your AWS account: API calls"),
+                ("CloudWatch", "how things are running: metrics, logs, alarms"),
+                ("VPC Flow Logs", "network traffic: addresses, ports, allowed or rejected"),
+                ("Access logs", "each web request, from the ALB or CloudFront"),
+                ("X-Ray", "one request's path through several services"),
+                ("AWS Config", "how a resource is set up, and what changed"),
+            ]),
+            ("Getting logs out", [
+                ("Subscription filter", "sends CloudWatch Logs on to Firehose or Lambda"),
+                ("Data Firehose", "delivers to OpenSearch, S3 or Redshift; no code"),
+                ("Kinesis Data Streams", "you write the reader; for replay or many readers"),
+            ]),
+        ],
+        "traps": [
+            "Remember it: a trail is footprints, who did it. A watch is a check on health, how it runs.",
+            "Traffic is never CloudTrail. CloudTrail records API calls, like someone deleting a bucket. Packets and connections are VPC Flow Logs.",
+            "VPC Flow Logs go to CloudWatch Logs, S3 or Firehose. Never to a CloudTrail trail.",
+            "Into OpenSearch with no code: Data Firehose. Kinesis Data Streams needs a reader you write, so it is more work.",
+            "Memory and disk space are not in CloudWatch until you install the CloudWatch agent.",
         ],
     },
 
@@ -1549,6 +1621,7 @@ DECISIONS: list[dict] = [
             ("the reader should pay for the transfer", "Requester Pays"),
             ("a copy near the users in another Region", "Cross-Region Replication"),
             ("one zone, fastest S3, keep the S3 API", "S3 Express One Zone, a directory bucket"),
+            ("a site that runs entirely in the browser", "S3 origin + CloudFront, no web servers"),
         ],
         "traps": [
             "Transfer Acceleration uses the CloudFront edge network to reach the "

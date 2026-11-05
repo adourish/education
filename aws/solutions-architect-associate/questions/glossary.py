@@ -362,12 +362,12 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "Your own private network inside AWS, with its own address range, subnets and routing."),
     "Subnet": (r"subnet",
         "A slice of a VPC's address range, living in exactly one Availability Zone. It is public if its route table has a path to an internet gateway."),
-    "Security group": (r"security group",
-        "A stateful firewall on an instance: replies to allowed traffic come back automatically, and it can only allow, never deny."),
-    "Network ACL": (r"network ACL|\bNACL\b",
-        "A stateless firewall on a subnet: traffic must be allowed both ways, and unlike a security group it can deny."),
-    "NAT gateway": (r"NAT gateway|NAT instance",
-        "Lets servers in a private subnet reach the internet to fetch updates, while stopping anything on the internet from starting a connection to them."),
+    "Security group": (r'security group',
+        "A stateful firewall on an instance: replies to allowed traffic come back automatically, and it can only allow, never deny. It filters; it never makes a path to S3 or DynamoDB."),
+    "Network ACL": (r'network ACL|\bNACL\b',
+        "A stateless firewall on a subnet: traffic must be allowed both ways, and unlike a security group it can deny. It filters; it never makes a path to S3 or DynamoDB."),
+    "NAT gateway": (r'NAT gateway|NAT instance',
+        "Lets servers in a private subnet reach the internet to fetch updates, while stopping anything on the internet from starting a connection to them. It sits in a public subnet, and the private subnet's route points at it. IPv4 only, charged by the hour."),
     "Internet gateway": (r"internet gateway",
         "The VPC's door to the internet. A subnet is only public if its route table points at one."),
     "Route table": (r"route table",
@@ -439,8 +439,8 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "it can leave out anything failing a health check. An alias record "
         "points at an AWS resource, costs nothing to resolve, and works at the "
         "root of a domain where a CNAME cannot."),
-    "Amazon CloudFront": (r"CloudFront",
-        "A content delivery network. It caches your content at edge locations around the world so users are served from somewhere near them."),
+    "Amazon CloudFront": (r'CloudFront',
+        "A content delivery network. It caches your content at edge locations around the world so users are served from somewhere near them. Its origin is S3 when the site is only files, and the ALB when servers build the pages. Its certificate must be in us-east-1."),
     "AWS Global Accelerator": (r"Global Accelerator",
         "Two fixed IP addresses routing over the AWS backbone to the nearest healthy region. No caching, and any protocol, not just web."),
     "Application Load Balancer (ALB)": (r"Application Load Balancer|\bALB\b",
@@ -678,14 +678,14 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "with a role or a grant rather than a copy of the data."),
 
     # ---------------- management ----------------
-    "Amazon CloudWatch": (r"CloudWatch",
-        "Collects metrics, logs and alarms, and tells you how things are performing. Memory and disk space are not collected unless you install the agent."),
+    "Amazon CloudWatch": (r'CloudWatch',
+        "Watches how things are running: metrics, logs and alarms. Think a health check. Memory and disk space are not collected unless you install the agent. It does not say who made a change; that is CloudTrail."),
     "CloudWatch Container Insights": (r"Container Insights",
         "CloudWatch's ready-made monitoring for containers on EKS, ECS and Kubernetes on EC2. It collects, aggregates and summarises metrics and logs from the cluster, its nodes, pods and services, and shows them on built-in dashboards. On EKS it is installed as an add-on that runs the CloudWatch agent and Fluent Bit on every node. The answer when a question wants metrics and logs from containers or microservices in one place, most operationally efficiently. The plain CloudWatch agent collects from a server, but does not understand pods and services or summarise them, so it is more to build. CloudTrail records API calls, not application logs."),
     "EKS logging": (r"(?:EKS|Kubernetes)[\s\S]{0,300}?\blogs?\b|control plane log|Fluent ?Bit|Fluentd",
         "Logs from an EKS cluster come from two places. The control plane (the part AWS runs: the API server, audit, authenticator, controller manager and scheduler) sends its logs to CloudWatch Logs once you switch each type on, in the console or with aws eks update-cluster-config --logging; they are off by default and nothing is installed. Node and application logs come from the cluster itself: Fluent Bit (or the older Fluentd) runs on every node as a DaemonSet (one copy per node) and sends container logs to CloudWatch Logs. CloudWatch Container Insights sets that up for you and adds metrics and dashboards, which makes it the least-effort answer for 'collect, aggregate and summarise metrics and logs'."),
-    "AWS CloudTrail": (r"CloudTrail",
-        "Records who called which AWS API, when, and from where. The audit trail, as opposed to CloudWatch's performance view."),
+    "AWS CloudTrail": (r'CloudTrail',
+        "Records who called which AWS API, when, and from where: who deleted a bucket, who changed a rule. Think footprints. It never records network traffic; that is VPC Flow Logs. It never measures health; that is CloudWatch."),
     "AWS Config": (r'AWS Config',
         "Records how resources are set up and checks them against rules. It finds a wrong setting after it happens, and can fix it with Systems Manager. It never stops the setting being made."),
     "AWS CloudFormation": (r"CloudFormation",
@@ -857,6 +857,14 @@ GLOSSARY: dict[str, tuple[str, str]] = {
         "EventBridge can keep a copy of events for a set number of days, or for ever, and replay them later. It is a setting, not code. SQS cannot keep anything past 14 days."),
     "AI services by job": (r'Comprehend|Textract|Amazon Translate|Transcribe|Rekognition|\bPolly\b',
         "Comprehend reads meaning in text: sentiment, entities, key phrases. Translate changes language. Textract pulls text out of scanned forms. Transcribe turns speech into text, Polly text into speech, Rekognition reads images and video."),
+
+    "Gateway endpoint": (r'gateway (VPC )?endpoint|VPC gateway endpoint',
+        "A line in the route table that sends S3 or DynamoDB traffic over the AWS network. Free. It is the most secure way in from a private subnet: no internet, no NAT. A security group or network ACL cannot do this job. They only filter, they make no path, and they see addresses, not tables or buckets."),
+    "Endpoint policy": (r'endpoint polic(y|ies)',
+        "A policy on the endpoint that says what may go through it: which tables, buckets or actions. Pair it with a bucket or table policy that requires aws:sourceVpce, so the data can only be reached through that endpoint."),
+
+    "Egress-only internet gateway": (r'egress-only',
+        "The IPv6 way out of a private subnet. It lets servers start connections out and refuses any started from outside. It attaches to the VPC, in no subnet, and costs nothing by the hour. IPv6 needs no NAT, because every IPv6 address is public. For IPv4 the way out is a NAT gateway, which sits in a public subnet."),
 
 }
 

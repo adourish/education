@@ -120,9 +120,9 @@ REMEMBER: dict[str, str] = {
     # ---------------- networking ----------------
     "Amazon VPC": "Your own network: address range, subnets, routes.",
     "Subnet": "One zone each. Public only if its route table points at an internet gateway.",
-    "Security group": "Allow only, stateful, per instance, from another group by id. Cannot deny.",
-    "Network ACL": "The only one that can deny. Stateless, per subnet, both directions.",
-    "NAT gateway": "Private subnets out, never in. One per zone in production; IPv6 uses egress-only instead.",
+    "Security group": "Allow only, stateful, per instance, from another group by id. Cannot deny. A filter, never a path.",
+    "Network ACL": "The only one that can deny. Stateless, per subnet, both directions. A filter, never a path.",
+    "NAT gateway": "IPv4 out, never in. Sits in a public subnet; the private route points at it. One per zone in production.",
     "Internet gateway": "One per VPC, in no zone, in and out. One per zone or per subnet is wrong.",
     "Route table": "Where a subnet's traffic goes. One per private subnet, each to its own zone's NAT.",
     "Shared route table": "A shared route table sends every zone through one NAT gateway. One table per private subnet.",
@@ -137,11 +137,11 @@ REMEMBER: dict[str, str] = {
     "Route 53 routing policies": "Latency: fastest. Geolocation: by country. Failover: a standby with a health check. Weighted: a share.",
     "Simple against multivalue answer": "Several addresses and health checks, no load balancer: multivalue. Simple checks nothing.",
     "Amazon Route 53": "DNS that answers differently by latency, place, weight or health.",
-    "Amazon CloudFront": "Users everywhere, cacheable content: one Region behind CloudFront, not many Regions.",
+    "Amazon CloudFront": "Users everywhere: one Region behind CloudFront. Runs in the browser, only files: S3 origin, no servers.",
     "AWS Global Accelerator": "UDP or TCP, gaming, VoIP, fixed IPs, many Regions: Global Accelerator. Caches nothing.",
     "Application Load Balancer (ALB)": "Paths, headers, cookies, WAF, Cognito login: ALB. No fixed IP.",
     "Network Load Balancer (NLB)": "Fixed IP, TCP or UDP, PrivateLink, millions of requests: NLB. WAF cannot attach.",
-    "VPC Flow Logs": "Which traffic was allowed or rejected: Flow Logs. Not API calls; that is CloudTrail.",
+    "VPC Flow Logs": "Network traffic, allowed or rejected: Flow Logs. To OpenSearch: CloudWatch Logs, then Firehose.",
     "IPv4 and IPv6": "IPv6 is all public: private-but-outbound is the egress-only internet gateway. NAT, gateway endpoint, Elastic IP: IPv4 only.",
     "Elastic IP": "A fixed public IPv4 address you can move between instances.",
     "CIDR block": "/24 is 256 addresses, /16 is 65,536, /32 is one. AWS keeps five per subnet.",
@@ -159,7 +159,7 @@ REMEMBER: dict[str, str] = {
     "AWS IAM Identity Center": "Staff with company logins across every account: Identity Center. Not for app users.",
     "AWS Secrets Manager": "A password that must rotate itself: Secrets Manager. Hardcoded credentials: this.",
     "SSM Parameter Store": "A setting, or a secret with no rotation, free: Parameter Store.",
-    "AWS Certificate Manager (ACM)": "Free public certificates, DNS validation: ACM. CloudFront needs it in us-east-1.",
+    "AWS Certificate Manager (ACM)": "Free public certificates: ACM. CloudFront needs one in us-east-1, so another Region's certificate is not reused.",
     "WAF IP set": "A known list of good or bad addresses: a WAF IP set rule.",
     "AWS Network Firewall": "Filters a VPC's traffic by address, port, domain: Network Firewall. Not web requests.",
     "AWS WAF": "Rules on web requests: WAF. On CloudFront, ALB, API Gateway. Never an NLB.",
@@ -211,10 +211,10 @@ REMEMBER: dict[str, str] = {
     "Amazon SageMaker": "Machine learning: build, train, run models. Give it permission to the data, not a copy.",
 
     # ---------------- management ----------------
-    "Amazon CloudWatch": "Metrics, logs, alarms. Memory and disk need the agent.",
+    "Amazon CloudWatch": "Watch = health: metrics, logs, alarms. Memory and disk need the agent.",
     "CloudWatch Container Insights": "Metrics and logs from containers or microservices, summarised in one place: Container Insights.",
     "EKS logging": "Control plane: switch on, goes to CloudWatch Logs. Pods and nodes: Fluent Bit, or Container Insights.",
-    "AWS CloudTrail": "Who called which API, when: CloudTrail. Never flow logs.",
+    "AWS CloudTrail": "Trail = footprints: who called which API, when. Never traffic; that is Flow Logs.",
     "AWS Config": "What changed and whether it is allowed: Config. Finds and fixes; never prevents.",
     "AWS CloudFormation": "Build the same stack again from a template: CloudFormation.",
     "AWS Systems Manager": "Patch, run commands, shell in with no open port: Systems Manager.",
@@ -294,6 +294,11 @@ REMEMBER: dict[str, str] = {
     "RDS automated backups": "Keep an automated snapshot past 35 days: copy it, and the copy is manual.",
     "EventBridge archive": "Keep messages for N days and replay them, no code: EventBridge archive.",
     "AI services by job": "Sentiment, entities: Comprehend. Scanned forms: Textract. Language: Translate. Images: Rekognition.",
+
+    "Gateway endpoint": "Private Lambda to DynamoDB or S3, most secure: gateway endpoint. A security group only filters; it makes no path.",
+    "Endpoint policy": "Limit what goes through the endpoint: endpoint policy. Make the bucket refuse all else: aws:sourceVpce.",
+
+    "Egress-only internet gateway": "IPv6 out, never in. On the VPC, in no subnet, free. IPv4 uses a NAT gateway instead.",
 
 }
 

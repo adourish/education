@@ -111,7 +111,15 @@ after; *never prevents* (that is an SCP). Custom rule + Lambda for the rest.
 
 **CloudTrail**
 match: CloudTrail
-*Who called what, when.* Never flow logs.
+- Trail = *footprints*: who called which API, when.
+- Example: who deleted the bucket.
+- Never network traffic. That is *VPC Flow Logs*.
+
+**CloudWatch**
+match: CloudWatch(?! Network)
+- Watch = *health*: metrics, logs, alarms.
+- Example: CPU is too high, send an alarm.
+- Memory and disk space need the *CloudWatch agent*.
 
 **The rest**
 match: Access Analyzer|Security Hub|Detective|Trusted Advisor
@@ -144,6 +152,7 @@ The only one with *deny*. Block an address, or one subnet from another.
 **Security group**
 match: security group
 *Allow only*, stateful, instance level. *From another group by id.*
+A filter, not a path: reaching DynamoDB privately is a *gateway endpoint*.
 
 **Network Firewall**
 match: Network Firewall
