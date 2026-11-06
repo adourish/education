@@ -1146,6 +1146,16 @@ DECISIONS: list[dict] = [
             ("one account sees every account's findings", "A delegated administrator account"),
             ("check settings against your rules, then fix or tell", "Config rule, then SSM remediation or Lambda"),
             ("mask personal data before it lands in S3", "Firehose, with a Lambda transform"),
+            ("mask PII before it is stored, data arrives by Firehose", "A Lambda transform on the Firehose stream"),
+            ("find PII already sitting in S3", "Macie"),
+        ],
+        "kinds": [
+            ("Personal data (PII): when and how", [
+                ("Macie", "after: finds PII already in S3; reports, never changes it"),
+                ("Firehose + Lambda", "before: masks each record on the way in"),
+                ("S3 Object Lambda", "on read: one app sees a masked copy"),
+                ("EventBridge + Lambda", "acts on a Macie finding: delete or move"),
+            ]),
         ],
         "traps": [
             "GuardDuty reads CloudTrail, VPC Flow Logs and DNS logs without you "
@@ -1162,6 +1172,8 @@ DECISIONS: list[dict] = [
             "CloudTrail records API calls, not DNS lookups. What Route 53 answered is query logging.",
             "Inspector finds flaws but never patches; patched AMIs for an Auto Scaling group come from EC2 Image Builder.",
             "A Security Hub custom action is a button a person presses, so an automatic response is an EventBridge rule and Lambda.",
+            "'Before storing' rules out Macie. Macie only looks at objects already in S3, so the PII would already be stored.",
+            "Encryption is not masking. Encrypted PII is still PII to anyone allowed to decrypt it. CloudHSM holds keys; it never finds PII.",
         ],
     },
 

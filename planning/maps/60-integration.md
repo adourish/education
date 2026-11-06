@@ -43,8 +43,9 @@ way: *Managed Service for Apache Flink*. Many readers, each low latency:
 
 **Data Firehose**
 match: Firehose
-*Straight into S3, Redshift, OpenSearch*, no code, no replay. A Lambda can
-transform on the way (mask PII).
+- *Straight into S3, Redshift, OpenSearch*, no code, no replay.
+- A *Lambda transform* changes records on the way in.
+- Mask PII *before* it is stored: this, not Macie.
 
 **Step Functions**
 match: Step Functions|state machine|log level

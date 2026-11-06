@@ -91,10 +91,12 @@ or request limit: *Bucket Key*.
 
 **Personal data (Macie)**
 match: Macie|Object Lambda|sensitive data discovery
-Watch buckets all the time: *Macie automated sensitive data discovery*. A
-one-off look: *a classification job*. Act on a finding: *EventBridge rule,
-Lambda removes it*. Serve it to one app with the PII masked, no copy:
-*Object Lambda*. Macie only finds; it never changes an object.
+- Macie finds PII *after* it is in S3. It never masks or changes it.
+- Mask *before* storing, data arrives by Firehose: *Firehose + Lambda*.
+- Watch buckets all the time: *automated sensitive data discovery*.
+- A one-off look: *a classification job*.
+- Act on a finding: *EventBridge rule, Lambda removes it*.
+- One app sees a masked copy, no second object: *S3 Object Lambda*.
 
 **Faster**
 match: Transfer Acceleration|multipart|Express One Zone
