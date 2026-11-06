@@ -97,7 +97,8 @@ match: GuardDuty
 
 **Macie**
 match: Macie
-*Personal data in S3.* Only S3.
+- Finds *personal data already in S3*. Only S3.
+- Never masks. Mask before storing: *Firehose + Lambda*.
 
 **Inspector**
 match: Inspector
